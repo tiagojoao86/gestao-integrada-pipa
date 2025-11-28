@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.grupopipa</groupId>
-	<artifactId>gestao-integrada</artifactId>
+	<artifactId>gestao-integrada-pipa</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gestao-integrada</name>
+	<name>gestao-integrada-pipa</name>
 	<description>Sistema de Gestão Integrada Grupo Pipa</description>
 
 	<properties>

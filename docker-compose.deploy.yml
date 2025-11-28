@@ -6,8 +6,8 @@ version: '3.8'
 services:
   # Nginx Proxy com SSL/HTTPS
   nginx-proxy:
-    image: ${DOCKERHUB_USERNAME}/gestao-integrada-nginx-proxy:${IMAGE_TAG:-latest}
-    container_name: gestao-integrada-nginx-proxy
+    image: ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-nginx-proxy:${IMAGE_TAG:-latest}
+    container_name: gestao-integrada-pipa-nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -27,8 +27,8 @@ services:
 
   # Frontend (Angular + Nginx)
   frontend:
-    image: ${DOCKERHUB_USERNAME}/gestao-integrada-frontend:${IMAGE_TAG:-latest}
-    container_name: gestao-integrada-frontend
+    image: ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-frontend:${IMAGE_TAG:-latest}
+    container_name: gestao-integrada-pipa-frontend
     restart: unless-stopped
     expose:
       - "80"
@@ -39,8 +39,8 @@ services:
 
   # Backend (Spring Boot)
   backend:
-    image: ${DOCKERHUB_USERNAME}/gestao-integrada-backend:${IMAGE_TAG:-latest}
-    container_name: gestao-integrada-backend
+    image: ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-backend:${IMAGE_TAG:-latest}
+    container_name: gestao-integrada-pipa-backend
     restart: unless-stopped
     expose:
       - "8080"
@@ -54,9 +54,9 @@ services:
 
 volumes:
   letsencrypt:
-    name: gestao-integrada-letsencrypt
+    name: gestao-integrada-pipa-letsencrypt
   certbot-www:
-    name: gestao-integrada-certbot-www
+    name: gestao-integrada-pipa-certbot-www
 
 networks:
   app-network:

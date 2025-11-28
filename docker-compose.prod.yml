@@ -6,7 +6,7 @@ services:
     build:
       context: ./nginx-proxy
       dockerfile: Dockerfile
-    container_name: gestao-integrada-nginx-proxy
+    container_name: gestao-integrada-pipa-nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -29,7 +29,7 @@ services:
     build:
       context: ./src/frontend
       dockerfile: Dockerfile
-    container_name: gestao-integrada-frontend
+    container_name: gestao-integrada-pipa-frontend
     restart: unless-stopped
     expose:
       - "80"
@@ -43,7 +43,7 @@ services:
     build:
       context: ./src/backend
       dockerfile: Dockerfile
-    container_name: gestao-integrada-backend
+    container_name: gestao-integrada-pipa-backend
     restart: unless-stopped
     expose:
       - "8080"
@@ -57,9 +57,9 @@ services:
 
 volumes:
   letsencrypt:
-    name: gestao-integrada-letsencrypt
+    name: gestao-integrada-pipa-letsencrypt
   certbot-www:
-    name: gestao-integrada-certbot-www
+    name: gestao-integrada-pipa-certbot-www
 
 networks:
   app-network:

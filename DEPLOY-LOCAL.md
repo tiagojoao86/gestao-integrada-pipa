@@ -95,9 +95,9 @@ sudo chown $USER:$USER /opt/gestao-integrada
 cd /opt/gestao-integrada
 
 # Baixar arquivos necessários
-wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada/main/docker-compose.deploy.yml
-wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada/main/deploy.sh
-wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada/main/.env.example
+wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada-pipa/main/docker-compose.deploy.yml
+wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada-pipa/main/deploy.sh
+wget https://raw.githubusercontent.com/tiagojoao86/gestao-integrada-pipa/main/.env.example
 
 # Dar permissão de execução
 chmod +x deploy.sh
@@ -177,9 +177,9 @@ docker-compose -f docker-compose.local.yml logs -f
 ```
 
 **Containers esperados:**
-- ✅ `gestao-integrada-nginx-proxy` (running)
-- ✅ `gestao-integrada-frontend` (running)
-- ✅ `gestao-integrada-backend` (running)
+- ✅ `gestao-integrada-pipa-nginx-proxy` (running)
+- ✅ `gestao-integrada-pipa-frontend` (running)
+- ✅ `gestao-integrada-pipa-backend` (running)
 - ✅ `gestao-integrada-postgres` (running)
 
 ### 7️⃣ Aguardar Inicialização
@@ -188,7 +188,7 @@ O backend demora um pouco para iniciar (Flyway executa migrations). Acompanhe:
 
 ```bash
 # Ver logs do backend
-docker logs -f gestao-integrada-backend
+docker logs -f gestao-integrada-pipa-backend
 ```
 
 **Aguarde até ver:**
@@ -236,9 +236,9 @@ docker-compose -f docker-compose.local.yml restart
 
 ### Ver logs de um container específico
 ```bash
-docker logs -f gestao-integrada-backend
-docker logs -f gestao-integrada-frontend
-docker logs -f gestao-integrada-nginx-proxy
+docker logs -f gestao-integrada-pipa-backend
+docker logs -f gestao-integrada-pipa-frontend
+docker logs -f gestao-integrada-pipa-nginx-proxy
 docker logs -f gestao-integrada-postgres
 ```
 
@@ -303,7 +303,7 @@ sudo netstat -tulpn | grep -E ':(80|443)'
 ### Backend não inicia / erro de conexão com banco
 **Verificar logs:**
 ```bash
-docker logs gestao-integrada-backend
+docker logs gestao-integrada-pipa-backend
 ```
 **Causas comuns:**
 - Senha do banco incorreta no `.env`
@@ -377,7 +377,7 @@ Veja `DEPLOY.md` para instruções completas de produção.
 ```bash
 # 1. Preparação
 cd /opt
-sudo git clone https://github.com/tiagojoao86/gestao-integrada.git
+sudo git clone https://github.com/tiagojoao86/gestao-integrada-pipa.git
 cd gestao-integrada
 sudo chown -R $USER:$USER /opt/gestao-integrada
 
@@ -400,7 +400,7 @@ docker-compose -f docker-compose.local.yml up -d
 
 # 5. Verificar
 docker-compose -f docker-compose.local.yml ps
-docker logs -f gestao-integrada-backend
+docker logs -f gestao-integrada-pipa-backend
 
 # 6. Acessar
 # https://192.168.3.200
