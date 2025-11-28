@@ -1,0 +1,52 @@
+#permissoes-table th,
+#permissoes-table td {
+  padding: 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-d);
+  font-size: var(--text-size); /* Aplicar tamanho padrão de fonte */
+}
+
+#permissoes-table th {
+  font-weight: 600;
+}
+
+/* Largura da primeira coluna (Módulo) */
+#permissoes-table th:first-child,
+#permissoes-table td:first-child {
+  width: 40%;
+}
+
+/* Largura e centralização das colunas de permissão */
+#permissoes-table th:not(:first-child),
+#permissoes-table td:not(:first-child) {
+  width: 15%; /* (100% - 40%) / 4 = 15% */
+  text-align: center;
+}
+
+/* Centraliza o conteúdo dentro da célula, incluindo o checkbox */
+#permissoes-table td {
+  vertical-align: middle;
+}
+
+/* Estilo para os labels dos checkboxes */
+#permissoes-table td .p-checkbox + label {
+  font-size: var(--text-size);
+}
+
+/* Estilo para os cabeçalhos de grupo */
+.group-header-row td strong {
+  font-size: var(--text-size);
+}
+
+
+.permissoes-container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  max-height: 65vh; /* Limita a altura a 65% da altura da janela */
+  overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
+}
+
+#permissoes-table tbody tr.even-row {
+  background-color: var(--item-transparency) !important; /* Forçar aplicação do zebra striping */
+}

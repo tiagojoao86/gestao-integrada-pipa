@@ -1,0 +1,26 @@
+<p-table [value]="dataSource" sortMode="multiple" [resizableColumns]="true" (onSort)="sortChange($event.multisortmeta)" [lazy]="true">
+    <ng-template #header>
+        <tr>
+            <th *ngFor="let col of columnDefinition" [pSortableColumn]="col.name" pResizableColumn>
+                <span class="header">{{ col.label }}</span><p-sortIcon [field]="col.name" />
+            </th>
+            <th *ngIf="actions" i18n>Ações</th>
+        </tr>        
+    </ng-template>
+    <ng-template #body let-rowData let-columns="columnDefinition">
+        <tr>
+            <td *ngFor="let col of columnDefinition">
+                {{ col.getValue(rowData) }}
+            </td>
+            <td *ngIf="actions">
+                <div class="actions">
+                    <ng-container *ngFor="let action of actions">
+                        <p-button (click)="action.action(rowData)">
+                            <span class="material-icons table-icon">{{action.icon}}</span>
+                        </p-button>
+                    </ng-container>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

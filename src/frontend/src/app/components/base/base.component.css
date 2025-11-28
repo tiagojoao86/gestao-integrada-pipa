@@ -1,0 +1,50 @@
+.toolbar-base {
+  height: 50px;
+  padding: 4px 3px 0px 0px;
+  margin-top: 5px;
+  background-color: var(--toolbar);
+  color: var(--text-color);
+
+  ::ng-deep .p-toolbar {
+    background-color: transparent !important;
+    padding: 4px 3px 0px 3px;
+    border: none;
+  }
+
+  .titulo {
+    flex-grow: 1;
+    font-size: var(--titulo-size);
+    font-weight: 500;
+    color: var(--text-color);
+    padding: 0px 5px;
+    margin-left: 1px;
+  }
+
+  .acoes {
+    display: flex;
+  }
+}
+
+.body-base {
+  background-color: var(--content);
+  color: var(--text-color);
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0.5rem;
+  flex-grow: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.footer-base {
+  background-color: var(--toolbar);
+  color: var(--text-color);
+  min-height: 5%;
+  padding: 5px;
+}
+
+.component-base {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

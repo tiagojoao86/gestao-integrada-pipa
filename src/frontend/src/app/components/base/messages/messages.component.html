@@ -1,0 +1,10 @@
+<div class="message" [class]="getClass()" *ngIf="show">
+  <div class="text">
+    <p *ngFor="let message of messages">{{ message }}</p>
+  </div>
+  <div class="button">
+    <button pButton (click)="closeMessage()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+</div>

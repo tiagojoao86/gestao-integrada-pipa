@@ -1,0 +1,64 @@
+.message {
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  justify-items: center;
+
+  .text {
+    padding-left: 10px;
+    width: 100%;
+  }
+
+  .button {
+    padding-right: 8px;
+  }
+}
+
+.info-message {
+  background-color: var(--info-color);
+  color: var(--inverted-text-color);
+
+  .button {
+    button {
+      background-color: var(--transparent) !important;
+      color: var(--inverted-text-color) !important;
+    }
+  }
+}
+
+.success-message {
+  background-color: var(--success-color);
+  color: var(--inverted-text-color);
+
+  .button {
+    button {
+      background-color: var(--transparent) !important;
+      color: var(--inverted-text-color) !important;
+    }
+  }
+}
+
+.warning-message {
+  background-color: var(--warning-color);
+  color: var(--text-color);
+
+  .button {
+    button {
+      background-color: var(--transparent) !important;
+      color: var(--text-color) !important;
+    }
+  }
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: var(--inverted-text-color);
+
+  .button {
+    button {
+      background-color: var(--transparent) !important;
+      color: var(--inverted-text-color) !important;
+    }
+  }
+}

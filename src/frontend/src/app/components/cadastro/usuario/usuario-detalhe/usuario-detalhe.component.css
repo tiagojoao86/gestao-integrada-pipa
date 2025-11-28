@@ -1,0 +1,74 @@
+.detail-columns {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.left-column {
+  flex: 1 1 0;
+}
+
+.right-column {
+  flex: 1 1 0;  
+  padding: 0.2rem !important;
+}
+
+.perfis-column {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: thin;
+  border-color: var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  font-size: var(--text-size);
+}
+
+.perfis-column .perfis-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: normal;
+}
+
+.perfis-column p-autoComplete {
+  width: 100%;
+}
+
+.perfis-list {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+}
+.perfis-list {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+}
+
+.perfis-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.perfis-list li span {
+  flex: 1 1 auto;
+}
+
+.perfis-list li .btn-add,
+.perfis-list li .btn-remove {
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.perfis-list li .btn-add {
+  background-color: var(--success-color);
+  color: #fff;
+}
+
+.perfis-list li .btn-remove {
+  background-color: var(--error-color);
+  color: #fff;
+}

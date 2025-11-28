@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Nginx Proxy com SSL/HTTPS (Let's Encrypt)
+  nginx-proxy:
+    build:
+      context: ./nginx-proxy
+      dockerfile: Dockerfile
+    container_name: gestao-integrada-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - EMAIL=${EMAIL}
+    volumes:
+      # Persistir certificados SSL
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  # Frontend (Angular + Nginx interno)
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: gestao-integrada-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - BACKEND_URL=http://backend:8080
+    networks:
+      - app-network
+
+  # Backend (Spring Boot)
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: gestao-integrada-backend
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${DATABASE_URL}
+      - SPRING_DATASOURCE_USERNAME=${DATABASE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - app-network
+
+volumes:
+  letsencrypt:
+    name: gestao-integrada-letsencrypt
+  certbot-www:
+    name: gestao-integrada-certbot-www
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,60 @@
+.filtro-component {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.titulo {
+  font-size: var(--subtitulo-size);
+  margin-bottom: 0.75rem;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-bottom: 0.75rem;
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.2rem;
+    width: 49.8%;
+    background-color: var(--main-toolbar);
+
+    .label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--text-size);
+      gap: 0.5rem;
+      .nome {
+        margin-left: 0.2rem;
+        font-weight: 500;
+      }
+    }
+
+    .valores {
+      flex-grow: 1;
+      display: flex;
+      justify-content: start;
+      gap: 0.2rem;
+    }
+  }
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.seletor {
+  display: flex;
+  margin-bottom: 0.75rem;
+  gap: 0.2rem;
+}

@@ -1,0 +1,21 @@
+.recurso-grupo {    
+    padding: 10px 10px 10px 10px;
+    background-color: var(--main-toolbar);
+    border: 1px solid var(--border-color);
+
+    .grupo-nome {
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        font-size: var(--subtitulo-size);
+        padding-bottom: 2px;
+        padding-left: 10px;
+        font-weight: 500;
+    }
+    
+    .grupo-itens {
+        display: flex;
+        flex-direction: row;
+        margin-top: 5px;
+        padding: 0px 0px;
+    }
+}

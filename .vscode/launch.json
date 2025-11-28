@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Angular: Debug (Chrome)",
+      "type": "chrome", // ou "msedge" se estiver usando o Edge
+      "request": "launch",
+      "url": "http://localhost/",
+      "webRoot": "${workspaceFolder}/src/frontend"
+    },
+    {
+      "type": "java",
+      "name": "GestaoIntegradaApplication",
+      "request": "launch",
+      "mainClass": "br.com.grupopipa.gestaointegrada.GestaoIntegradaApplication",
+      "vmArgs": "-Dorg.hibernate.type.descriptor.sql.BasicBinder=TRACE -Dlogging.level.org.hibernate.orm.jdbc.bind=TRACE",
+      "projectName": "gestao-integrada"
+    }
+  ]
+}

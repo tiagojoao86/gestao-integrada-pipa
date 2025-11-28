@@ -1,0 +1,24 @@
+<gi-app-base [title]="titulo" [actions]="acoesTela" style="flex-grow: 1">
+  <div body-content>
+    <gi-filter-component
+      [filters]="filtros"
+      [hidden]="hideFilters"
+      (doFilter)="filtrar($event)"
+      (doCancel)="cancelar()"
+    ></gi-filter-component>
+    <gi-table-component
+      [columnDefinition]="colunas"
+      [dataSource]="perfisList"
+      [actions]="acoesTabela"
+      (sortingEvent)="ordenar($event)"
+    ></gi-table-component>
+  </div>
+
+  <div footer-content>
+    <gi-paginator-component
+      (paginationEvent)="paginar($event)"
+      [itemsPerPage]="itensPorPagina"
+      [totalRegisters]="totalElements"
+    ></gi-paginator-component>
+  </div>
+</gi-app-base>
