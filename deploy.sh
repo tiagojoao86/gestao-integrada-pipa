@@ -88,17 +88,17 @@ print_info "Baixando imagens do Docker Hub..."
 
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
-docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-frontend:${IMAGE_TAG} || {
+docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-frontend:${IMAGE_TAG} || {
     print_error "Falha ao baixar imagem do frontend"
     exit 1
 }
 
-docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-backend:${IMAGE_TAG} || {
+docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-backend:${IMAGE_TAG} || {
     print_error "Falha ao baixar imagem do backend"
     exit 1
 }
 
-docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-nginx-proxy:${IMAGE_TAG} || {
+docker pull ${DOCKERHUB_USERNAME}/gestao-integrada-pipa-nginx-proxy:${IMAGE_TAG} || {
     print_error "Falha ao baixar imagem do nginx-proxy"
     exit 1
 }
@@ -148,9 +148,9 @@ echo "  docker-compose -f docker-compose.deploy.yml logs -f"
 echo ""
 
 print_info "Para ver logs de um container específico:"
-echo "  docker logs -f gestao-integrada-frontend"
-echo "  docker logs -f gestao-integrada-backend"
-echo "  docker logs -f gestao-integrada-nginx-proxy"
+echo "  docker logs -f gestao-integrada-pipa-frontend"
+echo "  docker logs -f gestao-integrada-pipa-backend"
+echo "  docker logs -f gestao-integrada-pipa-nginx-proxy"
 echo ""
 
 ###############################################################################

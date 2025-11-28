@@ -59,7 +59,7 @@ sudo firewall-cmd --reload
 
 ```bash
 cd /opt
-sudo git clone https://github.com/tiagojoao86/gestao-integrada.git
+sudo git clone https://github.com/tiagojoao86/gestao-integrada-pipa.git
 cd gestao-integrada
 ```
 
@@ -114,13 +114,13 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ```bash
 # Ver logs do nginx-proxy (certificado SSL)
-docker logs gestao-integrada-nginx-proxy
+docker logs gestao-integrada-pipa-nginx-proxy
 
 # Ver logs do backend
-docker logs gestao-integrada-backend
+docker logs gestao-integrada-pipa-backend
 
 # Ver logs do frontend
-docker logs gestao-integrada-frontend
+docker logs gestao-integrada-pipa-frontend
 
 # Ver status dos containers
 docker-compose -f docker-compose.prod.yml ps
@@ -180,13 +180,13 @@ Os certificados são renovados automaticamente a cada 12 horas pelo certbot.
 Se necessário renovar manualmente:
 
 ```bash
-docker exec gestao-integrada-nginx-proxy certbot renew
-docker exec gestao-integrada-nginx-proxy nginx -s reload
+docker exec gestao-integrada-pipa-nginx-proxy certbot renew
+docker exec gestao-integrada-pipa-nginx-proxy nginx -s reload
 ```
 
 ### Verificar Certificados
 ```bash
-docker exec gestao-integrada-nginx-proxy certbot certificates
+docker exec gestao-integrada-pipa-nginx-proxy certbot certificates
 ```
 
 ## 🐛 Troubleshooting
@@ -207,7 +207,7 @@ nslookup seudominio.com.br
 sudo netstat -tulpn | grep -E ':(80|443)'
 
 # Verificar logs
-docker logs gestao-integrada-nginx-proxy
+docker logs gestao-integrada-pipa-nginx-proxy
 ```
 
 ### Erro: "Backend não responde"
@@ -215,10 +215,10 @@ docker logs gestao-integrada-nginx-proxy
 **Verificar:**
 ```bash
 # Ver logs do backend
-docker logs gestao-integrada-backend
+docker logs gestao-integrada-pipa-backend
 
 # Verificar conectividade com banco
-docker exec gestao-integrada-backend nc -zv seu-servidor-db 5432
+docker exec gestao-integrada-pipa-backend nc -zv seu-servidor-db 5432
 ```
 
 ### Erro: "502 Bad Gateway"
@@ -231,7 +231,7 @@ docker exec gestao-integrada-backend nc -zv seu-servidor-db 5432
 docker-compose -f docker-compose.prod.yml restart backend
 
 # Verificar logs
-docker logs -f gestao-integrada-backend
+docker logs -f gestao-integrada-pipa-backend
 ```
 
 ## 📊 Monitoramento
@@ -247,7 +247,7 @@ docker stats
 docker-compose -f docker-compose.prod.yml logs -f
 
 # Container específico
-docker logs -f gestao-integrada-backend
+docker logs -f gestao-integrada-pipa-backend
 ```
 
 ## 🔒 Segurança
@@ -263,10 +263,10 @@ docker logs -f gestao-integrada-backend
 ### Backup do Banco de Dados
 ```bash
 # Criar backup
-docker exec -t gestao-integrada-backend pg_dump -U seu_usuario gestao_integrada_db > backup_$(date +%Y%m%d).sql
+docker exec -t gestao-integrada-pipa-backend pg_dump -U seu_usuario gestao_integrada_db > backup_$(date +%Y%m%d).sql
 
 # Restaurar backup
-cat backup_20250128.sql | docker exec -i gestao-integrada-backend psql -U seu_usuario gestao_integrada_db
+cat backup_20250128.sql | docker exec -i gestao-integrada-pipa-backend psql -U seu_usuario gestao_integrada_db
 ```
 
 ## 📞 Suporte
@@ -274,7 +274,7 @@ cat backup_20250128.sql | docker exec -i gestao-integrada-backend psql -U seu_us
 Em caso de problemas, consulte:
 - Logs dos containers: `docker logs <container_name>`
 - Documentação do projeto: `README.md`
-- Issues no GitHub: https://github.com/tiagojoao86/gestao-integrada/issues
+- Issues no GitHub: https://github.com/tiagojoao86/gestao-integrada-pipa/issues
 
 ---
 

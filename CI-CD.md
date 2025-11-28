@@ -119,7 +119,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 ```bash
 # No servidor
 cd /opt
-git clone https://github.com/tiagojoao86/gestao-integrada.git
+git clone https://github.com/tiagojoao86/gestao-integrada-pipa.git
 cd gestao-integrada
 
 # Copiar e editar .env
@@ -234,9 +234,9 @@ IMAGE_TAG=v0.9.0
 docker-compose -f docker-compose.deploy.yml logs -f
 
 # Log específico
-docker logs -f gestao-integrada-backend
-docker logs -f gestao-integrada-frontend
-docker logs -f gestao-integrada-nginx-proxy
+docker logs -f gestao-integrada-pipa-backend
+docker logs -f gestao-integrada-pipa-frontend
+docker logs -f gestao-integrada-pipa-nginx-proxy
 ```
 
 ### Verificar Status
@@ -310,10 +310,10 @@ docker-compose -f docker-compose.deploy.yml restart
 **Solução:**
 ```bash
 # Ver logs de erro
-docker logs gestao-integrada-backend
+docker logs gestao-integrada-pipa-backend
 
 # Verificar configuração
-docker inspect gestao-integrada-backend
+docker inspect gestao-integrada-pipa-backend
 ```
 
 ## 📚 Comandos Úteis
@@ -323,7 +323,7 @@ docker inspect gestao-integrada-backend
 docker search seu_username/gestao-integrada
 
 # Ver tags de uma imagem
-curl "https://registry.hub.docker.com/v2/repositories/seu_username/gestao-integrada-backend/tags"
+curl "https://registry.hub.docker.com/v2/repositories/seu_username/gestao-integrada-pipa-backend/tags"
 
 # Limpar imagens antigas no servidor
 docker image prune -a

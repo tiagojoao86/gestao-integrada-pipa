@@ -6,13 +6,13 @@ services:
     build:
       context: ./nginx-proxy
       dockerfile: Dockerfile.local
-    container_name: gestao-integrada-nginx-proxy
+    container_name: gestao-integrada-pipa-nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     environment:
-      - DOMAIN=${DOMAIN:-gestao-integrada.local}
+      - DOMAIN=${DOMAIN:-gestao-integrada-pipa.local}
     volumes:
       # Certificados SSL autoassinados
       - ./nginx-proxy/certs:/etc/nginx/certs
@@ -27,7 +27,7 @@ services:
     build:
       context: ./src/frontend
       dockerfile: Dockerfile
-    container_name: gestao-integrada-frontend
+    container_name: gestao-integrada-pipa-frontend
     restart: unless-stopped
     expose:
       - "80"
@@ -41,7 +41,7 @@ services:
     build:
       context: ./src/backend
       dockerfile: Dockerfile
-    container_name: gestao-integrada-backend
+    container_name: gestao-integrada-pipa-backend
     restart: unless-stopped
     expose:
       - "8080"
@@ -56,7 +56,7 @@ services:
   # PostgreSQL (para ambiente de testes local)
   postgres:
     image: postgres:16-alpine
-    container_name: gestao-integrada-postgres
+    container_name: gestao-integrada-pipa-postgres
     restart: unless-stopped
     environment:
       - POSTGRES_DB=${DATABASE_NAME:-gestao_integrada_db}
@@ -71,7 +71,7 @@ services:
 
 volumes:
   postgres-data:
-    name: gestao-integrada-postgres-data
+    name: gestao-integrada-pipa-postgres-data
 
 networks:
   app-network:

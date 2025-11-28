@@ -1,6 +1,6 @@
-# Projeto Gestão Integrada
+# Projeto Gestão Integrada Pipa
 
-Este é o projeto **Gestão Integrada**, um sistema completo que oferece funcionalidades de backend (API RESTful) e frontend (Single Page Application). O ambiente de desenvolvimento é orquestrado por um container Nginx que atua como proxy reverso, facilitando a comunicação entre o frontend e o backend.
+Este é o projeto **Gestão Integrada Pipa**, um sistema completo que oferece funcionalidades de backend (API RESTful) e frontend (Single Page Application). O ambiente de desenvolvimento é orquestrado por um container Nginx que atua como proxy reverso, facilitando a comunicação entre o frontend e o backend.
 
 ## Stack Tecnológica
 
@@ -47,9 +47,9 @@ Edite o arquivo `src/backend/src/main/resources/application.properties` e ajuste
 
 ```properties
 # Configurações da Aplicação
-spring.application.name=gestao-integrada
+spring.application.name=gestao-integrada-pipa
 server.port=8080
-server.servlet.context-path=/gestao-integrada/api
+server.servlet.context-path=/gestao-integrada-pipa/api
 
 # Configurações do Banco de Dados PostgreSQL
 # Ajuste 'localhost:5432', 'gestao_integrada_db', 'user' e 'password' conforme seu setup.
@@ -74,7 +74,7 @@ jwt.private.key=classpath:app.key
 jwt.public.key=classpath:app.pub
 ```
 *   **Atenção:** Certifique-se de que os valores `localhost`, `5432`, `gestao_integrada_db`, `user` e `password` na seção `spring.datasource` correspondam à sua configuração do PostgreSQL local.
-*   A configuração do `server.servlet.context-path` (`/gestao-integrada/api`) é crucial e deve corresponder à configuração do Nginx.
+*   A configuração do `server.servlet.context-path` (`/gestao-integrada-pipa/api`) é crucial e deve corresponder à configuração do Nginx.
 
 ### 3. Iniciar o Container Nginx
 
@@ -88,7 +88,7 @@ docker-compose up -d
 ```
 
 *   O Nginx estará disponível na porta `80` do seu `localhost`.
-*   Ele irá direcionar requisições para `http://host.docker.internal:4200` (Frontend Angular) e `http://host.docker.internal:8080/gestao-integrada/api/` (Backend Spring Boot). O `host.docker.internal` permite que o container Docker acesse serviços rodando diretamente na sua máquina host.
+*   Ele irá direcionar requisições para `http://host.docker.internal:4200` (Frontend Angular) e `http://host.docker.internal:8080/gestao-integrada-pipa/api/` (Backend Spring Boot). O `host.docker.internal` permite que o container Docker acesse serviços rodando diretamente na sua máquina host.
 
 ### 4. Iniciar o Backend (Spring Boot)
 

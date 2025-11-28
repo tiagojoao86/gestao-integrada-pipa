@@ -12,9 +12,9 @@ on:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-frontend
-  IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-backend
-  IMAGE_NGINX_PROXY: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-nginx-proxy
+  IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-frontend
+  IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-backend
+  IMAGE_NGINX_PROXY: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-nginx-proxy
 
 jobs:
   build-and-push:
