@@ -1,0 +1,26 @@
+.recurso {
+    width: 100px;
+    height: 100px;    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;    
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    padding: 15px 15px 15px 15px;
+
+    .nome {
+        margin-top: 5px;
+    }
+}
+
+.recurso:hover {    
+    color: var(--inverted-text-color);
+    background-color: var(--secondary-color);
+
+    i {
+        color: var(--inverted-text-color);
+    }
+
+}

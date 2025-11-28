@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Nginx Proxy com SSL autoassinado (para testes locais)
+  nginx-proxy:
+    build:
+      context: ./nginx-proxy
+      dockerfile: Dockerfile.local
+    container_name: gestao-integrada-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-gestao-integrada.local}
+    volumes:
+      # Certificados SSL autoassinados
+      - ./nginx-proxy/certs:/etc/nginx/certs
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  # Frontend (Angular + Nginx interno)
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: gestao-integrada-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - BACKEND_URL=http://backend:8080
+    networks:
+      - app-network
+
+  # Backend (Spring Boot)
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: gestao-integrada-backend
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${DATABASE_URL}
+      - SPRING_DATASOURCE_USERNAME=${DATABASE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - app-network
+
+  # PostgreSQL (para ambiente de testes local)
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestao-integrada-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME:-gestao_integrada_db}
+      - POSTGRES_USER=${DATABASE_USERNAME:-gestao_user}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-gestao_pass}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+    name: gestao-integrada-postgres-data
+
+networks:
+  app-network:
+    driver: bridge

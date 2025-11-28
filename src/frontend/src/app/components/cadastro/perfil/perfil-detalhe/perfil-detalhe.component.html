@@ -1,0 +1,50 @@
+<gi-app-base [title]="titulo" [actions]="acoesTela" [goBackFn]="goBackFn.bind(this)">
+  <div body-content>
+    <div class="form grid" [formGroup]="form">
+      <div class="col-12">
+        <p-iftalabel class="w-full">
+          <input pInputText id="nomePerfil" formControlName="nome" />
+          <label for="nomePerfil" i18n>Nome</label>
+          <small *ngIf="isControlInvalid('nome')" i18n>Esse campo não pode ser em branco.</small>
+        </p-iftalabel>
+      </div>
+
+      <div class="col-12">
+        <div class="permissoes-container">
+          <table id="permissoes-table" class="w-full">
+            <thead>
+              <tr>
+                <th i18n>Módulo</th>
+                <th i18n>Listar</th>
+                <th i18n>Visualizar</th>
+                <th i18n>Editar</th>
+                <th i18n>Excluir</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="permissoes">
+              <ng-container *ngFor="let grupo of getGrupos()">
+                <tr class="group-header-row">
+                  <td colspan="5"><strong>{{ grupo }}</strong></td>
+                </tr>
+                <ng-container *ngFor="let permissao of getPermissoesDoGrupo(grupo); let i = index; let even = even">
+                  <tr [formGroupName]="permissoes.controls.indexOf(permissao)" [class.even-row]="even">
+                    <td>
+                      <div class="flex align-items-center ml-2">
+                        <p-checkbox formControlName="selecionado" [binary]="true" [inputId]="'perm_sel_' + i" (onChange)="onSelecaoModuloChange(permissao, $event)"></p-checkbox>
+                        <label [for]="'perm_sel_' + i" class="ml-2">{{ permissao.get('moduloNome')?.value }}</label>
+                      </div>
+                    </td>
+                    <td><p-checkbox formControlName="podeListar" [binary]="true" [inputId]="'perm_listar_' + i"></p-checkbox></td>
+                    <td><p-checkbox formControlName="podeVisualizar" [binary]="true" [inputId]="'perm_visualizar_' + i"></p-checkbox></td>
+                    <td><p-checkbox formControlName="podeEditar" [binary]="true" [inputId]="'perm_editar_' + i"></p-checkbox></td>
+                    <td><p-checkbox formControlName="podeDeletar" [binary]="true" [inputId]="'perm_excluir_' + i"></p-checkbox></td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</gi-app-base>

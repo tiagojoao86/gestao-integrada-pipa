@@ -1,0 +1,19 @@
+name: Copilot Context
+
+on: [push, pull_request]
+
+jobs:
+  provide-context:
+    name: Provide Copilot/Gemini Context
+    runs-on: ubuntu-latest
+    env:
+      COPILOT_CUSTOM_INSTRUCTIONS_DIRS: "src/backend,src/frontend,.github/instructions"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show COPILOT dirs
+        run: |
+          echo "COPILOT_CUSTOM_INSTRUCTIONS_DIRS=$COPILOT_CUSTOM_INSTRUCTIONS_DIRS"
+          echo "Listing instruction files:"
+          ls -R src/backend src/frontend .github/instructions || true
+          echo "--- COPILOT_INSTRUCTIONS.md ---"
+          cat COPILOT_INSTRUCTIONS.md || true

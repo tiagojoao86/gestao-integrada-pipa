@@ -1,0 +1,2 @@
+<gi-perfil-grid *ngIf="viewMode === 'GRID'" (openDetail)="openDetail($event)"></gi-perfil-grid>
+<gi-perfil-detalhe *ngIf="viewMode === 'DETAIL'" [detailId]="detailId" (closeDetail)="toggleView();"></gi-perfil-detalhe>

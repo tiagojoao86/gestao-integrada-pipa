@@ -1,0 +1,24 @@
+<div class="paginator">
+  <div class="buttons">
+    <p-button (click)="firstPage()">
+      <span class="material-icons">first_page</span>
+    </p-button>
+    <p-button (click)="previousPage()">
+      <span class="material-icons">chevron_left</span>
+    </p-button>
+    <div class="info" i18n>Página {{ pageNumber + 1 }} de {{ getTotalPages() }}</div>
+    <p-button (click)="nextPage()">
+      <span class="material-icons">chevron_right</span>
+    </p-button>
+    <p-button (click)="lastPage()">
+      <span class="material-icons">last_page</span>
+    </p-button>
+  </div>
+  <div class="page-size-selector">
+    <span i18n>Itens por página: </span>
+          <p-select
+            [(ngModel)]="itemsPerPage"
+            [options]="itemsPerPageList"
+            (onChange)="changeItemsPerPage($event.value)"
+          />  </div>
+</div>

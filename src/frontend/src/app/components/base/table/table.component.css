@@ -1,0 +1,16 @@
+.header {
+    margin-right: 5px;
+}
+
+.table-icon {
+    color: var(--text-color);
+}
+
+.table-icon:hover {
+    color: var(--inverted-text-color);
+}
+
+.actions {
+    flex-grow: 1;
+    flex-shrink: 1;
+}

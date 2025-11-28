@@ -1,0 +1,20 @@
+FROM nginx:stable-alpine
+
+# Instalar openssl para trabalhar com certificados
+RUN apk add --no-cache openssl gettext
+
+# Criar diretórios necessários
+RUN mkdir -p /etc/nginx/certs
+
+# Copiar template de configuração
+COPY conf.d/app-local.conf.template /etc/nginx/templates/
+
+# Copiar script de inicialização
+COPY docker-entrypoint-local.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Expor portas
+EXPOSE 80 443
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

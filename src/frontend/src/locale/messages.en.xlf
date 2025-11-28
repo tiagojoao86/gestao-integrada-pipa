@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="pt" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="8331458230102334089" datatype="html">
+        <source>Título</source>
+        <target>Title</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/base.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7532911879405106084" datatype="html">
+        <source>Filtros</source>
+        <target>Filters</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">2,3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1911597348899395783" datatype="html">
+        <source>Adicionar filtro</source>
+        <target>Add filter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">5,6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2462727499013637753" datatype="html">
+        <source>Selecione um campo</source>
+        <target>Select a field</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3721878407138512647" datatype="html">
+        <source>Operador Lógico</source>
+        <target>Logical Operator</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">17,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6402951927316857780" datatype="html">
+        <source>Cancelar</source>
+        <target>Cancel</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5656265501179877938" datatype="html">
+        <source>Filtrar</source>
+        <target>Filter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
+          <context context-type="linenumber">62,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3608008600355791426" datatype="html">
+        <source>Página <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> de <x
+            id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></source>
+        <target>Page <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> of <x
+            id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/base/paginator/paginator.component.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1466953158612554229" datatype="html">
+        <source>Itens por página: </source>
+        <target>Items per page: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/base/paginator/paginator.component.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3611424112654872270" datatype="html">
+        <source>Ações</source>
+        <target>Actions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/base/table/table.component.html</context>
+          <context context-type="linenumber">7,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6320081886276218049" datatype="html">
+        <source>Cadastros</source>
+        <target>Registrations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2069533050477372914" datatype="html">
+        <source>Geral</source>
+        <target>General</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2103347902617115095" datatype="html">
+        <source>Usuários</source>
+        <target>Users</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="712018710969851047" datatype="html">
+        <source>Perfis</source>
+        <target>Profiles</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8475530154031003938" datatype="html">
+        <source>Cadastro de perfis</source>
+        <target>Profile Registration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-grid/perfil-grid.component.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5219663693456969053" datatype="html">
+        <source>Permissões</source>
+        <target>Permissions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">10,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1777375436309765158" datatype="html">
+        <source>Perfil: </source>
+        <target>Profile: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8617344470616298001" datatype="html">
+        <source>Perfil salvo com sucesso.</source>
+        <target>Profile saved successfully.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="linenumber">134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="perfil.nome.notBlank" datatype="html">
+        <source>O nome do perfil não pode ser em branco.</source>
+        <target>The profile name cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-backend-message.service.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8069920121472148431" datatype="html">
+        <source>Existem campos inválidos.</source>
+        <target>There are invalid fields.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="linenumber">115</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="usuario.nome.notBlank" datatype="html">
+        <source>O nome do usuário não pode ser em branco.</source>
+        <target>The user name cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-backend-message.service.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="usuario.login.notBlank" datatype="html">
+        <source>O login não pode ser em branco.</source>
+        <target>The login cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-backend-message.service.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="usuario.senha.notBlank" datatype="html">
+        <source>A senha não pode ser em branco.</source>
+        <target>The password cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-backend-message.service.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="usuario.login.unique" datatype="html">
+        <source>Este login já está em uso.</source>
+        <target>This login is already in use.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-backend-message.service.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2332180001770133395" datatype="html">
+        <source>Nome</source>
+        <target>Name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
+          <context context-type="linenumber">6,7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4006209954884947180" datatype="html">
+        <source>Esse campo não pode ser em branco.</source>
+        <target>This field cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
+          <context context-type="linenumber">8,9</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">22,23</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2454050363478003966" datatype="html">
+        <source>Login</source>
+        <target>Login</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">120</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="150555469217751648" datatype="html">
+        <source>Senha</source>
+        <target>Password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5939992630371883411" datatype="html">
+        <source>Usuário: </source>
+        <target>User: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5954338936032655558" datatype="html">
+        <source>Salvar</source>
+        <target>Save</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2559040280336911415" datatype="html">
+        <source>Novo</source>
+        <target>New</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6927331155318222355" datatype="html">
+        <source>Existem campo inválidos.</source>
+        <target>There are invalid fields.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6280196736620591707" datatype="html">
+        <source>Usuário salvo com sucesso.</source>
+        <target>User saved successfully.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
+          <context context-type="linenumber">116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8188214545142079725" datatype="html">
+        <source>Cadastro de usuários</source>
+        <target>User registration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2391603143498659962" datatype="html">
+        <source>Criado em</source>
+        <target>Created at</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">130</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6216192454331320013" datatype="html">
+        <source>Atualizar</source>
+        <target>Refresh</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2145082911125334103" datatype="html">
+        <source>Adicionar</source>
+        <target>Add</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6434071570521467395" datatype="html">
+        <source>Pesquisar</source>
+        <target>Search</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="600376029726528115" datatype="html">
+        <source>Entrar</source>
+        <target>Sign in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8866428941698430607" datatype="html">
+        <source>Login ou senha inválidos</source>
+        <target>Invalid login or password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1159490552073464362" datatype="html">
+        <source>Erro inesperado, tente novamente mais tarde</source>
+        <target>Unexpected error, try again later</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.ts</context>
+          <context context-type="linenumber">67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8927786864141110335" datatype="html">
+        <source>Gestão Integrada</source>
+        <target>Integrated Management</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2102825898069375693" datatype="html">
+        <source>Menu</source>
+        <target>Menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="664881113092672927" datatype="html">
+        <source>Financeiro</source>
+        <target>Financial</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7997233086609357682" datatype="html">
+        <source>Atendimento</source>
+        <target>Service</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="erro.generico.inesperado" datatype="html">
+        <source>Ocorreu um erro inesperado.</source>
+        <target>An unexpected error occurred.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/services/base-service.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3913112174757511822" datatype="html">
+        <source>Módulo</source>
+        <target>Module</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4305708877467028579" datatype="html">
+        <source>Listar</source>
+        <target>List</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5375123886772261767" datatype="html">
+        <source>Visualizar</source>
+        <target>View</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2153980152639237955" datatype="html">
+        <source>Editar</source>
+        <target>Edit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1235808024197131529" datatype="html">
+        <source>Excluir</source>
+        <target>Delete</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5829207681051660385" datatype="html">
+        <source>Perfis Vinculados</source>
+        <target>Linked Profiles</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4711539933884989412" datatype="html">
+        <source>Sair</source>
+        <target>Sign out</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.html</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

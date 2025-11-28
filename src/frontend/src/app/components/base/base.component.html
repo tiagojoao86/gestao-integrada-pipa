@@ -1,0 +1,30 @@
+<div class="component-base">
+  <p-toolbar class="toolbar-base" *ngIf="!hideToolbar">
+    <ng-template #start>
+      <p-button (click)="goBack()">
+        <span class="material-icons">chevron_left</span>
+      </p-button>
+      <div class="titulo">
+        <span>{{ title }}</span>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div *ngFor="let action of actions" aria-label="Botão ações do usuário">
+        <div class="badge" (click)="action.action()" (keyup.enter)="action.action()" [title]="action.title" tabindex="0">
+          <i *ngIf="action.value" pBadge [value]="action.value">
+            <span class="material-icons">{{ action.icon }}</span>
+          </i>
+          <i *ngIf="!action.value">
+            <span class="material-icons" >{{ action.icon }}</span>
+          </i>
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+  <div class="body-base">
+    <ng-content select="[body-content]"></ng-content>
+  </div>
+  <div class="footer-base" *ngIf="!hideFooter">
+    <ng-content select="[footer-content]"></ng-content>
+  </div>
+</div>

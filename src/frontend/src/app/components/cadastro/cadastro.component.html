@@ -1,0 +1,7 @@
+<gi-app-base [title]="titulo" [hideFooter]="true">
+  <div body-content>
+    <div *ngFor="let grupo of recursos">
+      <gi-recurso-grupo [recursoGrupo]="grupo"></gi-recurso-grupo>
+    </div>
+  </div>
+</gi-app-base>

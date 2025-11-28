@@ -1,0 +1,37 @@
+.grupo-menu {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
+
+.grupo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--secondary-color);
+
+    .nome {
+        margin-left: 15px;
+        font-size: var(--text-size);
+        margin-top: 1px;
+    }
+
+    i {
+        padding: 7px 7px 2px 7px;
+        border-radius: 6px;
+    }
+
+    margin-top: 5px;    
+}
+
+.grupo:hover {
+    text-decoration: underline;
+    cursor: pointer;
+
+    i {
+        color: var(--inverted-text-color);
+        background-color: var(--secondary-color);
+        padding: 7px 7px 2px 7px;
+        border-radius: 6px;
+    }
+}
