@@ -111,8 +111,8 @@ print_success "Imagens baixadas com sucesso"
 
 print_info "Parando containers antigos (se existirem)..."
 
-if docker-compose -f docker-compose.deploy.yml ps -q 2>/dev/null | grep -q .; then
-    docker-compose -f docker-compose.deploy.yml down
+if docker compose -f docker-compose.deploy.yml ps -q 2>/dev/null | grep -q .; then
+    docker compose -f docker-compose.deploy.yml down
     print_success "Containers antigos parados"
 else
     print_info "Nenhum container rodando"
@@ -124,7 +124,7 @@ fi
 
 print_info "Iniciando aplicação..."
 
-docker-compose -f docker-compose.deploy.yml up -d
+docker compose -f docker-compose.deploy.yml up -d
 
 print_success "Aplicação iniciada!"
 
@@ -136,7 +136,7 @@ print_info "Aguardando containers iniciarem..."
 sleep 5
 
 print_info "Status dos containers:"
-docker-compose -f docker-compose.deploy.yml ps
+docker compose -f docker-compose.deploy.yml ps
 
 ###############################################################################
 # Exibir logs
@@ -144,7 +144,7 @@ docker-compose -f docker-compose.deploy.yml ps
 
 echo ""
 print_info "Para ver os logs, execute:"
-echo "  docker-compose -f docker-compose.deploy.yml logs -f"
+echo "  docker compose -f docker-compose.deploy.yml logs -f"
 echo ""
 
 print_info "Para ver logs de um container específico:"
