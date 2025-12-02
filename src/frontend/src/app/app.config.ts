@@ -40,11 +40,25 @@ export const appConfig: ApplicationConfig = {
         preset: Aura,
       },
     }),
-    provideHttpClient(withInterceptors([loadingInterceptor, refreshTokenInterceptor])),
+    provideHttpClient(withInterceptors([tenantInterceptor, loadingInterceptor, refreshTokenInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt' },
     { provide: MessageService, useFactory: messageServiceProvider },
   ],
 };
+
+export function tenantInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
+  const authService = inject(AuthService);
+  const tenantId = authService.getTenantId();
+  
+  // Adiciona header X-Tenant-ID em todas as requisições (exceto rotas públicas)
+  if (tenantId) {
+    req = req.clone({
+      setHeaders: { 'X-Tenant-ID': tenantId }
+    });
+  }
+  
+  return next(req);
+}
 
 export function loadingInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   const loadingService = inject(LoadingService) as LoadingService;

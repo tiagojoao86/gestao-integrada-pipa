@@ -18,7 +18,10 @@ export class AuthService {
   private http: HttpClient = inject(HttpClient);
   private router: Router = inject(Router);  
 
-  login(username: string, password: string) {
+  login(username: string, password: string, tenantId: string) {
+    // Armazena tenant ANTES da requisição para o interceptor usar
+    this.setTenantId(tenantId);
+    
     return this.http
       .post<Response>('/api/authenticate', { username, password })
       .pipe(
@@ -30,6 +33,8 @@ export class AuthService {
           this.router.navigate(['/']);
         }),
         catchError((e) => {
+          // Se falhar, limpa o tenant
+          this.clearTenantId();
           throw e;
         })
       );
@@ -37,6 +42,7 @@ export class AuthService {
 
   logout() {
     this.clearToken();
+    // NÃO limpa tenantId - mantém para próximo login (melhor UX)
     this.router.navigate(['/login']);
   }
 
@@ -95,6 +101,19 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  // Tenant Management (usa localStorage para persistir)
+  getTenantId(): string | null {
+    return localStorage.getItem('tenantId');
+  }
+
+  setTenantId(tenantId: string) {
+    localStorage.setItem('tenantId', tenantId);
+  }
+
+  clearTenantId() {
+    localStorage.removeItem('tenantId');
   }
 
   setUserAuthorities(authorities: AuthorityDTO[]) {

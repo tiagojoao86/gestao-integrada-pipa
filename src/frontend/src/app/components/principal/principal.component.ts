@@ -115,4 +115,8 @@ export class PrincipalComponent implements OnInit {
   getName() {
     return this.authService.getNome();
   }
+
+  getTenantId() {
+    return this.authService.getTenantId();
+  }
 }

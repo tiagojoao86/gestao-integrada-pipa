@@ -391,6 +391,14 @@
           <context context-type="linenumber">45,46</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="7544005586832612256" datatype="html">
+        <source>Cliente</source>
+        <target>Client</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="8866428941698430607" datatype="html">
         <source>Login ou senha inválidos</source>
         <target>Invalid login or password</target>
@@ -399,12 +407,36 @@
           <context context-type="linenumber">65</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="7416534824925566145" datatype="html">
+        <source>Tenant inválido ou acesso negado</source>
+        <target>Invalid client or access denied</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="1159490552073464362" datatype="html">
         <source>Erro inesperado, tente novamente mais tarde</source>
         <target>Unexpected error, try again later</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/login/login.component.ts</context>
           <context context-type="linenumber">67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5280348013202765604" datatype="html">
+        <source>Cliente</source>
+        <target>Client</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3476382525580293182" datatype="html">
+        <source>Tenant inválido ou acesso negado</source>
+        <target>Invalid client or access denied</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/login/login.component.ts</context>
+          <context context-type="linenumber">62</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8927786864141110335" datatype="html">
