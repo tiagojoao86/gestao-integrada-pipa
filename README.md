@@ -52,8 +52,8 @@ server.port=8080
 server.servlet.context-path=/gestao-integrada-pipa/api
 
 # Configurações do Banco de Dados PostgreSQL
-# Ajuste 'localhost:5432', 'gestao_integrada_db', 'user' e 'password' conforme seu setup.
-spring.datasource.url=jdbc:postgresql://localhost:5432/gestao_integrada_db
+# Ajuste 'localhost:5432', 'gestao_integrada_pipa_db', 'user' e 'password' conforme seu setup.
+spring.datasource.url=jdbc:postgresql://localhost:5432/gestao_integrada_pipa_db
 spring.datasource.username=user
 spring.datasource.password=password
 spring.datasource.driver-class-name=org.postgresql.Driver
@@ -73,7 +73,7 @@ spring.flyway.password=${spring.datasource.password}
 jwt.private.key=classpath:app.key
 jwt.public.key=classpath:app.pub
 ```
-*   **Atenção:** Certifique-se de que os valores `localhost`, `5432`, `gestao_integrada_db`, `user` e `password` na seção `spring.datasource` correspondam à sua configuração do PostgreSQL local.
+*   **Atenção:** Certifique-se de que os valores `localhost`, `5432`, `gestao_integrada_pipa_db`, `user` e `password` na seção `spring.datasource` correspondam à sua configuração do PostgreSQL local.
 *   A configuração do `server.servlet.context-path` (`/gestao-integrada-pipa/api`) é crucial e deve corresponder à configuração do Nginx.
 
 ### 3. Iniciar o Container Nginx
