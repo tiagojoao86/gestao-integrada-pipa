@@ -39,16 +39,44 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     const fb = new FormBuilder().nonNullable;
-    this.form.addControl('login', fb.control(null, [Validators.required]));
-    this.form.addControl('senha', fb.control(null, [Validators.required]));
+    
+    // Carregar último tenant usado do localStorage
+    const lastTenant = this.authService.getTenantId() || '';
+    
+    // Criar controles com validação apenas ao sair do campo (blur)
+    this.form.addControl('tenant', fb.control(lastTenant, {
+      validators: [Validators.required],
+      updateOn: 'blur'
+    }));
+    this.form.addControl('login', fb.control(null, {
+      validators: [Validators.required],
+      updateOn: 'blur'
+    }));
+    this.form.addControl('senha', fb.control(null, {
+      validators: [Validators.required],
+      updateOn: 'blur'
+    }));
+    
+    // Marcar formulário como pristine para evitar validação prematura
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   login() {
+    // Marcar todos os campos como touched para mostrar erros se houver
+    this.form.markAllAsTouched();
+    
+    // Validar formulário
+    if (this.form.invalid) {
+      return;
+    }
+    
+    const tenant = this.form.value.tenant;
     const login = this.form.value.login;
     const senha = this.form.value.senha;
 
-    if (login && senha) {
-      this.authService.login(login, senha).subscribe({
+    if (tenant && login && senha) {
+      this.authService.login(login, senha, tenant).subscribe({
         next: () => {
           console.log('Login bem-sucedido');
         },
@@ -56,6 +84,8 @@ export class LoginComponent implements OnInit {
           this.showError = true;
           if (error.status === 401) {
             this.errorMessage = $localize`Login ou senha inválidos`;
+          } else if (error.status === 403) {
+            this.errorMessage = $localize`Tenant inválido ou acesso negado`;
           } else {
             this.errorMessage = $localize`Erro inesperado, tente novamente mais tarde`;
           }

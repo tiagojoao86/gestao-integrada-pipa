@@ -83,11 +83,24 @@ public class UsuarioServiceImpl
     @Override
     protected UsuarioEntity mergeEntityAndDTO(UsuarioEntity entity, UsuarioDTO dto) {
         if (Objects.isNull(entity)) {
-            return new UsuarioEntity.Builder()
+            entity = new UsuarioEntity.Builder()
                     .nome(dto.getNome())
                     .login(dto.getLogin())
                     .senha(dto.getSenha())
                     .build(this.passwordEncoder);
+            
+            // Add perfis for new user
+            if (dto.getPerfis() != null) {
+                for (var perfilDTO : dto.getPerfis()) {
+                    if (perfilDTO == null || perfilDTO.getId() == null) continue;
+                    PerfilEntity perfilEntity = perfilRepository.findById(perfilDTO.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Perfil", "id", perfilDTO.getId().toString()));
+                    UsuarioPerfilEntity up = new UsuarioPerfilEntity(entity, perfilEntity);
+                    entity.getPerfis().add(up);
+                }
+            }
+            
+            return entity;
         }
 
         entity.updateUsuarioFromDTO(dto, passwordEncoder);

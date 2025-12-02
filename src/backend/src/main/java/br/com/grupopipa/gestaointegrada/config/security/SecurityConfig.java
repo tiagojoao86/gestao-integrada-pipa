@@ -41,7 +41,10 @@ public class SecurityConfig {
     private RSAPrivateKey priv;
 
     private String[] permitRoutes = new String[] {
-            "/authenticate", "/authenticate/refresh"
+            "/authenticate", "/authenticate/refresh",
+            "/admin/tenants",       // Admin endpoints (protegidos por X-Admin-Token)
+            "/admin/tenants/**",
+            "/health"               // Health check endpoint
     };
 
     @Bean
