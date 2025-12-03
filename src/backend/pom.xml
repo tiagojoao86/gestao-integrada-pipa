@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+		<version>3.5.8</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.grupopipa</groupId>
@@ -16,7 +16,9 @@
 	<description>Sistema de Gestão Integrada Grupo Pipa</description>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>22</java.version>
+		<testcontainers.version>1.20.4</testcontainers.version>
+		<flyway.version>11.18.0</flyway.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -48,7 +50,6 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
-			<version>11.3.2</version>
 		</dependency>
 
 		<dependency>
@@ -72,6 +73,29 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -86,6 +110,20 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- Executa testes de integração em sequência para evitar conflitos no Testcontainers -->
+					<runOrder>alphabetical</runOrder>
+					<!-- Reutiliza forks para melhor performance -->
+					<reuseForks>true</reuseForks>
+					<!-- Usa apenas 1 fork para garantir isolamento -->
+					<forkCount>1</forkCount>
+					<!-- Configurações de memória para testes com Testcontainers -->
+					<argLine>-Xmx1024m -XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

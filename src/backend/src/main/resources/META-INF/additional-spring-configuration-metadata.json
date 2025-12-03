@@ -8,5 +8,25 @@
     "name": "jwt.public.key",
     "type": "java.lang.String",
     "description": "Location for 'jwt.public.key' file"
+  },
+  {
+    "name": "jwt.private.key",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.private.key'"
+  },
+  {
+    "name": "app.admin.token",
+    "type": "java.lang.String",
+    "description": "A description for 'app.admin.token'"
+  },
+  {
+    "name": "app.multitenancy.default-schema",
+    "type": "java.lang.String",
+    "description": "A description for 'app.multitenancy.default-schema'"
+  },
+  {
+    "name": "app.multitenancy.tenant-header",
+    "type": "java.lang.String",
+    "description": "A description for 'app.multitenancy.tenant-header'"
   }
 ]}

@@ -106,20 +106,4 @@ public class TenantInterceptor implements HandlerInterceptor {
         // Limpar o contexto do tenant ao finalizar a requisição
         TenantContext.clear();
     }
-
-    /**
-     * Extrai o tenant do subdomínio
-     * Exemplo: empresa-abc.gestao-solar.com -> empresa-abc
-     */
-    private String extractTenantFromSubdomain(HttpServletRequest request) {
-        String serverName = request.getServerName();
-        if (serverName != null && serverName.contains(".")) {
-            String[] parts = serverName.split("\\.");
-            if (parts.length >= 3) {
-                // primeiro segmento é o tenant
-                return parts[0];
-            }
-        }
-        return null;
-    }
 }
