@@ -51,6 +51,27 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
 - Os serviços (lógica de negócio) estão em `src/main/java/br/com/grupopipa/gestaointegrada/core/service`.
 - As migrações de banco de dados com Flyway estão em `src/main/resources/db/migration`. Crie novos scripts de migração para qualquer alteração no schema.
 
+### Padrões de Entidades
+
+- **TODA entidade deve estender `BaseEntity`**, que já fornece:
+  - `id` do tipo `UUID` (UUIDv7) - **NUNCA use `Long` ou `BigSerial` para IDs**
+  - `createdAt`, `updatedAt` (auditoria de timestamps)
+  - `createdBy`, `updatedBy` (auditoria de usuários)
+- **Migrations devem usar `UUID` para chaves primárias e estrangeiras**, não `BIGSERIAL`
+  ```sql
+  -- ✅ CORRETO
+  CREATE TABLE pessoa (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      nome VARCHAR(255) NOT NULL
+  );
+  
+  -- ❌ ERRADO
+  CREATE TABLE pessoa (
+      id BIGSERIAL PRIMARY KEY,
+      nome VARCHAR(255) NOT NULL
+  );
+  ```
+
 ## Princípios de Desenvolvimento
 
 ### Clean Code
@@ -61,20 +82,192 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
 - Remova código morto e duplicações.
 
 ### Value Objects
-- **Evite tipos primitivos** sempre que possível.
-- Encapsule conceitos de domínio em **Value Objects**.
-- Exemplos: ao invés de `String email`, use `Email email`; ao invés de `BigDecimal valor`, use `Money valor`.
-- Value Objects devem ser imutáveis e conter validações de negócio.
-- Benefícios: type safety, validações centralizadas, expressividade do domínio.
+
+- **EVITE tipos primitivos** (`String`, `Integer`, `BigDecimal`, etc.) sempre que possível.
+- **Encapsule conceitos de domínio em Value Objects** imutáveis.
+- Value Objects de uso comum devem estar em: `br.com.grupopipa.gestaointegrada.core.valueobject`
+- Value Objects específicos de um módulo ficam no pacote do módulo (ex: `financeiro.valueobject`)
+
+**Exemplos de Value Objects:**
+
+```java
+// ✅ CORRETO - Value Object com validações
+@Embeddable
+public class Email {
+    @Column(name = "email")
+    private final String value;
+    
+    protected Email() { this.value = null; } // JPA only
+    
+    public Email(String value) {
+        if (value == null || !value.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("Email inválido: " + value);
+        }
+        this.value = value.toLowerCase();
+    }
+    
+    public String getValue() { return value; }
+    
+    @Override
+    public boolean equals(Object o) { /* implementar */ }
+    
+    @Override
+    public int hashCode() { /* implementar */ }
+}
+
+// Uso na entidade
+@Entity
+public class Pessoa extends BaseEntity {
+    @Embedded
+    private Email email;
+    
+    private Money saldo; // Outro Value Object
+}
+
+// ❌ ERRADO - Tipos primitivos sem validação
+@Entity
+public class Pessoa extends BaseEntity {
+    private String email; // Sem validação
+    private BigDecimal saldo; // Sem semântica de negócio
+}
+```
+
+**Value Objects Comuns:**
+- `Email` - Validação de formato de email
+- `CPF` - Validação de CPF com dígitos verificadores
+- `CNPJ` - Validação de CNPJ
+- `Money` - Valores monetários com precisão e validações
+- `Percentage` - Percentuais (0-100)
+- `PhoneNumber` - Telefones brasileiros
+- `CEP` - Código postal
+- `TaxId` - ID fiscal genérico
+
+**Benefícios:**
+- Type safety (compilador detecta erros)
+- Validações centralizadas e reutilizáveis
+- Expressividade do domínio
+- Imutabilidade por design
+- Menos bugs de validação
 
 ### Domain-Driven Design (DDD)
-- **Priorize o uso de DDD** para modelar o domínio.
-- As **Entities devem concentrar a maior parte das regras de domínio**.
-- Use **Aggregates** para garantir consistência transacional.
-- Separe claramente as camadas: Domain, Application (Services), Infrastructure.
-- Use **Domain Events** quando apropriado para comunicação entre agregados.
-- Modele o domínio usando **Ubiquitous Language** (linguagem ubíqua).
-- Services devem orquestrar a lógica, mas as regras de negócio ficam no domínio.
+
+- **PRIORIZE o uso de DDD** para modelar o domínio rico.
+- **Entidades devem conter as regras de negócio** - não crie classes "Business" ou "Validator" separadas.
+- **EVITE modelos anêmicos** (entidades que são apenas DTOs com getters/setters).
+- As **validações devem estar DENTRO dos objetos de domínio** (entidades e value objects).
+- Services devem apenas **orquestrar** a lógica, não conter regras de negócio.
+
+**Arquitetura de Camadas:**
+```
+┌─────────────────────────────────────┐
+│  Controller (REST APIs)             │ ← Recebe requisições HTTP
+├─────────────────────────────────────┤
+│  Application Services               │ ← Orquestração, transações
+├─────────────────────────────────────┤
+│  Domain Layer (Entities, VOs)      │ ← ⭐ REGRAS DE NEGÓCIO AQUI
+├─────────────────────────────────────┤
+│  Repository (Persistence)           │ ← Acesso ao banco de dados
+└─────────────────────────────────────┘
+```
+
+**Exemplo - Validações no Domínio:**
+
+```java
+// ✅ CORRETO - Lógica de negócio na entidade
+@Entity
+public class Titulo extends BaseEntity {
+    @Embedded
+    private Money valorOriginal;
+    
+    @Embedded
+    private Money valorPago;
+    
+    @Enumerated(EnumType.STRING)
+    private StatusTitulo status;
+    
+    private LocalDate dataVencimento;
+    
+    // Método de negócio - validação interna
+    public void pagar(Money valor, LocalDate dataPagamento) {
+        if (this.status == StatusTitulo.PAGO) {
+            throw new DomainException("Título já está pago");
+        }
+        
+        if (valor.isNegative()) {
+            throw new DomainException("Valor de pagamento não pode ser negativo");
+        }
+        
+        Money novoValorPago = this.valorPago.add(valor);
+        
+        if (novoValorPago.isGreaterThan(this.valorOriginal)) {
+            throw new DomainException("Valor pago excede valor original do título");
+        }
+        
+        this.valorPago = novoValorPago;
+        this.status = this.valorPago.equals(this.valorOriginal) 
+            ? StatusTitulo.PAGO 
+            : StatusTitulo.PARCIAL;
+    }
+    
+    public Money getSaldo() {
+        return valorOriginal.subtract(valorPago);
+    }
+    
+    public boolean isVencido() {
+        return status == StatusTitulo.ABERTO 
+            && dataVencimento.isBefore(LocalDate.now());
+    }
+}
+
+// Service apenas orquestra
+@Service
+public class TituloService {
+    public void pagarTitulo(UUID tituloId, Money valor, LocalDate data) {
+        Titulo titulo = repository.findById(tituloId)
+            .orElseThrow(() -> new NotFoundException("Título não encontrado"));
+        
+        // A lógica está NO DOMÍNIO, não no service
+        titulo.pagar(valor, data);
+        
+        repository.save(titulo);
+        eventPublisher.publish(new TituloPagoEvent(titulo));
+    }
+}
+
+// ❌ ERRADO - Lógica no service (modelo anêmico)
+@Service
+public class TituloBusinessService {
+    public void pagarTitulo(Titulo titulo, BigDecimal valor) {
+        // NÃO FAÇA ISSO - validações não devem estar no service
+        if (titulo.getStatus().equals("PAGO")) {
+            throw new Exception("Já pago");
+        }
+        if (valor < 0) {
+            throw new Exception("Valor negativo");
+        }
+        // ...mais 50 linhas de validações...
+        
+        titulo.setValorPago(valor);
+        titulo.setStatus("PAGO");
+    }
+}
+```
+
+**Princípios DDD a Seguir:**
+
+1. **Aggregates:** Identifique raízes de agregados e garanta consistência transacional
+2. **Bounded Contexts:** Separe contextos (ex: `financeiro`, `cadastro`, `atendimento`)
+3. **Ubiquitous Language:** Use termos do negócio no código (ex: `Titulo`, não `BillPayable`)
+4. **Domain Events:** Comunique mudanças importantes entre agregados
+5. **Repositories:** Uma interface por agregado raiz
+6. **Specifications:** Para queries complexas com lógica de negócio
+
+**Anti-Padrões a Evitar:**
+- ❌ Getters/setters públicos sem validação
+- ❌ Entidades anêmicas (só dados, sem comportamento)
+- ❌ Services fazendo validações de domínio
+- ❌ Lógica de negócio nos controllers
+- ❌ Usar tipos primitivos ao invés de Value Objects
 
 ## Estrutura de Diretórios
 

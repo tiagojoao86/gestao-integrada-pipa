@@ -24,9 +24,13 @@ public class DataSourceConfig {
 
     private static final String[] ENTITY_PACKAGES = new String[] {
             "br.com.grupopipa.gestaointegrada.core.entity",
+            "br.com.grupopipa.gestaointegrada.core.valueobject",
             "br.com.grupopipa.gestaointegrada.cadastro.usuario.entity",
             "br.com.grupopipa.gestaointegrada.cadastro.perfil.entity",
             "br.com.grupopipa.gestaointegrada.cadastro.modulo.entity",
+            "br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity",
+            "br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity",
+            "br.com.grupopipa.gestaointegrada.financeiro.entity",
             "br.com.grupopipa.gestaointegrada.tenant.entity"
         };
 

@@ -42,3 +42,6 @@ dist/
 # Maven
 target/
 .mvn/
+
+#Others
+caixa-pipa-para-analise.xlsx
