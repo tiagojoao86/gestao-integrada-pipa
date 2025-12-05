@@ -14,5 +14,6 @@ public class UnidadeNegocioGridDTO implements GridDTO {
     private UUID id;
     private String codigo;
     private String nome;
+    private String cnpj;
     private Boolean ativa;
 }

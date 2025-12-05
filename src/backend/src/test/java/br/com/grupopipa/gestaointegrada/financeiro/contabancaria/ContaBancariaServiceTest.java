@@ -50,14 +50,14 @@ class ContaBancariaServiceTest {
                 .saldoInicial(BigDecimal.valueOf(1000.00))
                 .build();
 
-        entidadeValida = new ContaBancaria(
-                "Conta Corrente Principal",
-                TipoConta.CORRENTE,
-                "Banco do Brasil",
-                "1234",
-                "12345-6"
-        );
-        entidadeValida.definirSaldoInicial(new Money(BigDecimal.valueOf(1000.00)));
+        entidadeValida = new ContaBancaria.Builder()
+                .nome("Conta Corrente Principal")
+                .tipo(TipoConta.CORRENTE)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
+                .saldoInicial(Money.of(BigDecimal.valueOf(1000.00)))
+                .build();
     }
 
     @Test

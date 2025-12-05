@@ -24,11 +24,11 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     private final PlanoContasRepository planoContasRepository;
     private final UnidadeNegocioRepository unidadeNegocioRepository;
 
-    public TituloServiceImpl(TituloRepository repository, 
-                             Specifications<Titulo> specifications,
-                             PessoaRepository pessoaRepository,
-                             PlanoContasRepository planoContasRepository,
-                             UnidadeNegocioRepository unidadeNegocioRepository) {
+    public TituloServiceImpl(TituloRepository repository,
+            Specifications<Titulo> specifications,
+            PessoaRepository pessoaRepository,
+            PlanoContasRepository planoContasRepository,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
@@ -43,31 +43,39 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                     .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada"));
             PlanoContas planoContas = planoContasRepository.findById(dto.getPlanoContasId())
                     .orElseThrow(() -> new IllegalArgumentException("Plano de contas não encontrado"));
-            
+
             TipoTitulo tipo = TipoTitulo.valueOf(dto.getTipo());
-            Money valorOriginal = new Money(dto.getValorOriginal());
-            
-            entity = new Titulo(tipo, dto.getDescricao(), pessoa, planoContas, 
-                              valorOriginal, dto.getDataEmissao(), dto.getDataVencimento());
-            
+            UnidadeNegocio unidadeNegocio = null;
+
             // Unidade de negócio (opcional)
             if (dto.getUnidadeNegocioId() != null) {
-                UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
                         .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
-                entity.definirUnidadeNegocio(unidadeNegocio);
             }
-            
+
+            entity = new Titulo.Builder()
+                    .tipo(tipo)
+                    .descricao(dto.getDescricao())
+                    .numeroDocumento(dto.getNumeroDocumento())
+                    .pessoa(pessoa)
+                    .planoContas(planoContas)
+                    .unidadeNegocio(unidadeNegocio)
+                    .valorOriginal(Money.of(dto.getValorOriginal()))
+                    .dataEmissao(dto.getDataEmissao())
+                    .dataVencimento(dto.getDataVencimento())
+                    .build();
+
             // Aplicar descontos, juros, multa se fornecidos
             if (dto.getValorDesconto() != null && dto.getValorDesconto().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarDesconto(new Money(dto.getValorDesconto()));
+                entity.aplicarDesconto(Money.of(dto.getValorDesconto()));
             }
             if (dto.getValorJuros() != null && dto.getValorJuros().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarJuros(new Money(dto.getValorJuros()));
+                entity.aplicarJuros(Money.of(dto.getValorJuros()));
             }
             if (dto.getValorMulta() != null && dto.getValorMulta().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarMulta(new Money(dto.getValorMulta()));
+                entity.aplicarMulta(Money.of(dto.getValorMulta()));
             }
-            
+
             // Parcelamento
             if (dto.getNumeroParcela() != null && dto.getTotalParcelas() != null) {
                 Titulo tituloOrigem = null;
@@ -76,26 +84,26 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 }
                 entity.definirParcelamento(dto.getNumeroParcela(), dto.getTotalParcelas(), tituloOrigem);
             }
-            
+
             if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
                 entity.adicionarObservacao(dto.getObservacoes());
             }
-            
+
             return entity;
         }
 
         // Atualizar título existente
         entity.atualizar(dto.getDescricao(), dto.getDataVencimento());
-        
+
         // Atualizar valores adicionais se fornecidos
         if (dto.getValorDesconto() != null) {
-            entity.aplicarDesconto(new Money(dto.getValorDesconto()));
+            entity.aplicarDesconto(Money.of(dto.getValorDesconto()));
         }
         if (dto.getValorJuros() != null) {
-            entity.aplicarJuros(new Money(dto.getValorJuros()));
+            entity.aplicarJuros(Money.of(dto.getValorJuros()));
         }
         if (dto.getValorMulta() != null) {
-            entity.aplicarMulta(new Money(dto.getValorMulta()));
+            entity.aplicarMulta(Money.of(dto.getValorMulta()));
         }
 
         return entity;
@@ -141,7 +149,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
         if (entity.isParcelado()) {
             parcelamento = entity.getNumeroParcela() + "/" + entity.getTotalParcelas();
         }
-        
+
         return TituloGridDTO.builder()
                 .id(entity.getId())
                 .tipo(entity.getTipo().name())

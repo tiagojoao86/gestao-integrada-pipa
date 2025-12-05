@@ -1,12 +1,9 @@
 package br.com.grupopipa.gestaointegrada.financeiro.movimentacao;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.PessoaJuridica;
+
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
-import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
-import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
-import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
 import br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceira;
@@ -65,40 +62,42 @@ class MovimentacaoFinanceiraServiceTest {
     @BeforeEach
     void setUp() {
         // Setup pessoa
-        Pessoa pessoa = new PessoaJuridica(
-                "Fornecedor Teste",
-                new Email("fornecedor@test.com"),
-                new PhoneNumber("11999999999"),
-                new CNPJ("11.222.333/0001-81"),
-                "Fornecedor LTDA"
-        );
+        Pessoa pessoa = new Pessoa.Builder()
+                .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
+                .nome("Fornecedor Teste")
+                .email("fornecedor@test.com")
+                .telefone("11999999999")
+                .cnpj("11222333000181")
+                .razaoSocial("Fornecedor LTDA")
+                .build();
 
         // Setup plano de contas
-        PlanoContas planoContas = new PlanoContas(
-                "4.1.001",
-                "Fornecedores",
-                TipoPlanoContas.DESPESA
-        );
+        PlanoContas planoContas = new PlanoContas.Builder()
+                .codigo("4.1.001")
+                .descricao("Fornecedores")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
 
         // Setup título
-        titulo = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Pagamento fornecedor",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(1000.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(30)
-        );
+        titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Pagamento fornecedor")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .build();
 
         // Setup conta bancária
-        contaBancaria = new ContaBancaria(
-                "Conta Corrente Principal",
-                TipoConta.CORRENTE,
-                "Banco do Brasil",
-                "1234",
-                "12345-6"
-        );
+        contaBancaria = new ContaBancaria.Builder()
+                .nome("Conta Corrente Principal")
+                .tipo(TipoConta.CORRENTE)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
+                .saldoInicial(Money.zero())
+                .build();
 
         // Setup DTO
         dto = MovimentacaoFinanceiraDTO.builder()
@@ -111,14 +110,14 @@ class MovimentacaoFinanceiraServiceTest {
                 .build();
 
         // Setup Entity
-        entity = new MovimentacaoFinanceira(
-                titulo,
-                contaBancaria,
-                TipoMovimentacao.PAGAMENTO,
-                FormaPagamento.PIX,
-                new Money(BigDecimal.valueOf(500.00)),
-                LocalDate.now()
-        );
+        entity = new MovimentacaoFinanceira.Builder()
+                .titulo(titulo)
+                .contaBancaria(contaBancaria)
+                .tipo(TipoMovimentacao.PAGAMENTO)
+                .formaPagamento(FormaPagamento.PIX)
+                .valor(Money.of(BigDecimal.valueOf(500.00)))
+                .data(LocalDate.now())
+                .build();
     }
 
     @Test
@@ -146,7 +145,7 @@ class MovimentacaoFinanceiraServiceTest {
     void deveCriarMovimentacaoRecebimento() {
         // Given
         dto.setTipo(TipoMovimentacao.RECEBIMENTO.name());
-        
+
         when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.of(contaBancaria));
 

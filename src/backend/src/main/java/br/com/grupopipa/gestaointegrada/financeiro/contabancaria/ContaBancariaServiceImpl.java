@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ContaBancariaServiceImpl extends CrudServiceImpl<ContaBancariaDTO, ContaBancariaGridDTO, ContaBancaria, ContaBancariaRepository>
+public class ContaBancariaServiceImpl
+        extends CrudServiceImpl<ContaBancariaDTO, ContaBancariaGridDTO, ContaBancaria, ContaBancariaRepository>
         implements ContaBancariaService {
 
     public ContaBancariaServiceImpl(ContaBancariaRepository repository, Specifications<ContaBancaria> specifications) {
@@ -22,17 +23,20 @@ public class ContaBancariaServiceImpl extends CrudServiceImpl<ContaBancariaDTO, 
     protected ContaBancaria mergeEntityAndDTO(ContaBancaria entity, ContaBancariaDTO dto) {
         if (Objects.isNull(entity)) {
             TipoConta tipo = TipoConta.valueOf(dto.getTipo());
-            entity = new ContaBancaria(dto.getNome(), tipo, dto.getBanco(), dto.getAgencia(), dto.getNumeroConta());
-            
-            if (dto.getSaldoInicial() != null) {
-                entity.definirSaldoInicial(new Money(dto.getSaldoInicial()));
-            }
-            
+            entity = new ContaBancaria.Builder()
+                    .nome(dto.getNome())
+                    .tipo(tipo)
+                    .banco(dto.getBanco())
+                    .agencia(dto.getAgencia())
+                    .numeroConta(dto.getNumeroConta())
+                    .saldoInicial(Money.of(dto.getSaldoInicial()))
+                    .build();
+
             return entity;
         }
 
         entity.atualizar(dto.getNome(), dto.getBanco(), dto.getAgencia(), dto.getNumeroConta());
-        
+
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
                 entity.ativar();

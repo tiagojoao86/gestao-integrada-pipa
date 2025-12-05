@@ -1,11 +1,8 @@
 package br.com.grupopipa.gestaointegrada.cadastro.pessoa;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.PessoaFisica;
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.PessoaJuridica;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
-import br.com.grupopipa.gestaointegrada.core.valueobject.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,43 +18,47 @@ public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO,
 
     @Override
     protected Pessoa mergeEntityAndDTO(Pessoa entity, PessoaDTO dto) {
-        Email email = dto.getEmail() != null && !dto.getEmail().isBlank() 
-            ? new Email(dto.getEmail()) : null;
-        PhoneNumber telefone = dto.getTelefone() != null && !dto.getTelefone().isBlank() 
-            ? new PhoneNumber(dto.getTelefone()) : null;
-
         if (Objects.isNull(entity)) {
-            // Criar nova pessoa
-            if ("FISICA".equals(dto.getTipoPessoa())) {
-                CPF cpf = new CPF(dto.getCpf());
-                entity = new PessoaFisica(dto.getNome(), email, telefone, cpf, dto.getDataNascimento());
-            } else if ("JURIDICA".equals(dto.getTipoPessoa())) {
-                CNPJ cnpj = new CNPJ(dto.getCnpj());
-                PessoaJuridica pj = new PessoaJuridica(dto.getNome(), email, telefone, cnpj, dto.getRazaoSocial());
-                if (dto.getNomeFantasia() != null || dto.getInscricaoEstadual() != null) {
-                    pj.atualizarDados(dto.getRazaoSocial(), dto.getNomeFantasia(), dto.getInscricaoEstadual());
-                }
-                entity = pj;
-            } else {
-                throw new IllegalArgumentException("Tipo de pessoa inválido: " + dto.getTipoPessoa());
+            // Criar nova pessoa usando Builder
+            TipoPessoa tipo = TipoPessoa.valueOf(dto.getTipoPessoa());
+
+            Pessoa.Builder builder = new Pessoa.Builder()
+                    .tipoPessoa(tipo)
+                    .nome(dto.getNome())
+                    .email(dto.getEmail())
+                    .telefone(dto.getTelefone());
+
+            if (tipo == TipoPessoa.FISICA) {
+                builder.cpf(dto.getCpf())
+                        .dataNascimento(dto.getDataNascimento());
+            } else if (tipo == TipoPessoa.JURIDICA) {
+                builder.cnpj(dto.getCnpj())
+                        .razaoSocial(dto.getRazaoSocial())
+                        .inscricaoEstadual(dto.getInscricaoEstadual());
             }
-            
+
             if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
-                entity.adicionarObservacao(dto.getObservacoes());
+                builder.observacoes(dto.getObservacoes());
             }
-            
-            return entity;
+
+            if (dto.getAtiva() != null) {
+                builder.ativa(dto.getAtiva());
+            }
+
+            return builder.build();
         }
 
         // Atualizar pessoa existente
-        entity.atualizar(dto.getNome(), email, telefone);
-        
-        if (entity instanceof PessoaFisica pf) {
-            pf.definirDataNascimento(dto.getDataNascimento());
-        } else if (entity instanceof PessoaJuridica pj) {
-            pj.atualizarDados(dto.getRazaoSocial(), dto.getNomeFantasia(), dto.getInscricaoEstadual());
-        }
-        
+        entity.atualizar(
+                dto.getNome(),
+                dto.getEmail(),
+                dto.getTelefone(),
+                dto.getCpf(),
+                dto.getDataNascimento(),
+                dto.getCnpj(),
+                dto.getRazaoSocial(),
+                dto.getInscricaoEstadual());
+
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
                 entity.ativar();
@@ -71,51 +72,35 @@ public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO,
 
     @Override
     protected PessoaDTO buildDTOFromEntity(Pessoa entity) {
-        PessoaDTO.PessoaDTOBuilder builder = PessoaDTO.builder()
+        return PessoaDTO.builder()
                 .id(entity.getId())
+                .tipoPessoa(entity.getTipoPessoa().name())
                 .nome(entity.getNome())
-                .email(entity.getEmail() != null ? entity.getEmail().getValue() : null)
-                .telefone(entity.getTelefone() != null ? entity.getTelefone().getValue() : null)
+                .email(entity.getEmail())
+                .telefone(entity.getTelefone())
+                .cpf(entity.getCpf())
+                .dataNascimento(entity.getDataNascimento())
+                .cnpj(entity.getCnpj())
+                .razaoSocial(entity.getRazaoSocial())
+                .inscricaoEstadual(entity.getInscricaoEstadual())
                 .observacoes(entity.getObservacoes())
                 .ativa(entity.getAtiva())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
-                .updatedBy(entity.getUpdatedBy());
-
-        if (entity instanceof PessoaFisica pf) {
-            builder.tipoPessoa("FISICA")
-                    .cpf(pf.getCpf().getValue())
-                    .dataNascimento(pf.getDataNascimento());
-        } else if (entity instanceof PessoaJuridica pj) {
-            builder.tipoPessoa("JURIDICA")
-                    .cnpj(pj.getCnpj().getValue())
-                    .razaoSocial(pj.getRazaoSocial())
-                    .nomeFantasia(pj.getNomeFantasia())
-                    .inscricaoEstadual(pj.getInscricaoEstadual());
-        }
-
-        return builder.build();
+                .updatedBy(entity.getUpdatedBy())
+                .build();
     }
 
     @Override
     protected PessoaGridDTO buildGridDTOFromEntity(Pessoa entity) {
-        String documento = "";
-        String tipoPessoa = "";
-        
-        if (entity instanceof PessoaFisica pf) {
-            documento = pf.getCpf().getFormatted();
-            tipoPessoa = "FISICA";
-        } else if (entity instanceof PessoaJuridica pj) {
-            documento = pj.getCnpj().getFormatted();
-            tipoPessoa = "JURIDICA";
-        }
+        String documento = entity.isPessoaFisica() ? entity.getCpf() : entity.getCnpj();
 
         return PessoaGridDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
                 .documento(documento)
-                .tipoPessoa(tipoPessoa)
+                .tipoPessoa(entity.getTipoPessoa().name())
                 .ativa(entity.getAtiva())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -123,7 +108,7 @@ public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO,
 
     @Override
     protected List<String> getPropertiesToFilter() {
-        return List.of("nome", "ativa", "createdAt");
+        return List.of("nome", "ativa", "createdAt", "tipoPessoa", "cpf", "cnpj");
     }
 
     @Override

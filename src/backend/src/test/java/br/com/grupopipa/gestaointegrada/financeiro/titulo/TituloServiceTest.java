@@ -1,13 +1,10 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.PessoaJuridica;
+
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
-import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
-import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
-import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
@@ -61,20 +58,21 @@ class TituloServiceTest {
     @BeforeEach
     void setUp() {
         // Setup pessoa
-        pessoa = new PessoaJuridica(
-                "Fornecedor Teste",
-                new Email("fornecedor@test.com"),
-                new PhoneNumber("11999999999"),
-                new CNPJ("11.222.333/0001-81"),
-                "Fornecedor LTDA"
-        );
+        pessoa = new Pessoa.Builder()
+                .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
+                .nome("Fornecedor Teste")
+                .email("fornecedor@test.com")
+                .telefone("11999999999")
+                .cnpj("11.222.333/0001-81")
+                .razaoSocial("Fornecedor LTDA")
+                .build();
 
         // Setup plano de contas
-        planoContas = new PlanoContas(
-                "4.1.001",
-                "Fornecedores",
-                TipoPlanoContas.DESPESA
-        );
+        planoContas = new PlanoContas.Builder()
+                .codigo("4.1.001")
+                .descricao("Fornecedores")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
 
         // Setup DTO
         dto = TituloDTO.builder()
@@ -88,15 +86,15 @@ class TituloServiceTest {
                 .build();
 
         // Setup Entity
-        entity = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Pagamento fornecedor",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(1000.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(30)
-        );
+        entity = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Pagamento fornecedor")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .build();
     }
 
     @Test
@@ -124,8 +122,12 @@ class TituloServiceTest {
     void deveCriarTituloAReceber() {
         // Given
         dto.setTipo(TipoTitulo.A_RECEBER.name());
-        PlanoContas planoReceita = new PlanoContas("3.1.001", "Vendas", TipoPlanoContas.RECEITA);
-        
+        PlanoContas planoReceita = new PlanoContas.Builder()
+                .codigo("3.1.001")
+                .descricao("Vendas")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
+
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoReceita));
 
@@ -143,15 +145,15 @@ class TituloServiceTest {
     @DisplayName("Deve atualizar título existente")
     void deveAtualizarTituloExistente() {
         // Given
-        Titulo tituloExistente = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Descrição original",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(500.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(15)
-        );
+        Titulo tituloExistente = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Descrição original")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(15))
+                .build();
 
         dto.setDescricao("Descrição atualizada");
         dto.setDataVencimento(LocalDate.now().plusDays(45));

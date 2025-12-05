@@ -34,14 +34,14 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar conta bancária")
     void deveSalvarERecuperarContaBancaria() {
         // Given
-        ContaBancaria conta = new ContaBancaria(
-                "Conta Corrente Principal",
-                TipoConta.CORRENTE,
-                "Banco do Brasil",
-                "1234",
-                "12345-6"
-        );
-        conta.definirSaldoInicial(new Money(BigDecimal.valueOf(5000.00)));
+        ContaBancaria conta = new ContaBancaria.Builder()
+                .nome("Conta Corrente Principal")
+                .tipo(TipoConta.CORRENTE)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
+                .saldoInicial(Money.of(BigDecimal.valueOf(5000.00)))
+                .build();
 
         // When
         ContaBancaria contaSalva = repository.save(conta);
@@ -60,8 +60,11 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve buscar conta bancária por ID")
     void deveBuscarContaBancariaPorId() {
         // Given
-        ContaBancaria conta = new ContaBancaria("Conta Poupança", TipoConta.POUPANCA);
-        conta.definirSaldoInicial(Money.zero());
+        ContaBancaria conta = new ContaBancaria.Builder()
+                .nome("Conta Poupança")
+                .tipo(TipoConta.POUPANCA)
+                .saldoInicial(Money.zero())
+                .build();
         ContaBancaria contaSalva = repository.save(conta);
 
         // When
@@ -77,8 +80,11 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve deletar conta bancária")
     void deveDeletarContaBancaria() {
         // Given
-        ContaBancaria conta = new ContaBancaria("Conta Temporária", TipoConta.CORRENTE);
-        conta.definirSaldoInicial(Money.zero());
+        ContaBancaria conta = new ContaBancaria.Builder()
+                .nome("Conta Temporária")
+                .tipo(TipoConta.CORRENTE)
+                .saldoInicial(Money.zero())
+                .build();
         ContaBancaria contaSalva = repository.save(conta);
 
         // When
@@ -93,8 +99,11 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar campos obrigatórios")
     void deveValidarCamposObrigatorios() {
         // Given
-        ContaBancaria conta = new ContaBancaria("Conta Validação", TipoConta.CORRENTE);
-        conta.definirSaldoInicial(new Money(BigDecimal.valueOf(1000.00)));
+        ContaBancaria conta = new ContaBancaria.Builder()
+                .nome("Conta Validação")
+                .tipo(TipoConta.CORRENTE)
+                .saldoInicial(Money.of(BigDecimal.valueOf(1000.00)))
+                .build();
 
         // When
         ContaBancaria contaSalva = repository.save(conta);

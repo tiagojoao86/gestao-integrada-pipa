@@ -16,4 +16,12 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'financeiro',
+    loadChildren: () =>
+      import('../financeiro/financeiro.routes').then(
+        (financeiroRoutes) => financeiroRoutes.routes
+      ),
+    canActivate: [authGuard],
+  },
 ];

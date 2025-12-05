@@ -12,11 +12,12 @@ import java.util.UUID;
 @Setter
 @Builder
 public class UnidadeNegocioDTO implements DTO {
-    
+
     private UUID id;
     private String codigo;
     private String nome;
     private String descricao;
+    private String cnpj;
     private Boolean ativa;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

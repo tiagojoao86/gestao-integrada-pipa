@@ -48,11 +48,15 @@
         <source>Cancelar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
-          <context context-type="linenumber">58,59</context>
+          <context context-type="linenumber">67,68</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
           <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">80</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
@@ -63,7 +67,7 @@
         <source>Filtrar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/base/filter/filter.component.html</context>
-          <context context-type="linenumber">62,63</context>
+          <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3608008600355791426" datatype="html">
@@ -91,32 +95,57 @@
         <source>Cadastros</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
-          <context context-type="linenumber">17</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">74</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
           <context context-type="linenumber">72</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="2103347902617115095" datatype="html">
-        <source>Usuários</source>
+      <trans-unit id="2292782637987604074" datatype="html">
+        <source>Pessoas</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
-          <context context-type="linenumber">25</context>
+          <context context-type="linenumber">28</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="712018710969851047" datatype="html">
-        <source>Perfis</source>
+      <trans-unit id="4033295157617074455" datatype="html">
+        <source>Unidades de Negócio</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
-          <context context-type="linenumber">29</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2069533050477372914" datatype="html">
         <source>Geral</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
-          <context context-type="linenumber">33</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2103347902617115095" datatype="html">
+        <source>Usuários</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="712018710969851047" datatype="html">
+        <source>Perfis</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5417396314870135122" datatype="html">
+        <source>Sistema</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="perfil.nome.notBlank" datatype="html">
@@ -141,6 +170,18 @@
           <context context-type="linenumber">76</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
           <context context-type="linenumber">8,9</context>
         </context-group>
@@ -158,6 +199,14 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">8,9</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">52,53</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">122,123</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.html</context>
@@ -229,6 +278,10 @@
           <context context-type="linenumber">82</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-detalhe/usuario-detalhe.component.ts</context>
           <context context-type="linenumber">85</context>
         </context-group>
@@ -249,6 +302,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
           <context context-type="linenumber">151</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">181</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8617344470616298001" datatype="html">
@@ -276,6 +333,14 @@
           <context context-type="linenumber">81</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">85</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">131</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
           <context context-type="linenumber">68</context>
         </context-group>
@@ -291,6 +356,10 @@
           <context context-type="linenumber">114</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">172</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
           <context context-type="linenumber">124</context>
         </context-group>
@@ -300,6 +369,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-grid/perfil-grid.component.ts</context>
           <context context-type="linenumber">120</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">183</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
@@ -313,8 +386,336 @@
           <context context-type="linenumber">123</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">193</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/cadastro/usuario/usuario-grid/usuario-grid.component.ts</context>
           <context context-type="linenumber">133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4055553112474756852" datatype="html">
+        <source>Pessoa Física</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8856052046329933266" datatype="html">
+        <source>Pessoa Jurídica</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.nome.notBlank" datatype="html">
+        <source>O nome da pessoa não pode ser em branco.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.email.invalid" datatype="html">
+        <source>Email inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.telefone.invalid" datatype="html">
+        <source>Telefone inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.ativa.notNull" datatype="html">
+        <source>O campo ativa não pode ser nulo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.notBlank" datatype="html">
+        <source>O CPF não pode ser em branco.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.invalid" datatype="html">
+        <source>CPF inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.unique" datatype="html">
+        <source>Este CPF já está cadastrado.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.dataNascimento.notNull" datatype="html">
+        <source>A data de nascimento não pode ser nula.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.dataNascimento.past" datatype="html">
+        <source>A data de nascimento deve ser no passado.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.notBlank" datatype="html">
+        <source>O CNPJ não pode ser em branco.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.invalid" datatype="html">
+        <source>CNPJ inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.unique" datatype="html">
+        <source>Este CNPJ já está cadastrado.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.razaoSocial.notBlank" datatype="html">
+        <source>A razão social não pode ser em branco.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.nomeFantasia.notBlank" datatype="html">
+        <source>O nome fantasia não pode ser em branco.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6599664054274164346" datatype="html">
+        <source>Tipo de Pessoa:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3211775801490451842" datatype="html">
+        <source>Ativa</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1032610379438375895" datatype="html">
+        <source>Nome Fantasia</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">49,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1890300073702152532" datatype="html">
+        <source>E-mail</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6650686469343853595" datatype="html">
+        <source>E-mail inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6499251675131147754" datatype="html">
+        <source>Telefone</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">64,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3006077093408326580" datatype="html">
+        <source>Telefone inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5392932170099216623" datatype="html">
+        <source>CPF</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7016215972777764207" datatype="html">
+        <source>CPF inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1403700411884140702" datatype="html">
+        <source>Data de Nascimento</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">90,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="153376326695121538" datatype="html">
+        <source>Data inválida.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2167764137958137730" datatype="html">
+        <source>CNPJ</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8070176213289697953" datatype="html">
+        <source>CNPJ inválido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">106,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4538014748752435964" datatype="html">
+        <source>Inscrição Estadual</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3876019644995940064" datatype="html">
+        <source>Razão Social</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">120,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3980283821070310969" datatype="html">
+        <source>Observações</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">135,136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1860181851716377845" datatype="html">
+        <source>Pessoa: </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3053300512328332941" datatype="html">
+        <source>Nova</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8796925427090433344" datatype="html">
+        <source>Pessoa salva com sucesso.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6486179951658227613" datatype="html">
+        <source>Cadastro de pessoas</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3279635668567506784" datatype="html">
+        <source>CPF/CNPJ</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2759773909798147145" datatype="html">
+        <source>Tipo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6407152308703637761" datatype="html">
+        <source>Sim</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1479140584847264931" datatype="html">
+        <source>Não</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="usuario.nome.notBlank" datatype="html">
@@ -410,6 +811,52 @@
           <context context-type="linenumber">41</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="664881113092672927" datatype="html">
+        <source>Financeiro</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1052730971721183811" datatype="html">
+        <source>Plano de Contas</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9222075882240957989" datatype="html">
+        <source>Contas Bancárias</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7411546138285458975" datatype="html">
+        <source>Títulos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1648154769170373798" datatype="html">
+        <source>Movimentações</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3630656224366563261" datatype="html">
+        <source>Operações</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">67</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="7544005586832612256" datatype="html">
         <source>Cliente</source>
         <context-group purpose="location">
@@ -464,13 +911,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
           <context context-type="linenumber">59</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="664881113092672927" datatype="html">
-        <source>Financeiro</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/principal/principal.component.ts</context>
-          <context context-type="linenumber">80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7997233086609357682" datatype="html">

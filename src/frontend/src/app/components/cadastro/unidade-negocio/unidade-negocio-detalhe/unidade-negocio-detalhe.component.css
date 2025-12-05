@@ -1,0 +1,34 @@
+.form {
+  display: flex;
+  flex-direction: row;
+}
+
+.ativa-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  justify-content: end;
+}
+
+.campos-principais {
+  display: flex;
+  width: 100%;
+  margin-right: 9px;
+}
+
+.campo-descricao {
+  display: flex;
+  width: 100%;
+}
+
+p-iftalabel {
+  display: flex;
+  flex-direction: column;
+}
+
+small {
+  color: var(--p-red-500);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

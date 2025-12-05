@@ -19,7 +19,7 @@ import {
 } from '../../../base/paginator/paginator.component';
 import {
   FilterProperty,
-  FiltroComponent,
+  FilterComponent,
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
@@ -31,7 +31,7 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
     CommonModule,
     TableComponent,
     PaginatorComponent,
-    FiltroComponent,
+    FilterComponent,
   ],
   providers: [UsuarioService, DatePipe],
   templateUrl: './usuario-grid.component.html',
@@ -105,14 +105,25 @@ export class UsuarioGridComponent {
   private auth: AuthService = inject(AuthService);
 
   constructor() {
-    const canView = this.auth.hasAuthorityVisualizarToModulo('CADASTRO_USUARIO');
+    const canView =
+      this.auth.hasAuthorityVisualizarToModulo('CADASTRO_USUARIO');
     const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_USUARIO');
 
     if (canView) {
-      this.acoesTabela.push({ icon: 'edit_note', action: (element: UsuarioGridDTO) => this.openDetail.emit(element.id)});
+      this.acoesTabela.push({
+        icon: 'edit_note',
+        action: (element: UsuarioGridDTO) => this.openDetail.emit(element.id),
+      });
     }
     if (canDelete) {
-      this.acoesTabela.push({ icon: 'delete', action: (element: UsuarioGridDTO) => { this.service.delete(element.id).subscribe(() => this.listarUsuarios()); }});
+      this.acoesTabela.push({
+        icon: 'delete',
+        action: (element: UsuarioGridDTO) => {
+          this.service
+            .delete(element.id)
+            .subscribe(() => this.listarUsuarios());
+        },
+      });
     }
 
     this.acoesTela = [
@@ -127,10 +138,25 @@ export class UsuarioGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('CADASTRO_USUARIO')) {
-      this.acoesTela.push({action: () => { this.openDetail.emit('add'); }, icon: 'add', title: $localize`Adicionar` + ' (alt + a)', shortcut: 'alt.a'});
+      this.acoesTela.push({
+        action: () => {
+          this.openDetail.emit('add');
+        },
+        icon: 'add',
+        title: $localize`Adicionar` + ' (alt + a)',
+        shortcut: 'alt.a',
+      });
     }
 
-    this.acoesTela.push({ action: () => { this.alternarMostrarFiltros(); }, icon: 'search', title: $localize`Pesquisar` + ' (alt + p)', value: '0', shortcut: 'alt.p'});
+    this.acoesTela.push({
+      action: () => {
+        this.alternarMostrarFiltros();
+      },
+      icon: 'search',
+      title: $localize`Pesquisar` + ' (alt + p)',
+      value: '0',
+      shortcut: 'alt.p',
+    });
 
     this.listarUsuarios();
   }

@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class PlanoContasServiceImpl extends CrudServiceImpl<PlanoContasDTO, PlanoContasGridDTO, PlanoContas, PlanoContasRepository>
+public class PlanoContasServiceImpl
+        extends CrudServiceImpl<PlanoContasDTO, PlanoContasGridDTO, PlanoContas, PlanoContasRepository>
         implements PlanoContasService {
 
     public PlanoContasServiceImpl(PlanoContasRepository repository, Specifications<PlanoContas> specifications) {
@@ -21,25 +22,25 @@ public class PlanoContasServiceImpl extends CrudServiceImpl<PlanoContasDTO, Plan
     protected PlanoContas mergeEntityAndDTO(PlanoContas entity, PlanoContasDTO dto) {
         if (Objects.isNull(entity)) {
             TipoPlanoContas tipo = TipoPlanoContas.valueOf(dto.getTipo());
-            entity = new PlanoContas(dto.getCodigo(), dto.getDescricao(), tipo);
-            
+            PlanoContas planoPai = null;
+
             if (dto.getPlanoPaiId() != null) {
-                PlanoContas planoPai = repository.findById(dto.getPlanoPaiId())
+                planoPai = repository.findById(dto.getPlanoPaiId())
                         .orElseThrow(() -> new IllegalArgumentException("Plano pai não encontrado"));
-                entity.definirPlanoPai(planoPai);
             }
-            
+
+            entity = new PlanoContas.Builder()
+                    .codigo(dto.getCodigo())
+                    .descricao(dto.getDescricao())
+                    .tipo(tipo)
+                    .planoPai(planoPai)
+                    .build();
+
             return entity;
         }
 
         entity.atualizar(dto.getDescricao());
-        
-        if (dto.getPlanoPaiId() != null) {
-            PlanoContas planoPai = repository.findById(dto.getPlanoPaiId())
-                    .orElseThrow(() -> new IllegalArgumentException("Plano pai não encontrado"));
-            entity.definirPlanoPai(planoPai);
-        }
-        
+
         if (dto.getAtivo() != null) {
             if (dto.getAtivo()) {
                 entity.ativar();

@@ -58,10 +58,18 @@ class PlanoContasServiceTest {
                 .build();
 
         // Entity de Receitas
-        entityReceitas = new PlanoContas("1", "Receitas", TipoPlanoContas.RECEITA);
+        entityReceitas = new PlanoContas.Builder()
+                .codigo("1")
+                .descricao("Receitas")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
 
         // Entity de Despesas
-        entityDespesas = new PlanoContas("2", "Despesas", TipoPlanoContas.DESPESA);
+        entityDespesas = new PlanoContas.Builder()
+                .codigo("2")
+                .descricao("Despesas")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
     }
 
     @Test
@@ -83,6 +91,19 @@ class PlanoContasServiceTest {
     void deveCriarPlanoContasComPlanoPai() {
         // Given
         UUID planoPaiId = UUID.randomUUID();
+        PlanoContas entityPai = new PlanoContas.Builder()
+                .codigo("1")
+                .descricao("Receitas")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
+        try {
+            var idField = PlanoContas.class.getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(entityPai, planoPaiId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         PlanoContasDTO dtoFilho = PlanoContasDTO.builder()
                 .codigo("1.1")
                 .descricao("Receitas Operacionais")
@@ -91,7 +112,7 @@ class PlanoContasServiceTest {
                 .ativo(true)
                 .build();
 
-        when(repository.findById(planoPaiId)).thenReturn(Optional.of(entityReceitas));
+        when(repository.findById(planoPaiId)).thenReturn(Optional.of(entityPai));
 
         // When
         PlanoContas resultado = service.mergeEntityAndDTO(null, dtoFilho);
@@ -216,10 +237,23 @@ class PlanoContasServiceTest {
     }
 
     @Test
-    @DisplayName("Deve criar plano de contas do tipo DESPESA com plano pai do mesmo tipo")
+    @DisplayName("Deve criar plano de contas do tipo Despesa com plano pai")
     void deveCriarPlanoContasDespesaComPlanoPai() {
         // Given
         UUID planoPaiId = UUID.randomUUID();
+        PlanoContas entityPai = new PlanoContas.Builder()
+                .codigo("2")
+                .descricao("Despesas")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
+        try {
+            var idField = PlanoContas.class.getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(entityPai, planoPaiId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         PlanoContasDTO dtoDespesaFilho = PlanoContasDTO.builder()
                 .codigo("2.1")
                 .descricao("Despesas Administrativas")
@@ -228,7 +262,7 @@ class PlanoContasServiceTest {
                 .ativo(true)
                 .build();
 
-        when(repository.findById(planoPaiId)).thenReturn(Optional.of(entityDespesas));
+        when(repository.findById(planoPaiId)).thenReturn(Optional.of(entityPai));
 
         // When
         PlanoContas resultado = service.mergeEntityAndDTO(null, dtoDespesaFilho);
@@ -280,7 +314,7 @@ class PlanoContasServiceTest {
     void deveAtivarPlanoContasExistente() {
         // Given
         entityReceitas.inativar(); // Primeiro inativa
-        
+
         PlanoContasDTO dtoAtivo = PlanoContasDTO.builder()
                 .codigo("1")
                 .descricao("Receitas")

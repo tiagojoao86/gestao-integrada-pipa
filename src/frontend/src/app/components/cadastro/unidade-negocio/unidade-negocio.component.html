@@ -1,0 +1,10 @@
+<gi-unidade-negocio-grid
+  *ngIf="viewMode === 'GRID'"
+  (openDetailEvent)="openDetail($event)"
+></gi-unidade-negocio-grid>
+
+<gi-unidade-negocio-detalhe
+  *ngIf="viewMode === 'DETAIL'"
+  [id]="detailId"
+  (closeDetailEvent)="toggleView()"
+></gi-unidade-negocio-detalhe>
