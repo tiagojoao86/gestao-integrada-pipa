@@ -71,6 +71,16 @@ gi-app-root {
   width: 100%;
 }
 
+.form-row {
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  margin-right: 0.5rem;
+}
+
 .w-05 {
   width: 5% !important;
 }
@@ -99,6 +109,10 @@ gi-app-root {
   width: 35% !important;
 }
 
+.w-40 {
+  width: 40% !important;
+}
+
 .w-45 {
   width: 45% !important;
 }
@@ -121,6 +135,10 @@ gi-app-root {
 
 .w-85 {
   width: 85% !important;
+}
+
+.w-90 {
+  width: 90% !important;
 }
 
 .w-95 {
@@ -268,6 +286,7 @@ button.secundario {
 .p-select {
   background-color: var(--inverted-text-color) !important;
   color: var(--text-color) !important;
+  width: 100% !important;
 
   .p-select-dropdown {
     color: var(--text-color) !important;
@@ -346,6 +365,15 @@ input:-webkit-autofill:active {
   color: var(--text-color) !important;
   font-size: var(--text-size) !important;
   border-color: var(--border-color) !important;
+}
+
+.p-inputnumber {
+  width: 100% !important;
+}
+
+.p-iftalabel:has(.p-inputwrapper-focus) label {
+  color: var(--text-color) !important;
+  font-size: 12px !important;
 }
 
 .p-floatlabel:has(input:focus) label {

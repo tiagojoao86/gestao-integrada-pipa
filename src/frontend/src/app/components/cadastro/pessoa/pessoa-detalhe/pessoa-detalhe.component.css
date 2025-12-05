@@ -1,9 +1,3 @@
-.form {
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
 .tipo-pessoa-ativa {
   width: 100%;
   margin-left: 0.4rem;

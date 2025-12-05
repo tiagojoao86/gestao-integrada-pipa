@@ -13,17 +13,6 @@ export const routes: Routes = [
       group: 'FINANCEIRO',
     },
   },
-  /*{
-    path: 'plano-contas',
-    loadComponent: () =>
-      import('./plano-contas/plano-contas.component').then(
-        (app) => app.PlanoContasComponent
-      ),
-    canActivate: [authGuard, moduleAuthorityGuard],
-    data: {
-      moduleKey: 'CADASTRO_PLANO_CONTAS',
-    },
-  },
   {
     path: 'conta-bancaria',
     loadComponent: () =>
@@ -34,6 +23,18 @@ export const routes: Routes = [
     data: {
       moduleKey: 'CADASTRO_CONTA_BANCARIA',
     },
+  },
+  /*{
+    path: 'plano-contas',
+    loadComponent: () =>
+      import('./plano-contas/plano-contas.component').then(
+        (app) => app.PlanoContasComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: 'CADASTRO_PLANO_CONTAS',
+    },
+  },  
   },
   {
     path: 'titulo',

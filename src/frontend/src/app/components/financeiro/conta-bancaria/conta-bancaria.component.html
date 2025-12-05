@@ -1,0 +1,12 @@
+<gi-conta-bancaria-grid
+  *ngIf="viewMode === 'GRID'"
+  (openDetail)="openDetail($event)"
+>
+</gi-conta-bancaria-grid>
+
+<gi-conta-bancaria-detalhe
+  *ngIf="viewMode === 'DETAIL'"
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+>
+</gi-conta-bancaria-detalhe>

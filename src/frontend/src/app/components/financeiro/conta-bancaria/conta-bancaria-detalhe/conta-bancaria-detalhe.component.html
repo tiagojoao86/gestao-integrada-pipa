@@ -1,0 +1,65 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="acoesTela"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+      <div class="form-row">
+        <p-iftalabel class="w-100">
+          <input pInputText id="nomeConta" formControlName="nome" />
+          <label for="nomeConta" i18n>Nome</label>
+          <small *ngIf="isControlInvalid('nome')" i18n
+            >Esse campo não pode ser em branco.</small
+          >
+        </p-iftalabel>
+        <div class="checkbox-container">
+          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true">
+          </p-checkbox>
+          <label for="ativa" i18n>Ativa</label>
+        </div>
+      </div>
+      <p-iftalabel class="w-50">
+        <input pInputText id="banco" formControlName="banco" />
+        <label for="banco" i18n>Banco</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="tipoConta"
+          [options]="tiposContaOptions"
+          formControlName="tipo"
+          optionLabel="label"
+          optionValue="value"
+        >
+        </p-select>
+        <label for="tipoConta" i18n>Tipo de Conta</label>
+        <small *ngIf="isControlInvalid('tipo')" i18n
+          >Esse campo é obrigatório.</small
+        >
+      </p-iftalabel>
+      <p-iftalabel class="w-40">
+        <input pInputText id="agencia" formControlName="agencia" />
+        <label for="agencia" i18n>Agência</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-40">
+        <input pInputText id="numeroConta" formControlName="numeroConta" />
+        <label for="numeroConta" i18n>Número da Conta</label>
+      </p-iftalabel>
+      <p-iftalabel class="w-20">
+        <p-inputNumber
+          inputId="saldoInicial"
+          formControlName="saldoInicial"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [style]="{ width: '100%' }"
+        >
+        </p-inputNumber>
+        <label for="saldoInicial" i18n>Saldo Inicial</label>
+      </p-iftalabel>
+    </div>
+  </div>
+</gi-app-base>

@@ -67,14 +67,7 @@ export class FilterComponent implements OnInit {
       ];
     }
     if (FilterType.SELECAO === tipo) {
-      return [
-        FilterOperator.NEQ,
-        FilterOperator.EQ,
-        FilterOperator.GT,
-        FilterOperator.GE,
-        FilterOperator.LT,
-        FilterOperator.LE,
-      ];
+      return [FilterOperator.NEQ, FilterOperator.EQ];
     }
     if (FilterType.MULTI_SELECAO === tipo) {
       return [FilterOperator.IN, FilterOperator.NOT_IN];
