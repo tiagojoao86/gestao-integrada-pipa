@@ -64,8 +64,10 @@
         </context-group>
       </trans-unit>
       <trans-unit id="3608008600355791426" datatype="html">
-        <source>Página <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> de <x id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></source>
-        <target>Page <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> of <x id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></target>
+        <source>Página <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> de <x
+            id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></source>
+        <target>Page <x id="INTERPOLATION" equiv-text="{{ pageNumber + 1 }}" /> of <x
+            id="INTERPOLATION_1" equiv-text="{{ getTotalPages() }}" /></target>
         <context-group purpose="location">
           <context context-type="sourcefile">
             src/app/components/base/paginator/paginator.component.html</context>
@@ -129,7 +131,8 @@
         <source>Cadastro de perfis</source>
         <target>Profile Registration</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-grid/perfil-grid.component.ts</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-grid/perfil-grid.component.ts</context>
           <context context-type="linenumber">41</context>
         </context-group>
       </trans-unit>
@@ -137,7 +140,8 @@
         <source>Permissões</source>
         <target>Permissions</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">10,12</context>
         </context-group>
       </trans-unit>
@@ -145,7 +149,8 @@
         <source>Perfil: </source>
         <target>Profile: </target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
           <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
@@ -153,7 +158,8 @@
         <source>Perfil salvo com sucesso.</source>
         <target>Profile saved successfully.</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
           <context context-type="linenumber">134</context>
         </context-group>
       </trans-unit>
@@ -161,7 +167,8 @@
         <source>O nome do perfil não pode ser em branco.</source>
         <target>The profile name cannot be blank.</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-backend-message.service.ts</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-backend-message.service.ts</context>
           <context context-type="linenumber">10</context>
         </context-group>
       </trans-unit>
@@ -169,7 +176,8 @@
         <source>Existem campos inválidos.</source>
         <target>There are invalid fields.</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.ts</context>
           <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
@@ -481,7 +489,8 @@
         <source>Módulo</source>
         <target>Module</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
@@ -489,7 +498,8 @@
         <source>Listar</source>
         <target>List</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
@@ -497,7 +507,8 @@
         <source>Visualizar</source>
         <target>View</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
@@ -505,7 +516,8 @@
         <source>Editar</source>
         <target>Edit</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">22</context>
         </context-group>
       </trans-unit>
@@ -513,7 +525,8 @@
         <source>Excluir</source>
         <target>Delete</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
@@ -521,7 +534,8 @@
         <source>Perfis Vinculados</source>
         <target>Linked Profiles</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
+          <context context-type="sourcefile">
+            src/app/components/cadastro/perfil/perfil-detalhe/perfil-detalhe.component.html</context>
           <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
@@ -533,6 +547,539 @@
           <context context-type="linenumber">80</context>
         </context-group>
       </trans-unit>
-    <trans-unit id="2292782637987604074" datatype="html"><source>Pessoas</source><target>People</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context><context context-type="linenumber">28</context></context-group></trans-unit><trans-unit id="4033295157617074455" datatype="html"><source>Unidades de Negócio</source><target>Business Units</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context><context context-type="linenumber">38</context></context-group></trans-unit><trans-unit id="5417396314870135122" datatype="html"><source>Sistema</source><target>System</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context><context context-type="linenumber">68</context></context-group></trans-unit><trans-unit id="4055553112474756852" datatype="html"><source>Pessoa Física</source><target>Individual</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context><context context-type="linenumber">30</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">20,21</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">72</context></context-group></trans-unit><trans-unit id="8856052046329933266" datatype="html"><source>Pessoa Jurídica</source><target>Company</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context><context context-type="linenumber">34</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">30,31</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">73</context></context-group></trans-unit><trans-unit id="pessoa.nome.notBlank" datatype="html"><source>O nome da pessoa não pode ser em branco.</source><target>Person name cannot be blank.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">10</context></context-group></trans-unit><trans-unit id="pessoa.email.invalid" datatype="html"><source>Email inválido.</source><target>Invalid email.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">11</context></context-group></trans-unit><trans-unit id="pessoa.telefone.invalid" datatype="html"><source>Telefone inválido.</source><target>Invalid phone number.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">12</context></context-group></trans-unit><trans-unit id="pessoa.ativa.notNull" datatype="html"><source>O campo ativa não pode ser nulo.</source><target>Active field cannot be null.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">13</context></context-group></trans-unit><trans-unit id="pessoaFisica.cpf.notBlank" datatype="html"><source>O CPF não pode ser em branco.</source><target>CPF cannot be blank.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">14</context></context-group></trans-unit><trans-unit id="pessoaFisica.cpf.invalid" datatype="html"><source>CPF inválido.</source><target>Invalid CPF.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">15</context></context-group></trans-unit><trans-unit id="pessoaFisica.cpf.unique" datatype="html"><source>Este CPF já está cadastrado.</source><target>This CPF is already registered.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">16</context></context-group></trans-unit><trans-unit id="pessoaFisica.dataNascimento.notNull" datatype="html"><source>A data de nascimento não pode ser nula.</source><target>Birth date cannot be null.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">17</context></context-group></trans-unit><trans-unit id="pessoaFisica.dataNascimento.past" datatype="html"><source>A data de nascimento deve ser no passado.</source><target>Birth date must be in the past.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">18</context></context-group></trans-unit><trans-unit id="pessoaJuridica.cnpj.notBlank" datatype="html"><source>O CNPJ não pode ser em branco.</source><target>CNPJ cannot be blank.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">19</context></context-group></trans-unit><trans-unit id="pessoaJuridica.cnpj.invalid" datatype="html"><source>CNPJ inválido.</source><target>Invalid CNPJ.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">20</context></context-group></trans-unit><trans-unit id="pessoaJuridica.cnpj.unique" datatype="html"><source>Este CNPJ já está cadastrado.</source><target>This CNPJ is already registered.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">21</context></context-group></trans-unit><trans-unit id="pessoaJuridica.razaoSocial.notBlank" datatype="html"><source>A razão social não pode ser em branco.</source><target>Company name cannot be blank.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">22</context></context-group></trans-unit><trans-unit id="pessoaJuridica.nomeFantasia.notBlank" datatype="html"><source>O nome fantasia não pode ser em branco.</source><target>Trade name cannot be blank.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context><context context-type="linenumber">23</context></context-group></trans-unit><trans-unit id="6599664054274164346" datatype="html"><source>Tipo de Pessoa:</source><target>Person Type:</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">11,12</context></context-group></trans-unit><trans-unit id="3211775801490451842" datatype="html"><source>Ativa</source><target>Active</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">39,40</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">78</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">122</context></context-group></trans-unit><trans-unit id="1032610379438375895" datatype="html"><source>Nome Fantasia</source><target>Trade Name</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">49,50</context></context-group></trans-unit><trans-unit id="1890300073702152532" datatype="html"><source>E-mail</source><target>Email</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">58,59</context></context-group></trans-unit><trans-unit id="6650686469343853595" datatype="html"><source>E-mail inválido.</source><target>Invalid email.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">59,60</context></context-group></trans-unit><trans-unit id="6499251675131147754" datatype="html"><source>Telefone</source><target>Phone</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">64,65</context></context-group></trans-unit><trans-unit id="3006077093408326580" datatype="html"><source>Telefone inválido.</source><target>Invalid phone number.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">66,67</context></context-group></trans-unit><trans-unit id="5392932170099216623" datatype="html"><source>CPF</source><target>CPF</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">79,80</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">103</context></context-group></trans-unit><trans-unit id="7016215972777764207" datatype="html"><source>CPF inválido.</source><target>Invalid CPF.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">80,81</context></context-group></trans-unit><trans-unit id="1403700411884140702" datatype="html"><source>Data de Nascimento</source><target>Birth Date</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">90,91</context></context-group></trans-unit><trans-unit id="153376326695121538" datatype="html"><source>Data inválida.</source><target>Invalid date.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">92,93</context></context-group></trans-unit><trans-unit id="2167764137958137730" datatype="html"><source>CNPJ</source><target>CNPJ</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">105,106</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">108</context></context-group></trans-unit><trans-unit id="8070176213289697953" datatype="html"><source>CNPJ inválido.</source><target>Invalid CNPJ.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">106,107</context></context-group></trans-unit><trans-unit id="4538014748752435964" datatype="html"><source>Inscrição Estadual</source><target>State Registration</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">115,116</context></context-group></trans-unit><trans-unit id="3876019644995940064" datatype="html"><source>Razão Social</source><target>Company Name</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">120,121</context></context-group></trans-unit><trans-unit id="3980283821070310969" datatype="html"><source>Observações</source><target>Notes</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context><context context-type="linenumber">135,136</context></context-group></trans-unit><trans-unit id="1860181851716377845" datatype="html"><source>Pessoa: </source><target>Person: </target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context><context context-type="linenumber">64</context></context-group></trans-unit><trans-unit id="3053300512328332941" datatype="html"><source>Nova</source><target>New</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context><context context-type="linenumber">98</context></context-group></trans-unit><trans-unit id="8796925427090433344" datatype="html"><source>Pessoa salva com sucesso.</source><target>Person saved successfully.</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context><context context-type="linenumber">211</context></context-group></trans-unit><trans-unit id="6486179951658227613" datatype="html"><source>Cadastro de pessoas</source><target>People Registration</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">42</context></context-group></trans-unit><trans-unit id="3279635668567506784" datatype="html"><source>CPF/CNPJ</source><target>CPF/CNPJ</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">62</context></context-group></trans-unit><trans-unit id="2759773909798147145" datatype="html"><source>Tipo</source><target>Type</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">69</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">113</context></context-group></trans-unit><trans-unit id="6407152308703637761" datatype="html"><source>Sim</source><target>Yes</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">80</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">125</context></context-group></trans-unit><trans-unit id="1479140584847264931" datatype="html"><source>Não</source><target>No</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">80</context></context-group><context-group purpose="location"><context context-type="sourcefile">src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context><context context-type="linenumber">126</context></context-group></trans-unit><trans-unit id="1052730971721183811" datatype="html"><source>Plano de Contas</source><target>Chart of Accounts</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context><context context-type="linenumber">29</context></context-group></trans-unit><trans-unit id="9222075882240957989" datatype="html"><source>Contas Bancárias</source><target>Bank Accounts</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context><context context-type="linenumber">39</context></context-group></trans-unit><trans-unit id="7411546138285458975" datatype="html"><source>Títulos</source><target>Titles</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context><context context-type="linenumber">49</context></context-group></trans-unit><trans-unit id="1648154769170373798" datatype="html"><source>Movimentações</source><target>Transactions</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context><context context-type="linenumber">59</context></context-group></trans-unit><trans-unit id="3630656224366563261" datatype="html"><source>Operações</source><target>Operations</target><context-group purpose="location"><context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context><context context-type="linenumber">67</context></context-group></trans-unit></body>
+      <trans-unit id="2292782637987604074" datatype="html">
+        <source>Pessoas</source>
+        <target>People</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4033295157617074455" datatype="html">
+        <source>Unidades de Negócio</source>
+        <target>Business Units</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5417396314870135122" datatype="html">
+        <source>Sistema</source>
+        <target>System</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/cadastro.component.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4055553112474756852" datatype="html">
+        <source>Pessoa Física</source>
+        <target>Individual</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8856052046329933266" datatype="html">
+        <source>Pessoa Jurídica</source>
+        <target>Company</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/cadastro/pessoa/model/pessoa-dto.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.nome.notBlank" datatype="html">
+        <source>O nome da pessoa não pode ser em branco.</source>
+        <target>Person name cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.email.invalid" datatype="html">
+        <source>Email inválido.</source>
+        <target>Invalid email.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.telefone.invalid" datatype="html">
+        <source>Telefone inválido.</source>
+        <target>Invalid phone number.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoa.ativa.notNull" datatype="html">
+        <source>O campo ativa não pode ser nulo.</source>
+        <target>Active field cannot be null.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.notBlank" datatype="html">
+        <source>O CPF não pode ser em branco.</source>
+        <target>CPF cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.invalid" datatype="html">
+        <source>CPF inválido.</source>
+        <target>Invalid CPF.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.cpf.unique" datatype="html">
+        <source>Este CPF já está cadastrado.</source>
+        <target>This CPF is already registered.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.dataNascimento.notNull" datatype="html">
+        <source>A data de nascimento não pode ser nula.</source>
+        <target>Birth date cannot be null.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaFisica.dataNascimento.past" datatype="html">
+        <source>A data de nascimento deve ser no passado.</source>
+        <target>Birth date must be in the past.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.notBlank" datatype="html">
+        <source>O CNPJ não pode ser em branco.</source>
+        <target>CNPJ cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.invalid" datatype="html">
+        <source>CNPJ inválido.</source>
+        <target>Invalid CNPJ.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.cnpj.unique" datatype="html">
+        <source>Este CNPJ já está cadastrado.</source>
+        <target>This CNPJ is already registered.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.razaoSocial.notBlank" datatype="html">
+        <source>A razão social não pode ser em branco.</source>
+        <target>Company name cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="pessoaJuridica.nomeFantasia.notBlank" datatype="html">
+        <source>O nome fantasia não pode ser em branco.</source>
+        <target>Trade name cannot be blank.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-backend-message.service.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6599664054274164346" datatype="html">
+        <source>Tipo de Pessoa:</source>
+        <target>Person Type:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3211775801490451842" datatype="html">
+        <source>Ativa</source>
+        <target>Active</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1032610379438375895" datatype="html">
+        <source>Nome Fantasia</source>
+        <target>Trade Name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">49,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1890300073702152532" datatype="html">
+        <source>E-mail</source>
+        <target>Email</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6650686469343853595" datatype="html">
+        <source>E-mail inválido.</source>
+        <target>Invalid email.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6499251675131147754" datatype="html">
+        <source>Telefone</source>
+        <target>Phone</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">64,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3006077093408326580" datatype="html">
+        <source>Telefone inválido.</source>
+        <target>Invalid phone number.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5392932170099216623" datatype="html">
+        <source>CPF</source>
+        <target>CPF</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7016215972777764207" datatype="html">
+        <source>CPF inválido.</source>
+        <target>Invalid CPF.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1403700411884140702" datatype="html">
+        <source>Data de Nascimento</source>
+        <target>Birth Date</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">90,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="153376326695121538" datatype="html">
+        <source>Data inválida.</source>
+        <target>Invalid date.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2167764137958137730" datatype="html">
+        <source>CNPJ</source>
+        <target>CNPJ</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8070176213289697953" datatype="html">
+        <source>CNPJ inválido.</source>
+        <target>Invalid CNPJ.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">106,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4538014748752435964" datatype="html">
+        <source>Inscrição Estadual</source>
+        <target>State Registration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3876019644995940064" datatype="html">
+        <source>Razão Social</source>
+        <target>Company Name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">120,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3980283821070310969" datatype="html">
+        <source>Observações</source>
+        <target>Notes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.html</context>
+          <context context-type="linenumber">135,136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1860181851716377845" datatype="html">
+        <source>Pessoa: </source>
+        <target>Person: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3053300512328332941" datatype="html">
+        <source>Nova</source>
+        <target>New</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8796925427090433344" datatype="html">
+        <source>Pessoa salva com sucesso.</source>
+        <target>Person saved successfully.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6486179951658227613" datatype="html">
+        <source>Cadastro de pessoas</source>
+        <target>People Registration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3279635668567506784" datatype="html">
+        <source>CPF/CNPJ</source>
+        <target>CPF/CNPJ</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2759773909798147145" datatype="html">
+        <source>Tipo</source>
+        <target>Type</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6407152308703637761" datatype="html">
+        <source>Sim</source>
+        <target>Yes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1479140584847264931" datatype="html">
+        <source>Não</source>
+        <target>No</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">
+            src/app/components/cadastro/pessoa/pessoa-grid/pessoa-grid.component.ts</context>
+          <context context-type="linenumber">126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1052730971721183811" datatype="html">
+        <source>Plano de Contas</source>
+        <target>Chart of Accounts</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="9222075882240957989" datatype="html">
+        <source>Contas Bancárias</source>
+        <target>Bank Accounts</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7411546138285458975" datatype="html">
+        <source>Títulos</source>
+        <target>Titles</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1648154769170373798" datatype="html">
+        <source>Movimentações</source>
+        <target>Transactions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3630656224366563261" datatype="html">
+        <source>Operações</source>
+        <target>Operations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/financeiro.component.ts</context>
+          <context context-type="linenumber">67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.codigo.notBlank" datatype="html">
+        <source>O código não pode ser em branco.</source>
+        <target>Code cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.codigo.maxLength" datatype="html">
+        <source>O código deve ter no máximo 20 caracteres.</source>
+        <target>Code must have at most 20 characters.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.codigo.unique" datatype="html">
+        <source>Este código já está cadastrado.</source>
+        <target>This code is already registered.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.nome.notBlank" datatype="html">
+        <source>O nome não pode ser em branco.</source>
+        <target>Name cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.nome.maxLength" datatype="html">
+        <source>O nome deve ter no máximo 200 caracteres.</source>
+        <target>Name must have at most 200 characters.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.cnpj.invalid" datatype="html">
+        <source>CNPJ inválido.</source>
+        <target>Invalid CNPJ.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.cnpj.maxLength" datatype="html">
+        <source>O CNPJ deve ter no máximo 18 caracteres.</source>
+        <target>CNPJ must have at most 18 characters.</target>
+      </trans-unit>
+      <trans-unit id="unidadeNegocio.ativa.notNull" datatype="html">
+        <source>O campo ativa não pode ser nulo.</source>
+        <target>Active field cannot be null.</target>
+      </trans-unit>
+      <trans-unit id="8092481494731054331" datatype="html">
+        <source>Código</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="7446064774422105887" datatype="html">
+        <source>Unidade de Negócio: </source>
+        <target>Business Unit: </target>
+      </trans-unit>
+      <trans-unit id="6214779001607053002" datatype="html">
+        <source>Unidade de Negócio salva com sucesso.</source>
+        <target>Business Unit saved successfully.</target>
+      </trans-unit>
+      <trans-unit id="5269978570089659028" datatype="html">
+        <source>Descrição</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="1009272527112339523" datatype="html">
+        <source>O código não pode ser em branco.</source>
+        <target>Code cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="447496454714161577" datatype="html">
+        <source>O nome não pode ser em branco.</source>
+        <target>Name cannot be blank.</target>
+      </trans-unit>
+    </body>
   </file>
 </xliff>
