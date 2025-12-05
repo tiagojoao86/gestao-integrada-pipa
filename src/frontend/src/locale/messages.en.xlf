@@ -1080,6 +1080,114 @@
         <source>O nome não pode ser em branco.</source>
         <target>Name cannot be blank.</target>
       </trans-unit>
+      <trans-unit id="contaBancaria.nome.notBlank" datatype="html">
+        <source>O nome da conta não pode ser em branco.</source>
+        <target>Account name cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="contaBancaria.nome.maxLength" datatype="html">
+        <source>O nome deve ter no máximo 100 caracteres.</source>
+        <target>Name must have at most 100 characters.</target>
+      </trans-unit>
+      <trans-unit id="contaBancaria.tipo.notNull" datatype="html">
+        <source>O tipo da conta é obrigatório.</source>
+        <target>Account type is required.</target>
+      </trans-unit>
+      <trans-unit id="contaBancaria.saldoInicial.invalid" datatype="html">
+        <source>Saldo inicial inválido.</source>
+        <target>Invalid initial balance.</target>
+      </trans-unit>
+      <trans-unit id="6562827004495944966" datatype="html">
+        <source>Conta Corrente</source>
+        <target>Checking Account</target>
+      </trans-unit>
+      <trans-unit id="7323128037584743718" datatype="html">
+        <source>Poupança</source>
+        <target>Savings</target>
+      </trans-unit>
+      <trans-unit id="321084084089215848" datatype="html">
+        <source>Caixa</source>
+        <target>Cash</target>
+      </trans-unit>
+      <trans-unit id="4191277492506092265" datatype="html">
+        <source>Investimento</source>
+        <target>Investment</target>
+      </trans-unit>
+      <trans-unit id="4593930544199768186" datatype="html">
+        <source>Conta Bancária: </source>
+        <target>Bank Account: </target>
+      </trans-unit>
+      <trans-unit id="7704744945820509446" datatype="html">
+        <source>Conta bancária salva com sucesso.</source>
+        <target>Bank account saved successfully.</target>
+      </trans-unit>
+      <trans-unit id="2106946645618721064" datatype="html">
+        <source>Banco</source>
+        <target>Bank</target>
+      </trans-unit>
+      <trans-unit id="5277836387105786356" datatype="html">
+        <source>Tipo de Conta</source>
+        <target>Account Type</target>
+      </trans-unit>
+      <trans-unit id="9077579097556306859" datatype="html">
+        <source>Agência</source>
+        <target>Branch</target>
+      </trans-unit>
+      <trans-unit id="1245979882893455664" datatype="html">
+        <source>Número da Conta</source>
+        <target>Account Number</target>
+      </trans-unit>
+      <trans-unit id="913914436385414604" datatype="html">
+        <source>Saldo Inicial</source>
+        <target>Initial Balance</target>
+      </trans-unit>
+      <trans-unit id="360912084938744994" datatype="html">
+        <source>Esse campo é obrigatório.</source>
+        <target>This field is required.</target>
+      </trans-unit>
+      <trans-unit id="1444863501469828724" datatype="html">
+        <source>Igual</source>
+        <target>Equal</target>
+      </trans-unit>
+      <trans-unit id="5864088936252417488" datatype="html">
+        <source>Diferente</source>
+        <target>Not Equal</target>
+      </trans-unit>
+      <trans-unit id="4942773832713905208" datatype="html">
+        <source>Maior</source>
+        <target>Greater Than</target>
+      </trans-unit>
+      <trans-unit id="8024483006291285913" datatype="html">
+        <source>Menor</source>
+        <target>Less Than</target>
+      </trans-unit>
+      <trans-unit id="6257590089217321363" datatype="html">
+        <source>Maior ou Igual</source>
+        <target>Greater Than or Equal</target>
+      </trans-unit>
+      <trans-unit id="6896401225169746121" datatype="html">
+        <source>Menor ou Igual</source>
+        <target>Less Than or Equal</target>
+      </trans-unit>
+      <trans-unit id="6374975535909920011" datatype="html">
+        <source>Contém</source>
+        <target>Contains</target>
+      </trans-unit>
+      <trans-unit id="5320918101087931988" datatype="html">
+        <source>Não Contém</source>
+        <target>Does Not Contain</target>
+      </trans-unit>
+      <trans-unit id="2988606229638802790" datatype="html">
+        <source>Está em</source>
+        <target>Is In</target>
+      </trans-unit>
+      <trans-unit id="8565675920624503965" datatype="html">
+        <source>Não está em</source>
+        <target>Is Not In</target>
+      </trans-unit>
+      <trans-unit id="3437316512084771871" datatype="html">
+        <source>Entre</source>
+        <target>Between</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

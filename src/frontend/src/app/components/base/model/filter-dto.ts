@@ -38,32 +38,50 @@ export class FilterLogicOperator {
 }
 
 export class FilterOperator {
-  static readonly EQ: FilterOperator = new FilterOperator('Igual', 'EQ');
-  static readonly NEQ: FilterOperator = new FilterOperator('Diferente', 'NEQ');
-  static readonly GT: FilterOperator = new FilterOperator('Maior', 'GT');
-  static readonly LT: FilterOperator = new FilterOperator('Menor', 'LT');
+  static readonly EQ: FilterOperator = new FilterOperator(
+    $localize`Igual`,
+    'EQ'
+  );
+  static readonly NEQ: FilterOperator = new FilterOperator(
+    $localize`Diferente`,
+    'NEQ'
+  );
+  static readonly GT: FilterOperator = new FilterOperator(
+    $localize`Maior`,
+    'GT'
+  );
+  static readonly LT: FilterOperator = new FilterOperator(
+    $localize`Menor`,
+    'LT'
+  );
   static readonly GE: FilterOperator = new FilterOperator(
-    'Maior ou Igual',
+    $localize`Maior ou Igual`,
     'GE'
   );
   static readonly LE: FilterOperator = new FilterOperator(
-    'Menor ou Igual',
+    $localize`Menor ou Igual`,
     'LE'
   );
   static readonly CONTAINS: FilterOperator = new FilterOperator(
-    'Contém',
+    $localize`Contém`,
     'CONTAINS'
   );
   static readonly NOT_CONTAINS: FilterOperator = new FilterOperator(
-    'Não Contém',
+    $localize`Não Contém`,
     'NOT_CONTAINS'
   );
-  static readonly IN: FilterOperator = new FilterOperator('Está em', 'IN');
+  static readonly IN: FilterOperator = new FilterOperator(
+    $localize`Está em`,
+    'IN'
+  );
   static readonly NOT_IN: FilterOperator = new FilterOperator(
-    'Não está em',
+    $localize`Não está em`,
     'NOT_IN'
   );
-  static readonly BT: FilterOperator = new FilterOperator('Entre', 'BT');
+  static readonly BT: FilterOperator = new FilterOperator(
+    $localize`Entre`,
+    'BT'
+  );
 
   label: string;
   key: string;
