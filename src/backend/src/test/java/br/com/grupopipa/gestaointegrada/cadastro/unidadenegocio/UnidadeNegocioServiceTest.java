@@ -46,7 +46,11 @@ class UnidadeNegocioServiceTest {
                 .ativa(true)
                 .build();
 
-        entidadeValida = new UnidadeNegocio("UN001", "Unidade Teste", "Descrição da unidade");
+        entidadeValida = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .descricao("Descrição da unidade")
+                .build();
     }
 
     @Test
@@ -68,7 +72,7 @@ class UnidadeNegocioServiceTest {
         assertEquals("Unidade Teste", resultado.getNome());
         assertEquals("Descrição da unidade", resultado.getDescricao());
         assertTrue(resultado.getAtiva());
-        
+
         verify(repository, times(1)).save(any(UnidadeNegocio.class));
     }
 
@@ -91,7 +95,7 @@ class UnidadeNegocioServiceTest {
         assertNotNull(resultado);
         assertEquals("Unidade Atualizada", resultado.getNome());
         assertEquals("Nova descrição", resultado.getDescricao());
-        
+
         verify(repository, times(1)).findById(id);
         verify(repository, times(1)).save(any(UnidadeNegocio.class));
     }
@@ -113,7 +117,7 @@ class UnidadeNegocioServiceTest {
         // Then
         assertNotNull(resultado);
         assertFalse(resultado.getAtiva());
-        
+
         verify(repository, times(1)).save(any(UnidadeNegocio.class));
     }
 
@@ -135,7 +139,7 @@ class UnidadeNegocioServiceTest {
         // Then
         assertNotNull(resultado);
         assertTrue(resultado.getAtiva());
-        
+
         verify(repository, times(1)).save(any(UnidadeNegocio.class));
     }
 
@@ -153,7 +157,7 @@ class UnidadeNegocioServiceTest {
         assertNotNull(resultado);
         assertEquals("UN001", resultado.getCodigo());
         assertEquals("Unidade Teste", resultado.getNome());
-        
+
         verify(repository, times(1)).findById(id);
     }
 

@@ -33,7 +33,11 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar plano de contas raiz")
     void deveSalvarERecuperarPlanoContasRaiz() {
         // Given
-        PlanoContas planoReceitas = new PlanoContas("1", "Receitas", TipoPlanoContas.RECEITA);
+        PlanoContas planoReceitas = new PlanoContas.Builder()
+                .codigo("1")
+                .descricao("Receitas")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
 
         // When
         PlanoContas planoSalvo = repository.save(planoReceitas);
@@ -52,10 +56,19 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar plano de contas com pai")
     void deveSalvarERecuperarPlanoContasComPai() {
         // Given
-        PlanoContas planoPai = new PlanoContas("1", "Receitas", TipoPlanoContas.RECEITA);
+        PlanoContas planoPai = new PlanoContas.Builder()
+                .codigo("1")
+                .descricao("Receitas")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
         planoPai = repository.save(planoPai);
 
-        PlanoContas planoFilho = new PlanoContas("1.1", "Receitas Operacionais", TipoPlanoContas.RECEITA, planoPai);
+        PlanoContas planoFilho = new PlanoContas.Builder()
+                .codigo("1.1")
+                .descricao("Receitas Operacionais")
+                .tipo(TipoPlanoContas.RECEITA)
+                .planoPai(planoPai)
+                .build();
 
         // When
         PlanoContas planoSalvo = repository.save(planoFilho);
@@ -73,7 +86,11 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve buscar plano de contas por ID")
     void deveBuscarPlanoContasPorId() {
         // Given
-        PlanoContas plano = new PlanoContas("2", "Despesas", TipoPlanoContas.DESPESA);
+        PlanoContas plano = new PlanoContas.Builder()
+                .codigo("2")
+                .descricao("Despesas")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
         PlanoContas planoSalvo = repository.save(plano);
 
         // When
@@ -89,10 +106,18 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar constraint de código único")
     void deveValidarConstraintCodigoUnico() {
         // Given
-        PlanoContas plano1 = new PlanoContas("3", "Ativos", TipoPlanoContas.ATIVO);
+        PlanoContas plano1 = new PlanoContas.Builder()
+                .codigo("3")
+                .descricao("Ativos")
+                .tipo(TipoPlanoContas.ATIVO)
+                .build();
         repository.save(plano1);
 
-        PlanoContas plano2 = new PlanoContas("3", "Ativos Duplicado", TipoPlanoContas.ATIVO);
+        PlanoContas plano2 = new PlanoContas.Builder()
+                .codigo("3")
+                .descricao("Ativos Duplicado")
+                .tipo(TipoPlanoContas.ATIVO)
+                .build();
 
         // When & Then
         assertThrows(DataIntegrityViolationException.class, () -> {
@@ -105,7 +130,11 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve deletar plano de contas")
     void deveDeletarPlanoContas() {
         // Given
-        PlanoContas plano = new PlanoContas("4", "Passivos", TipoPlanoContas.PASSIVO);
+        PlanoContas plano = new PlanoContas.Builder()
+                .codigo("4")
+                .descricao("Passivos")
+                .tipo(TipoPlanoContas.PASSIVO)
+                .build();
         PlanoContas planoSalvo = repository.save(plano);
 
         // When
@@ -120,7 +149,11 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar campos obrigatórios")
     void deveValidarCamposObrigatorios() {
         // Given
-        PlanoContas plano = new PlanoContas("5", "Ativo Circulante", TipoPlanoContas.ATIVO);
+        PlanoContas plano = new PlanoContas.Builder()
+                .codigo("5")
+                .descricao("Ativo Circulante")
+                .tipo(TipoPlanoContas.ATIVO)
+                .build();
 
         // When
         PlanoContas planoSalvo = repository.save(plano);

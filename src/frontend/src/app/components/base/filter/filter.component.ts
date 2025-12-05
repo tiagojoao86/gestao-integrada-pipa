@@ -24,7 +24,7 @@ import { DatePicker } from 'primeng/datepicker';
   templateUrl: './filter.component.html',
   styleUrl: './filter.component.css',
 })
-export class FiltroComponent implements OnInit {
+export class FilterComponent implements OnInit {
   readonly FilterType = FilterType;
 
   @Input() filters: FilterProperty[] = [];
@@ -79,6 +79,9 @@ export class FiltroComponent implements OnInit {
     if (FilterType.MULTI_SELECAO === tipo) {
       return [FilterOperator.IN, FilterOperator.NOT_IN];
     }
+    if (FilterType.BOOLEAN === tipo) {
+      return [FilterOperator.EQ, FilterOperator.NEQ];
+    }
 
     return this.operations;
   }
@@ -128,31 +131,42 @@ export class FiltroComponent implements OnInit {
       return;
     }
 
-    const itens: FilterItem[] = [];
+    const items: FilterItem[] = [];
     this.selectedFilters.forEach((selected) => {
       const operador = this.form
         .get(selected.property + '_operacao')
         ?.getRawValue().key;
-      const valores = this.form.get(selected.property)?.getRawValue();
+      const values = this.form.get(selected.property)?.getRawValue();
 
       if (selected.filterType === FilterType.DATA) {
-        itens.push({
+        items.push({
           property: selected.property,
           operator: operador,
-          values: [valores ? valores : ''],
+          values: [values ? values : ''],
         });
       }
 
       if (selected.filterType === FilterType.TEXTO) {
-        itens.push({
+        items.push({
           property: selected.property,
           operator: operador,
-          values: [valores ? valores + '' : ''],
+          values: [values ? values + '' : ''],
+        });
+      }
+
+      if (
+        selected.filterType === FilterType.SELECAO ||
+        selected.filterType === FilterType.BOOLEAN
+      ) {
+        items.push({
+          property: selected.property,
+          operator: operador,
+          values: [values ? values.key + '' : ''],
         });
       }
     });
     this.doFilter.emit({
-      items: itens,
+      items: items,
       filterLogicOperator: this.formSelector
         .get('filterLogicOperator')
         ?.getRawValue().key,
@@ -168,7 +182,7 @@ export interface FilterProperty {
   label: string;
   property: string;
   filterType: FilterType;
-  values?: FilterSelectedValues[];
+  options?: FilterOptions[];
 }
 
 export enum FilterType {
@@ -177,14 +191,10 @@ export enum FilterType {
   SELECAO,
   NUMERO,
   DATA,
+  BOOLEAN,
 }
 
-export interface FilterSelectedValues {
-  chave: string;
-  label: string;
-}
-
-export interface FiltroCamposSelecao {
-  nome: string;
+export interface FilterOptions {
+  key: string;
   label: string;
 }

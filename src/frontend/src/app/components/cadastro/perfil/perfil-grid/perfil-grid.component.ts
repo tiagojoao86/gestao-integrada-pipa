@@ -19,7 +19,7 @@ import {
 } from '../../../base/paginator/paginator.component';
 import {
   FilterProperty,
-  FiltroComponent,
+  FilterComponent,
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
@@ -32,7 +32,7 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
     CommonModule,
     TableComponent,
     PaginatorComponent,
-    FiltroComponent,
+    FilterComponent,
   ],
   providers: [PerfilService, DatePipe],
   templateUrl: './perfil-grid.component.html',
@@ -99,10 +99,18 @@ export class PerfilGridComponent {
     const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_PERFIL');
 
     if (canView) {
-      this.acoesTabela.push({ icon: 'edit_note', action: (element: PerfilGridDTO) => this.openDetail.emit(element.id)});
+      this.acoesTabela.push({
+        icon: 'edit_note',
+        action: (element: PerfilGridDTO) => this.openDetail.emit(element.id),
+      });
     }
     if (canDelete) {
-      this.acoesTabela.push({ icon: 'delete', action: (element: PerfilGridDTO) => { this.service.delete(element.id).subscribe(() => this.listarPerfis()); }});
+      this.acoesTabela.push({
+        icon: 'delete',
+        action: (element: PerfilGridDTO) => {
+          this.service.delete(element.id).subscribe(() => this.listarPerfis());
+        },
+      });
     }
 
     this.acoesTela = [
@@ -117,10 +125,25 @@ export class PerfilGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('CADASTRO_PERFIL')) {
-      this.acoesTela.push({action: () => { this.openDetail.emit('add'); }, icon: 'add', title: $localize`Adicionar` + ' (alt + a)', shortcut: 'alt.a'});
+      this.acoesTela.push({
+        action: () => {
+          this.openDetail.emit('add');
+        },
+        icon: 'add',
+        title: $localize`Adicionar` + ' (alt + a)',
+        shortcut: 'alt.a',
+      });
     }
 
-    this.acoesTela.push({ action: () => { this.alternarMostrarFiltros(); }, icon: 'search', title: $localize`Pesquisar` + ' (alt + p)', value: '0', shortcut: 'alt.p'});
+    this.acoesTela.push({
+      action: () => {
+        this.alternarMostrarFiltros();
+      },
+      icon: 'search',
+      title: $localize`Pesquisar` + ' (alt + p)',
+      value: '0',
+      shortcut: 'alt.p',
+    });
 
     this.listarPerfis();
   }

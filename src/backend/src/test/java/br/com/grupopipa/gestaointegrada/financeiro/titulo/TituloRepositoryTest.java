@@ -1,13 +1,10 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.PessoaJuridica;
+
 import br.com.grupopipa.gestaointegrada.config.AbstractIntegrationTest;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
-import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
-import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
@@ -48,21 +45,22 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() {
         // Criar pessoa para os testes
-        pessoa = new PessoaJuridica(
-                "Fornecedor Teste",
-                new Email("fornecedor@test.com"),
-                new PhoneNumber("11999999999"),
-                new CNPJ("11.222.333/0001-81"),
-                "Fornecedor LTDA"
-        );
+        pessoa = new Pessoa.Builder()
+                .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
+                .nome("Fornecedor Teste")
+                .email("fornecedor@test.com")
+                .telefone("11999999999")
+                .cnpj("11222333000181")
+                .razaoSocial("Fornecedor LTDA")
+                .build();
         entityManager.persist(pessoa);
 
         // Criar plano de contas para os testes
-        planoContas = new PlanoContas(
-                "4.1.001",
-                "Fornecedores",
-                TipoPlanoContas.DESPESA
-        );
+        planoContas = new PlanoContas.Builder()
+                .codigo("4.1.001")
+                .descricao("Fornecedores")
+                .tipo(TipoPlanoContas.DESPESA)
+                .build();
         entityManager.persist(planoContas);
         entityManager.flush();
     }
@@ -71,15 +69,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar título a pagar")
     void deveSalvarERecuperarTituloAPagar() {
         // Given
-        Titulo titulo = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Pagamento fornecedor - NF 12345",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(1000.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(30)
-        );
+        Titulo titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Pagamento fornecedor - NF 12345")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .build();
 
         // When
         Titulo tituloSalvo = repository.save(titulo);
@@ -100,32 +98,33 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar título a receber")
     void deveSalvarERecuperarTituloAReceber() {
         // Given
-        Pessoa cliente = new PessoaJuridica(
-                "Cliente Teste",
-                new Email("cliente@test.com"),
-                new PhoneNumber("11988888888"),
-                new CNPJ("06158095000152"),
-                "Cliente LTDA"
-        );
+        Pessoa cliente = new Pessoa.Builder()
+                .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
+                .nome("Cliente Teste")
+                .email("cliente@test.com")
+                .telefone("11988888888")
+                .cnpj("06158095000152")
+                .razaoSocial("Cliente LTDA")
+                .build();
         entityManager.persist(cliente);
 
-        PlanoContas planoReceita = new PlanoContas(
-                "3.1.001",
-                "Vendas de Produtos",
-                TipoPlanoContas.RECEITA
-        );
+        PlanoContas planoReceita = new PlanoContas.Builder()
+                .codigo("3.1.001")
+                .descricao("Vendas de Produtos")
+                .tipo(TipoPlanoContas.RECEITA)
+                .build();
         entityManager.persist(planoReceita);
         entityManager.flush();
 
-        Titulo titulo = new Titulo(
-                TipoTitulo.A_RECEBER,
-                "Venda de produtos - NF 54321",
-                cliente,
-                planoReceita,
-                new Money(BigDecimal.valueOf(2500.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(15)
-        );
+        Titulo titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_RECEBER)
+                .descricao("Venda de produtos - NF 54321")
+                .pessoa(cliente)
+                .planoContas(planoReceita)
+                .valorOriginal(Money.of(BigDecimal.valueOf(2500.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(15))
+                .build();
 
         // When
         Titulo tituloSalvo = repository.save(titulo);
@@ -143,15 +142,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve atualizar título existente")
     void deveAtualizarTituloExistente() {
         // Given
-        Titulo titulo = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Título original",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(500.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(10)
-        );
+        Titulo titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Título original")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(10))
+                .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
         entityManager.clear();
@@ -172,15 +171,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve deletar título")
     void deveDeletarTitulo() {
         // Given
-        Titulo titulo = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Título para deletar",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(100.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(5)
-        );
+        Titulo titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Título para deletar")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(5))
+                .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
 
@@ -197,15 +196,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve buscar título por ID")
     void deveBuscarTituloPorId() {
         // Given
-        Titulo titulo = new Titulo(
-                TipoTitulo.A_PAGAR,
-                "Busca por ID",
-                pessoa,
-                planoContas,
-                new Money(BigDecimal.valueOf(750.00)),
-                LocalDate.now(),
-                LocalDate.now().plusDays(20)
-        );
+        Titulo titulo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Busca por ID")
+                .pessoa(pessoa)
+                .planoContas(planoContas)
+                .valorOriginal(Money.of(BigDecimal.valueOf(750.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(20))
+                .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
         entityManager.clear();
@@ -224,15 +223,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirTituloSemTipo() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    null, // tipo nulo
-                    "Descrição",
-                    pessoa,
-                    planoContas,
-                    new Money(BigDecimal.valueOf(100.00)),
-                    LocalDate.now(),
-                    LocalDate.now().plusDays(30)
-            );
+            new Titulo.Builder()
+                    .tipo(null) // tipo nulo
+                    .descricao("Descrição")
+                    .pessoa(pessoa)
+                    .planoContas(planoContas)
+                    .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().plusDays(30))
+                    .build();
         });
     }
 
@@ -241,15 +240,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirTituloSemDescricao() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    TipoTitulo.A_PAGAR,
-                    null, // descrição nula
-                    pessoa,
-                    planoContas,
-                    new Money(BigDecimal.valueOf(100.00)),
-                    LocalDate.now(),
-                    LocalDate.now().plusDays(30)
-            );
+            new Titulo.Builder()
+                    .tipo(TipoTitulo.A_PAGAR)
+                    .descricao(null) // descrição nula
+                    .pessoa(pessoa)
+                    .planoContas(planoContas)
+                    .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().plusDays(30))
+                    .build();
         });
     }
 
@@ -258,15 +257,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirTituloSemPessoa() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    TipoTitulo.A_PAGAR,
-                    "Descrição",
-                    null, // pessoa nula
-                    planoContas,
-                    new Money(BigDecimal.valueOf(100.00)),
-                    LocalDate.now(),
-                    LocalDate.now().plusDays(30)
-            );
+            new Titulo.Builder()
+                    .tipo(TipoTitulo.A_PAGAR)
+                    .descricao("Descrição")
+                    .pessoa(null) // pessoa nula
+                    .planoContas(planoContas)
+                    .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().plusDays(30))
+                    .build();
         });
     }
 
@@ -275,15 +274,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirTituloSemPlanoContas() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    TipoTitulo.A_PAGAR,
-                    "Descrição",
-                    pessoa,
-                    null, // planoContas nulo
-                    new Money(BigDecimal.valueOf(100.00)),
-                    LocalDate.now(),
-                    LocalDate.now().plusDays(30)
-            );
+            new Titulo.Builder()
+                    .tipo(TipoTitulo.A_PAGAR)
+                    .descricao("Descrição")
+                    .pessoa(pessoa)
+                    .planoContas(null) // planoContas nulo
+                    .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().plusDays(30))
+                    .build();
         });
     }
 
@@ -292,15 +291,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirTituloComValorZeroOuNegativo() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    TipoTitulo.A_PAGAR,
-                    "Descrição",
-                    pessoa,
-                    planoContas,
-                    Money.zero(), // valor zero
-                    LocalDate.now(),
-                    LocalDate.now().plusDays(30)
-            );
+            new Titulo.Builder()
+                    .tipo(TipoTitulo.A_PAGAR)
+                    .descricao("Descrição")
+                    .pessoa(pessoa)
+                    .planoContas(planoContas)
+                    .valorOriginal(Money.zero()) // valor zero
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().plusDays(30))
+                    .build();
         });
     }
 
@@ -309,15 +308,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     void naoDevePermitirDataVencimentoAnteriorEmissao() {
         // When & Then
         assertThrows(BeanValidationException.class, () -> {
-            new Titulo(
-                    TipoTitulo.A_PAGAR,
-                    "Descrição",
-                    pessoa,
-                    planoContas,
-                    new Money(BigDecimal.valueOf(100.00)),
-                    LocalDate.now(),
-                    LocalDate.now().minusDays(1) // vencimento antes da emissão
-            );
+            new Titulo.Builder()
+                    .tipo(TipoTitulo.A_PAGAR)
+                    .descricao("Descrição")
+                    .pessoa(pessoa)
+                    .planoContas(planoContas)
+                    .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
+                    .dataEmissao(LocalDate.now())
+                    .dataVencimento(LocalDate.now().minusDays(1)) // vencimento antes da emissão
+                    .build();
         });
     }
 }

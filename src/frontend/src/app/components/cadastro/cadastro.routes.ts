@@ -10,8 +10,8 @@ export const routes: Routes = [
       import('./cadastro.component').then((app) => app.CadastroComponent),
     canActivate: [authGuard, groupAuthorityGuard],
     data: {
-      group: 'CADASTROS'
-    }
+      group: 'CADASTROS',
+    },
   },
   {
     path: 'usuario',
@@ -21,18 +21,36 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_USUARIO'
-    }
+      moduleKey: 'CADASTRO_USUARIO',
+    },
   },
   {
     path: 'perfil',
     loadComponent: () =>
-      import('./perfil/perfil.component').then(
-        (app) => app.PerfilComponent
+      import('./perfil/perfil.component').then((app) => app.PerfilComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: 'CADASTRO_PERFIL',
+    },
+  },
+  {
+    path: 'pessoa',
+    loadComponent: () =>
+      import('./pessoa/pessoa.component').then((app) => app.PessoaComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: 'CADASTRO_PESSOA',
+    },
+  },
+  {
+    path: 'unidade-negocio',
+    loadComponent: () =>
+      import('./unidade-negocio/unidade-negocio.component').then(
+        (app) => app.UnidadeNegocioComponent
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_PERFIL'
-    }
+      moduleKey: 'CADASTRO_UNIDADE_NEGOCIO',
+    },
   },
 ];

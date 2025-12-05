@@ -14,12 +14,12 @@ import { BadgeModule } from 'primeng/badge';
 export class BaseComponent {
   private location: Location = inject(Location);
 
-  @Input() title: string = $localize `Título`;
+  @Input() title: string = $localize`Título`;
   @Input() actions: RegisterActionToolbar[] = [];
   @Input() hideFooter = false;
   @Input() hideToolbar = false;
   @Input() goBackFn: (() => void) | null = null;
-  
+
   goBack() {
     if (this.goBackFn) {
       this.goBackFn();
@@ -30,10 +30,12 @@ export class BaseComponent {
   }
 
   @HostListener('window:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {    
+  handleKeyboardEvent(event: KeyboardEvent) {
     const shortcut = this.buildShortcutString(event);
 
-    const action = this.actions.find(a => a.shortcut?.toLowerCase() === shortcut);
+    const action = this.actions.find(
+      (a) => a.shortcut?.toLowerCase() === shortcut
+    );
 
     if (action) {
       event.preventDefault();
@@ -46,8 +48,8 @@ export class BaseComponent {
     if (event.ctrlKey) parts.push('control');
     if (event.altKey) parts.push('alt');
     if (event.shiftKey) parts.push('shift');
-    
-    parts.push(event.key.toLowerCase());
+
+    if (event.key) parts.push(event.key.toLowerCase());
     return parts.join('.');
   }
 }

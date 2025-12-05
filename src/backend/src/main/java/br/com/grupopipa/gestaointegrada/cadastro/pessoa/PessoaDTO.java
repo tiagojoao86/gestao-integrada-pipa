@@ -13,27 +13,26 @@ import java.util.UUID;
 @Setter
 @Builder
 public class PessoaDTO implements DTO {
-    
+
     private UUID id;
     private String nome;
     private String email;
     private String telefone;
     private String observacoes;
     private Boolean ativa;
-    
+
     // Pessoa Física
     private String cpf;
     private LocalDate dataNascimento;
-    
+
     // Pessoa Jurídica
     private String cnpj;
     private String razaoSocial;
-    private String nomeFantasia;
     private String inscricaoEstadual;
-    
+
     // Tipo para identificar se é PF ou PJ
     private String tipoPessoa; // "FISICA" ou "JURIDICA"
-    
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

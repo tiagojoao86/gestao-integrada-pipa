@@ -48,6 +48,10 @@ public class Money implements Serializable {
         return new Money(BigDecimal.ZERO);
     }
 
+    public static Money of(BigDecimal value) {
+        return new Money(value);
+    }
+
     public Money add(Money other) {
         if (other == null)
             return this;

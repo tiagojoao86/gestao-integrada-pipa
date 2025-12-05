@@ -25,7 +25,11 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar UnidadeNegocio com sucesso")
     void deveSalvarERecuperarUnidadeNegocio() {
         // Given - Preparação
-        UnidadeNegocio unidade = new UnidadeNegocio("UN001", "Unidade Teste", "Descrição de teste");
+        UnidadeNegocio unidade = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .descricao("Descrição de teste")
+                .build();
 
         // When - Ação
         UnidadeNegocio salva = repository.save(unidade);
@@ -43,10 +47,16 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar constraint de código único")
     void deveValidarCodigoUnico() {
         // Given - Este teste DEVE gerar SQL Error 23505 (constraint violation)
-        UnidadeNegocio unidade1 = new UnidadeNegocio("UN002", "Unidade 1");
+        UnidadeNegocio unidade1 = new UnidadeNegocio.Builder()
+                .codigo("UN002")
+                .nome("Unidade 1")
+                .build();
         repository.save(unidade1);
 
-        UnidadeNegocio unidade2 = new UnidadeNegocio("UN002", "Unidade 2"); // Mesmo código
+        UnidadeNegocio unidade2 = new UnidadeNegocio.Builder()
+                .codigo("UN002")
+                .nome("Unidade 2")
+                .build(); // Mesmo código
 
         // When/Then - Deve lançar exceção por violação de unique constraint
         assertThrows(Exception.class, () -> {
@@ -59,18 +69,24 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve filtrar unidades ativas e inativas corretamente")
     void deveFiltrarUnidadesAtivasEInativas() {
         // Given
-        UnidadeNegocio ativa = new UnidadeNegocio("UN003", "Unidade Ativa");
+        UnidadeNegocio ativa = new UnidadeNegocio.Builder()
+                .codigo("UN003")
+                .nome("Unidade Ativa")
+                .build();
         repository.save(ativa);
 
-        UnidadeNegocio inativa = new UnidadeNegocio("UN004", "Unidade Inativa");
+        UnidadeNegocio inativa = new UnidadeNegocio.Builder()
+                .codigo("UN004")
+                .nome("Unidade Inativa")
+                .build();
         inativa.inativar();
         repository.save(inativa);
 
         // When
         var todasUnidades = repository.findAll();
         var apenasAtivas = todasUnidades.stream()
-            .filter(UnidadeNegocio::isAtiva)
-            .toList();
+                .filter(UnidadeNegocio::isAtiva)
+                .toList();
 
         // Then
         assertTrue(todasUnidades.size() >= 2);
@@ -82,7 +98,10 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve atualizar UnidadeNegocio preservando o ID")
     void deveAtualizarUnidadeNegocio() {
         // Given
-        UnidadeNegocio unidade = new UnidadeNegocio("UN005", "Nome Original");
+        UnidadeNegocio unidade = new UnidadeNegocio.Builder()
+                .codigo("UN005")
+                .nome("Nome Original")
+                .build();
         UnidadeNegocio salva = repository.save(unidade);
 
         // When
@@ -100,7 +119,10 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve deletar UnidadeNegocio corretamente")
     void deveDeletarUnidadeNegocio() {
         // Given
-        UnidadeNegocio unidade = new UnidadeNegocio("UN006", "Unidade para Deletar");
+        UnidadeNegocio unidade = new UnidadeNegocio.Builder()
+                .codigo("UN006")
+                .nome("Unidade para Deletar")
+                .build();
         UnidadeNegocio salva = repository.save(unidade);
 
         // When

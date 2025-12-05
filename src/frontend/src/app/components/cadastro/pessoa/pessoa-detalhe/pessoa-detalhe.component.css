@@ -1,0 +1,69 @@
+.form {
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+}
+
+.tipo-pessoa-ativa {
+  width: 100%;
+  margin-left: 0.4rem;
+  margin-right: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tipo-pessoa-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tipo-pessoa-selector label {
+  display: block;
+  font-weight: 500;
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.2rem;
+  margin-top: 0.2rem;
+}
+
+.radio-group label {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.campos-comuns,
+.campos-fisica,
+.campos-juridica {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.checkbox-field label {
+  cursor: pointer;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.w-50 {
+  width: calc(50% - 0.5rem);
+}
+
+@media (max-width: 768px) {
+  .w-50 {
+    width: 100%;
+  }
+}

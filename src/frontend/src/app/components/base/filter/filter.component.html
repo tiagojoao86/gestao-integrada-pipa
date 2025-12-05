@@ -45,6 +45,15 @@
             *ngIf="filter.filterType === FilterType.DATA"
             [formControlName]="filter.property"
           />
+          <p-select
+            class="w-full"
+            *ngIf="
+              filter.filterType === FilterType.SELECAO ||
+              filter.filterType === FilterType.BOOLEAN
+            "
+            [formControlName]="filter.property"
+            [options]="filter.options"
+          />
         </div>
         <p-button (click)="removerFiltro(filter)">
           <span class="material-icons">close</span>

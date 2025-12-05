@@ -16,16 +16,17 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class MovimentacaoFinanceiraServiceImpl extends CrudServiceImpl<MovimentacaoFinanceiraDTO, MovimentacaoFinanceiraGridDTO, MovimentacaoFinanceira, MovimentacaoFinanceiraRepository>
+public class MovimentacaoFinanceiraServiceImpl extends
+        CrudServiceImpl<MovimentacaoFinanceiraDTO, MovimentacaoFinanceiraGridDTO, MovimentacaoFinanceira, MovimentacaoFinanceiraRepository>
         implements MovimentacaoFinanceiraService {
 
     private final TituloRepository tituloRepository;
     private final ContaBancariaRepository contaBancariaRepository;
 
     public MovimentacaoFinanceiraServiceImpl(MovimentacaoFinanceiraRepository repository,
-                                            Specifications<MovimentacaoFinanceira> specifications,
-                                            TituloRepository tituloRepository,
-                                            ContaBancariaRepository contaBancariaRepository) {
+            Specifications<MovimentacaoFinanceira> specifications,
+            TituloRepository tituloRepository,
+            ContaBancariaRepository contaBancariaRepository) {
         super(repository, specifications);
         this.tituloRepository = tituloRepository;
         this.contaBancariaRepository = contaBancariaRepository;
@@ -39,22 +40,28 @@ public class MovimentacaoFinanceiraServiceImpl extends CrudServiceImpl<Movimenta
                     .orElseThrow(() -> new IllegalArgumentException("Título não encontrado"));
             ContaBancaria contaBancaria = contaBancariaRepository.findById(dto.getContaBancariaId())
                     .orElseThrow(() -> new IllegalArgumentException("Conta bancária não encontrada"));
-            
+
             TipoMovimentacao tipo = TipoMovimentacao.valueOf(dto.getTipo());
             FormaPagamento formaPagamento = FormaPagamento.valueOf(dto.getFormaPagamento());
-            Money valor = new Money(dto.getValor());
-            
-            entity = new MovimentacaoFinanceira(titulo, contaBancaria, tipo, formaPagamento, 
-                                               valor, dto.getData());
-            
+
+            entity = new MovimentacaoFinanceira.Builder()
+                    .titulo(titulo)
+                    .contaBancaria(contaBancaria)
+                    .tipo(tipo)
+                    .formaPagamento(formaPagamento)
+                    .valor(Money.of(dto.getValor()))
+                    .data(dto.getData())
+                    .build();
+
             if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
                 entity.adicionarObservacao(dto.getObservacoes());
             }
-            
+
             return entity;
         }
 
-        // MovimentacaoFinanceira é imutável após criação (apenas observações podem ser adicionadas)
+        // MovimentacaoFinanceira é imutável após criação (apenas observações podem ser
+        // adicionadas)
         if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
             entity.adicionarObservacao(dto.getObservacoes());
         }

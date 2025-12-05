@@ -57,24 +57,28 @@ public class Specifications<T extends BaseEntity> {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Predicate buildPredicateEq(FilterItemDTO item, CriteriaBuilder criteriaBuilder, Root<T> root,
             Class<T> klazz) {
         String property = item.getProperty();
         Class<?> targetType = getFieldType(klazz, property);
         Object value = convertValue(property, item.getValues().get(0), klazz, targetType);
 
-        if (targetType.equals(LocalDateTime.class)) {            
+        if (targetType.equals(LocalDateTime.class)) {
             Expression<Comparable> propertyExpression = root.get(property);
             Comparable startOfDay = getStartOfDay(value);
             Comparable endOfDay = getEndOfDay(value);
             return criteriaBuilder.between(propertyExpression, startOfDay, endOfDay);
         }
 
-        return criteriaBuilder.equal(root.get(property), value);
+        if (targetType.equals(Boolean.class)) {
+            return criteriaBuilder.equal(root.get(property), value);
+        }
+
+        return criteriaBuilder.equal(root.get(property).as(String.class), value);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Predicate buildPredicateNeq(FilterItemDTO item, CriteriaBuilder criteriaBuilder, Root<T> root,
             Class<T> klazz) {
         String property = item.getProperty();
@@ -88,11 +92,20 @@ public class Specifications<T extends BaseEntity> {
             return criteriaBuilder.not(criteriaBuilder.between(propertyExpression, startOfDay, endOfDay));
         }
 
-        return criteriaBuilder.notEqual(root.get(property), value);
+        Expression<?> propertyExpression = targetType.equals(Boolean.class)
+                ? root.get(property)
+                : root.get(property).as(String.class);
+
+        Expression<?> coalesceExpression = targetType.equals(Boolean.class)
+                ? criteriaBuilder.coalesce(propertyExpression, false)
+                : criteriaBuilder.coalesce(propertyExpression, "");
+
+        return criteriaBuilder.notEqual(coalesceExpression, value);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private Predicate buildRelationalPredicate(FilterItemDTO item, CriteriaBuilder criteriaBuilder, Root<T> root, Class<T> klazz) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Predicate buildRelationalPredicate(FilterItemDTO item, CriteriaBuilder criteriaBuilder, Root<T> root,
+            Class<T> klazz) {
         String property = item.getProperty();
         Class<?> targetType = getFieldType(klazz, property);
         Comparable value = (Comparable) convertValue(property, item.getValues().get(0), klazz, targetType);
@@ -165,7 +178,7 @@ public class Specifications<T extends BaseEntity> {
         return criteriaBuilder.not(root.get(item.getProperty()).in(convertedValues));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Predicate buildPredicateBetween(FilterItemDTO item, CriteriaBuilder criteriaBuilder, Root<T> root,
             Class<T> klazz) {
         if (ObjectUtils.isEmpty(item.getValues()) || item.getValues().size() < 2) {
@@ -185,7 +198,8 @@ public class Specifications<T extends BaseEntity> {
             return criteriaBuilder.between(propertyExpression, startOfDay, endOfDay);
         }
 
-        return criteriaBuilder.between(propertyExpression, value1, value2); // Para LocalDate e outros tipos, o between é direto.
+        return criteriaBuilder.between(propertyExpression, value1, value2); // Para LocalDate e outros tipos, o between
+                                                                            // é direto.
     }
 
     private LocalDateTime getStartOfDay(Object value) {
@@ -233,7 +247,7 @@ public class Specifications<T extends BaseEntity> {
             } else if (targetType.equals(UUID.class)) {
                 return UUID.fromString(stringValue);
             } else if (targetType.isEnum()) {
-                return Enum.valueOf((Class<Enum>) targetType, stringValue);
+                return Enum.valueOf((Class<Enum>) targetType, stringValue).name();
             }
         } catch (Exception e) {
             throw new IllegalArgumentException(
@@ -252,7 +266,8 @@ public class Specifications<T extends BaseEntity> {
                 currentClass = currentClass.getSuperclass();
             }
         }
-        throw new RuntimeException("Campo não encontrado: " + fieldName + " na entidade " + klazz.getSimpleName() + " ou em suas superclasses.");
+        throw new RuntimeException("Campo não encontrado: " + fieldName + " na entidade " + klazz.getSimpleName()
+                + " ou em suas superclasses.");
     }
 
 }
