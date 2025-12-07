@@ -1,13 +1,13 @@
 # Frontend multi-stage Dockerfile
 # Stage 1: build with node
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY . ./
 RUN npm ci --silent && npm run build -- --configuration production
 
 # Stage 2: serve with nginx
-FROM nginx:stable-alpine
+FROM nginx:1.27-alpine
 # install envsubst for runtime variable substitution
 RUN apk add --no-cache gettext
 # Copy built files; Angular may output into a subfolder like 'browser' -> copy its contents to nginx root

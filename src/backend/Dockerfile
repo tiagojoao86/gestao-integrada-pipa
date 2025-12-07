@@ -1,5 +1,5 @@
 # Backend Dockerfile
-FROM maven:3.9.9-eclipse-temurin-22 AS build
+FROM maven:3.9.9-eclipse-temurin-22-alpine AS build
 WORKDIR /workspace
 COPY pom.xml mvnw* ./
 COPY .mvn .mvn
