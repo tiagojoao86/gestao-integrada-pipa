@@ -19,24 +19,24 @@ public class PerfilServiceImpl
         extends CrudServiceImpl<PerfilDTO, PerfilGridDTO, PerfilEntity, PerfilRepository>
         implements PerfilService {
 
-    private final ModuloRepository moduloRepository;    
+    private final ModuloRepository moduloRepository;
 
     public PerfilServiceImpl(PerfilRepository repository,
-                             Specifications<PerfilEntity> specifications,
-                             ModuloRepository moduloRepository,
-                             PerfilModuloRepository perfilModuloRepository) { // <--- INJETAR NO CONSTRUTOR
+            Specifications<PerfilEntity> specifications,
+            ModuloRepository moduloRepository,
+            PerfilModuloRepository perfilModuloRepository) {
         super(repository, specifications);
-        this.moduloRepository = moduloRepository;        
+        this.moduloRepository = moduloRepository;
     }
 
     @Override
-    @Transactional  
+    @Transactional
     protected PerfilEntity mergeEntityAndDTO(PerfilEntity entity, PerfilDTO dto) {
         if (Objects.isNull(entity)) {
             PerfilEntity newEntity = new PerfilEntity.Builder()
                     .nome(dto.getNome())
                     .build();
-            
+
             addPermissoesToEntity(newEntity, dto);
             return newEntity;
         }
@@ -45,13 +45,13 @@ public class PerfilServiceImpl
 
         if (entity.getId() != null) {
             entity.getPermissoes().clear();
-            entity = this.repository.save(entity);            
+            entity = this.repository.save(entity);
         }
-        
+
         addPermissoesToEntity(entity, dto);
         return entity;
     }
-    
+
     private void addPermissoesToEntity(PerfilEntity entity, PerfilDTO dto) {
         if (Objects.nonNull(dto.getPermissoes())) {
             for (PerfilModuloDTO permissaoDTO : dto.getPermissoes()) {
@@ -108,6 +108,16 @@ public class PerfilServiceImpl
     @Override
     protected Class<PerfilEntity> getEntityClass() {
         return PerfilEntity.class;
+    }
+
+    @Override
+    public List<PerfilParaVinculoDTO> listarParaVinculo() {
+        return repository.findAll().stream()
+                .map(perfil -> PerfilParaVinculoDTO.builder()
+                        .id(perfil.getId())
+                        .nome(perfil.getNome())
+                        .build())
+                .toList();
     }
 
     private PerfilModuloEntity buildPerfilModuloEntity(PerfilEntity perfil, PerfilModuloDTO dto) {

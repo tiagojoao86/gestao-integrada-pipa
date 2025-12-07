@@ -27,6 +27,10 @@ import br.com.grupopipa.gestaointegrada.core.controller.BaseController;
 @RequestMapping(ModuloConstants.R_MODULO)
 public class ModuloController extends BaseController<ModuloDTO, ModuloGridDTO, ModuloService> {
 
+    public ModuloController(ModuloService service) {
+        super(service);
+    }
+
     @PreAuthorize("hasAuthority('CADASTRO_PERFIL_LISTAR')")
     @GetMapping
     public Response listAll() {
@@ -60,7 +64,7 @@ public class ModuloController extends BaseController<ModuloDTO, ModuloGridDTO, M
     public Response list(@RequestBody PageRequest request) {
         return super.list(request);
     }
-    
+
     @Override
     @PreAuthorize("hasAuthority('CADASTRO_PERFIL_VISUALIZAR')")
     public Response findById(@RequestParam(F_ID) UUID id) {

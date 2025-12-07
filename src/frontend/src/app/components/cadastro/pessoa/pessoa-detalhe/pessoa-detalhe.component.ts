@@ -133,9 +133,7 @@ export class PessoaDetalheComponent implements OnInit {
   }
 
   fillForm() {
-    this.form
-      .get('tipoPessoa')
-      ?.setValue(this.pessoa.tipoPessoa.getKey() || 'FISICA');
+    this.form.get('tipoPessoa')?.setValue(this.pessoa.tipoPessoa || 'FISICA');
     this.form.get('nome')?.setValue(this.pessoa.nome);
     this.form.get('email')?.setValue(this.pessoa.email);
     this.form.get('telefone')?.setValue(this.pessoa.telefone);

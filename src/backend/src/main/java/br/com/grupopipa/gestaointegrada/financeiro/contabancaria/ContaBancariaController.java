@@ -14,7 +14,12 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(R_CONTA_BANCARIA)
-public class ContaBancariaController extends BaseController<ContaBancariaDTO, ContaBancariaGridDTO, ContaBancariaService> {
+public class ContaBancariaController
+        extends BaseController<ContaBancariaDTO, ContaBancariaGridDTO, ContaBancariaService> {
+
+    public ContaBancariaController(ContaBancariaService service) {
+        super(service);
+    }
 
     @Override
     @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_LISTAR')")

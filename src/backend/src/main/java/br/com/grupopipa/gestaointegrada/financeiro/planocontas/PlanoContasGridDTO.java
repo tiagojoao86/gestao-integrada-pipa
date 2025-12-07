@@ -15,6 +15,8 @@ public class PlanoContasGridDTO implements GridDTO {
     private String codigo;
     private String descricao;
     private String tipo;
+    private String planoPaiCodigo;
+    private String planoPaiDescricao;
     private Boolean ativo;
     private Boolean analitico;
 }

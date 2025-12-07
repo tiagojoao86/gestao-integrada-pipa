@@ -33,7 +33,7 @@
             [options]="getOperacoes(filter.filterType)"
           />
           <input
-            *ngIf="filter.filterType === FilterType.TEXTO"
+            *ngIf="filter.filterType === FilterType.TEXT"
             pInputText
             [id]="filter.property + '_id'"
             [formControlName]="filter.property"
@@ -42,13 +42,13 @@
           <p-datepicker
             class="w-full"
             [style]="{ width: '100%' }"
-            *ngIf="filter.filterType === FilterType.DATA"
+            *ngIf="filter.filterType === FilterType.DATE"
             [formControlName]="filter.property"
           />
           <p-select
             class="w-full"
             *ngIf="
-              filter.filterType === FilterType.SELECAO ||
+              filter.filterType === FilterType.SELECT ||
               filter.filterType === FilterType.BOOLEAN
             "
             [formControlName]="filter.property"

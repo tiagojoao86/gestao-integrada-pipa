@@ -1,6 +1,5 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { ModuloDTO } from "./model/modulo-dto";
 import { Observable } from "rxjs";
 import { Response } from "../../base/model/response"; // Importar o DTO de Response
 

@@ -1,6 +1,7 @@
 package br.com.grupopipa.gestaointegrada.cadastro.usuario;
 
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilDTO;
+import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilService;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.PageRequest;
@@ -32,13 +33,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Testes unitários para UsuarioController.
  * Usa MockMvc para testar os endpoints REST sem subir o servidor.
  * Usa @MockitoBean para simular o service.
+ * 
  * @AutoConfigureMockMvc(addFilters = false) desabilita os filtros de segurança,
- * permitindo testar apenas a lógica do controller com @WithMockUser.
- * excludeFilters exclui TenantFilter do contexto (requer JwtDecoder).
+ *                                  permitindo testar apenas a lógica do
+ *                                  controller com @WithMockUser.
+ *                                  excludeFilters exclui TenantFilter do
+ *                                  contexto (requer JwtDecoder).
  */
 @DisplayName("UsuarioController - Testes Unitários")
-@WebMvcTest(value = UsuarioController.class,
-    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
+@WebMvcTest(value = UsuarioController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
 @AutoConfigureMockMvc(addFilters = false)
 class UsuarioControllerTest {
 
@@ -51,6 +54,9 @@ class UsuarioControllerTest {
     @MockitoBean
     private UsuarioService service;
 
+    @MockitoBean
+    private PerfilService perfilService;
+
     private UsuarioDTO dtoValido;
     private UsuarioGridDTO gridDTO;
     private UUID usuarioId;
@@ -58,7 +64,7 @@ class UsuarioControllerTest {
     @BeforeEach
     void setup() {
         usuarioId = UUID.randomUUID();
-        
+
         PerfilDTO perfilDTO = PerfilDTO.builder()
                 .id(UUID.randomUUID())
                 .nome("Administrador")
@@ -83,8 +89,8 @@ class UsuarioControllerTest {
     @WithMockUser(authorities = "CADASTRO_USUARIO_LISTAR")
     void deveListarUsuariosPaginados() throws Exception {
         // Given
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = 
-            br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
                 .page(0)
                 .size(10)
                 .order(List.of())
@@ -93,17 +99,16 @@ class UsuarioControllerTest {
         PageDTO<UsuarioGridDTO> pageDTO = new PageDTO<>(
                 List.of(gridDTO),
                 PageRequest.of(0, 10),
-                1L
-        );
+                1L);
 
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(pageDTO);
+                .thenReturn(pageDTO);
 
         // When & Then
         mockMvc.perform(post("/usuario/query")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.content[0].nome", is("João Silva")))
@@ -122,14 +127,14 @@ class UsuarioControllerTest {
                 .login("maria.santos")
                 .senha("senha123")
                 .build();
-        
+
         when(service.save(any(UsuarioDTO.class))).thenReturn(dtoValido);
 
         // When & Then
         mockMvc.perform(post("/usuario")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(novoDTO)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(novoDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.nome", is("João Silva")))
@@ -149,9 +154,9 @@ class UsuarioControllerTest {
 
         // When & Then
         mockMvc.perform(post("/usuario")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dtoValido)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoValido)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.nome", is("João Silva Atualizado")));
@@ -168,7 +173,7 @@ class UsuarioControllerTest {
 
         // When & Then
         mockMvc.perform(get("/usuario/find-by-id")
-                        .param("id", usuarioId.toString()))
+                .param("id", usuarioId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.nome", is("João Silva")))
@@ -187,7 +192,7 @@ class UsuarioControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/usuario/{id}", usuarioId)
-                        .with(csrf()))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body").value(usuarioId.toString()));
@@ -200,8 +205,8 @@ class UsuarioControllerTest {
     @WithMockUser(authorities = "CADASTRO_USUARIO_LISTAR")
     void deveRetornarListaVaziaQuandoNaoHouverUsuarios() throws Exception {
         // Given
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = 
-            br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
                 .page(0)
                 .size(10)
                 .order(List.of())
@@ -210,17 +215,16 @@ class UsuarioControllerTest {
         PageDTO<UsuarioGridDTO> pageDTO = new PageDTO<>(
                 List.of(),
                 PageRequest.of(0, 10),
-                0L
-        );
+                0L);
 
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(pageDTO);
+                .thenReturn(pageDTO);
 
         // When & Then
         mockMvc.perform(post("/usuario/query")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.content").isEmpty());

@@ -8,7 +8,6 @@ import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,15 +27,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BaseController<D extends DTO, G extends GridDTO, S extends CrudService<D, G>> {
 
-    @Autowired
-    protected S service;    
+    protected S service;
+
+    public BaseController(S service) {
+        this.service = service;
+    }
 
     @PostMapping(R_QUERY)
     public Response list(@RequestBody PageRequest request) {
         Sort sort = Sort.by(request.getOrder().stream().map(OrderDTO::getOrder).toList());
         Pageable pageable = org.springframework.data.domain.PageRequest.of(request.getPage(), request.getSize(),
                 sort);
-       return ok(service.list(request.getFilter(), pageable));
+        return ok(service.list(request.getFilter(), pageable));
     }
 
     @PostMapping

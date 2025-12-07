@@ -16,6 +16,10 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @RequestMapping(R_TITULO)
 public class TituloController extends BaseController<TituloDTO, TituloGridDTO, TituloService> {
 
+    public TituloController(TituloService service) {
+        super(service);
+    }
+
     @Override
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_LISTAR')")
     public Response list(@RequestBody PageRequest request) {

@@ -1,0 +1,22 @@
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.autocomplete-codigo {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.autocomplete-descricao {
+  color: var(--text-color);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}

@@ -371,6 +371,15 @@ input:-webkit-autofill:active {
   width: 100% !important;
 }
 
+.p-autocomplete {
+  width: 100% !important;
+}
+
+.p-autocomplete-overlay {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+}
+
 .p-iftalabel:has(.p-inputwrapper-focus) label {
   color: var(--text-color) !important;
   font-size: 12px !important;

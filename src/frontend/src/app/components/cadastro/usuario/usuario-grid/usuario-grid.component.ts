@@ -79,17 +79,17 @@ export class UsuarioGridComponent {
     {
       property: 'login',
       label: $localize`Login`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'nome',
       label: $localize`Nome`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'createdAt',
       label: $localize`Criado em`,
-      filterType: FilterType.DATA,
+      filterType: FilterType.DATE,
     },
   ];
 

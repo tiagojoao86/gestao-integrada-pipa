@@ -88,17 +88,17 @@ export class UnidadeNegocioGridComponent {
     {
       property: 'codigo',
       label: $localize`Código`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'nome',
       label: $localize`Nome`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'cnpj',
       label: $localize`CNPJ`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'ativa',

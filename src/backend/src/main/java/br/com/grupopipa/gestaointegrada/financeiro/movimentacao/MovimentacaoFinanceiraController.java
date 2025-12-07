@@ -14,7 +14,12 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(R_MOVIMENTACAO)
-public class MovimentacaoFinanceiraController extends BaseController<MovimentacaoFinanceiraDTO, MovimentacaoFinanceiraGridDTO, MovimentacaoFinanceiraService> {
+public class MovimentacaoFinanceiraController extends
+        BaseController<MovimentacaoFinanceiraDTO, MovimentacaoFinanceiraGridDTO, MovimentacaoFinanceiraService> {
+
+    public MovimentacaoFinanceiraController(MovimentacaoFinanceiraService service) {
+        super(service);
+    }
 
     @Override
     @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_LISTAR')")
