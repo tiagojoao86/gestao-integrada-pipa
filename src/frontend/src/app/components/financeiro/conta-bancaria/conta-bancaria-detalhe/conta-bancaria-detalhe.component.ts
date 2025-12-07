@@ -12,7 +12,7 @@ import {
   RegisterActionToolbar,
   BaseComponent,
 } from '../../../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
   AbstractControl,
@@ -34,7 +34,6 @@ import { CheckboxModule } from 'primeng/checkbox';
   selector: 'gi-conta-bancaria-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
@@ -42,8 +41,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     InputTextModule,
     InputNumberModule,
     SelectModule,
-    CheckboxModule,
-  ],
+    CheckboxModule
+],
   templateUrl: './conta-bancaria-detalhe.component.html',
   styleUrl: './conta-bancaria-detalhe.component.css',
   providers: [ContaBancariaService],

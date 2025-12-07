@@ -1,9 +1,11 @@
 
-<div class="recurso-grupo" *ngIf="recursoGrupo">
+@if (recursoGrupo) {
+  <div class="recurso-grupo">
     <div class="grupo-nome">{{ recursoGrupo.nome }}</div>
     <div class="grupo-itens">
-        <ng-container *ngFor="let recurso of recursoGrupo.recursos">
-            <gi-recurso [recurso]="recurso"></gi-recurso>
-        </ng-container>
-    </div>    
-</div>
+      @for (recurso of recursoGrupo.recursos; track recurso) {
+        <gi-recurso [recurso]="recurso"></gi-recurso>
+      }
+    </div>
+  </div>
+}

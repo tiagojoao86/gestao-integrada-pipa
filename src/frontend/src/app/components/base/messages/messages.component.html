@@ -1,10 +1,14 @@
-<div class="message" [class]="getClass()" *ngIf="show">
-  <div class="text">
-    <p *ngFor="let message of messages">{{ message }}</p>
+@if (show) {
+  <div class="message" [class]="getClass()">
+    <div class="text">
+      @for (message of messages; track message) {
+        <p>{{ message }}</p>
+      }
+    </div>
+    <div class="button">
+      <button pButton (click)="closeMessage()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
   </div>
-  <div class="button">
-    <button pButton (click)="closeMessage()">
-      <span class="material-icons">close</span>
-    </button>
-  </div>
-</div>
+}

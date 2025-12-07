@@ -1,2 +1,6 @@
-<gi-usuario-grid *ngIf="viewMode === 'GRID'" (openDetail)="openDetail($event)"></gi-usuario-grid>
-<gi-usuario-detalhe *ngIf="viewMode === 'DETAIL'" [detailId]="detailId" (closeDetail)="toggleView();"></gi-usuario-detalhe>
+@if (viewMode === 'GRID') {
+  <gi-usuario-grid (openDetail)="openDetail($event)"></gi-usuario-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-usuario-detalhe [detailId]="detailId" (closeDetail)="toggleView();"></gi-usuario-detalhe>
+}

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -6,7 +6,7 @@ import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'gi-paginator-component',
-  imports: [CommonModule, ButtonModule, SelectModule, FormsModule],
+  imports: [ButtonModule, SelectModule, FormsModule],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.css',
 })

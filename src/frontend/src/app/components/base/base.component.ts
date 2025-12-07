@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, HostListener, inject, Input } from '@angular/core';
 import { Location } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -7,7 +7,7 @@ import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'gi-app-base',
-  imports: [CommonModule, ButtonModule, Toolbar, BadgeModule],
+  imports: [ButtonModule, Toolbar, BadgeModule],
   templateUrl: './base.component.html',
   styleUrl: './base.component.css',
 })

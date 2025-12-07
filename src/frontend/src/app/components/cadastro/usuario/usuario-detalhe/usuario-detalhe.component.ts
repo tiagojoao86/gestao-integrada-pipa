@@ -13,7 +13,7 @@ import {
   RegisterActionToolbar,
   BaseComponent,
 } from '../../../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
   AbstractControl,
@@ -35,15 +35,14 @@ import { AuthService } from '../../../base/auth/auth-service';
   selector: 'gi-usuario-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
     FormsModule,
     InputTextModule,
     PasswordModule,
-    AutoCompleteModule,
-  ],
+    AutoCompleteModule
+],
   templateUrl: './usuario-detalhe.component.html',
   styleUrl: './usuario-detalhe.component.css',
   providers: [UsuarioService, PerfilService],

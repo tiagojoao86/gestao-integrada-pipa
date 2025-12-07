@@ -12,27 +12,28 @@
           style="font-size: 2rem"
           tabindex="0"
           >person</span
-        >
-      </p-button>
-    </ng-template>
-  </p-toolbar>
-  <div class="principal-conteudo">
-    <div class="side-menu">
-      <div class="itens">
-        <gi-menu-principal-item
-          *ngFor="let item of menu"
-          [grupo]="item"
-          [somenteIcone]="true"
-        ></gi-menu-principal-item>
+          >
+        </p-button>
+      </ng-template>
+    </p-toolbar>
+    <div class="principal-conteudo">
+      <div class="side-menu">
+        <div class="itens">
+          @for (item of menu; track item) {
+            <gi-menu-principal-item
+              [grupo]="item"
+              [somenteIcone]="true"
+            ></gi-menu-principal-item>
+          }
+        </div>
       </div>
-    </div>
-    <div class="conteudo">
-      <gi-messages></gi-messages>
-      <router-outlet></router-outlet>
-    </div>
-    <div class="mini-drawer" [@openClose]="showDrawer ? 'open' : 'closed'">
-      <ng-container *ngIf="showDrawer">
-        <!--div class="titulo">
+      <div class="conteudo">
+        <gi-messages></gi-messages>
+        <router-outlet></router-outlet>
+      </div>
+      <div class="mini-drawer" [@openClose]="showDrawer ? 'open' : 'closed'">
+        @if (showDrawer) {
+          <!--div class="titulo">
           <div class="foto">
             <img src="assets/img/useravatar.webp" alt="avatar"/>
           </div>
@@ -45,13 +46,13 @@
               icon="pi pi-times"
               severity="info"
               (click)="toogleDrawer()"
-            />
+              />
             <div class="logout-button">
               <p-button
                 icon="pi pi-sign-out"
                 severity="info"
                 (click)="logout()"
-              />
+                />
             </div>
           </div>
         </div-->
@@ -60,19 +61,19 @@
             <i><span class="material-icons">person_pin</span></i>
           </div>
           <div class="dados">
-              <div class="info">{{ getTenantId() }}</div>
-              <div class="info">{{ getName() }}</div>
-              <div class="info">{{ getUsername() }}</div>
-            </div>
+            <div class="info">{{ getTenantId() }}</div>
+            <div class="info">{{ getName() }}</div>
+            <div class="info">{{ getUsername() }}</div>
+          </div>
           <div class="logout-button">
             <p-button
-            icon="pi pi-sign-out"
-            severity="info"
-            (click)="logout()"
-            />
+              icon="pi pi-sign-out"
+              severity="info"
+              (click)="logout()"
+              />
           </div>
         </div>
-      </ng-container>
+      }
     </div>
   </div>
 </div>

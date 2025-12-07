@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
@@ -18,13 +18,12 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'gi-login',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
-    IftaLabelModule,
-  ],
+    IftaLabelModule
+],
   providers: [FormUtilsService],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',

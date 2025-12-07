@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseComponent } from '../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import {
   GrupoRecurso,
   RecursoGrupoComponent,
@@ -10,7 +10,7 @@ import { Recurso } from '../base/menu/recurso/recurso.component';
 
 @Component({
   selector: 'gi-financeiro',
-  imports: [BaseComponent, CommonModule, RecursoGrupoComponent],
+  imports: [BaseComponent, RecursoGrupoComponent],
   templateUrl: './financeiro.component.html',
   styleUrl: './financeiro.component.css',
   standalone: true,

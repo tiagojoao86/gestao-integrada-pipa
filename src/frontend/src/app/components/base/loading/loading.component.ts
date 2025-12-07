@@ -8,10 +8,12 @@ import { Observable } from 'rxjs';
   standalone: true,
   imports: [CommonModule, AsyncPipe],
   template: `
-    <div *ngIf="loading$ | async" class="gi-loading-overlay">
-      <div class="gi-loading-spinner"></div>
-    </div>
-  `,
+    @if (loading$ | async) {
+      <div class="gi-loading-overlay">
+        <div class="gi-loading-spinner"></div>
+      </div>
+    }
+    `,
   styles: [
     `
       .gi-loading-overlay {

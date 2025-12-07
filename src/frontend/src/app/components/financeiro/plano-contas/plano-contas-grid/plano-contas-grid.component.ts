@@ -5,7 +5,7 @@ import {
 } from '../../../base/base.component';
 import { PlanoContasGridDTO } from '../model/plano-contas-grid-dto';
 import { PlanoContasService } from '../plano-contas.service';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   Action,
@@ -29,11 +29,10 @@ import { TipoPlanoContas } from '../model/tipo-plano-contas.enum';
   selector: 'gi-plano-contas-grid',
   imports: [
     BaseComponent,
-    CommonModule,
     TableComponent,
     PaginatorComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [PlanoContasService],
   templateUrl: './plano-contas-grid.component.html',
   styleUrl: './plano-contas-grid.component.css',

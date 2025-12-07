@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MessageService, MessageType } from './messages.service';
-import { CommonModule } from '@angular/common';
+
 import { ButtonModule } from 'primeng/button';
 import { messageServiceProvider } from './message.factory';
 
@@ -8,7 +8,7 @@ import { messageServiceProvider } from './message.factory';
   selector: 'gi-messages',
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css',
-  imports: [CommonModule, ButtonModule],
+  imports: [ButtonModule],
   providers: [{ provide: MessageService, useFactory: messageServiceProvider }],
 })
 export class MessagesComponent implements OnInit {

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ViewMode } from '../../base/model/view-mode.enum';
 import { PerfilDetalheComponent } from './perfil-detalhe/perfil-detalhe.component';
 import { PerfilGridComponent } from './perfil-grid/perfil-grid.component';
 
 @Component({
   selector: 'gi-perfil',
-  imports: [CommonModule, PerfilDetalheComponent, PerfilGridComponent],
+  imports: [PerfilDetalheComponent, PerfilGridComponent],
   providers: [],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css',

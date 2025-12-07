@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ViewMode } from '../../base/model/view-mode.enum';
 import { PlanoContasGridComponent } from './plano-contas-grid/plano-contas-grid.component';
 import { PlanoContasDetalheComponent } from './plano-contas-detalhe/plano-contas-detalhe.component';
@@ -7,10 +7,9 @@ import { PlanoContasDetalheComponent } from './plano-contas-detalhe/plano-contas
 @Component({
   selector: 'gi-plano-contas',
   imports: [
-    CommonModule,
     PlanoContasDetalheComponent,
-    PlanoContasGridComponent,
-  ],
+    PlanoContasGridComponent
+],
   providers: [],
   templateUrl: './plano-contas.component.html',
   styleUrl: './plano-contas.component.css',
