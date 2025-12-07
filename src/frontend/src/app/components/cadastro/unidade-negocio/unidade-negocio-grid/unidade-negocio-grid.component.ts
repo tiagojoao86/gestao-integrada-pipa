@@ -6,7 +6,7 @@ import {
 import { UnidadeNegocioService } from '../unidade-negocio.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { UnidadeNegocioGridDTO } from '../model/unidade-negocio-grid-dto';
-import { CommonModule, DatePipe } from '@angular/common';
+
 import { AuthService } from '../../../base/auth/auth-service';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 
@@ -24,6 +24,7 @@ import {
   PaginationEvent,
   PaginatorComponent,
 } from '../../../base/paginator/paginator.component';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'gi-unidade-negocio-grid',
