@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -29,6 +29,7 @@ import { AuthService } from '../base/auth/auth-service';
   ],
   templateUrl: './principal.component.html',
   styleUrl: './principal.component.css',
+  encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('openClose', [
       state(

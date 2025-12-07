@@ -1,23 +1,24 @@
-.toolbar-principal {
-  ::ng-deep .p-toolbar {
-    background-color: var(--main-toolbar) !important;
-    padding: 4px 3px 4px 3px !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 0px !important;
-  }
+p-toolbar.toolbar-principal {
+  background-color: var(--main-toolbar) !important;
+  padding: 4px 3px 4px 3px !important;
+  border: 0px solid var(--border-color) !important;
+  border-radius: 0px !important;
+}
 
-  .logo-button {
-    ::ng-deep .p-button:hover {
-      background-color: var(--transparent) !important;
-      color: var(--inverted-text-color) !important;
-    }
-  }
+p-toolbar.toolbar-principal .logo-button button {
+  background-color: var(--transparent) !important;
+  color: var(--inverted-text-color) !important;
+}
 
-  .titulo {
-    margin-left: 5px;
-    font-size: var(--titulo-size);
-    color: var(--text-color);
-  }
+p-toolbar.toolbar-principal .logo-button button:hover {
+  background-color: var(--transparent) !important;
+  color: var(--inverted-text-color) !important;
+}
+
+.toolbar-principal .titulo {
+  margin-left: 5px;
+  font-size: var(--titulo-size);
+  color: var(--text-color);
 }
 
 .principal {
@@ -41,11 +42,11 @@
   .side-menu {
     background-color: var(--main-toolbar);
     padding: 8px;
-    border: 1px solid var(--border-color);
+    border: 0px solid var(--border-color);
   }
 
   .mini-drawer {
-    width: 24vw;    
+    width: 24vw;
     background-color: var(--secondary-color);
     color: var(--inverted-text-color);
     top: 54px;
@@ -78,7 +79,6 @@
         }
       }
     }
-
   }
 
   .drawer {
