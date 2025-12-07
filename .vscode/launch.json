@@ -12,6 +12,20 @@
       "webRoot": "${workspaceFolder}/src/frontend"
     },
     {
+      "type": "node-terminal",
+      "name": "Start Frontend (pt-BR)",
+      "request": "launch",
+      "command": "npm run start",
+      "cwd": "${workspaceFolder}/src/frontend"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Start Frontend EN (en-US)",
+      "request": "launch",
+      "command": "npm run start-en",
+      "cwd": "${workspaceFolder}/src/frontend"
+    },
+    {
       "type": "java",
       "name": "GestaoIntegradaApplication",
       "request": "launch",

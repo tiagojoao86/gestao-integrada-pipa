@@ -16,6 +16,10 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @RequestMapping(R_PESSOA)
 public class PessoaController extends BaseController<PessoaDTO, PessoaGridDTO, PessoaService> {
 
+    public PessoaController(PessoaService service) {
+        super(service);
+    }
+
     @Override
     @PreAuthorize("hasAuthority('CADASTRO_PESSOA_LISTAR')")
     public Response list(@RequestBody PageRequest request) {

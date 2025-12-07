@@ -14,7 +14,12 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(R_UNIDADE_NEGOCIO)
-public class UnidadeNegocioController extends BaseController<UnidadeNegocioDTO, UnidadeNegocioGridDTO, UnidadeNegocioService> {
+public class UnidadeNegocioController
+        extends BaseController<UnidadeNegocioDTO, UnidadeNegocioGridDTO, UnidadeNegocioService> {
+
+    public UnidadeNegocioController(UnidadeNegocioService service) {
+        super(service);
+    }
 
     @Override
     @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_LISTAR')")

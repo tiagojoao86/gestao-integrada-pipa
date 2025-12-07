@@ -30,7 +30,7 @@ public class PlanoContas extends BaseEntity {
     @Column(name = "tipo", nullable = false, length = 20)
     private TipoPlanoContas tipo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plano_pai_id", foreignKey = @ForeignKey(name = "fk_plano_contas_pai"))
     private PlanoContas planoPai;
 

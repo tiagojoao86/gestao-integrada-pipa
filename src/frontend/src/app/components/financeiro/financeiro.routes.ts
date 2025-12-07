@@ -24,7 +24,7 @@ export const routes: Routes = [
       moduleKey: 'CADASTRO_CONTA_BANCARIA',
     },
   },
-  /*{
+  {
     path: 'plano-contas',
     loadComponent: () =>
       import('./plano-contas/plano-contas.component').then(
@@ -34,8 +34,8 @@ export const routes: Routes = [
     data: {
       moduleKey: 'CADASTRO_PLANO_CONTAS',
     },
-  },  
   },
+  /*},
   {
     path: 'titulo',
     loadComponent: () =>

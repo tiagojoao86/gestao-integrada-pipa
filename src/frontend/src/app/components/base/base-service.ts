@@ -1,5 +1,9 @@
 /* eslint-disable @angular-eslint/prefer-inject */
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { PageRequest } from './model/page-request';
@@ -17,10 +21,9 @@ export interface ExecutionCallbacks<T> {
 export abstract class BaseService<D> {
   urlBase = '/api/';
 
-  private httpClient: HttpClient;
-  private messageService: MessageService;
-  private backendMessageService: AbstractBackendMessageService;
-
+  protected httpClient: HttpClient;
+  protected messageService: MessageService;
+  protected backendMessageService: AbstractBackendMessageService;
 
   constructor(
     httpClient: HttpClient,

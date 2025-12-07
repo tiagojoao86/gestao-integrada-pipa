@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { UsuarioService } from '../usuario.service';
 import { PerfilService } from '../../perfil/perfil.service';
@@ -21,9 +28,8 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MessageService } from '../../../base/messages/messages.service';
 import { UsuarioDTO } from '../model/usuario-dto';
 import { PerfilDTO } from '../../perfil/model/perfil-dto';
+import { PerfilParaVinculoDTO } from '../../perfil/model/perfil-para-vinculo-dto';
 import { AuthService } from '../../../base/auth/auth-service';
-import { PageRequest } from '../../../base/model/page-request';
-import { FilterLogicOperator } from '../../../base/model/filter-dto';
 
 @Component({
   selector: 'gi-usuario-detalhe',
@@ -55,10 +61,9 @@ export class UsuarioDetalheComponent implements OnInit {
 
   titulo = $localize`Usuário: `;
 
-  
-  allPerfis: PerfilDTO[] = [];
+  allPerfis: PerfilParaVinculoDTO[] = [];
   selectedPerfis: PerfilDTO[] = [];
-  suggestions: PerfilDTO[] = [];  
+  suggestions: PerfilParaVinculoDTO[] = [];
   perfilInput: PerfilDTO | string | null = null;
   perfilFilter = '';
 
@@ -82,12 +87,19 @@ export class UsuarioDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({ action: () => { this.salvar(); }, icon: 'save', title: $localize`Salvar` + ' (enter)', shortcut: 'enter' });
+      this.acoesTela.push({
+        action: () => {
+          this.salvar();
+        },
+        icon: 'save',
+        title: $localize`Salvar` + ' (enter)',
+        shortcut: 'enter',
+      });
     }
 
     if (this.detailId === RouteConstants.P_ADD) {
       this.modoEdicao = false;
-      this.titulo += $localize`Novo`;      
+      this.titulo += $localize`Novo`;
       this.usuario = {} as UsuarioDTO;
       this.loadPerfisAndInitLists();
     } else {
@@ -113,10 +125,10 @@ export class UsuarioDetalheComponent implements OnInit {
     this.form.get('login')?.setValue(this.usuario.login);
   }
 
-  async adicionarPerfil(perfil: PerfilDTO) {
+  async adicionarPerfil(perfil: PerfilParaVinculoDTO) {
     if (!perfil) return;
     if (this.selectedPerfis.some((p) => p.id === perfil.id)) return;
-    this.selectedPerfis.push(perfil);
+    this.selectedPerfis.push(perfil as PerfilDTO);
   }
 
   removerPerfil(perfil: PerfilDTO) {
@@ -134,26 +146,17 @@ export class UsuarioDetalheComponent implements OnInit {
     });
   }
 
-  async onPerfilSelect(perfil: PerfilDTO) {    
-    await this.adicionarPerfil(perfil);    
+  async onPerfilSelect(perfil: PerfilParaVinculoDTO) {
+    await this.adicionarPerfil(perfil);
     this.perfilInput = '';
     this.suggestions = [];
   }
 
   private loadPerfisAndInitLists() {
-    this.perfilService
-      .list(
-        new PageRequest(
-          { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
-          9999,
-          0,
-          []
-        )
-      )
-      .subscribe((r) => {
-        this.allPerfis = r.body.content || [];
-        this.selectedPerfis = this.usuario.perfis || [];
-      });
+    this.perfilService.listarParaVinculo().subscribe((perfis) => {
+      this.allPerfis = perfis;
+      this.selectedPerfis = this.usuario.perfis || [];
+    });
   }
 
   salvar() {
@@ -165,7 +168,10 @@ export class UsuarioDetalheComponent implements OnInit {
     this.usuario.nome = this.form.value.nome;
     this.usuario.login = this.form.value.login;
     // only send senha if non-empty — otherwise send null to avoid re-hashing existing hash
-    this.usuario.senha = this.form.value.senha && this.form.value.senha.trim() !== '' ? this.form.value.senha : null;
+    this.usuario.senha =
+      this.form.value.senha && this.form.value.senha.trim() !== ''
+        ? this.form.value.senha
+        : null;
     this.usuario.perfis = this.selectedPerfis;
 
     this.service.save(this.usuario, {

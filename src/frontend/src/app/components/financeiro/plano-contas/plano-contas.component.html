@@ -1,0 +1,9 @@
+<gi-plano-contas-grid
+  *ngIf="viewMode === 'GRID'"
+  (openDetail)="openDetail($event)"
+></gi-plano-contas-grid>
+<gi-plano-contas-detalhe
+  *ngIf="viewMode === 'DETAIL'"
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+></gi-plano-contas-detalhe>

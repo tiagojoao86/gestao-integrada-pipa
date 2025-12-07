@@ -16,6 +16,10 @@ import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 @RequestMapping(R_PLANO_CONTAS)
 public class PlanoContasController extends BaseController<PlanoContasDTO, PlanoContasGridDTO, PlanoContasService> {
 
+    public PlanoContasController(PlanoContasService service) {
+        super(service);
+    }
+
     @Override
     @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_LISTAR')")
     public Response list(@RequestBody PageRequest request) {

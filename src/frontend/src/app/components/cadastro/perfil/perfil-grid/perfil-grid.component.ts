@@ -74,12 +74,12 @@ export class PerfilGridComponent {
     {
       property: 'nome',
       label: $localize`Nome`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'createdAt',
       label: $localize`Criado em`,
-      filterType: FilterType.DATA,
+      filterType: FilterType.DATE,
     },
   ];
 

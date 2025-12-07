@@ -98,17 +98,17 @@ export class ContaBancariaGridComponent {
     {
       property: 'nome',
       label: $localize`Nome`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'banco',
       label: $localize`Banco`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'tipo',
       label: $localize`Tipo`,
-      filterType: FilterType.SELECAO,
+      filterType: FilterType.SELECT,
       options: TipoConta.getList().map((tipo) => ({
         label: tipo.getLabel(),
         key: tipo.getKey(),

@@ -47,7 +47,7 @@ export class FilterComponent implements OnInit {
   }
 
   getOperacoes(tipo: FilterType): FilterOperator[] {
-    if (FilterType.TEXTO === tipo) {
+    if (FilterType.TEXT === tipo) {
       return [
         FilterOperator.CONTAINS,
         FilterOperator.NOT_CONTAINS,
@@ -55,7 +55,7 @@ export class FilterComponent implements OnInit {
         FilterOperator.EQ,
       ];
     }
-    if (FilterType.DATA === tipo || FilterType.NUMERO === tipo) {
+    if (FilterType.DATE === tipo || FilterType.NUMBER === tipo) {
       return [
         FilterOperator.NEQ,
         FilterOperator.EQ,
@@ -66,10 +66,10 @@ export class FilterComponent implements OnInit {
         FilterOperator.BT,
       ];
     }
-    if (FilterType.SELECAO === tipo) {
+    if (FilterType.SELECT === tipo) {
       return [FilterOperator.NEQ, FilterOperator.EQ];
     }
-    if (FilterType.MULTI_SELECAO === tipo) {
+    if (FilterType.MULTI_SELECT === tipo) {
       return [FilterOperator.IN, FilterOperator.NOT_IN];
     }
     if (FilterType.BOOLEAN === tipo) {
@@ -95,15 +95,15 @@ export class FilterComponent implements OnInit {
   }
 
   buildDefaultOperation(tipo: FilterType): FormControl {
-    if (FilterType.TEXTO === tipo) {
+    if (FilterType.TEXT === tipo) {
       return new FormControl(FilterOperator.CONTAINS);
     }
 
-    if (FilterType.DATA === tipo || FilterType.NUMERO === tipo) {
+    if (FilterType.DATE === tipo || FilterType.NUMBER === tipo) {
       return new FormControl(FilterOperator.EQ);
     }
 
-    if (FilterType.SELECAO === tipo || FilterType.MULTI_SELECAO === tipo) {
+    if (FilterType.SELECT === tipo || FilterType.MULTI_SELECT === tipo) {
       return new FormControl(FilterOperator.IN);
     }
 
@@ -131,7 +131,7 @@ export class FilterComponent implements OnInit {
         ?.getRawValue().key;
       const values = this.form.get(selected.property)?.getRawValue();
 
-      if (selected.filterType === FilterType.DATA) {
+      if (selected.filterType === FilterType.DATE) {
         items.push({
           property: selected.property,
           operator: operador,
@@ -139,7 +139,7 @@ export class FilterComponent implements OnInit {
         });
       }
 
-      if (selected.filterType === FilterType.TEXTO) {
+      if (selected.filterType === FilterType.TEXT) {
         items.push({
           property: selected.property,
           operator: operador,
@@ -148,7 +148,7 @@ export class FilterComponent implements OnInit {
       }
 
       if (
-        selected.filterType === FilterType.SELECAO ||
+        selected.filterType === FilterType.SELECT ||
         selected.filterType === FilterType.BOOLEAN
       ) {
         items.push({
@@ -179,11 +179,11 @@ export interface FilterProperty {
 }
 
 export enum FilterType {
-  TEXTO,
-  MULTI_SELECAO,
-  SELECAO,
-  NUMERO,
-  DATA,
+  TEXT,
+  MULTI_SELECT,
+  SELECT,
+  NUMBER,
+  DATE,
   BOOLEAN,
 }
 

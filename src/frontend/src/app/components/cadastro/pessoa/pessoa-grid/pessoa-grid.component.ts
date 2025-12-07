@@ -96,22 +96,22 @@ export class PessoaGridComponent {
     {
       property: 'nome',
       label: $localize`Nome`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'cpf',
       label: $localize`CPF`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'cnpj',
       label: $localize`CNPJ`,
-      filterType: FilterType.TEXTO,
+      filterType: FilterType.TEXT,
     },
     {
       property: 'tipoPessoa',
       label: $localize`Tipo`,
-      filterType: FilterType.SELECAO,
+      filterType: FilterType.SELECT,
       options: TipoPessoa.getList().map((tp) => ({
         label: tp.getLabel(),
         key: tp.getKey(),
@@ -129,7 +129,7 @@ export class PessoaGridComponent {
     {
       property: 'createdAt',
       label: $localize`Criado em`,
-      filterType: FilterType.DATA,
+      filterType: FilterType.DATE,
     },
   ];
 

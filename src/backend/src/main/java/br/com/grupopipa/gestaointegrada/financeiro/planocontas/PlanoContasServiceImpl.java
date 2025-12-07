@@ -54,15 +54,17 @@ public class PlanoContasServiceImpl
 
     @Override
     protected PlanoContasDTO buildDTOFromEntity(PlanoContas entity) {
+        boolean analitico = repository.isAnalitico(entity.getId());
+
         return PlanoContasDTO.builder()
                 .id(entity.getId())
                 .codigo(entity.getCodigo())
                 .descricao(entity.getDescricao())
                 .tipo(entity.getTipo().name())
                 .planoPaiId(entity.getPlanoPai() != null ? entity.getPlanoPai().getId() : null)
-                .planoPaiDescricao(entity.getPlanoPai() != null ? entity.getPlanoPai().toString() : null)
+                .planoPaiDescricao(entity.getPlanoPai() != null ? entity.getPlanoPai().getDescricao() : null)
                 .ativo(entity.getAtivo())
-                .analitico(entity.isAnalitico())
+                .analitico(analitico)
                 .nivel(entity.getNivel())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -73,13 +75,17 @@ public class PlanoContasServiceImpl
 
     @Override
     protected PlanoContasGridDTO buildGridDTOFromEntity(PlanoContas entity) {
+        boolean analitico = repository.isAnalitico(entity.getId());
+
         return PlanoContasGridDTO.builder()
                 .id(entity.getId())
                 .codigo(entity.getCodigo())
                 .descricao(entity.getDescricao())
                 .tipo(entity.getTipo().name())
+                .planoPaiCodigo(entity.getPlanoPai() != null ? entity.getPlanoPai().getCodigo() : null)
+                .planoPaiDescricao(entity.getPlanoPai() != null ? entity.getPlanoPai().getDescricao() : null)
                 .ativo(entity.getAtivo())
-                .analitico(entity.isAnalitico())
+                .analitico(analitico)
                 .build();
     }
 

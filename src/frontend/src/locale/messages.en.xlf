@@ -1188,6 +1188,127 @@
         <source>Entre</source>
         <target>Between</target>
       </trans-unit>
+      <!-- PlanoContas -->
+      <trans-unit id="planoContas.codigo" datatype="html">
+        <source>Código</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="planoContas.descricao" datatype="html">
+        <source>Descrição</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="planoContas.tipo" datatype="html">
+        <source>Tipo</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="planoContas.planoPai" datatype="html">
+        <source>Plano Pai</source>
+        <target>Parent Plan</target>
+      </trans-unit>
+      <trans-unit id="planoContas.analitico" datatype="html">
+        <source>Analítico</source>
+        <target>Analytic</target>
+      </trans-unit>
+      <trans-unit id="planoContas.ativo" datatype="html">
+        <source>Ativo</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="planoContas.title" datatype="html">
+        <source>Planos de Contas</source>
+        <target>Chart of Accounts</target>
+      </trans-unit>
+      <trans-unit id="planoContas.details" datatype="html">
+        <source>Detalhes do Plano de Contas</source>
+        <target>Chart of Accounts Details</target>
+      </trans-unit>
+      <trans-unit id="planoContas.codigo.notBlank" datatype="html">
+        <source>O código não pode ser em branco.</source>
+        <target>Code cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.codigo.maxLength" datatype="html">
+        <source>O código deve ter no máximo 20 caracteres.</source>
+        <target>Code must have at most 20 characters.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.codigo.unique" datatype="html">
+        <source>Este código já está cadastrado.</source>
+        <target>This code is already registered.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.descricao.notBlank" datatype="html">
+        <source>A descrição não pode ser em branco.</source>
+        <target>Description cannot be blank.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.descricao.maxLength" datatype="html">
+        <source>A descrição deve ter no máximo 200 caracteres.</source>
+        <target>Description must have at most 200 characters.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.tipo.notNull" datatype="html">
+        <source>O tipo é obrigatório.</source>
+        <target>Type is required.</target>
+      </trans-unit>
+      <trans-unit id="planoContas.planoPai.tipoInvalido" datatype="html">
+        <source>Plano pai deve ser do mesmo tipo.</source>
+        <target>Parent plan must be of the same type.</target>
+      </trans-unit>
+      <trans-unit id="568495776774767419" datatype="html">
+        <source>Receita</source>
+        <target>Revenue</target>
+      </trans-unit>
+      <trans-unit id="5216973036018018987" datatype="html">
+        <source>Despesa</source>
+        <target>Expense</target>
+      </trans-unit>
+      <trans-unit id="1288261701595144951" datatype="html">
+        <source>Ativo</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="2592528599361471237" datatype="html">
+        <source>Passivo</source>
+        <target>Liability</target>
+      </trans-unit>
+      <trans-unit id="33287636344569151" datatype="html">
+        <source>Plano Pai</source>
+        <target>Parent Plan</target>
+      </trans-unit>
+      <trans-unit id="7656755644201496732" datatype="html">
+        <source>Analítico</source>
+        <target>Analytical</target>
+      </trans-unit>
+      <trans-unit id="4027055910728735887" datatype="html">
+        <source>Nível</source>
+        <target>Level</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Sim</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>Não</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancelar</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Salvar</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="common.new" datatype="html">
+        <source>Novo</source>
+        <target>New</target>
+      </trans-unit>
+      <trans-unit id="common.invalidFields" datatype="html">
+        <source>Existem campos inválidos.</source>
+        <target>There are invalid fields.</target>
+      </trans-unit>
+      <trans-unit id="common.updateSuccess" datatype="html">
+        <source>Registro atualizado com sucesso</source>
+        <target>Record updated successfully</target>
+      </trans-unit>
+      <trans-unit id="common.createSuccess" datatype="html">
+        <source>Registro criado com sucesso</source>
+        <target>Record created successfully</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -6,7 +6,7 @@ export interface FilterDTO {
 export interface FilterItem {
   property: string;
   values: unknown[];
-  operator: FilterOperator;
+  operator: string;
 }
 
 export class FilterLogicOperator {
