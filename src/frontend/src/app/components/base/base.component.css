@@ -1,16 +1,9 @@
-.toolbar-base {
+p-toolbar.toolbar-base {
   height: 50px;
   padding: 4px 3px 0px 0px;
   margin-top: 5px;
   background-color: var(--toolbar);
   color: var(--text-color);
-
-  ::ng-deep .p-toolbar {
-    background-color: transparent !important;
-    padding: 4px 3px 0px 3px;
-    border: none;
-  }
-
   .titulo {
     flex-grow: 1;
     font-size: var(--titulo-size);
@@ -23,6 +16,12 @@
   .acoes {
     display: flex;
   }
+}
+
+p-toolbar.p-toolbar {
+  background-color: transparent !important;
+  padding: 4px 3px 0px 3px;
+  border: none;
 }
 
 .body-base {
