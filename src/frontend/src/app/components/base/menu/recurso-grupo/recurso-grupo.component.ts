@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { Recurso, RecursoComponent } from '../recurso/recurso.component';
 
 @Component({
     selector: 'gi-recurso-grupo',
-    imports: [CommonModule, RecursoComponent],
+    imports: [RecursoComponent],
     templateUrl: './recurso-grupo.component.html',
     styleUrl: './recurso-grupo.component.css'
 })

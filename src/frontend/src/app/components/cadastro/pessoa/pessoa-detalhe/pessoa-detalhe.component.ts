@@ -12,7 +12,7 @@ import {
   RegisterActionToolbar,
   BaseComponent,
 } from '../../../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
   AbstractControl,
@@ -35,7 +35,6 @@ import { InputMaskModule } from 'primeng/inputmask';
   selector: 'gi-pessoa-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
@@ -45,8 +44,8 @@ import { InputMaskModule } from 'primeng/inputmask';
     CheckboxModule,
     DatePickerModule,
     TextareaModule,
-    InputMaskModule,
-  ],
+    InputMaskModule
+],
   templateUrl: './pessoa-detalhe.component.html',
   styleUrl: './pessoa-detalhe.component.css',
   providers: [PessoaService],

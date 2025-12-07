@@ -3,54 +3,62 @@
     <img src="assets/img/login-banner.webp" alt="banner"/>
   </div>
   <div class="login-form">
-    <div class="message error-message" *ngIf="showError">
-      <div class="text">
-        {{ errorMessage }}
+    @if (showError) {
+      <div class="message error-message">
+        <div class="text">
+          {{ errorMessage }}
+        </div>
+        <div class="button">
+          <button pButton (click)="closeMessage()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
       </div>
-      <div class="button">
-        <button pButton (click)="closeMessage()">
-          <span class="material-icons">close</span>
-        </button>
-      </div>
-    </div>
+    }
     <form (ngSubmit)="login()" [formGroup]="form">
       <span class="title">Gestão Integrada - Acesso</span>
       <p-iftalabel class="w-100">
         <input pInputText id="tenant" formControlName="tenant" />
         <label for="tenant" i18n>Cliente</label>
-        <small *ngIf="formUtils.isControlInvalid('tenant', form)"
-          i18n>Esse campo não pode ser em branco.</small
-        >
-      </p-iftalabel>
-      <p-iftalabel class="w-100">
-        <input pInputText id="login" formControlName="login" />
-        <label for="login" i18n>Login</label>
-        <small *ngIf="formUtils.isControlInvalid('login', form)"
-          i18n>Esse campo não pode ser em branco.</small
-        >
-      </p-iftalabel>
-      <p-iftalabel class="w-100">
-        <input
-          pInputText
-          id="senha"
-          formControlName="senha"
-          type="password"
-        />
-        <label for="senha" i18n>Senha</label>
-        <small *ngIf="formUtils.isControlInvalid('senha', form)"
-          i18n>Esse campo não pode ser em branco.</small
-        >
-      </p-iftalabel>
-      <button
-        pButton
-        class="primario"
-        [disabled]="form.invalid"
-        (click)="login()"
-        style="height: 2rem"
-      >
-        <span class="material-icons">login</span>
-        <span pButtonLabel i18n>Entrar</span>
-      </button>
-    </form>
-  </div>
-</div>
+        @if (formUtils.isControlInvalid('tenant', form)) {
+          <small
+            i18n>Esse campo não pode ser em branco.</small
+            >
+          }
+        </p-iftalabel>
+        <p-iftalabel class="w-100">
+          <input pInputText id="login" formControlName="login" />
+          <label for="login" i18n>Login</label>
+          @if (formUtils.isControlInvalid('login', form)) {
+            <small
+              i18n>Esse campo não pode ser em branco.</small
+              >
+            }
+          </p-iftalabel>
+          <p-iftalabel class="w-100">
+            <input
+              pInputText
+              id="senha"
+              formControlName="senha"
+              type="password"
+              />
+            <label for="senha" i18n>Senha</label>
+            @if (formUtils.isControlInvalid('senha', form)) {
+              <small
+                i18n>Esse campo não pode ser em branco.</small
+                >
+              }
+            </p-iftalabel>
+            <button
+              pButton
+              class="primario"
+              [disabled]="form.invalid"
+              (click)="login()"
+              style="height: 2rem"
+              >
+              <span class="material-icons">login</span>
+              <span pButtonLabel i18n>Entrar</span>
+            </button>
+          </form>
+        </div>
+      </div>

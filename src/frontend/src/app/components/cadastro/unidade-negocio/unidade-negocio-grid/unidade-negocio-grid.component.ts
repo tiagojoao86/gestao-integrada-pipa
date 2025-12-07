@@ -24,17 +24,16 @@ import {
   PaginationEvent,
   PaginatorComponent,
 } from '../../../base/paginator/paginator.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'gi-unidade-negocio-grid',
   imports: [
     BaseComponent,
-    CommonModule,
     PaginatorComponent,
     TableComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [UnidadeNegocioService, DatePipe],
   templateUrl: './unidade-negocio-grid.component.html',
   styleUrl: './unidade-negocio-grid.component.css',

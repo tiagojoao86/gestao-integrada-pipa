@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Order, Direction } from '../model/page-request';
 import { TableModule } from 'primeng/table';
@@ -7,7 +7,7 @@ import { SortMeta } from 'primeng/api';
 
 @Component({
   selector: 'gi-table-component',
-  imports: [CommonModule, TableModule, ButtonModule],
+  imports: [TableModule, ButtonModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   providers: [],

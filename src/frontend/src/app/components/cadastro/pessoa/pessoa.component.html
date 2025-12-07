@@ -1,9 +1,11 @@
-<gi-pessoa-grid
-  *ngIf="viewMode === 'GRID'"
-  (openDetail)="openDetail($event)"
-></gi-pessoa-grid>
-<gi-pessoa-detalhe
-  *ngIf="viewMode === 'DETAIL'"
-  [detailId]="detailId"
-  (closeDetail)="toggleView()"
-></gi-pessoa-detalhe>
+@if (viewMode === 'GRID') {
+  <gi-pessoa-grid
+    (openDetail)="openDetail($event)"
+  ></gi-pessoa-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-pessoa-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-pessoa-detalhe>
+}

@@ -6,7 +6,7 @@ import {
 import { PerfilService } from '../perfil.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { PerfilGridDTO } from '../model/perfil-grid-dto';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   Action,
@@ -29,11 +29,10 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
   standalone: true,
   imports: [
     BaseComponent,
-    CommonModule,
     TableComponent,
     PaginatorComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [PerfilService, DatePipe],
   templateUrl: './perfil-grid.component.html',
   styleUrl: './perfil-grid.component.css',

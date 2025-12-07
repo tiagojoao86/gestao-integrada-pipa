@@ -10,17 +10,16 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
-import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'gi-filter-component',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     InputTextModule,
     ButtonModule,
     SelectModule,
-    DatePicker,
-  ],
+    DatePicker
+],
   templateUrl: './filter.component.html',
   styleUrl: './filter.component.css',
 })

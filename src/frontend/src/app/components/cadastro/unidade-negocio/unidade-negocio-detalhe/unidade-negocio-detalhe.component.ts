@@ -12,7 +12,7 @@ import {
   RegisterActionToolbar,
   BaseComponent,
 } from '../../../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
   AbstractControl,
@@ -33,7 +33,6 @@ import { InputMaskModule } from 'primeng/inputmask';
   selector: 'gi-unidade-negocio-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
@@ -41,8 +40,8 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputTextModule,
     CheckboxModule,
     TextareaModule,
-    InputMaskModule,
-  ],
+    InputMaskModule
+],
   templateUrl: './unidade-negocio-detalhe.component.html',
   styleUrl: './unidade-negocio-detalhe.component.css',
   providers: [UnidadeNegocioService],

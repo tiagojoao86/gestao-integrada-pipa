@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import {
   GrupoMenu,
@@ -21,7 +21,6 @@ import { AuthService } from '../base/auth/auth-service';
   selector: 'gi-principal-component',
   imports: [
     RouterModule,
-    CommonModule,
     MenuPrincipalItemComponent,
     Toolbar,
     ButtonModule,

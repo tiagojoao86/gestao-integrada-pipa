@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ViewMode } from '../../base/model/view-mode.enum';
 import { UsuarioDetalheComponent } from './usuario-detalhe/usuario-detalhe.component';
 import { UsuarioGridComponent } from './usuario-grid/usuario-grid.component';
 
 @Component({
   selector: 'gi-usuario',
-  imports: [CommonModule, UsuarioDetalheComponent, UsuarioGridComponent],
+  imports: [UsuarioDetalheComponent, UsuarioGridComponent],
   providers: [],
   templateUrl: './usuario.component.html',
   styleUrl: './usuario.component.css',

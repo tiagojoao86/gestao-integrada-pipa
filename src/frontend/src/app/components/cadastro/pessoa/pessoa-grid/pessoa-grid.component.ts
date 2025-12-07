@@ -6,7 +6,7 @@ import {
 import { PessoaService } from '../pessoa.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { PessoaGridDTO } from '../model/pessoa-grid-dto';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   Action,
@@ -29,11 +29,10 @@ import { TipoPessoa } from '../model/pessoa-dto';
   selector: 'gi-pessoa-grid',
   imports: [
     BaseComponent,
-    CommonModule,
     TableComponent,
     PaginatorComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [PessoaService, DatePipe],
   templateUrl: './pessoa-grid.component.html',
   styleUrl: './pessoa-grid.component.css',

@@ -6,12 +6,16 @@
           <p-iftalabel class="w-100">
             <input pInputText id="nomeUsuario" formControlName="nome" />
             <label for="nomeUsuario" i18n>Nome</label>
-            <small *ngIf="isControlInvalid('nome')" i18n>Esse campo não pode ser em branco.</small>
+            @if (isControlInvalid('nome')) {
+              <small i18n>Esse campo não pode ser em branco.</small>
+            }
           </p-iftalabel>
           <p-iftalabel class="w-100">
             <input pInputText id="loginUsuario" formControlName="login" />
             <label for="loginUsuario" i18n>Login</label>
-            <small *ngIf="isControlInvalid('login')" i18n>Esse campo não pode ser em branco.</small>
+            @if (isControlInvalid('login')) {
+              <small i18n>Esse campo não pode ser em branco.</small>
+            }
           </p-iftalabel>
           <p-iftalabel class="w-100">
             <input pInputText id="senhaUsuario" formControlName="senha" type="password" />
@@ -41,10 +45,12 @@
           </p-autoComplete>
 
           <ul class="perfis-list mt-3">
-            <li *ngFor="let p of selectedPerfis">
-              <span>{{ p.nome }}</span>
-              <button type="button" class="btn-remove" (click)="removerPerfil(p)">-</button>
-            </li>
+            @for (p of selectedPerfis; track p) {
+              <li>
+                <span>{{ p.nome }}</span>
+                <button type="button" class="btn-remove" (click)="removerPerfil(p)">-</button>
+              </li>
+            }
           </ul>
         </div>
       </div>

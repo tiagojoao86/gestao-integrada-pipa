@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { PerfilService } from '../perfil.service';
 import { RegisterActionToolbar, BaseComponent } from '../../../base/base.component';
-import { CommonModule } from '@angular/common';
+
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,14 +35,13 @@ interface PermissaoFormGroupValue {
   selector: 'gi-perfil-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
     InputTextModule,
     CheckboxModule,
     AccordionModule
-  ],
+],
   templateUrl: './perfil-detalhe.component.html',
   styleUrl: './perfil-detalhe.component.css',
   providers: [PerfilService, ModuloService],

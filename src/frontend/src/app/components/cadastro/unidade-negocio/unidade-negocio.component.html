@@ -1,10 +1,12 @@
-<gi-unidade-negocio-grid
-  *ngIf="viewMode === 'GRID'"
-  (openDetailEvent)="openDetail($event)"
-></gi-unidade-negocio-grid>
+@if (viewMode === 'GRID') {
+  <gi-unidade-negocio-grid
+    (openDetailEvent)="openDetail($event)"
+  ></gi-unidade-negocio-grid>
+}
 
-<gi-unidade-negocio-detalhe
-  *ngIf="viewMode === 'DETAIL'"
-  [id]="detailId"
-  (closeDetailEvent)="toggleView()"
-></gi-unidade-negocio-detalhe>
+@if (viewMode === 'DETAIL') {
+  <gi-unidade-negocio-detalhe
+    [id]="detailId"
+    (closeDetailEvent)="toggleView()"
+  ></gi-unidade-negocio-detalhe>
+}

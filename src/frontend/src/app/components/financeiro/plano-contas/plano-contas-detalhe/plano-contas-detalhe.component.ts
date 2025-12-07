@@ -6,7 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   AbstractControl,
   FormBuilder,
@@ -39,7 +39,6 @@ import {
   selector: 'gi-plano-contas-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     BaseComponent,
     IftaLabelModule,
     ReactiveFormsModule,
@@ -47,8 +46,8 @@ import {
     InputTextModule,
     CheckboxModule,
     AutoCompleteModule,
-    SelectModule,
-  ],
+    SelectModule
+],
   providers: [PlanoContasService],
   templateUrl: './plano-contas-detalhe.component.html',
   styleUrl: './plano-contas-detalhe.component.css',

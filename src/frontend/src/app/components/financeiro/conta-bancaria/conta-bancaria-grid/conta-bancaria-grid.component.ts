@@ -6,7 +6,7 @@ import {
 import { ContaBancariaService } from '../conta-bancaria.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { ContaBancariaGridDTO } from '../model/conta-bancaria-grid-dto';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   Action,
@@ -29,11 +29,10 @@ import { TipoConta } from '../model/tipo-conta.enum';
   selector: 'gi-conta-bancaria-grid',
   imports: [
     BaseComponent,
-    CommonModule,
     TableComponent,
     PaginatorComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [ContaBancariaService, DatePipe],
   templateUrl: './conta-bancaria-grid.component.html',
   styleUrl: './conta-bancaria-grid.component.css',

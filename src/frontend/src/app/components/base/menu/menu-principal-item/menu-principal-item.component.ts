@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
     selector: 'gi-menu-principal-item',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './menu-principal-item.component.html',
     styleUrl: './menu-principal-item.component.css'
 })

@@ -6,7 +6,7 @@ import {
 import { UsuarioService } from '../usuario.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { UsuarioGridDTO } from '../model/usuario-grid-dto';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   Action,
@@ -28,11 +28,10 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
   selector: 'gi-usuario-grid',
   imports: [
     BaseComponent,
-    CommonModule,
     TableComponent,
     PaginatorComponent,
-    FilterComponent,
-  ],
+    FilterComponent
+],
   providers: [UsuarioService, DatePipe],
   templateUrl: './usuario-grid.component.html',
   styleUrl: './usuario-grid.component.css',
