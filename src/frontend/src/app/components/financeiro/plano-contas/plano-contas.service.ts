@@ -1,9 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { PlanoContasDTO } from './model/plano-contas-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { PlanoContasBackendMessages } from './plano-contas-backend-message.service';
 import { BaseService } from '../../base/base-service';
+import { PageRequest } from '../../base/model/page-request';
+import { FilterLogicOperator } from '../../base/model/filter-dto';
 
 @Injectable()
 export class PlanoContasService extends BaseService<PlanoContasDTO> {
@@ -19,5 +23,24 @@ export class PlanoContasService extends BaseService<PlanoContasDTO> {
 
   getDominio(): string {
     return PlanoContasService.PLANO_CONTAS;
+  }
+
+  listarParaVinculo(): Observable<any[]> {
+    const request = new PageRequest(
+      { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
+      1000,
+      0,
+      []
+    );
+    return this.list(request).pipe(
+      map((response) =>
+        response.body.content.map((pc: any) => ({
+          id: pc.id,
+          codigo: pc.codigo,
+          descricao: pc.descricao,
+          displayLabel: `${pc.codigo} - ${pc.descricao}`,
+        }))
+      )
+    );
   }
 }

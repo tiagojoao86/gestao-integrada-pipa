@@ -35,7 +35,6 @@ export const routes: Routes = [
       moduleKey: 'CADASTRO_PLANO_CONTAS',
     },
   },
-  /*},
   {
     path: 'titulo',
     loadComponent: () =>
@@ -45,7 +44,7 @@ export const routes: Routes = [
       moduleKey: 'FINANCEIRO_TITULO',
     },
   },
-  {
+  /*{
     path: 'movimentacao',
     loadComponent: () =>
       import('./movimentacao/movimentacao.component').then(

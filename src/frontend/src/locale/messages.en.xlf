@@ -1309,6 +1309,142 @@
         <source>Registro criado com sucesso</source>
         <target>Record created successfully</target>
       </trans-unit>
+      <trans-unit id="titulo.tipo.notBlank" datatype="html">
+        <source>O tipo é obrigatório.</source>
+        <target>Type is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.descricao.notBlank" datatype="html">
+        <source>A descrição é obrigatória.</source>
+        <target>Description is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.pessoaId.notNull" datatype="html">
+        <source>A pessoa é obrigatória.</source>
+        <target>Person is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.planoContasId.notNull" datatype="html">
+        <source>O plano de contas é obrigatório.</source>
+        <target>Chart of accounts is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.valorOriginal.notNull" datatype="html">
+        <source>O valor original é obrigatório.</source>
+        <target>Original amount is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.dataEmissao.notNull" datatype="html">
+        <source>A data de emissão é obrigatória.</source>
+        <target>Issue date is required.</target>
+      </trans-unit>
+      <trans-unit id="titulo.dataVencimento.notNull" datatype="html">
+        <source>A data de vencimento é obrigatória.</source>
+        <target>Due date is required.</target>
+      </trans-unit>
+      <trans-unit id="1056617914105958582" datatype="html">
+        <source>Título: </source>
+        <target>Title: </target>
+      </trans-unit>
+      <trans-unit id="7990560207787978295" datatype="html">
+        <source>A Pagar</source>
+        <target>Payable</target>
+      </trans-unit>
+      <trans-unit id="2342068037665198263" datatype="html">
+        <source>A Receber</source>
+        <target>Receivable</target>
+      </trans-unit>
+      <trans-unit id="7718957050457001178" datatype="html">
+        <source>Aberto</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="935546809240541310" datatype="html">
+        <source>Parcial</source>
+        <target>Partial</target>
+      </trans-unit>
+      <trans-unit id="357136659085089936" datatype="html">
+        <source>Pago</source>
+        <target>Paid</target>
+      </trans-unit>
+      <trans-unit id="6741311424685005971" datatype="html">
+        <source>Cancelado</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="8776959021383819246" datatype="html">
+        <source>Vencido</source>
+        <target>Overdue</target>
+      </trans-unit>
+      <trans-unit id="2094290588454883071" datatype="html">
+        <source>Pessoa é obrigatória.</source>
+        <target>Person is required.</target>
+      </trans-unit>
+      <trans-unit id="2654164117026945117" datatype="html">
+        <source>Plano de Contas é obrigatório.</source>
+        <target>Chart of accounts is required.</target>
+      </trans-unit>
+      <trans-unit id="7272024145080982800" datatype="html">
+        <source>Título salvo com sucesso.</source>
+        <target>Title saved successfully.</target>
+      </trans-unit>
+      <trans-unit id="5611592591303869712" datatype="html">
+        <source>Status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="604428261647734217" datatype="html">
+        <source>Nº Documento</source>
+        <target>Document No.</target>
+      </trans-unit>
+      <trans-unit id="8837196661004653955" datatype="html">
+        <source>Pessoa</source>
+        <target>Person</target>
+      </trans-unit>
+      <trans-unit id="2363211000481273255" datatype="html">
+        <source>Valor Original</source>
+        <target>Original Amount</target>
+      </trans-unit>
+      <trans-unit id="1170751032392518592" datatype="html">
+        <source>Desconto</source>
+        <target>Discount</target>
+      </trans-unit>
+      <trans-unit id="340770047940138080" datatype="html">
+        <source>Juros</source>
+        <target>Interest</target>
+      </trans-unit>
+      <trans-unit id="5188461936570652200" datatype="html">
+        <source>Multa</source>
+        <target>Fine</target>
+      </trans-unit>
+      <trans-unit id="2732421093737115522" datatype="html">
+        <source>Data Emissão</source>
+        <target>Issue Date</target>
+      </trans-unit>
+      <trans-unit id="9204245303200770838" datatype="html">
+        <source>Data Vencimento</source>
+        <target>Due Date</target>
+      </trans-unit>
+      <trans-unit id="9139538053419205909" datatype="html">
+        <source>Data Pagamento</source>
+        <target>Payment Date</target>
+      </trans-unit>
+      <trans-unit id="527358262181685214" datatype="html">
+        <source>Cadastro de títulos</source>
+        <target>Title Registration</target>
+      </trans-unit>
+      <trans-unit id="8652058262780853867" datatype="html">
+        <source>Nº Doc.</source>
+        <target>Doc. No.</target>
+      </trans-unit>
+      <trans-unit id="8962914386906245107" datatype="html">
+        <source>Valor</source>
+        <target>Amount</target>
+      </trans-unit>
+      <trans-unit id="817095040501125337" datatype="html">
+        <source>Saldo</source>
+        <target>Balance</target>
+      </trans-unit>
+      <trans-unit id="185950802780796746" datatype="html">
+        <source>Vencimento</source>
+        <target>Due Date</target>
+      </trans-unit>
+      <trans-unit id="5770208281325815457" datatype="html">
+        <source>Parcela</source>
+        <target>Installment</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
