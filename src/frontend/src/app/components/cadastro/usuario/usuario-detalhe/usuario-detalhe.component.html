@@ -74,6 +74,37 @@
             }
           </ul>
         </div>
+
+        <div class="unidades-column mt-4">
+          <div class="unidades-label" i18n>Unidades de Negócio</div>
+          <div class="unidades-grid">
+            @for (unidade of allUnidades; track unidade.id) {
+            <div class="unidade-item">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isUnidadeVinculada(unidade.id)"
+                (ngModelChange)="toggleUnidade(unidade, $event)"
+                [inputId]="'unidade-' + unidade.id"
+              />
+              <label [for]="'unidade-' + unidade.id" class="unidade-nome">{{
+                unidade.nome
+              }}</label>
+              @if (isUnidadeVinculada(unidade.id)) {
+              <p-radioButton
+                name="unidadeDefault"
+                [value]="unidade.id"
+                [(ngModel)]="unidadeDefaultId"
+                [inputId]="'default-' + unidade.id"
+                class="default-radio"
+              />
+              <label [for]="'default-' + unidade.id" class="default-label" i18n
+                >Padrão</label
+              >
+              }
+            </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
   </div>

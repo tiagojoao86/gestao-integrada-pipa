@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilService;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.core.controller.BaseController;
 import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
@@ -27,10 +28,13 @@ import java.util.UUID;
 public class UsuarioController extends BaseController<UsuarioDTO, UsuarioGridDTO, UsuarioService> {
 
     private final PerfilService perfilService;
+    private final UnidadeNegocioService unidadeNegocioService;
 
-    public UsuarioController(UsuarioService service, PerfilService perfilService) {
+    public UsuarioController(UsuarioService service, PerfilService perfilService,
+            UnidadeNegocioService unidadeNegocioService) {
         super(service);
         this.perfilService = perfilService;
+        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     /**
@@ -41,6 +45,17 @@ public class UsuarioController extends BaseController<UsuarioDTO, UsuarioGridDTO
     @PreAuthorize("hasAuthority('CADASTRO_USUARIO_EDITAR')")
     public Response listarPerfisDisponiveis() {
         return ok(perfilService.listarParaVinculo());
+    }
+
+    /**
+     * Endpoint para buscar unidades de negócio ativas disponíveis para vinculação
+     * com usuários.
+     * Retorna lista completa sem paginação.
+     */
+    @GetMapping("/unidades-disponiveis")
+    @PreAuthorize("hasAuthority('CADASTRO_USUARIO_EDITAR')")
+    public Response listarUnidadesDisponiveis() {
+        return ok(unidadeNegocioService.listarAtivas());
     }
 
     @Override

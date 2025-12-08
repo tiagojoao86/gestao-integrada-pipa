@@ -85,4 +85,11 @@ public class UnidadeNegocioServiceImpl
     protected Class<UnidadeNegocio> getEntityClass() {
         return UnidadeNegocio.class;
     }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarAtivas() {
+        return repository.findByAtivaTrue().stream()
+                .map(this::buildDTOFromEntity)
+                .toList();
+    }
 }

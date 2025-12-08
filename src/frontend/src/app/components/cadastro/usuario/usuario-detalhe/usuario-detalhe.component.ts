@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { UsuarioService } from '../usuario.service';
-import { PerfilService } from '../../perfil/perfil.service';
 import {
   RegisterActionToolbar,
   BaseComponent,
@@ -27,10 +26,14 @@ import { PasswordModule } from 'primeng/password';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { MessageService } from '../../../base/messages/messages.service';
 import { UsuarioDTO } from '../model/usuario-dto';
 import { PerfilDTO } from '../../perfil/model/perfil-dto';
 import { PerfilParaVinculoDTO } from '../../perfil/model/perfil-para-vinculo-dto';
+import { UnidadeNegocioDTO } from '../../unidade-negocio/model/unidade-negocio-dto';
+import { UsuarioUnidadeNegocioDTO } from '../model/usuario-unidade-negocio-dto';
 import { AuthService } from '../../../base/auth/auth-service';
 
 @Component({
@@ -46,10 +49,12 @@ import { AuthService } from '../../../base/auth/auth-service';
     AutoCompleteModule,
     IconFieldModule,
     InputIconModule,
+    CheckboxModule,
+    RadioButtonModule,
   ],
   templateUrl: './usuario-detalhe.component.html',
   styleUrl: './usuario-detalhe.component.css',
-  providers: [UsuarioService, PerfilService],
+  providers: [UsuarioService],
 })
 export class UsuarioDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
@@ -59,7 +64,6 @@ export class UsuarioDetalheComponent implements OnInit {
   @Output() closeDetail = new EventEmitter<void>();
 
   private service: UsuarioService = inject(UsuarioService);
-  private perfilService: PerfilService = inject(PerfilService);
   private messages: MessageService = inject(MessageService);
 
   titulo = $localize`Usuário: `;
@@ -69,6 +73,10 @@ export class UsuarioDetalheComponent implements OnInit {
   suggestions: PerfilParaVinculoDTO[] = [];
   perfilInput: PerfilDTO | string | null = null;
   perfilFilter = '';
+
+  allUnidades: UnidadeNegocioDTO[] = [];
+  selectedUnidades: UsuarioUnidadeNegocioDTO[] = [];
+  unidadeDefaultId: string | null = null;
 
   acoesTela: RegisterActionToolbar[] = [];
   private auth: AuthService = inject(AuthService);
@@ -105,6 +113,7 @@ export class UsuarioDetalheComponent implements OnInit {
       this.titulo += $localize`Novo`;
       this.usuario = {} as UsuarioDTO;
       this.loadPerfisAndInitLists();
+      this.loadUnidadesAndInitLists();
     } else {
       this.modoEdicao = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
@@ -112,6 +121,7 @@ export class UsuarioDetalheComponent implements OnInit {
         this.titulo += this.usuario.nome;
         this.fillForm();
         this.loadPerfisAndInitLists();
+        this.loadUnidadesAndInitLists();
       });
     }
   }
@@ -156,10 +166,53 @@ export class UsuarioDetalheComponent implements OnInit {
   }
 
   private loadPerfisAndInitLists() {
-    this.perfilService.listarParaVinculo().subscribe((perfis) => {
+    this.service.listarPerfisDisponiveis().subscribe((perfis) => {
       this.allPerfis = perfis;
       this.selectedPerfis = this.usuario.perfis || [];
     });
+  }
+
+  private loadUnidadesAndInitLists() {
+    this.service
+      .listarUnidadesDisponiveis()
+      .subscribe((unidades: UnidadeNegocioDTO[]) => {
+        this.allUnidades = unidades;
+        this.selectedUnidades = this.usuario.unidadesNegocio || [];
+        // Set default unidade if exists
+        const defaultUnidade = this.selectedUnidades.find((u) => u.isDefault);
+        this.unidadeDefaultId = defaultUnidade?.unidadeNegocioId || null;
+      });
+  }
+
+  isUnidadeVinculada(unidadeId: string): boolean {
+    return this.selectedUnidades.some((u) => u.unidadeNegocioId === unidadeId);
+  }
+
+  toggleUnidade(unidade: UnidadeNegocioDTO, checked: boolean) {
+    if (checked) {
+      // Add unidade
+      this.selectedUnidades.push({
+        unidadeNegocioId: unidade.id,
+        unidadeNegocioNome: unidade.nome,
+        isDefault: this.selectedUnidades.length === 0, // First one is default
+      });
+      // Set as default if it's the first
+      if (this.selectedUnidades.length === 1) {
+        this.unidadeDefaultId = unidade.id;
+      }
+    } else {
+      // Remove unidade
+      this.selectedUnidades = this.selectedUnidades.filter(
+        (u) => u.unidadeNegocioId !== unidade.id
+      );
+      // If removed unidade was default, set first as default
+      if (this.unidadeDefaultId === unidade.id) {
+        this.unidadeDefaultId =
+          this.selectedUnidades.length > 0
+            ? this.selectedUnidades[0].unidadeNegocioId
+            : null;
+      }
+    }
   }
 
   salvar() {
@@ -176,6 +229,12 @@ export class UsuarioDetalheComponent implements OnInit {
         ? this.form.value.senha
         : null;
     this.usuario.perfis = this.selectedPerfis;
+
+    // Update isDefault flags based on selected radio
+    this.usuario.unidadesNegocio = this.selectedUnidades.map((u) => ({
+      ...u,
+      isDefault: u.unidadeNegocioId === this.unidadeDefaultId,
+    }));
 
     this.service.save(this.usuario, {
       onSuccess: (data: UsuarioDTO) => {

@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.UsuarioPerfilEntity;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioDTO;
@@ -15,25 +16,27 @@ import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Login;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Senha;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
+import java.util.UUID;
 
 @Entity(name = "usuario")
 public class UsuarioEntity extends BaseEntity {
-    
+
     @Embedded
     private Nome nome;
-    
+
     @Embedded
     private Login login;
-    
+
     @Embedded
     private Senha senha;
 
     @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private Set<UsuarioPerfilEntity> perfis = new HashSet<>();
+
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UsuarioUnidadeNegocioEntity> unidadesNegocio = new HashSet<>();
 
     private UsuarioEntity(Nome nome, Login login, Senha senha) {
         this.nome = nome;
@@ -60,6 +63,25 @@ public class UsuarioEntity extends BaseEntity {
         return perfis;
     }
 
+    public Set<UsuarioUnidadeNegocioEntity> getUnidadesNegocio() {
+        return unidadesNegocio;
+    }
+
+    public void setUnidadesNegocio(Set<UsuarioUnidadeNegocioEntity> unidadesNegocio) {
+        this.unidadesNegocio = unidadesNegocio != null ? unidadesNegocio : new HashSet<>();
+    }
+
+    public void addUnidadeNegocio(UnidadeNegocio unidadeNegocio, Boolean isDefault) {
+        if (unidadeNegocio != null) {
+            UsuarioUnidadeNegocioEntity association = new UsuarioUnidadeNegocioEntity(this, unidadeNegocio, isDefault);
+            this.unidadesNegocio.add(association);
+        }
+    }
+
+    public void removeUnidadeNegocio(UUID unidadeNegocioId) {
+        this.unidadesNegocio.removeIf(uun -> uun.getUnidadeNegocio().getId().equals(unidadeNegocioId));
+    }
+
     private static class ValidatedData {
         final Nome nome;
         final Login login;
@@ -72,16 +94,17 @@ public class UsuarioEntity extends BaseEntity {
         }
     }
 
-    private static ValidatedData validate(String nomeStr, String loginStr, String senhaStr, PasswordEncoder passwordEncoder, boolean isCreation) {
+    private static ValidatedData validate(String nomeStr, String loginStr, String senhaStr,
+            PasswordEncoder passwordEncoder, boolean isCreation) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
         Login login = ValidationUtils.validateAndGet(() -> Login.of(loginStr), violations);
-        
+
         Senha senha = null;
-        if (isCreation) {            
+        if (isCreation) {
             senha = ValidationUtils.validateAndGet(() -> Senha.of(senhaStr, passwordEncoder), violations);
-        } else if (senhaStr != null && !senhaStr.trim().isEmpty()) {            
+        } else if (senhaStr != null && !senhaStr.trim().isEmpty()) {
             senha = ValidationUtils.validateAndGet(() -> Senha.of(senhaStr, passwordEncoder), violations);
         }
 
@@ -104,7 +127,7 @@ public class UsuarioEntity extends BaseEntity {
 
         private String login;
         private String nome;
-        private String senha;        
+        private String senha;
 
         public Builder login(String login) {
             this.login = login;

@@ -24,5 +24,6 @@ public class UsuarioDTO implements DTO {
     private String createdBy;
     private String updatedBy;
     private List<PerfilDTO> perfis;
+    private List<UsuarioUnidadeNegocioDTO> unidadesNegocio;
 
 }

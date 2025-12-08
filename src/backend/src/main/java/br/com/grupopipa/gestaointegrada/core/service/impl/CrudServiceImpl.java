@@ -36,6 +36,7 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         this.specifications = specifications;
     }
 
+    @Transactional
     public D save(D dto) {
         if (Objects.nonNull(dto.getId())) {
             T entity = this.findEntityById(dto.getId());

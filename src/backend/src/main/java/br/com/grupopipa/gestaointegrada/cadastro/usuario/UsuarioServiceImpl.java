@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilModuloEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.UsuarioPerfilEntity;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.usuario.entity.UsuarioEntity;
 import br.com.grupopipa.gestaointegrada.config.security.dto.AuthorityDTO;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
@@ -28,12 +33,15 @@ public class UsuarioServiceImpl
 
     private PasswordEncoder passwordEncoder;
     private final PerfilRepository perfilRepository;
+    private final UnidadeNegocioRepository unidadeNegocioRepository;
 
     public UsuarioServiceImpl(PasswordEncoder passwordEncoder, UsuarioRepository repository,
-            Specifications<UsuarioEntity> specifications, PerfilRepository perfilRepository) {
+            Specifications<UsuarioEntity> specifications, PerfilRepository perfilRepository,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
         super(repository, specifications);
         this.passwordEncoder = passwordEncoder;
         this.perfilRepository = perfilRepository;
+        this.unidadeNegocioRepository = unidadeNegocioRepository;
     }
 
     @Override
@@ -59,10 +67,14 @@ public class UsuarioServiceImpl
 
                 List<String> listaPermissoes = permissoesPorModulo.computeIfAbsent(moduloChave, k -> new ArrayList<>());
 
-                if (permissao.isPodeListar() && !listaPermissoes.contains("LISTAR")) listaPermissoes.add("LISTAR");
-                if (permissao.isPodeVisualizar() && !listaPermissoes.contains("VISUALIZAR")) listaPermissoes.add("VISUALIZAR");
-                if (permissao.isPodeEditar() && !listaPermissoes.contains("EDITAR")) listaPermissoes.add("EDITAR");
-                if (permissao.isPodeDeletar() && !listaPermissoes.contains("DELETAR")) listaPermissoes.add("DELETAR");
+                if (permissao.isPodeListar() && !listaPermissoes.contains("LISTAR"))
+                    listaPermissoes.add("LISTAR");
+                if (permissao.isPodeVisualizar() && !listaPermissoes.contains("VISUALIZAR"))
+                    listaPermissoes.add("VISUALIZAR");
+                if (permissao.isPodeEditar() && !listaPermissoes.contains("EDITAR"))
+                    listaPermissoes.add("EDITAR");
+                if (permissao.isPodeDeletar() && !listaPermissoes.contains("DELETAR"))
+                    listaPermissoes.add("DELETAR");
             }
         }
 
@@ -70,11 +82,10 @@ public class UsuarioServiceImpl
         for (Map.Entry<String, List<String>> entry : permissoesPorModulo.entrySet()) {
             ModuloEntity modulo = modulos.get(entry.getKey());
             authorities.add(new AuthorityDTO(
-                modulo.getChave(),
-                modulo.getNome(),
-                modulo.getGrupo().name(),
-                entry.getValue()
-            ));
+                    modulo.getChave(),
+                    modulo.getNome(),
+                    modulo.getGrupo().name(),
+                    entry.getValue()));
         }
 
         return authorities;
@@ -88,18 +99,30 @@ public class UsuarioServiceImpl
                     .login(dto.getLogin())
                     .senha(dto.getSenha())
                     .build(this.passwordEncoder);
-            
+
             // Add perfis for new user
             if (dto.getPerfis() != null) {
                 for (var perfilDTO : dto.getPerfis()) {
-                    if (perfilDTO == null || perfilDTO.getId() == null) continue;
+                    if (perfilDTO == null || perfilDTO.getId() == null)
+                        continue;
                     PerfilEntity perfilEntity = perfilRepository.findById(perfilDTO.getId())
-                            .orElseThrow(() -> new EntityNotFoundException("Perfil", "id", perfilDTO.getId().toString()));
+                            .orElseThrow(
+                                    () -> new EntityNotFoundException("Perfil", "id", perfilDTO.getId().toString()));
                     UsuarioPerfilEntity up = new UsuarioPerfilEntity(entity, perfilEntity);
                     entity.getPerfis().add(up);
                 }
             }
-            
+
+            // Add unidades de negócio for new user
+            if (dto.getUnidadesNegocio() != null && !dto.getUnidadesNegocio().isEmpty()) {
+                for (UsuarioUnidadeNegocioDTO unDTO : dto.getUnidadesNegocio()) {
+                    UnidadeNegocio unidade = unidadeNegocioRepository.findById(unDTO.getUnidadeNegocioId())
+                            .orElseThrow(() -> new EntityNotFoundException("UnidadeNegocio", "id",
+                                    unDTO.getUnidadeNegocioId().toString()));
+                    entity.addUnidadeNegocio(unidade, unDTO.getIsDefault());
+                }
+            }
+
             return entity;
         }
 
@@ -115,12 +138,46 @@ public class UsuarioServiceImpl
             // add new perfis
             var existingPerfilIds = entity.getPerfis().stream().map(up -> up.getPerfil().getId()).toList();
             for (var perfilDTO : dto.getPerfis()) {
-                if (perfilDTO == null || perfilDTO.getId() == null) continue;
+                if (perfilDTO == null || perfilDTO.getId() == null)
+                    continue;
                 if (!existingPerfilIds.contains(perfilDTO.getId())) {
                     PerfilEntity perfilEntity = perfilRepository.findById(perfilDTO.getId())
-                            .orElseThrow(() -> new EntityNotFoundException("Perfil", "id", perfilDTO.getId().toString()));
+                            .orElseThrow(
+                                    () -> new EntityNotFoundException("Perfil", "id", perfilDTO.getId().toString()));
                     UsuarioPerfilEntity up = new UsuarioPerfilEntity(entity, perfilEntity);
                     entity.getPerfis().add(up);
+                }
+            }
+        }
+
+        // Sync unidades de negócio if provided in DTO
+        if (dto.getUnidadesNegocio() != null) {
+            // Get current unidade IDs
+            Set<UUID> currentIds = entity.getUnidadesNegocio().stream()
+                    .map(uun -> uun.getUnidadeNegocio().getId())
+                    .collect(Collectors.toSet());
+
+            Set<UUID> newIds = dto.getUnidadesNegocio().stream()
+                    .map(UsuarioUnidadeNegocioDTO::getUnidadeNegocioId)
+                    .collect(Collectors.toSet());
+
+            // Remove unidades not present in DTO
+            entity.getUnidadesNegocio().removeIf(uun -> !newIds.contains(uun.getUnidadeNegocio().getId()));
+
+            // Add new unidades or update isDefault flag
+            for (UsuarioUnidadeNegocioDTO unDTO : dto.getUnidadesNegocio()) {
+                if (!currentIds.contains(unDTO.getUnidadeNegocioId())) {
+                    // New association
+                    UnidadeNegocio unidade = unidadeNegocioRepository.findById(unDTO.getUnidadeNegocioId())
+                            .orElseThrow(() -> new EntityNotFoundException("UnidadeNegocio", "id",
+                                    unDTO.getUnidadeNegocioId().toString()));
+                    entity.addUnidadeNegocio(unidade, unDTO.getIsDefault());
+                } else {
+                    // Update existing isDefault flag
+                    entity.getUnidadesNegocio().stream()
+                            .filter(uun -> uun.getUnidadeNegocio().getId().equals(unDTO.getUnidadeNegocioId()))
+                            .findFirst()
+                            .ifPresent(uun -> uun.setIsDefault(unDTO.getIsDefault()));
                 }
             }
         }
@@ -144,6 +201,14 @@ public class UsuarioServiceImpl
                         .build())
                 .toList();
 
+        List<UsuarioUnidadeNegocioDTO> unidadesNegocio = entity.getUnidadesNegocio().stream()
+                .map(uun -> UsuarioUnidadeNegocioDTO.builder()
+                        .unidadeNegocioId(uun.getUnidadeNegocio().getId())
+                        .unidadeNegocioNome(uun.getUnidadeNegocio().getNome())
+                        .isDefault(uun.getIsDefault())
+                        .build())
+                .toList();
+
         return UsuarioDTO
                 .builder()
                 .id(entity.getId())
@@ -154,6 +219,7 @@ public class UsuarioServiceImpl
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .perfis(perfis)
+                .unidadesNegocio(unidadesNegocio)
                 .build();
     }
 
