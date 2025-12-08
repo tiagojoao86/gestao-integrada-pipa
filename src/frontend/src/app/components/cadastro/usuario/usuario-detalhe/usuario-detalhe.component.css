@@ -9,7 +9,7 @@
 }
 
 .right-column {
-  flex: 1 1 0;  
+  flex: 1 1 0;
   padding: 0.2rem !important;
 }
 
@@ -71,4 +71,53 @@
 .perfis-list li .btn-remove {
   background-color: var(--error-color);
   color: #fff;
+}
+
+.unidades-column {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: thin;
+  border-color: var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  font-size: var(--text-size);
+}
+
+.unidades-column .unidades-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: normal;
+}
+
+.unidades-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.unidade-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--surface-50);
+}
+
+.unidade-nome {
+  flex: 1;
+  margin: 0;
+  cursor: pointer;
+}
+
+.default-radio {
+  margin-left: auto;
+}
+
+.default-label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  cursor: pointer;
 }
