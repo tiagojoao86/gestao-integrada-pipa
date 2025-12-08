@@ -27,8 +27,8 @@ import jakarta.transaction.Transactional;
 @Service
 public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extends BaseEntity, R extends JpaRepository<T, UUID>>
         implements CrudService<D, G> {
-    
-    protected R repository;    
+
+    protected R repository;
     private Specifications<T> specifications;
 
     public CrudServiceImpl(R repository, Specifications<T> specifications) {
@@ -56,6 +56,7 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         return id;
     }
 
+    @Transactional
     @SuppressWarnings("unchecked")
     public PageDTO<G> list(FilterDTO filter, Pageable pageable) {
         Specification<T> specification = this.buildSpecification(filter);

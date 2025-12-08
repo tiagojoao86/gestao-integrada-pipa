@@ -26,12 +26,7 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 
 @Component({
   selector: 'gi-usuario-grid',
-  imports: [
-    BaseComponent,
-    TableComponent,
-    PaginatorComponent,
-    FilterComponent
-],
+  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
   providers: [UsuarioService, DatePipe],
   templateUrl: './usuario-grid.component.html',
   styleUrl: './usuario-grid.component.css',
@@ -66,7 +61,7 @@ export class UsuarioGridComponent {
       name: 'createdAt',
       label: $localize`Criado em`,
       getValue: (element: UsuarioGridDTO) => {
-        return this.datePipe.transform(element.createdAt, 'dd/MM/yyyy');
+        return this.datePipe.transform(element.createdAt, 'shortDate');
       },
     },
   ];

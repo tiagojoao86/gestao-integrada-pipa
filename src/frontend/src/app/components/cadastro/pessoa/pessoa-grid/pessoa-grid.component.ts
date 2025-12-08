@@ -27,12 +27,7 @@ import { TipoPessoa } from '../model/pessoa-dto';
 
 @Component({
   selector: 'gi-pessoa-grid',
-  imports: [
-    BaseComponent,
-    TableComponent,
-    PaginatorComponent,
-    FilterComponent
-],
+  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
   providers: [PessoaService, DatePipe],
   templateUrl: './pessoa-grid.component.html',
   styleUrl: './pessoa-grid.component.css',
@@ -83,7 +78,7 @@ export class PessoaGridComponent {
       name: 'createdAt',
       label: $localize`Criado em`,
       getValue: (element: PessoaGridDTO) => {
-        return this.datePipe.transform(element.createdAt, 'dd/MM/yyyy');
+        return this.datePipe.transform(element.createdAt, 'shortDate');
       },
     },
   ];

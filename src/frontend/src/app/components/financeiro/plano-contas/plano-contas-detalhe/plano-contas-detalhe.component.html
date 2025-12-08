@@ -2,7 +2,7 @@
   [title]="titulo"
   [actions]="acoesTela"
   [goBackFn]="goBackFn.bind(this)"
-  >
+>
   <div body-content>
     <div class="form" [formGroup]="form">
       <div class="form-row">
@@ -18,95 +18,92 @@
           ></p-select>
           <label for="tipo" i18n>Tipo</label>
           @if (isControlInvalid('tipo')) {
-            <small i18n
-              >Esse campo é obrigatório.</small
-              >
-            }
-          </p-iftalabel>
+          <small i18n>Esse campo é obrigatório.</small>
+          }
+        </p-iftalabel>
 
-          <div class="checkbox-container">
-            <p-checkbox
-              [binary]="true"
-              inputId="ativo"
-              formControlName="ativo"
-            ></p-checkbox>
-            <label for="ativo" i18n>Ativo</label>
-          </div>
+        <div class="checkbox-container">
+          <p-checkbox
+            [binary]="true"
+            inputId="ativo"
+            formControlName="ativo"
+          ></p-checkbox>
+          <label for="ativo" i18n>Ativo</label>
         </div>
+      </div>
 
-        <div class="form-row">
-          <p-iftalabel class="w-33">
-            <input
-              pInputText
-              id="codigo"
-              formControlName="codigo"
-              [disabled]="modoEdicao"
-              />
-            <label for="codigo" i18n>Código</label>
-            @if (isControlInvalid('codigo')) {
-              <small i18n
-                >Esse campo não pode ser em branco.</small
-                >
-              }
-            </p-iftalabel>
-            <p-iftalabel class="w-100">
-              <input pInputText id="descricao" formControlName="descricao" />
-              <label for="descricao" i18n>Descrição</label>
-              @if (isControlInvalid('descricao')) {
-                <small i18n
-                  >Esse campo não pode ser em branco.</small
-                  >
-                }
-              </p-iftalabel>
-            </div>
-          </div>
+      <div class="form-row">
+        <p-iftalabel class="w-33">
+          <input
+            pInputText
+            id="codigo"
+            formControlName="codigo"
+            [disabled]="modoEdicao"
+          />
+          <label for="codigo" i18n>Código</label>
+          @if (isControlInvalid('codigo')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+          }
+        </p-iftalabel>
+        <p-iftalabel class="w-100">
+          <input pInputText id="descricao" formControlName="descricao" />
+          <label for="descricao" i18n>Descrição</label>
+          @if (isControlInvalid('descricao')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+          }
+        </p-iftalabel>
+      </div>
+    </div>
 
-          <div class="form">
-            <div class="form-row">
-              <p-iftalabel class="w-100">
-                <p-autoComplete
-                  inputId="planoPai"
-                  [(ngModel)]="selectedPlanoPai"
-                  [suggestions]="planosPaiSuggestions"
-                  (completeMethod)="searchPlanoPai($event)"
-                  optionLabel="displayLabel"
-                  [disabled]="!form.get('tipo')?.value"
-            [placeholder]="
-              form.get('tipo')?.value
-                ? 'Digite para buscar...'
-                : 'Selecione o tipo primeiro'
-            "
-                  />
-                <label for="planoPai" i18n>Plano Pai</label>
-              </p-iftalabel>
-            </div>
-          </div>
+    <div class="form">
+      <div class="form-row">
+        <p-iftalabel class="w-100">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <p-autoComplete
+              inputId="planoPai"
+              [(ngModel)]="selectedPlanoPai"
+              [suggestions]="planosPaiSuggestions"
+              (completeMethod)="searchPlanoPai($event)"
+              optionLabel="displayLabel"
+              [disabled]="!form.get('tipo')?.value"
+              [placeholder]="
+                form.get('tipo')?.value
+                  ? 'Digite para buscar...'
+                  : 'Selecione o tipo primeiro'
+              "
+            />
+          </p-iconfield>
+          <label for="planoPai" i18n>Plano Pai</label>
+        </p-iftalabel>
+      </div>
+    </div>
 
-          <div class="form">
-            @if (entity.id) {
-              <div class="form-row">
-                <p-iftalabel class="w-50">
-                  <input
-                    pInputText
-                    [value]="entity.analitico ? 'Sim' : 'Não'"
-                    [disabled]="true"
-                    id="idInput"
-                    />
-                  <label for="idInput" i18n>Analítico</label>
-                </p-iftalabel>
-                @if (entity.nivel !== undefined) {
-                  <p-iftalabel class="w-50">
-                    <input
-                      pInputText
-                      [value]="entity.nivel"
-                      [disabled]="true"
-                      id="nivelInput"
-                      />
-                    <label for="nivelInput" i18n>Nível</label>
-                  </p-iftalabel>
-                }
-              </div>
-            }
-          </div>
-        </div>
-      </gi-app-base>
+    <div class="form">
+      @if (entity.id) {
+      <div class="form-row">
+        <p-iftalabel class="w-50">
+          <input
+            pInputText
+            [value]="entity.analitico ? 'Sim' : 'Não'"
+            [disabled]="true"
+            id="idInput"
+          />
+          <label for="idInput" i18n>Analítico</label>
+        </p-iftalabel>
+        @if (entity.nivel !== undefined) {
+        <p-iftalabel class="w-50">
+          <input
+            pInputText
+            [value]="entity.nivel"
+            [disabled]="true"
+            id="nivelInput"
+          />
+          <label for="nivelInput" i18n>Nível</label>
+        </p-iftalabel>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</gi-app-base>

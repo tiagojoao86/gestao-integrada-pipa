@@ -1,0 +1,21 @@
+<gi-app-base [title]="titulo" [actions]="acoesTela">
+  <div body-content>
+    @if (!hideFilters) {
+    <gi-filter-component
+      [filters]="filtros"
+      (doFilter)="filtrar($event)"
+      (doCancel)="cancelar()"
+    ></gi-filter-component>
+    }
+    <gi-table-component
+      [columnDefinition]="colunas"
+      [dataSource]="titulosList"
+      [actions]="acoesTabela"
+      (sortingEvent)="ordenar($event)"
+    ></gi-table-component>
+    <gi-paginator-component
+      [totalRegisters]="totalElements"
+      (paginationEvent)="paginar($event)"
+    ></gi-paginator-component>
+  </div>
+</gi-app-base>

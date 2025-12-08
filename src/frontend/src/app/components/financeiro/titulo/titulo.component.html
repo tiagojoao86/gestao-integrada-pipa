@@ -1,0 +1,8 @@
+@if (viewMode === 'GRID') {
+<gi-titulo-grid (openDetailEvent)="openDetail($event)"></gi-titulo-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-titulo-detalhe
+  [id]="detailId"
+  (backEvent)="toggleView()"
+></gi-titulo-detalhe>
+}

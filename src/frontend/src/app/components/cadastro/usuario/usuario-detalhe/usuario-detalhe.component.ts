@@ -25,6 +25,8 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from '../../../base/messages/messages.service';
 import { UsuarioDTO } from '../model/usuario-dto';
 import { PerfilDTO } from '../../perfil/model/perfil-dto';
@@ -41,8 +43,10 @@ import { AuthService } from '../../../base/auth/auth-service';
     FormsModule,
     InputTextModule,
     PasswordModule,
-    AutoCompleteModule
-],
+    AutoCompleteModule,
+    IconFieldModule,
+    InputIconModule,
+  ],
   templateUrl: './usuario-detalhe.component.html',
   styleUrl: './usuario-detalhe.component.css',
   providers: [UsuarioService, PerfilService],

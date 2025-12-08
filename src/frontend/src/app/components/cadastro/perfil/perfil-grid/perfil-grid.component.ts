@@ -27,12 +27,7 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 @Component({
   selector: 'gi-perfil-grid',
   standalone: true,
-  imports: [
-    BaseComponent,
-    TableComponent,
-    PaginatorComponent,
-    FilterComponent
-],
+  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
   providers: [PerfilService, DatePipe],
   templateUrl: './perfil-grid.component.html',
   styleUrl: './perfil-grid.component.css',
@@ -60,7 +55,7 @@ export class PerfilGridComponent {
       name: 'createdAt',
       label: $localize`Criado em`,
       getValue: (element: PerfilGridDTO) => {
-        return this.datePipe.transform(element.createdAt, 'dd/MM/yyyy');
+        return this.datePipe.transform(element.createdAt, 'shortDate');
       },
     },
   ];

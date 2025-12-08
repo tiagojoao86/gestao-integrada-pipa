@@ -19,6 +19,8 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import {
   RegisterActionToolbar,
   BaseComponent,
@@ -46,8 +48,10 @@ import {
     InputTextModule,
     CheckboxModule,
     AutoCompleteModule,
-    SelectModule
-],
+    SelectModule,
+    IconFieldModule,
+    InputIconModule,
+  ],
   providers: [PlanoContasService],
   templateUrl: './plano-contas-detalhe.component.html',
   styleUrl: './plano-contas-detalhe.component.css',
