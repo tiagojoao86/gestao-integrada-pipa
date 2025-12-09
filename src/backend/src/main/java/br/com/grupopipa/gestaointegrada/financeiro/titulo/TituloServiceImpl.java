@@ -188,4 +188,30 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
         return unidadeNegocioService.listarDisponiveisParaUsuario();
     }
+
+    @Override
+    public List<br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaDTO> listarPessoasDisponiveis() {
+        return pessoaRepository.findByAtivaTrue().stream()
+                .map(pessoa -> br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaDTO.builder()
+                        .id(pessoa.getId())
+                        .nome(pessoa.getNome())
+                        .tipoPessoa(pessoa.getTipoPessoa().name())
+                        .cpf(pessoa.getCpf())
+                        .cnpj(pessoa.getCnpj())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO> listarPlanosDisponiveis(
+            java.util.UUID unidadeNegocioId) {
+        return planoContasRepository.findByAtivoTrueAndUnidadeNegocioId(unidadeNegocioId).stream()
+                .map(plano -> br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO.builder()
+                        .id(plano.getId())
+                        .codigo(plano.getCodigo())
+                        .descricao(plano.getDescricao())
+                        .tipo(plano.getTipo().name())
+                        .build())
+                .toList();
+    }
 }

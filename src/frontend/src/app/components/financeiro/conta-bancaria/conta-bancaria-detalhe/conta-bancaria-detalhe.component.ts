@@ -98,9 +98,6 @@ export class ContaBancariaDetalheComponent implements OnInit {
       });
     }
 
-    // Carregar unidades de negócio
-    this.loadUnidadesNegocio();
-
     if (this.detailId === RouteConstants.P_ADD) {
       this.modoEdicao = false;
       this.titulo += $localize`Nova`;
@@ -110,6 +107,8 @@ export class ContaBancariaDetalheComponent implements OnInit {
         ativa: true,
       } as ContaBancariaDTO;
       this.fillForm();
+      // Load unidades and set default after loading
+      this.loadUnidadesNegocio(true);
     } else {
       this.modoEdicao = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
@@ -120,10 +119,29 @@ export class ContaBancariaDetalheComponent implements OnInit {
     }
   }
 
-  loadUnidadesNegocio() {
+  loadUnidadesNegocio(setDefault = false) {
+    // First, load default unidade from auth cache to ensure it's available immediately
+    const defaultUnidade = this.auth.getDefaultUnidadeNegocio();
+    if (defaultUnidade) {
+      this.allUnidadesNegocio = [defaultUnidade];
+      // Set default immediately if needed
+      if (setDefault && defaultUnidade.id) {
+        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      }
+    }
+
+    // Then load all available unidades from backend
     this.service.listarUnidadesDisponiveis().subscribe({
       next: (unidades) => {
         this.allUnidadesNegocio = unidades;
+        // Set default after backend load if needed and not already set
+        if (
+          setDefault &&
+          defaultUnidade &&
+          !this.form.get('unidadeNegocio')?.value
+        ) {
+          this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+        }
       },
       error: (err) => {
         console.error('Erro ao carregar unidades de negócio', err);

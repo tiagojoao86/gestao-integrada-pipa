@@ -8,8 +8,6 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { TituloService } from '../titulo.service';
-import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
-import { PlanoContasService } from '../../plano-contas/plano-contas.service';
 import {
   RegisterActionToolbar,
   BaseComponent,
@@ -52,7 +50,7 @@ import { AuthService } from '../../../base/auth/auth-service';
   ],
   templateUrl: './titulo-detalhe.component.html',
   styleUrl: './titulo-detalhe.component.css',
-  providers: [TituloService, PessoaService, PlanoContasService],
+  providers: [TituloService],
 })
 export class TituloDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
@@ -62,8 +60,6 @@ export class TituloDetalheComponent implements OnInit {
   @Output() backEvent = new EventEmitter<void>();
 
   private service: TituloService = inject(TituloService);
-  private pessoaService: PessoaService = inject(PessoaService);
-  private planoContasService: PlanoContasService = inject(PlanoContasService);
   private messages: MessageService = inject(MessageService);
 
   tituloTela = $localize`Título: `;
@@ -113,8 +109,19 @@ export class TituloDetalheComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadPessoas();
-    this.loadPlanosContas();
     this.loadUnidadesNegocio();
+
+    // Listen to unidadeNegocio changes to reload planos de contas
+    this.form
+      .get('unidadeNegocio')
+      ?.valueChanges.subscribe((unidadeNegocioId) => {
+        if (unidadeNegocioId) {
+          this.loadPlanosContas(unidadeNegocioId);
+        } else {
+          this.allPlanosContas = [];
+          this.planoContasInput = null;
+        }
+      });
 
     const canEdit = this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO');
     this.acoesTela = [
@@ -146,12 +153,18 @@ export class TituloDetalheComponent implements OnInit {
       this.form.get('tipo')?.setValue('A_PAGAR');
       this.form.get('status')?.setValue('ABERTO');
       this.form.get('dataEmissao')?.setValue(new Date());
+      // Load unidades and set default after loading
+      this.loadUnidadesNegocio(true);
     } else {
       this.modoEdicao = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
         this.titulo = response.body;
         this.tituloTela += this.titulo.descricao;
         this.fillForm();
+        // Load planos de contas after filling form with unidadeNegocioId
+        if (this.titulo.unidadeNegocioId) {
+          this.loadPlanosContas(this.titulo.unidadeNegocioId);
+        }
       });
     }
   }
@@ -220,20 +233,49 @@ export class TituloDetalheComponent implements OnInit {
   }
 
   loadPessoas() {
-    this.pessoaService.listarParaVinculo().subscribe((pessoas) => {
+    this.service.listarPessoasDisponiveis().subscribe((pessoas) => {
       this.allPessoas = pessoas;
     });
   }
 
-  loadPlanosContas() {
-    this.planoContasService.listarParaVinculo().subscribe((planos) => {
-      this.allPlanosContas = planos;
-    });
+  loadPlanosContas(unidadeNegocioId: string) {
+    if (!unidadeNegocioId) {
+      this.allPlanosContas = [];
+      this.planoContasInput = null;
+      return;
+    }
+    this.service
+      .listarPlanosDisponiveis(unidadeNegocioId)
+      .subscribe((planos) => {
+        this.allPlanosContas = planos.map((p) => ({
+          ...p,
+          displayLabel: `${p.codigo} - ${p.descricao}`,
+        }));
+      });
   }
 
-  loadUnidadesNegocio() {
+  loadUnidadesNegocio(setDefault = false) {
+    // First, load default unidade from auth cache to ensure it's available immediately
+    const defaultUnidade = this.auth.getDefaultUnidadeNegocio();
+    if (defaultUnidade) {
+      this.allUnidadesNegocio = [defaultUnidade];
+      // Set default immediately if needed
+      if (setDefault && defaultUnidade.id) {
+        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      }
+    }
+
+    // Then load all available unidades from backend
     this.service.listarUnidadesDisponiveis().subscribe((unidades) => {
       this.allUnidadesNegocio = unidades;
+      // Set default after backend load if needed and not already set
+      if (
+        setDefault &&
+        defaultUnidade &&
+        !this.form.get('unidadeNegocio')?.value
+      ) {
+        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      }
     });
   }
 
@@ -246,6 +288,15 @@ export class TituloDetalheComponent implements OnInit {
   }
 
   searchPlanosContas(event: { query: string }) {
+    // Se não há planos carregados e temos uma unidade de negócio selecionada, carregar
+    const unidadeNegocioId = this.form.get('unidadeNegocio')?.value;
+    if (this.allPlanosContas.length === 0 && unidadeNegocioId) {
+      this.loadPlanosContas(unidadeNegocioId);
+      // Como o load é assíncrono, retornar vazio por enquanto
+      this.planoContasSuggestions = [];
+      return;
+    }
+
     const q = event.query ? String(event.query).toLowerCase() : '';
     this.planoContasSuggestions = this.allPlanosContas.filter((pc) => {
       const codigo = pc?.codigo ? String(pc.codigo).toLowerCase() : '';

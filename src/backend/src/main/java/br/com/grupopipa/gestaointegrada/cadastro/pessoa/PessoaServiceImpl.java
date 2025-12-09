@@ -115,4 +115,17 @@ public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO,
     protected Class<Pessoa> getEntityClass() {
         return Pessoa.class;
     }
+
+    @Override
+    public List<PessoaDTO> listarParaVinculo() {
+        return repository.findByAtivaTrue().stream()
+                .map(pessoa -> PessoaDTO.builder()
+                        .id(pessoa.getId())
+                        .nome(pessoa.getNome())
+                        .tipoPessoa(pessoa.getTipoPessoa().name())
+                        .cpf(pessoa.getCpf())
+                        .cnpj(pessoa.getCnpj())
+                        .build())
+                .toList();
+    }
 }

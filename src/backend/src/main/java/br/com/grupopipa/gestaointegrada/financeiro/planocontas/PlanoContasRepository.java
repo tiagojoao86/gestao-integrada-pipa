@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -17,4 +18,9 @@ public interface PlanoContasRepository extends JpaRepository<PlanoContas, UUID>,
      */
     @Query("SELECT CASE WHEN COUNT(f) = 0 THEN true ELSE false END FROM PlanoContas p LEFT JOIN p.planosFilhos f WHERE p.id = :planoId")
     boolean isAnalitico(@Param("planoId") UUID planoId);
+
+    /**
+     * Lista planos de contas ativos de uma unidade de negócio específica
+     */
+    List<PlanoContas> findByAtivoTrueAndUnidadeNegocioId(UUID unidadeNegocioId);
 }

@@ -13,7 +13,6 @@
             [options]="tiposList"
             optionLabel="label"
             optionValue="value"
-            [disabled]="modoEdicao"
             (onChange)="onTipoChange()"
           ></p-select>
           <label for="tipo" i18n>Tipo</label>
@@ -34,12 +33,7 @@
 
       <div class="form-row">
         <p-iftalabel class="w-33">
-          <input
-            pInputText
-            id="codigo"
-            formControlName="codigo"
-            [disabled]="modoEdicao"
-          />
+          <input pInputText id="codigo" formControlName="codigo" />
           <label for="codigo" i18n>Código</label>
           @if (isControlInvalid('codigo')) {
           <small i18n>Esse campo não pode ser em branco.</small>
@@ -53,6 +47,23 @@
           }
         </p-iftalabel>
       </div>
+      <p-iftalabel class="w-100">
+        <p-select
+          inputId="unidadeNegocio"
+          [options]="allUnidadesNegocio"
+          formControlName="unidadeNegocio"
+          optionLabel="codigo"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigo,nome"
+          [showClear]="false"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
+        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+      </p-iftalabel>
     </div>
 
     <div class="form">
@@ -66,7 +77,6 @@
               [suggestions]="planosPaiSuggestions"
               (completeMethod)="searchPlanoPai($event)"
               optionLabel="displayLabel"
-              [disabled]="!form.get('tipo')?.value"
               [placeholder]="
                 form.get('tipo')?.value
                   ? 'Digite para buscar...'
@@ -75,25 +85,6 @@
             />
           </p-iconfield>
           <label for="planoPai" i18n>Plano Pai</label>
-        </p-iftalabel>
-      </div>
-      <div class="form-row">
-        <p-iftalabel class="w-100">
-          <p-select
-            inputId="unidadeNegocio"
-            [options]="allUnidadesNegocio"
-            formControlName="unidadeNegocio"
-            optionLabel="codigo"
-            optionValue="id"
-            [filter]="true"
-            filterBy="codigo,nome"
-            [showClear]="false"
-          >
-            <ng-template let-item pTemplate="item">
-              <div>{{ item.codigo }} - {{ item.nome }}</div>
-            </ng-template>
-          </p-select>
-          <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
         </p-iftalabel>
       </div>
     </div>
