@@ -93,10 +93,6 @@ export class TituloDetalheComponent implements OnInit {
   } | null = null;
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
-  unidadeNegocioSuggestions: { id: string; nome: string; codigo: string }[] =
-    [];
-  unidadeNegocioInput: { id: string; nome: string; codigo: string } | null =
-    null;
 
   tiposOptions = [
     { label: $localize`A Pagar`, value: 'A_PAGAR' },
@@ -174,6 +170,7 @@ export class TituloDetalheComponent implements OnInit {
     this.form.addControl('dataVencimento', fb.control(null));
     this.form.addControl('dataPagamento', fb.control(null));
     this.form.addControl('observacoes', fb.control(null));
+    this.form.addControl('unidadeNegocio', fb.control(''));
   }
 
   fillForm() {
@@ -201,6 +198,9 @@ export class TituloDetalheComponent implements OnInit {
         this.titulo.dataPagamento ? new Date(this.titulo.dataPagamento) : null
       );
     this.form.get('observacoes')?.setValue(this.titulo.observacoes);
+    this.form
+      .get('unidadeNegocio')
+      ?.setValue(this.titulo.unidadeNegocioId || '');
 
     // Set autocomplete inputs
     if (this.titulo.pessoaId) {
@@ -215,13 +215,6 @@ export class TituloDetalheComponent implements OnInit {
         codigo: '',
         descricao: this.titulo.planoContasDescricao || '',
         displayLabel: this.titulo.planoContasDescricao || '',
-      };
-    }
-    if (this.titulo.unidadeNegocioId) {
-      this.unidadeNegocioInput = {
-        id: this.titulo.unidadeNegocioId,
-        nome: this.titulo.unidadeNegocioNome || '',
-        codigo: '',
       };
     }
   }
@@ -261,15 +254,6 @@ export class TituloDetalheComponent implements OnInit {
     });
   }
 
-  searchUnidadesNegocio(event: { query: string }) {
-    const q = event.query ? String(event.query).toLowerCase() : '';
-    this.unidadeNegocioSuggestions = this.allUnidadesNegocio.filter((un) => {
-      const codigo = un?.codigo ? String(un.codigo).toLowerCase() : '';
-      const nome = un?.nome ? String(un.nome).toLowerCase() : '';
-      return codigo.includes(q) || nome.includes(q);
-    });
-  }
-
   onPessoaSelect(pessoa: { id: string; nome: string }) {
     this.titulo.pessoaId = pessoa.id;
     this.titulo.pessoaNome = pessoa.nome;
@@ -283,15 +267,6 @@ export class TituloDetalheComponent implements OnInit {
   }) {
     this.titulo.planoContasId = planoContas.id;
     this.titulo.planoContasDescricao = planoContas.descricao;
-  }
-
-  onUnidadeNegocioSelect(unidadeNegocio: {
-    id: string;
-    nome: string;
-    codigo: string;
-  }) {
-    this.titulo.unidadeNegocioId = unidadeNegocio.id;
-    this.titulo.unidadeNegocioNome = unidadeNegocio.nome;
   }
 
   salvar() {
@@ -310,11 +285,13 @@ export class TituloDetalheComponent implements OnInit {
       return;
     }
 
-    if (!this.titulo.unidadeNegocioId) {
+    const unidadeNegocioId = this.form.value.unidadeNegocio;
+    if (!unidadeNegocioId) {
       this.messages.erro($localize`Unidade de Negócio é obrigatória.`);
       return;
     }
 
+    this.titulo.unidadeNegocioId = unidadeNegocioId;
     this.titulo.tipo = this.form.value.tipo;
     this.titulo.status = this.form.value.status;
     this.titulo.numeroDocumento = this.form.value.numeroDocumento;

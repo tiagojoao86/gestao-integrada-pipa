@@ -5,6 +5,7 @@ export interface PlanoContasGridDTO {
   tipo: string;
   planoPaiCodigo?: string;
   planoPaiDescricao?: string;
+  unidadeNegocioCodigo?: string;
   ativo: boolean;
   analitico: boolean;
 }

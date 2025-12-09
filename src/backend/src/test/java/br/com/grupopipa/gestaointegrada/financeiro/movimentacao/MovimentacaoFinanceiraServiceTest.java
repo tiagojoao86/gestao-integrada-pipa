@@ -1,7 +1,7 @@
 package br.com.grupopipa.gestaointegrada.financeiro.movimentacao;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaRepository;
@@ -56,11 +56,19 @@ class MovimentacaoFinanceiraServiceTest {
 
     private Titulo titulo;
     private ContaBancaria contaBancaria;
+    private UnidadeNegocio unidadeNegocio;
     private MovimentacaoFinanceiraDTO dto;
     private MovimentacaoFinanceira entity;
 
     @BeforeEach
     void setUp() {
+        // Setup unidade de negócio
+        unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+
         // Setup pessoa
         Pessoa pessoa = new Pessoa.Builder()
                 .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
@@ -76,6 +84,7 @@ class MovimentacaoFinanceiraServiceTest {
                 .codigo("4.1.001")
                 .descricao("Fornecedores")
                 .tipo(TipoPlanoContas.DESPESA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // Setup título

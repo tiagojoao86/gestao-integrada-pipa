@@ -1,5 +1,7 @@
 package br.com.grupopipa.gestaointegrada.financeiro.planocontas;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
@@ -29,6 +31,9 @@ class PlanoContasServiceTest {
     private PlanoContasRepository repository;
 
     @Mock
+    private UnidadeNegocioRepository unidadeNegocioRepository;
+
+    @Mock
     private Specifications<PlanoContas> specifications;
 
     @InjectMocks
@@ -38,14 +43,29 @@ class PlanoContasServiceTest {
     private PlanoContasDTO dtoDespesas;
     private PlanoContas entityReceitas;
     private PlanoContas entityDespesas;
+    private UnidadeNegocio unidadeNegocio;
+    private UUID unidadeNegocioId;
 
     @BeforeEach
     void setUp() {
+        // Criar unidade de negócio para os testes
+        unidadeNegocioId = UUID.randomUUID();
+        unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+
+        // Configurar mock do repository
+        when(unidadeNegocioRepository.findById(unidadeNegocioId))
+                .thenReturn(Optional.of(unidadeNegocio));
+
         // DTO de Receitas (raiz)
         dtoReceitas = PlanoContasDTO.builder()
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .ativo(true)
                 .build();
 
@@ -54,6 +74,7 @@ class PlanoContasServiceTest {
                 .codigo("2")
                 .descricao("Despesas")
                 .tipo(TipoPlanoContas.DESPESA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .ativo(true)
                 .build();
 
@@ -62,6 +83,7 @@ class PlanoContasServiceTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // Entity de Despesas
@@ -69,6 +91,7 @@ class PlanoContasServiceTest {
                 .codigo("2")
                 .descricao("Despesas")
                 .tipo(TipoPlanoContas.DESPESA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
     }
 
@@ -95,6 +118,7 @@ class PlanoContasServiceTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         try {
             var idField = PlanoContas.class.getSuperclass().getDeclaredField("id");
@@ -108,6 +132,7 @@ class PlanoContasServiceTest {
                 .codigo("1.1")
                 .descricao("Receitas Operacionais")
                 .tipo(TipoPlanoContas.RECEITA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .planoPaiId(planoPaiId)
                 .ativo(true)
                 .build();
@@ -245,6 +270,7 @@ class PlanoContasServiceTest {
                 .codigo("2")
                 .descricao("Despesas")
                 .tipo(TipoPlanoContas.DESPESA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         try {
             var idField = PlanoContas.class.getSuperclass().getDeclaredField("id");
@@ -258,6 +284,7 @@ class PlanoContasServiceTest {
                 .codigo("2.1")
                 .descricao("Despesas Administrativas")
                 .tipo(TipoPlanoContas.DESPESA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .planoPaiId(planoPaiId)
                 .ativo(true)
                 .build();

@@ -27,12 +27,7 @@ import { TipoConta } from '../model/tipo-conta.enum';
 
 @Component({
   selector: 'gi-conta-bancaria-grid',
-  imports: [
-    BaseComponent,
-    TableComponent,
-    PaginatorComponent,
-    FilterComponent
-],
+  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
   providers: [ContaBancariaService, DatePipe],
   templateUrl: './conta-bancaria-grid.component.html',
   styleUrl: './conta-bancaria-grid.component.css',
@@ -78,6 +73,13 @@ export class ContaBancariaGridComponent {
         return element.saldoInicial != null
           ? `R$ ${element.saldoInicial.toFixed(2)}`
           : 'R$ 0,00';
+      },
+    },
+    {
+      name: 'unidadeNegocioCodigo',
+      label: $localize`Unidade de Negócio`,
+      getValue: (element: ContaBancariaGridDTO) => {
+        return element.unidadeNegocioCodigo || '-';
       },
     },
     {

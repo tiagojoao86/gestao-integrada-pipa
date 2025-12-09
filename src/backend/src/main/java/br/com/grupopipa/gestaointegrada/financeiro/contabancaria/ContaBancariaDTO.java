@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Builder
 public class ContaBancariaDTO implements DTO {
-    
+
     private UUID id;
     private String nome;
     private String banco;
@@ -21,6 +21,7 @@ public class ContaBancariaDTO implements DTO {
     private String numeroConta;
     private String tipo; // CORRENTE, POUPANCA, CAIXA, INVESTIMENTO
     private BigDecimal saldoInicial;
+    private UUID unidadeNegocioId;
     private Boolean ativa;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

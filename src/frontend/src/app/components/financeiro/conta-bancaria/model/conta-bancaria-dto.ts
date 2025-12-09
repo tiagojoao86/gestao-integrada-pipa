@@ -6,6 +6,9 @@ export interface ContaBancariaDTO {
   numeroConta?: string;
   tipo: string; // CORRENTE, POUPANCA, CAIXA, INVESTIMENTO
   saldoInicial?: number;
+  unidadeNegocioId?: string;
+  unidadeNegocioNome?: string;
+  unidadeNegocioCodigo?: string;
   ativa?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

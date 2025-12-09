@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasConstants.R_PLANO_CONTAS;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
+import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -42,5 +43,11 @@ public class PlanoContasController extends BaseController<PlanoContasDTO, PlanoC
     @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_DELETAR')")
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
+    }
+
+    @GetMapping("/unidades-disponiveis")
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_EDITAR')")
+    public Response listarUnidadesDisponiveis() {
+        return ok(service.listarUnidadesDisponiveis());
     }
 }

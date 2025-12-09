@@ -5,6 +5,8 @@ export interface PlanoContasDTO {
   tipo: string; // RECEITA, DESPESA, ATIVO, PASSIVO
   planoPaiId?: string;
   planoPaiDescricao?: string;
+  unidadeNegocioId?: string;
+  unidadeNegocioNome?: string;
   ativo?: boolean;
   analitico?: boolean;
   nivel?: number;

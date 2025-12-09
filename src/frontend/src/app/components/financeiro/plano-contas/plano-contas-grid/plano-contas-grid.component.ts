@@ -27,12 +27,7 @@ import { TipoPlanoContas } from '../model/tipo-plano-contas.enum';
 
 @Component({
   selector: 'gi-plano-contas-grid',
-  imports: [
-    BaseComponent,
-    TableComponent,
-    PaginatorComponent,
-    FilterComponent
-],
+  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
   providers: [PlanoContasService],
   templateUrl: './plano-contas-grid.component.html',
   styleUrl: './plano-contas-grid.component.css',
@@ -81,6 +76,13 @@ export class PlanoContasGridComponent {
           return `${element.planoPaiCodigo} - ${element.planoPaiDescricao}`;
         }
         return '-';
+      },
+    },
+    {
+      name: 'unidadeNegocioCodigo',
+      label: $localize`:@@planoContas.unidadeNegocio:Unidade`,
+      getValue: (element: PlanoContasGridDTO) => {
+        return element.unidadeNegocioCodigo || '-';
       },
     },
     {

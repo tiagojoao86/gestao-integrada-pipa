@@ -1,7 +1,7 @@
 package br.com.grupopipa.gestaointegrada.financeiro.movimentacao;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.config.AbstractIntegrationTest;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
@@ -46,9 +46,18 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
 
         private Titulo titulo;
         private ContaBancaria contaBancaria;
+        private UnidadeNegocio unidadeNegocio;
 
         @BeforeEach
         void setUp() {
+                // Criar unidade de negócio
+                unidadeNegocio = new UnidadeNegocio.Builder()
+                                .codigo("UN001")
+                                .nome("Unidade Teste")
+                                .cnpj("11222333000181")
+                                .build();
+                entityManager.persist(unidadeNegocio);
+
                 // Criar pessoa
                 Pessoa pessoa = new Pessoa.Builder()
                                 .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
@@ -58,13 +67,12 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .cnpj("11222333000181")
                                 .razaoSocial("Fornecedor LTDA")
                                 .build();
-                entityManager.persist(pessoa);
-
-                // Criar plano de contas
+                entityManager.persist(pessoa); // Criar plano de contas
                 PlanoContas planoContas = new PlanoContas.Builder()
                                 .codigo("4.1.001")
                                 .descricao("Fornecedores")
                                 .tipo(TipoPlanoContas.DESPESA)
+                                .unidadeNegocio(unidadeNegocio)
                                 .build();
                 entityManager.persist(planoContas);
 

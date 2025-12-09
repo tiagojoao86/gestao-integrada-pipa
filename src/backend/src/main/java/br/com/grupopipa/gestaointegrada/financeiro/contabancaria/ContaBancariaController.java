@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaConstants.R_CONTA_BANCARIA;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
+import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -43,5 +44,11 @@ public class ContaBancariaController
     @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_DELETAR')")
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
+    }
+
+    @GetMapping("/unidades-disponiveis")
+    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_EDITAR')")
+    public Response listarUnidadesDisponiveis() {
+        return ok(service.listarUnidadesDisponiveis());
     }
 }

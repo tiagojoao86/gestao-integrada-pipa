@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { ContaBancariaDTO } from './model/conta-bancaria-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { ContaBancariaBackendMessages } from './conta-bancaria-backend-message.service';
@@ -19,5 +21,18 @@ export class ContaBancariaService extends BaseService<ContaBancariaDTO> {
 
   getDominio(): string {
     return ContaBancariaService.CONTA_BANCARIA;
+  }
+
+  listarUnidadesDisponiveis(): Observable<
+    { id: string; nome: string; codigo: string }[]
+  > {
+    return this.httpClient
+      .get<{ body: { id: string; nome: string; codigo: string }[] }>(
+        this.getUrl('/unidades-disponiveis')
+      )
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
   }
 }

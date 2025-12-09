@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
@@ -37,14 +38,20 @@ public class PlanoContas extends BaseEntity {
     @OneToMany(mappedBy = "planoPai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlanoContas> planosFilhos = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_negocio_id", nullable = false, foreignKey = @ForeignKey(name = "fk_plano_contas_unidade_negocio"))
+    private UnidadeNegocio unidadeNegocio;
+
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
-    private PlanoContas(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai) {
+    private PlanoContas(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai,
+            UnidadeNegocio unidadeNegocio) {
         this.codigo = codigo;
         this.descricao = descricao;
         this.tipo = tipo;
         this.planoPai = planoPai;
+        this.unidadeNegocio = unidadeNegocio;
     }
 
     protected PlanoContas() {
@@ -55,16 +62,20 @@ public class PlanoContas extends BaseEntity {
         final String descricao;
         final TipoPlanoContas tipo;
         final PlanoContas planoPai;
+        final UnidadeNegocio unidadeNegocio;
 
-        ValidatedData(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai) {
+        ValidatedData(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai,
+                UnidadeNegocio unidadeNegocio) {
             this.codigo = codigo;
             this.descricao = descricao;
             this.tipo = tipo;
             this.planoPai = planoPai;
+            this.unidadeNegocio = unidadeNegocio;
         }
     }
 
-    private static ValidatedData validate(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai) {
+    private static ValidatedData validate(String codigo, String descricao, TipoPlanoContas tipo, PlanoContas planoPai,
+            UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (codigo == null || codigo.isBlank()) {
@@ -83,6 +94,10 @@ public class PlanoContas extends BaseEntity {
             violations.add(new BeanValidationMessage("tipo", "Tipo é obrigatório"));
         }
 
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
+        }
+
         // Validar plano pai
         if (planoPai != null && !planoPai.getTipo().equals(tipo)) {
             violations.add(new BeanValidationMessage("planoPai",
@@ -96,7 +111,7 @@ public class PlanoContas extends BaseEntity {
             throw new BeanValidationException("planoContas", violations);
         }
 
-        return new ValidatedData(codigo, descricao, tipo, planoPai);
+        return new ValidatedData(codigo, descricao, tipo, planoPai, unidadeNegocio);
     }
 
     public void atualizar(String descricao) {
@@ -114,6 +129,20 @@ public class PlanoContas extends BaseEntity {
         }
 
         this.descricao = descricao;
+    }
+
+    public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("planoContas", violations);
+        }
+
+        this.unidadeNegocio = unidadeNegocio;
     }
 
     public void ativar() {
@@ -163,6 +192,10 @@ public class PlanoContas extends BaseEntity {
         return planosFilhos;
     }
 
+    public UnidadeNegocio getUnidadeNegocio() {
+        return unidadeNegocio;
+    }
+
     public Boolean getAtivo() {
         return ativo;
     }
@@ -198,6 +231,7 @@ public class PlanoContas extends BaseEntity {
         private String descricao;
         private TipoPlanoContas tipo;
         private PlanoContas planoPai;
+        private UnidadeNegocio unidadeNegocio;
 
         public Builder codigo(String codigo) {
             this.codigo = codigo;
@@ -219,9 +253,14 @@ public class PlanoContas extends BaseEntity {
             return this;
         }
 
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
+            this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
         public PlanoContas build() {
-            ValidatedData data = validate(this.codigo, this.descricao, this.tipo, this.planoPai);
-            return new PlanoContas(data.codigo, data.descricao, data.tipo, data.planoPai);
+            ValidatedData data = validate(this.codigo, this.descricao, this.tipo, this.planoPai, this.unidadeNegocio);
+            return new PlanoContas(data.codigo, data.descricao, data.tipo, data.planoPai, data.unidadeNegocio);
         }
     }
 }
