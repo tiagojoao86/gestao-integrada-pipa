@@ -13,7 +13,7 @@
   padding: 0.2rem !important;
 }
 
-.perfis-column {
+.perfis-group {
   box-sizing: border-box;
   border-style: solid;
   border-width: thin;
@@ -21,23 +21,22 @@
   border-radius: var(--border-radius);
   padding: 0.5rem;
   font-size: var(--text-size);
+  margin-left: 0.2rem;
+  width: 49.6%;
+  height: 30vh;
+  overflow: auto;
 }
 
-.perfis-column .perfis-label {
+.perfis-group .perfis-label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: normal;
 }
 
-.perfis-column p-autoComplete {
+.perfis-group p-autoComplete {
   width: 100%;
 }
 
-.perfis-list {
-  list-style: none;
-  margin: 0.5rem 0 0 0;
-  padding: 0;
-}
 .perfis-list {
   list-style: none;
   margin: 0.5rem 0 0 0;
@@ -73,7 +72,7 @@
   color: #fff;
 }
 
-.unidades-column {
+.unidades-group {
   box-sizing: border-box;
   border-style: solid;
   border-width: thin;
@@ -81,9 +80,13 @@
   border-radius: var(--border-radius);
   padding: 0.5rem;
   font-size: var(--text-size);
+  margin-left: 0.3rem;
+  width: 49.6%;
+  height: 30vh;
+  overflow: auto;
 }
 
-.unidades-column .unidades-label {
+.unidades-group .unidades-label {
   display: block;
   margin-bottom: 0.75rem;
   font-weight: normal;

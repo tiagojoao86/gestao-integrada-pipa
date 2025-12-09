@@ -4,106 +4,96 @@
   [goBackFn]="goBackFn.bind(this)"
 >
   <div body-content>
-    <div class="detail-columns">
-      <div class="left-column">
-        <div class="form" [formGroup]="form">
-          <p-iftalabel class="w-100">
-            <input pInputText id="nomeUsuario" formControlName="nome" />
-            <label for="nomeUsuario" i18n>Nome</label>
-            @if (isControlInvalid('nome')) {
-            <small i18n>Esse campo não pode ser em branco.</small>
-            }
-          </p-iftalabel>
-          <p-iftalabel class="w-100">
-            <input pInputText id="loginUsuario" formControlName="login" />
-            <label for="loginUsuario" i18n>Login</label>
-            @if (isControlInvalid('login')) {
-            <small i18n>Esse campo não pode ser em branco.</small>
-            }
-          </p-iftalabel>
-          <p-iftalabel class="w-100">
-            <input
-              pInputText
-              id="senhaUsuario"
-              formControlName="senha"
-              type="password"
-            />
-            <label for="senhaUsuario" i18n>Senha</label>
-          </p-iftalabel>
-        </div>
-      </div>
+    <div class="form" [formGroup]="form">
+      <p-iftalabel class="w-33">
+        <input pInputText id="nomeUsuario" formControlName="nome" />
+        <label for="nomeUsuario" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+      <p-iftalabel class="w-33">
+        <input pInputText id="loginUsuario" formControlName="login" />
+        <label for="loginUsuario" i18n>Login</label>
+        @if (isControlInvalid('login')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+      <p-iftalabel class="w-33">
+        <input
+          pInputText
+          id="senhaUsuario"
+          formControlName="senha"
+          type="password"
+        />
+        <label for="senhaUsuario" i18n>Senha</label>
+      </p-iftalabel>
+    </div>
+    <div class="form">
+      <div class="perfis-group">
+        <label for="perfilAutoComplete" class="perfis-label" i18n
+          >Perfis Vinculados</label
+        >
 
-      <div class="right-column">
-        <div class="perfis-column">
-          <label for="perfilAutoComplete" class="perfis-label" i18n
-            >Perfis Vinculados</label
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <p-autoComplete
+            inputId="perfilAutoComplete"
+            [suggestions]="suggestions"
+            (completeMethod)="searchPerfis($event)"
+            optionLabel="nome"
+            (onSelect)="onPerfilSelect($event.value)"
+            [(ngModel)]="perfilInput"
+            [forceSelection]="true"
+            [minLength]="1"
+            placeholder="Buscar perfil"
+            [style]="{ width: '100%' }"
           >
+            <ng-template let-item pTemplate="item">
+              <div>{{ item.nome }}</div>
+            </ng-template>
+          </p-autoComplete>
+        </p-iconfield>
 
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <p-autoComplete
-              inputId="perfilAutoComplete"
-              [suggestions]="suggestions"
-              (completeMethod)="searchPerfis($event)"
-              optionLabel="nome"
-              (onSelect)="onPerfilSelect($event.value)"
-              [(ngModel)]="perfilInput"
-              [forceSelection]="true"
-              [minLength]="1"
-              placeholder="Buscar perfil"
-              [style]="{ width: '100%' }"
+        <ul class="perfis-list mt-3">
+          @for (p of selectedPerfis; track p) {
+          <li>
+            <span>{{ p.nome }}</span>
+            <button type="button" class="btn-remove" (click)="removerPerfil(p)">
+              -
+            </button>
+          </li>
+          }
+        </ul>
+      </div>
+      <div class="unidades-group">
+        <div class="unidades-label" i18n>Unidades de Negócio</div>
+        <div class="unidades-grid">
+          @for (unidade of allUnidades; track unidade.id) {
+          <div class="unidade-item">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isUnidadeVinculada(unidade.id)"
+              (ngModelChange)="toggleUnidade(unidade, $event)"
+              [inputId]="'unidade-' + unidade.id"
+            />
+            <label [for]="'unidade-' + unidade.id" class="unidade-nome">{{
+              unidade.nome
+            }}</label>
+            @if (isUnidadeVinculada(unidade.id)) {
+            <p-radioButton
+              name="unidadeDefault"
+              [value]="unidade.id"
+              [(ngModel)]="unidadeDefaultId"
+              [inputId]="'default-' + unidade.id"
+              class="default-radio"
+            />
+            <label [for]="'default-' + unidade.id" class="default-label" i18n
+              >Padrão</label
             >
-              <ng-template let-item pTemplate="item">
-                <div>{{ item.nome }}</div>
-              </ng-template>
-            </p-autoComplete>
-          </p-iconfield>
-
-          <ul class="perfis-list mt-3">
-            @for (p of selectedPerfis; track p) {
-            <li>
-              <span>{{ p.nome }}</span>
-              <button
-                type="button"
-                class="btn-remove"
-                (click)="removerPerfil(p)"
-              >
-                -
-              </button>
-            </li>
-            }
-          </ul>
-        </div>
-
-        <div class="unidades-column mt-4">
-          <div class="unidades-label" i18n>Unidades de Negócio</div>
-          <div class="unidades-grid">
-            @for (unidade of allUnidades; track unidade.id) {
-            <div class="unidade-item">
-              <p-checkbox
-                [binary]="true"
-                [ngModel]="isUnidadeVinculada(unidade.id)"
-                (ngModelChange)="toggleUnidade(unidade, $event)"
-                [inputId]="'unidade-' + unidade.id"
-              />
-              <label [for]="'unidade-' + unidade.id" class="unidade-nome">{{
-                unidade.nome
-              }}</label>
-              @if (isUnidadeVinculada(unidade.id)) {
-              <p-radioButton
-                name="unidadeDefault"
-                [value]="unidade.id"
-                [(ngModel)]="unidadeDefaultId"
-                [inputId]="'default-' + unidade.id"
-                class="default-radio"
-              />
-              <label [for]="'default-' + unidade.id" class="default-label" i18n
-                >Padrão</label
-              >
-              }
-            </div>
             }
           </div>
+          }
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ export interface TituloGridDTO {
   numeroDocumento?: string;
   descricao: string;
   pessoaNome: string;
+  unidadeNegocioCodigo?: string;
   valorOriginal: number;
   saldo: number;
   dataVencimento: Date;

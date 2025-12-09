@@ -95,6 +95,29 @@
         <label for="planoContas" i18n>Plano de Contas</label>
       </p-iftalabel>
 
+      <!-- Unidade de Negócio -->
+      <p-iftalabel class="w-33">
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <p-autoComplete
+            inputId="unidadeNegocio"
+            [suggestions]="unidadeNegocioSuggestions"
+            (completeMethod)="searchUnidadesNegocio($event)"
+            optionLabel="nome"
+            (onSelect)="onUnidadeNegocioSelect($event.value)"
+            [(ngModel)]="unidadeNegocioInput"
+            [ngModelOptions]="{ standalone: true }"
+            [forceSelection]="true"
+            [minLength]="1"
+          >
+            <ng-template let-item pTemplate="item">
+              <div>{{ item.codigo }} - {{ item.nome }}</div>
+            </ng-template>
+          </p-autoComplete>
+        </p-iconfield>
+        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+      </p-iftalabel>
+
       <!-- Valores -->
       <p-iftalabel class="w-33">
         <p-inputNumber
