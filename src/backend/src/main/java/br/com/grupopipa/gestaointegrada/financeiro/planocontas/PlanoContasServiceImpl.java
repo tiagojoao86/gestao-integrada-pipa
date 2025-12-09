@@ -129,4 +129,16 @@ public class PlanoContasServiceImpl
     public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
         return unidadeNegocioService.listarDisponiveisParaUsuario();
     }
+
+    @Override
+    public List<PlanoContasDTO> listarPlanosParaVinculo(java.util.UUID unidadeNegocioId) {
+        return repository.findByAtivoTrueAndUnidadeNegocioId(unidadeNegocioId).stream()
+                .map(plano -> PlanoContasDTO.builder()
+                        .id(plano.getId())
+                        .codigo(plano.getCodigo())
+                        .descricao(plano.getDescricao())
+                        .tipo(plano.getTipo().name())
+                        .build())
+                .toList();
+    }
 }

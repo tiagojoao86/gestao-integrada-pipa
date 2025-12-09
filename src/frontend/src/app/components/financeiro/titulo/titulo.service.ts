@@ -35,4 +35,30 @@ export class TituloService extends BaseService<TituloDTO> {
         take(1)
       );
   }
+
+  listarPessoasDisponiveis(): Observable<
+    { id: string; nome: string; cpf?: string; cnpj?: string }[]
+  > {
+    return this.httpClient
+      .get<{
+        body: { id: string; nome: string; cpf?: string; cnpj?: string }[];
+      }>(this.getUrl('/pessoas-disponiveis'))
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
+  }
+
+  listarPlanosDisponiveis(
+    unidadeNegocioId: string
+  ): Observable<{ id: string; codigo: string; descricao: string }[]> {
+    return this.httpClient
+      .get<{ body: { id: string; codigo: string; descricao: string }[] }>(
+        this.getUrl(`/planos-disponiveis?unidadeNegocioId=${unidadeNegocioId}`)
+      )
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
+  }
 }

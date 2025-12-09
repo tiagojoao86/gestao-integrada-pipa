@@ -94,7 +94,6 @@ export class PlanoContasDetalheComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadUnidadesNegocio();
 
     this.acoesTela = [
       {
@@ -125,6 +124,8 @@ export class PlanoContasDetalheComponent implements OnInit {
       this.modoEdicao = false;
       this.titulo += $localize`:@@common.new:Novo`;
       this.entity = this.createEmptyEntity();
+      // Load unidades and set default after loading
+      this.loadUnidadesNegocio(true);
     } else {
       this.modoEdicao = true;
       this.planoContasService.findById(this.detailId).subscribe({
@@ -271,10 +272,29 @@ export class PlanoContasDetalheComponent implements OnInit {
     this.entity.planoPaiDescricao = undefined;
   }
 
-  loadUnidadesNegocio(): void {
+  loadUnidadesNegocio(setDefault = false): void {
+    // First, load default unidade from auth cache to ensure it's available immediately
+    const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
+    if (defaultUnidade) {
+      this.allUnidadesNegocio = [defaultUnidade];
+      // Set default immediately if needed
+      if (setDefault && defaultUnidade.id) {
+        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      }
+    }
+
+    // Then load all available unidades from backend
     this.planoContasService.listarUnidadesDisponiveis().subscribe({
       next: (unidades) => {
         this.allUnidadesNegocio = unidades;
+        // Set default after backend load if needed and not already set
+        if (
+          setDefault &&
+          defaultUnidade &&
+          !this.form.get('unidadeNegocio')?.value
+        ) {
+          this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+        }
       },
       error: (error) => {
         console.error('Erro ao carregar unidades de negócio:', error);

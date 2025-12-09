@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilService;
-import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.core.controller.BaseController;
 import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;

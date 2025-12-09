@@ -30,6 +30,25 @@
         <label for="status" i18n>Status</label>
       </p-iftalabel>
 
+      <!-- Unidade de Negócio -->
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="unidadeNegocio"
+          [options]="allUnidadesNegocio"
+          formControlName="unidadeNegocio"
+          optionLabel="codigo"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigo,nome"
+          [showClear]="false"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
+        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+      </p-iftalabel>
+
       <!-- Número Documento -->
       <p-iftalabel class="w-33">
         <input
@@ -93,25 +112,6 @@
           </p-autoComplete>
         </p-iconfield>
         <label for="planoContas" i18n>Plano de Contas</label>
-      </p-iftalabel>
-
-      <!-- Unidade de Negócio -->
-      <p-iftalabel class="w-33">
-        <p-select
-          inputId="unidadeNegocio"
-          [options]="allUnidadesNegocio"
-          formControlName="unidadeNegocio"
-          optionLabel="codigo"
-          optionValue="id"
-          [filter]="true"
-          filterBy="codigo,nome"
-          [showClear]="false"
-        >
-          <ng-template let-item pTemplate="item">
-            <div>{{ item.codigo }} - {{ item.nome }}</div>
-          </ng-template>
-        </p-select>
-        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
       </p-iftalabel>
 
       <!-- Valores -->

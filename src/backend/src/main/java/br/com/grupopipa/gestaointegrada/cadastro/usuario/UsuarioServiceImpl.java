@@ -209,6 +209,7 @@ public class UsuarioServiceImpl
         List<UsuarioUnidadeNegocioDTO> unidadesNegocio = entity.getUnidadesNegocio().stream()
                 .map(uun -> UsuarioUnidadeNegocioDTO.builder()
                         .unidadeNegocioId(uun.getUnidadeNegocio().getId())
+                        .unidadeNegocioCodigo(uun.getUnidadeNegocio().getCodigo())
                         .unidadeNegocioNome(uun.getUnidadeNegocio().getNome())
                         .isDefault(uun.getIsDefault())
                         .build())

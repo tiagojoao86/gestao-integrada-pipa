@@ -16,12 +16,12 @@ export class AuthService {
   token$ = this.tokenSubject.asObservable();
 
   private http: HttpClient = inject(HttpClient);
-  private router: Router = inject(Router);  
+  private router: Router = inject(Router);
 
   login(username: string, password: string, tenantId: string) {
     // Armazena tenant ANTES da requisição para o interceptor usar
     this.setTenantId(tenantId);
-    
+
     return this.http
       .post<Response>('/api/authenticate', { username, password })
       .pipe(
@@ -30,6 +30,7 @@ export class AuthService {
           this.setUsername(response.body.username);
           this.setNome(response.body.nome);
           this.setUserAuthorities(response.body.authorities);
+          this.setUnidadesNegocio(response.body.unidadesNegocio);
           this.router.navigate(['/']);
         }),
         catchError((e) => {
@@ -59,6 +60,7 @@ export class AuthService {
           this.setUsername(response.body.username);
           this.setNome(response.body.nome);
           this.setUserAuthorities(response.body.authorities);
+          this.setUnidadesNegocio(response.body.unidadesNegocio);
         }),
         catchError(() => {
           this.logout();
@@ -171,7 +173,6 @@ export class AuthService {
 
     return false;
   }
-
   hasAuthorityDeletarToModulo(moduleKey: string): boolean {
     const authorities = this.getUserAuthorities();
     const list = authorities.filter((auth) => auth.chave === moduleKey);
@@ -183,4 +184,51 @@ export class AuthService {
     return false;
   }
 
+  // Unidades de Negócio Management
+  setUnidadesNegocio(
+    unidades: {
+      unidadeNegocioId: string;
+      unidadeNegocioCodigo: string;
+      unidadeNegocioNome: string;
+      isDefault: boolean;
+    }[]
+  ) {
+    sessionStorage.setItem('unidadesNegocio', JSON.stringify(unidades));
+  }
+
+  getUnidadesNegocio(): {
+    unidadeNegocioId: string;
+    unidadeNegocioCodigo: string;
+    unidadeNegocioNome: string;
+    isDefault: boolean;
+  }[] {
+    const unidades = sessionStorage.getItem('unidadesNegocio');
+    if (unidades) {
+      return JSON.parse(unidades);
+    }
+    return [];
+  }
+
+  getDefaultUnidadeNegocioId(): string | null {
+    const unidades = this.getUnidadesNegocio();
+    const defaultUnidade = unidades.find((u) => u.isDefault);
+    return defaultUnidade?.unidadeNegocioId || null;
+  }
+
+  getDefaultUnidadeNegocio(): {
+    id: string;
+    codigo: string;
+    nome: string;
+  } | null {
+    const unidades = this.getUnidadesNegocio();
+    const defaultUnidade = unidades.find((u) => u.isDefault);
+    if (defaultUnidade) {
+      return {
+        id: defaultUnidade.unidadeNegocioId,
+        codigo: defaultUnidade.unidadeNegocioCodigo,
+        nome: defaultUnidade.unidadeNegocioNome,
+      };
+    }
+    return null;
+  }
 }
