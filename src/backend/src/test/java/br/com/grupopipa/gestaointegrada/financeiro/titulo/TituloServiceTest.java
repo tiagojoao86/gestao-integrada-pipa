@@ -1,7 +1,8 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
@@ -45,6 +46,9 @@ class TituloServiceTest {
     private PlanoContasRepository planoContasRepository;
 
     @Mock
+    private UnidadeNegocioRepository unidadeNegocioRepository;
+
+    @Mock
     private Specifications<Titulo> specifications;
 
     @InjectMocks
@@ -52,18 +56,26 @@ class TituloServiceTest {
 
     private Pessoa pessoa;
     private PlanoContas planoContas;
+    private UnidadeNegocio unidadeNegocio;
     private TituloDTO dto;
     private Titulo entity;
 
     @BeforeEach
     void setUp() {
+        // Setup unidade de negócio
+        unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+
         // Setup pessoa
         pessoa = new Pessoa.Builder()
                 .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
                 .nome("Fornecedor Teste")
                 .email("fornecedor@test.com")
                 .telefone("11999999999")
-                .cnpj("11.222.333/0001-81")
+                .cnpj("11222333000181")
                 .razaoSocial("Fornecedor LTDA")
                 .build();
 
@@ -72,6 +84,7 @@ class TituloServiceTest {
                 .codigo("4.1.001")
                 .descricao("Fornecedores")
                 .tipo(TipoPlanoContas.DESPESA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // Setup DTO

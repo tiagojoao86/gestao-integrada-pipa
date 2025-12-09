@@ -25,7 +25,7 @@ export class PessoaService extends BaseService<PessoaDTO> {
     return PessoaService.PESSOA;
   }
 
-  listarParaVinculo(): Observable<any[]> {
+  listarParaVinculo(): Observable<{ id: string; nome: string }[]> {
     const request = new PageRequest(
       { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
       1000,
@@ -34,8 +34,8 @@ export class PessoaService extends BaseService<PessoaDTO> {
     );
     return this.list(request).pipe(
       map((response) =>
-        response.body.content.map((p: any) => ({
-          id: p.id,
+        response.body.content.map((p: PessoaDTO) => ({
+          id: p.id!,
           nome: p.nome,
         }))
       )

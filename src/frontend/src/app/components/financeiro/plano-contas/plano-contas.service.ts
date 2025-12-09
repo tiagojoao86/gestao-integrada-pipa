@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlanoContasDTO } from './model/plano-contas-dto';
 import { MessageService } from '../../base/messages/messages.service';
@@ -25,7 +25,9 @@ export class PlanoContasService extends BaseService<PlanoContasDTO> {
     return PlanoContasService.PLANO_CONTAS;
   }
 
-  listarParaVinculo(): Observable<any[]> {
+  listarParaVinculo(): Observable<
+    { id: string; codigo: string; descricao: string; displayLabel: string }[]
+  > {
     const request = new PageRequest(
       { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
       1000,
@@ -34,13 +36,26 @@ export class PlanoContasService extends BaseService<PlanoContasDTO> {
     );
     return this.list(request).pipe(
       map((response) =>
-        response.body.content.map((pc: any) => ({
-          id: pc.id,
+        response.body.content.map((pc: PlanoContasDTO) => ({
+          id: pc.id!,
           codigo: pc.codigo,
           descricao: pc.descricao,
           displayLabel: `${pc.codigo} - ${pc.descricao}`,
         }))
       )
     );
+  }
+
+  listarUnidadesDisponiveis(): Observable<
+    { id: string; nome: string; codigo: string }[]
+  > {
+    return this.httpClient
+      .get<{ body: { id: string; nome: string; codigo: string }[] }>(
+        this.getUrl('/unidades-disponiveis')
+      )
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
   }
 }

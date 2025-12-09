@@ -313,6 +313,25 @@ public class Titulo extends BaseEntity {
         }
     }
 
+    public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (status == StatusTitulo.PAGO || status == StatusTitulo.CANCELADO) {
+            violations
+                    .add(new BeanValidationMessage("status", "Não é possível alterar título " + status.getDescricao()));
+        }
+
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
+
+        this.unidadeNegocio = unidadeNegocio;
+    }
+
     public void cancelar() {
         Set<BeanValidationMessage> violations = new HashSet<>();
 

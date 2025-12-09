@@ -1,8 +1,11 @@
 package br.com.grupopipa.gestaointegrada.financeiro.planocontas;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.config.AbstractIntegrationTest;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,23 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @Autowired
     private PlanoContasRepository repository;
 
+    @Autowired
+    private EntityManager entityManager;
+
+    private UnidadeNegocio unidadeNegocio;
+
+    @BeforeEach
+    void setUp() {
+        // Criar unidade de negócio para os testes
+        unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
+    }
+
     @Test
     @DisplayName("Deve salvar e recuperar plano de contas raiz")
     void deveSalvarERecuperarPlanoContasRaiz() {
@@ -37,6 +57,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // When
@@ -60,6 +81,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         planoPai = repository.save(planoPai);
 
@@ -67,6 +89,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("1.1")
                 .descricao("Receitas Operacionais")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .planoPai(planoPai)
                 .build();
 
@@ -90,6 +113,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("2")
                 .descricao("Despesas")
                 .tipo(TipoPlanoContas.DESPESA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         PlanoContas planoSalvo = repository.save(plano);
 
@@ -110,6 +134,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("3")
                 .descricao("Ativos")
                 .tipo(TipoPlanoContas.ATIVO)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         repository.save(plano1);
 
@@ -117,6 +142,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("3")
                 .descricao("Ativos Duplicado")
                 .tipo(TipoPlanoContas.ATIVO)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // When & Then
@@ -134,6 +160,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("4")
                 .descricao("Passivos")
                 .tipo(TipoPlanoContas.PASSIVO)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         PlanoContas planoSalvo = repository.save(plano);
 
@@ -153,6 +180,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
                 .codigo("5")
                 .descricao("Ativo Circulante")
                 .tipo(TipoPlanoContas.ATIVO)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         // When

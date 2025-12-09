@@ -2,7 +2,6 @@ import {
   ApplicationConfig,
   inject,
   provideZoneChangeDetection,
-  LOCALE_ID,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 

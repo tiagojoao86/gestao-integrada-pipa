@@ -97,24 +97,20 @@
 
       <!-- Unidade de Negócio -->
       <p-iftalabel class="w-33">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <p-autoComplete
-            inputId="unidadeNegocio"
-            [suggestions]="unidadeNegocioSuggestions"
-            (completeMethod)="searchUnidadesNegocio($event)"
-            optionLabel="nome"
-            (onSelect)="onUnidadeNegocioSelect($event.value)"
-            [(ngModel)]="unidadeNegocioInput"
-            [ngModelOptions]="{ standalone: true }"
-            [forceSelection]="true"
-            [minLength]="1"
-          >
-            <ng-template let-item pTemplate="item">
-              <div>{{ item.codigo }} - {{ item.nome }}</div>
-            </ng-template>
-          </p-autoComplete>
-        </p-iconfield>
+        <p-select
+          inputId="unidadeNegocio"
+          [options]="allUnidadesNegocio"
+          formControlName="unidadeNegocio"
+          optionLabel="codigo"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigo,nome"
+          [showClear]="false"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
         <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
       </p-iftalabel>
 

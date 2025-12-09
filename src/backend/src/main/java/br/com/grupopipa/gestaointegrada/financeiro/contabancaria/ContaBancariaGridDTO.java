@@ -17,5 +17,6 @@ public class ContaBancariaGridDTO implements GridDTO {
     private String banco;
     private String tipo;
     private BigDecimal saldoInicial;
+    private String unidadeNegocioCodigo;
     private Boolean ativa;
 }

@@ -1,11 +1,17 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,12 +21,21 @@ public class ContaBancariaServiceImpl
         extends CrudServiceImpl<ContaBancariaDTO, ContaBancariaGridDTO, ContaBancaria, ContaBancariaRepository>
         implements ContaBancariaService {
 
-    public ContaBancariaServiceImpl(ContaBancariaRepository repository, Specifications<ContaBancaria> specifications) {
+    private final UnidadeNegocioRepository unidadeNegocioRepository;
+
+    public ContaBancariaServiceImpl(ContaBancariaRepository repository, Specifications<ContaBancaria> specifications,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
         super(repository, specifications);
+        this.unidadeNegocioRepository = unidadeNegocioRepository;
     }
 
     @Override
     protected ContaBancaria mergeEntityAndDTO(ContaBancaria entity, ContaBancariaDTO dto) {
+        // Buscar UnidadeNegocio
+        UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                .orElseThrow(() -> new BeanValidationException("contaBancaria",
+                        Set.of(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio não encontrada"))));
+
         if (Objects.isNull(entity)) {
             TipoConta tipo = TipoConta.valueOf(dto.getTipo());
             entity = new ContaBancaria.Builder()
@@ -30,12 +45,14 @@ public class ContaBancariaServiceImpl
                     .agencia(dto.getAgencia())
                     .numeroConta(dto.getNumeroConta())
                     .saldoInicial(Money.of(dto.getSaldoInicial()))
+                    .unidadeNegocio(unidadeNegocio)
                     .build();
 
             return entity;
         }
 
         entity.atualizar(dto.getNome(), dto.getBanco(), dto.getAgencia(), dto.getNumeroConta());
+        entity.atualizarUnidadeNegocio(unidadeNegocio);
 
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
@@ -58,6 +75,7 @@ public class ContaBancariaServiceImpl
                 .numeroConta(entity.getNumeroConta())
                 .tipo(entity.getTipo().name())
                 .saldoInicial(entity.getSaldoInicial() != null ? entity.getSaldoInicial().getValue() : null)
+                .unidadeNegocioId(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
                 .ativa(entity.getAtiva())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -74,6 +92,8 @@ public class ContaBancariaServiceImpl
                 .banco(entity.getBanco())
                 .tipo(entity.getTipo().name())
                 .saldoInicial(entity.getSaldoInicial() != null ? entity.getSaldoInicial().getValue() : null)
+                .unidadeNegocioCodigo(
+                        entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getCodigo() : null)
                 .ativa(entity.getAtiva())
                 .build();
     }
@@ -86,5 +106,16 @@ public class ContaBancariaServiceImpl
     @Override
     protected Class<ContaBancaria> getEntityClass() {
         return ContaBancaria.class;
+    }
+
+    @Override
+    public List<br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO> listarUnidadesDisponiveis() {
+        return unidadeNegocioRepository.findByAtivaTrue().stream()
+                .map(unidade -> br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO.builder()
+                        .id(unidade.getId())
+                        .codigo(unidade.getCodigo())
+                        .nome(unidade.getNome())
+                        .build())
+                .toList();
     }
 }

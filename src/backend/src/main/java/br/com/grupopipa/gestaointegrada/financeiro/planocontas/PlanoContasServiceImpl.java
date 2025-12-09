@@ -1,5 +1,8 @@
 package br.com.grupopipa.gestaointegrada.financeiro.planocontas;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
@@ -14,8 +17,12 @@ public class PlanoContasServiceImpl
         extends CrudServiceImpl<PlanoContasDTO, PlanoContasGridDTO, PlanoContas, PlanoContasRepository>
         implements PlanoContasService {
 
-    public PlanoContasServiceImpl(PlanoContasRepository repository, Specifications<PlanoContas> specifications) {
+    private final UnidadeNegocioRepository unidadeNegocioRepository;
+
+    public PlanoContasServiceImpl(PlanoContasRepository repository, Specifications<PlanoContas> specifications,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
         super(repository, specifications);
+        this.unidadeNegocioRepository = unidadeNegocioRepository;
     }
 
     @Override
@@ -29,17 +36,28 @@ public class PlanoContasServiceImpl
                         .orElseThrow(() -> new IllegalArgumentException("Plano pai não encontrado"));
             }
 
+            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
+
             entity = new PlanoContas.Builder()
                     .codigo(dto.getCodigo())
                     .descricao(dto.getDescricao())
                     .tipo(tipo)
                     .planoPai(planoPai)
+                    .unidadeNegocio(unidadeNegocio)
                     .build();
 
             return entity;
         }
 
         entity.atualizar(dto.getDescricao());
+
+        // Atualizar unidade de negócio se fornecida
+        if (dto.getUnidadeNegocioId() != null) {
+            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
+            entity.atualizarUnidadeNegocio(unidadeNegocio);
+        }
 
         if (dto.getAtivo() != null) {
             if (dto.getAtivo()) {
@@ -63,6 +81,8 @@ public class PlanoContasServiceImpl
                 .tipo(entity.getTipo().name())
                 .planoPaiId(entity.getPlanoPai() != null ? entity.getPlanoPai().getId() : null)
                 .planoPaiDescricao(entity.getPlanoPai() != null ? entity.getPlanoPai().getDescricao() : null)
+                .unidadeNegocioId(entity.getUnidadeNegocio().getId())
+                .unidadeNegocioNome(entity.getUnidadeNegocio().getNome())
                 .ativo(entity.getAtivo())
                 .analitico(analitico)
                 .nivel(entity.getNivel())
@@ -84,6 +104,7 @@ public class PlanoContasServiceImpl
                 .tipo(entity.getTipo().name())
                 .planoPaiCodigo(entity.getPlanoPai() != null ? entity.getPlanoPai().getCodigo() : null)
                 .planoPaiDescricao(entity.getPlanoPai() != null ? entity.getPlanoPai().getDescricao() : null)
+                .unidadeNegocioCodigo(entity.getUnidadeNegocio().getCodigo())
                 .ativo(entity.getAtivo())
                 .analitico(analitico)
                 .build();
@@ -97,5 +118,16 @@ public class PlanoContasServiceImpl
     @Override
     protected Class<PlanoContas> getEntityClass() {
         return PlanoContas.class;
+    }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
+        return unidadeNegocioRepository.findByAtivaTrue().stream()
+                .map(unidade -> UnidadeNegocioDTO.builder()
+                        .id(unidade.getId())
+                        .codigo(unidade.getCodigo())
+                        .nome(unidade.getNome())
+                        .build())
+                .toList();
     }
 }

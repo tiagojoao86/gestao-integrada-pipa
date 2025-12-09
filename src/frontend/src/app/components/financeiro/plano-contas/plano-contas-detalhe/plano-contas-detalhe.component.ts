@@ -79,6 +79,8 @@ export class PlanoContasDetalheComponent implements OnInit {
   planosPaiSuggestions: PlanoContasDTO[] = [];
   selectedPlanoPai: PlanoContasDTO | null = null;
 
+  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+
   acoesTela: RegisterActionToolbar[] = [];
 
   createEmptyEntity(): PlanoContasDTO {
@@ -92,6 +94,7 @@ export class PlanoContasDetalheComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadUnidadesNegocio();
 
     this.acoesTela = [
       {
@@ -152,6 +155,7 @@ export class PlanoContasDetalheComponent implements OnInit {
     this.form.addControl('descricao', fb.control(null));
     this.form.addControl('tipo', fb.control(null));
     this.form.addControl('ativo', fb.control(true));
+    this.form.addControl('unidadeNegocio', fb.control(''));
   }
 
   fillForm() {
@@ -159,6 +163,9 @@ export class PlanoContasDetalheComponent implements OnInit {
     this.form.get('descricao')?.setValue(this.entity.descricao);
     this.form.get('tipo')?.setValue(this.entity.tipo);
     this.form.get('ativo')?.setValue(this.entity.ativo);
+    this.form
+      .get('unidadeNegocio')
+      ?.setValue(this.entity.unidadeNegocioId || '');
   }
 
   onSave(): void {
@@ -169,6 +176,15 @@ export class PlanoContasDetalheComponent implements OnInit {
       return;
     }
 
+    const unidadeNegocioId = this.form.value.unidadeNegocio;
+    if (!unidadeNegocioId) {
+      this.messageService.erro(
+        $localize`:@@planoContas.unidadeNegocioObrigatoria:Unidade de negócio é obrigatória`
+      );
+      return;
+    }
+
+    this.entity.unidadeNegocioId = unidadeNegocioId;
     this.entity.codigo = this.form.value.codigo;
     this.entity.descricao = this.form.value.descricao;
     this.entity.tipo = this.form.value.tipo;
@@ -253,6 +269,17 @@ export class PlanoContasDetalheComponent implements OnInit {
     this.selectedPlanoPai = null;
     this.entity.planoPaiId = undefined;
     this.entity.planoPaiDescricao = undefined;
+  }
+
+  loadUnidadesNegocio(): void {
+    this.planoContasService.listarUnidadesDisponiveis().subscribe({
+      next: (unidades) => {
+        this.allUnidadesNegocio = unidades;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar unidades de negócio:', error);
+      },
+    });
   }
 
   goBackFn(): void {

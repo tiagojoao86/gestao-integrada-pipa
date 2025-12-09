@@ -77,6 +77,25 @@
           <label for="planoPai" i18n>Plano Pai</label>
         </p-iftalabel>
       </div>
+      <div class="form-row">
+        <p-iftalabel class="w-100">
+          <p-select
+            inputId="unidadeNegocio"
+            [options]="allUnidadesNegocio"
+            formControlName="unidadeNegocio"
+            optionLabel="codigo"
+            optionValue="id"
+            [filter]="true"
+            filterBy="codigo,nome"
+            [showClear]="false"
+          >
+            <ng-template let-item pTemplate="item">
+              <div>{{ item.codigo }} - {{ item.nome }}</div>
+            </ng-template>
+          </p-select>
+          <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+        </p-iftalabel>
+      </div>
     </div>
 
     <div class="form">

@@ -41,8 +41,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     InputTextModule,
     InputNumberModule,
     SelectModule,
-    CheckboxModule
-],
+    CheckboxModule,
+  ],
   templateUrl: './conta-bancaria-detalhe.component.html',
   styleUrl: './conta-bancaria-detalhe.component.css',
   providers: [ContaBancariaService],
@@ -56,6 +56,8 @@ export class ContaBancariaDetalheComponent implements OnInit {
 
   private service: ContaBancariaService = inject(ContaBancariaService);
   private messages: MessageService = inject(MessageService);
+
+  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
 
   titulo = $localize`Conta Bancária: `;
 
@@ -96,6 +98,9 @@ export class ContaBancariaDetalheComponent implements OnInit {
       });
     }
 
+    // Carregar unidades de negócio
+    this.loadUnidadesNegocio();
+
     if (this.detailId === RouteConstants.P_ADD) {
       this.modoEdicao = false;
       this.titulo += $localize`Nova`;
@@ -115,6 +120,17 @@ export class ContaBancariaDetalheComponent implements OnInit {
     }
   }
 
+  loadUnidadesNegocio() {
+    this.service.listarUnidadesDisponiveis().subscribe({
+      next: (unidades) => {
+        this.allUnidadesNegocio = unidades;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar unidades de negócio', err);
+      },
+    });
+  }
+
   initForm() {
     const fb = new FormBuilder().nonNullable;
     this.form.addControl('nome', fb.control(''));
@@ -124,6 +140,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     this.form.addControl('tipo', fb.control('CORRENTE'));
     this.form.addControl('saldoInicial', fb.control(0));
     this.form.addControl('ativa', fb.control(true));
+    this.form.addControl('unidadeNegocio', fb.control(''));
   }
 
   fillForm() {
@@ -138,6 +155,9 @@ export class ContaBancariaDetalheComponent implements OnInit {
       .get('saldoInicial')
       ?.setValue(this.contaBancaria.saldoInicial || 0);
     this.form.get('ativa')?.setValue(this.contaBancaria.ativa ?? true);
+    this.form
+      .get('unidadeNegocio')
+      ?.setValue(this.contaBancaria.unidadeNegocioId || '');
   }
 
   salvar() {
@@ -145,6 +165,16 @@ export class ContaBancariaDetalheComponent implements OnInit {
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
+
+    const unidadeNegocioId = this.form.value.unidadeNegocio;
+    if (!unidadeNegocioId) {
+      this.messages.erro(
+        $localize`Selecione uma Unidade de Negócio antes de salvar.`
+      );
+      return;
+    }
+
+    this.contaBancaria.unidadeNegocioId = unidadeNegocioId;
 
     this.contaBancaria.nome = this.form.value.nome;
     this.contaBancaria.banco = this.form.value.banco;

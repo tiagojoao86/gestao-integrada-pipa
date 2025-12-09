@@ -4,5 +4,6 @@ export interface ContaBancariaGridDTO {
   banco?: string;
   tipo: string;
   saldoInicial?: number;
+  unidadeNegocioCodigo?: string;
   ativa: boolean;
 }

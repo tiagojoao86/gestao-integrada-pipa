@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
@@ -38,17 +39,22 @@ public class ContaBancaria extends BaseEntity {
     @AttributeOverride(name = "value", column = @Column(name = "saldo_inicial", precision = 15, scale = 2))
     private Money saldoInicial;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_negocio_id", nullable = false)
+    private UnidadeNegocio unidadeNegocio;
+
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
 
     private ContaBancaria(String nome, TipoConta tipo, String banco, String agencia,
-            String numeroConta, Money saldoInicial) {
+            String numeroConta, Money saldoInicial, UnidadeNegocio unidadeNegocio) {
         this.nome = nome;
         this.tipo = tipo;
         this.banco = banco;
         this.agencia = agencia;
         this.numeroConta = numeroConta;
         this.saldoInicial = saldoInicial;
+        this.unidadeNegocio = unidadeNegocio;
     }
 
     protected ContaBancaria() {
@@ -61,20 +67,22 @@ public class ContaBancaria extends BaseEntity {
         final String agencia;
         final String numeroConta;
         final Money saldoInicial;
+        final UnidadeNegocio unidadeNegocio;
 
         ValidatedData(String nome, TipoConta tipo, String banco, String agencia,
-                String numeroConta, Money saldoInicial) {
+                String numeroConta, Money saldoInicial, UnidadeNegocio unidadeNegocio) {
             this.nome = nome;
             this.tipo = tipo;
             this.banco = banco;
             this.agencia = agencia;
             this.numeroConta = numeroConta;
             this.saldoInicial = saldoInicial;
+            this.unidadeNegocio = unidadeNegocio;
         }
     }
 
     private static ValidatedData validate(String nome, TipoConta tipo, String banco,
-            String agencia, String numeroConta, BigDecimal saldoInicial) {
+            String agencia, String numeroConta, BigDecimal saldoInicial, UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (nome == null || nome.isBlank()) {
@@ -85,6 +93,10 @@ public class ContaBancaria extends BaseEntity {
 
         if (tipo == null) {
             violations.add(new BeanValidationMessage("tipo", "Tipo da conta é obrigatório"));
+        }
+
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
         }
 
         // Validar e criar Money
@@ -101,7 +113,7 @@ public class ContaBancaria extends BaseEntity {
             throw new BeanValidationException("contaBancaria", violations);
         }
 
-        return new ValidatedData(nome, tipo, banco, agencia, numeroConta, money);
+        return new ValidatedData(nome, tipo, banco, agencia, numeroConta, money, unidadeNegocio);
     }
 
     public void atualizar(String nome, String banco, String agencia, String numeroConta) {
@@ -121,6 +133,14 @@ public class ContaBancaria extends BaseEntity {
         this.banco = banco;
         this.agencia = agencia;
         this.numeroConta = numeroConta;
+    }
+
+    public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
+        if (unidadeNegocio == null) {
+            throw new BeanValidationException("contaBancaria",
+                    Set.of(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória")));
+        }
+        this.unidadeNegocio = unidadeNegocio;
     }
 
     public void ativar() {
@@ -172,6 +192,10 @@ public class ContaBancaria extends BaseEntity {
         return ativa != null && ativa;
     }
 
+    public UnidadeNegocio getUnidadeNegocio() {
+        return unidadeNegocio;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -205,6 +229,7 @@ public class ContaBancaria extends BaseEntity {
         private String agencia;
         private String numeroConta;
         private Money saldoInicial;
+        private UnidadeNegocio unidadeNegocio;
 
         public Builder nome(String nome) {
             this.nome = nome;
@@ -236,12 +261,17 @@ public class ContaBancaria extends BaseEntity {
             return this;
         }
 
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
+            this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
         public ContaBancaria build() {
             BigDecimal saldoInicialValue = (this.saldoInicial != null) ? this.saldoInicial.getValue() : null;
             ValidatedData data = validate(this.nome, this.tipo, this.banco,
-                    this.agencia, this.numeroConta, saldoInicialValue);
+                    this.agencia, this.numeroConta, saldoInicialValue, this.unidadeNegocio);
             return new ContaBancaria(data.nome, data.tipo, data.banco,
-                    data.agencia, data.numeroConta, data.saldoInicial);
+                    data.agencia, data.numeroConta, data.saldoInicial, data.unidadeNegocio);
         }
     }
 }

@@ -93,6 +93,13 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
         // Atualizar título existente
         entity.atualizar(dto.getDescricao(), dto.getDataVencimento());
 
+        // Atualizar unidade de negócio se fornecida
+        if (dto.getUnidadeNegocioId() != null) {
+            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
+            entity.atualizarUnidadeNegocio(unidadeNegocio);
+        }
+
         // Atualizar valores adicionais se fornecidos
         if (dto.getValorDesconto() != null) {
             entity.aplicarDesconto(Money.of(dto.getValorDesconto()));
