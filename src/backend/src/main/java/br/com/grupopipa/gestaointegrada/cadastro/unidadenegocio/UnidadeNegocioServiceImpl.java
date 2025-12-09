@@ -1,6 +1,7 @@
 package br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
+
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UnidadeNegocioServiceImpl
@@ -91,5 +94,30 @@ public class UnidadeNegocioServiceImpl
         return repository.findByAtivaTrue().stream()
                 .map(this::buildDTOFromEntity)
                 .toList();
+    }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarDisponiveisParaUsuario() {
+        Set<UUID> unidadesPermitidas = br.com.grupopipa.gestaointegrada.core.Session.getUnidadeNegocioIds();
+
+        return repository.findByAtivaTrue().stream()
+                .filter(unidade -> unidadesPermitidas.isEmpty() || unidadesPermitidas.contains(unidade.getId()))
+                .map(this::buildSimpleDTO)
+                .toList();
+    }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarTodasDisponiveis() {
+        return repository.findByAtivaTrue().stream()
+                .map(this::buildSimpleDTO)
+                .toList();
+    }
+
+    private UnidadeNegocioDTO buildSimpleDTO(UnidadeNegocio unidade) {
+        return UnidadeNegocioDTO.builder()
+                .id(unidade.getId())
+                .codigo(unidade.getCodigo())
+                .nome(unidade.getNome())
+                .build();
     }
 }

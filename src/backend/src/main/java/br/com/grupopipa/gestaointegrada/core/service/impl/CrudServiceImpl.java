@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.core.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -13,12 +14,15 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import br.com.grupopipa.gestaointegrada.core.Session;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.dao.UnidadeNegocioSpecification;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.enums.FilterLogicOperator;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.core.service.CrudService;
@@ -62,6 +66,13 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     public PageDTO<G> list(FilterDTO filter, Pageable pageable) {
         Specification<T> specification = this.buildSpecification(filter);
 
+        // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
+        if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
+            Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
+            Specification<T> unidadeSpec = (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
+            specification = specification != null ? specification.and(unidadeSpec) : unidadeSpec;
+        }
+
         if (this.repository instanceof JpaSpecificationExecutor) {
             Page<T> page = ((JpaSpecificationExecutor<T>) this.repository).findAll(specification, pageable);
             return new PageDTO<G>(
@@ -76,7 +87,24 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
 
     @Transactional
     public D findById(UUID id) {
-        return buildDTOFromEntity(this.findEntityById(id));
+        T entity = this.findEntityById(id);
+
+        // Validar acesso à UnidadeNegocio
+        if (entity instanceof UnidadeNegocioFiltravel) {
+            UnidadeNegocioFiltravel filtravel = (UnidadeNegocioFiltravel) entity;
+            UUID unidadeId = filtravel.getUnidadeNegocio() != null
+                    ? filtravel.getUnidadeNegocio().getId()
+                    : null;
+
+            Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
+
+            if (unidadeId != null && !unidadesPermitidas.isEmpty()
+                    && !unidadesPermitidas.contains(unidadeId)) {
+                throw new SecurityException("Acesso negado: usuário não tem permissão para esta unidade de negócio");
+            }
+        }
+
+        return buildDTOFromEntity(entity);
     }
 
     public T findEntityById(UUID id) {
@@ -119,5 +147,20 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     protected abstract List<String> getPropertiesToFilter();
 
     protected abstract Class<T> getEntityClass();
+
+    /**
+     * Método auxiliar para obter filtro de UnidadeNegocio.
+     * Usado em métodos como listarParaVinculo() que retornam List.
+     * 
+     * @return Specification de UnidadeNegocio ou null se não aplicável
+     */
+    @SuppressWarnings("unchecked")
+    protected Specification<T> getUnidadeNegocioFilter() {
+        if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
+            Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
+            return (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
+        }
+        return null;
+    }
 
 }

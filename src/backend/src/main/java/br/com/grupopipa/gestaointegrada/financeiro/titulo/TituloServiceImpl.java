@@ -4,6 +4,7 @@ import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
@@ -24,16 +25,19 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     private final PessoaRepository pessoaRepository;
     private final PlanoContasRepository planoContasRepository;
     private final UnidadeNegocioRepository unidadeNegocioRepository;
+    private final UnidadeNegocioService unidadeNegocioService;
 
     public TituloServiceImpl(TituloRepository repository,
             Specifications<Titulo> specifications,
             PessoaRepository pessoaRepository,
             PlanoContasRepository planoContasRepository,
-            UnidadeNegocioRepository unidadeNegocioRepository) {
+            UnidadeNegocioRepository unidadeNegocioRepository,
+            UnidadeNegocioService unidadeNegocioService) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
         this.unidadeNegocioRepository = unidadeNegocioRepository;
+        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     @Override
@@ -182,12 +186,6 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
 
     @Override
     public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
-        return unidadeNegocioRepository.findByAtivaTrue().stream()
-                .map(unidade -> UnidadeNegocioDTO.builder()
-                        .id(unidade.getId())
-                        .codigo(unidade.getCodigo())
-                        .nome(unidade.getNome())
-                        .build())
-                .toList();
+        return unidadeNegocioService.listarDisponiveisParaUsuario();
     }
 }

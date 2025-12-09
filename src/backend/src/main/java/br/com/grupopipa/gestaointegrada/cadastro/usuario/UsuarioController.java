@@ -28,13 +28,10 @@ import java.util.UUID;
 public class UsuarioController extends BaseController<UsuarioDTO, UsuarioGridDTO, UsuarioService> {
 
     private final PerfilService perfilService;
-    private final UnidadeNegocioService unidadeNegocioService;
 
-    public UsuarioController(UsuarioService service, PerfilService perfilService,
-            UnidadeNegocioService unidadeNegocioService) {
+    public UsuarioController(UsuarioService service, PerfilService perfilService) {
         super(service);
         this.perfilService = perfilService;
-        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     /**
@@ -50,12 +47,13 @@ public class UsuarioController extends BaseController<UsuarioDTO, UsuarioGridDTO
     /**
      * Endpoint para buscar unidades de negócio ativas disponíveis para vinculação
      * com usuários.
-     * Retorna lista completa sem paginação.
+     * Retorna lista completa sem paginação, incluindo TODAS as unidades (sem filtro
+     * por usuário).
      */
     @GetMapping("/unidades-disponiveis")
     @PreAuthorize("hasAuthority('CADASTRO_USUARIO_EDITAR')")
     public Response listarUnidadesDisponiveis() {
-        return ok(unidadeNegocioService.listarAtivas());
+        return ok(service.listarUnidadesParaAssociacao());
     }
 
     @Override

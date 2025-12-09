@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
@@ -17,7 +18,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "conta_bancaria")
-public class ContaBancaria extends BaseEntity {
+public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel {
 
     @Column(name = "nome", nullable = false, length = 100)
     private String nome;
