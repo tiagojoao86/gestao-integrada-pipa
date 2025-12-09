@@ -54,7 +54,7 @@ public class Titulo extends BaseEntity {
     private PlanoContas planoContas;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidade_negocio_id", foreignKey = @ForeignKey(name = "fk_titulo_unidade_negocio"))
+    @JoinColumn(name = "unidade_negocio_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_unidade_negocio"))
     private UnidadeNegocio unidadeNegocio;
 
     @Embedded
@@ -169,6 +169,9 @@ public class Titulo extends BaseEntity {
         }
         if (planoContas == null) {
             violations.add(new BeanValidationMessage("planoContas", "Plano de contas é obrigatório"));
+        }
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
         }
         if (valorOriginal == null || valorOriginal.compareTo(BigDecimal.ZERO) <= 0) {
             violations.add(new BeanValidationMessage("valorOriginal", "Valor original deve ser maior que zero"));

@@ -87,6 +87,13 @@ export class TituloGridComponent {
       },
     },
     {
+      name: 'unidadeNegocioCodigo',
+      label: $localize`Unidade`,
+      getValue: (element: TituloGridDTO) => {
+        return element.unidadeNegocioCodigo || '-';
+      },
+    },
+    {
       name: 'valorOriginal',
       label: $localize`Valor`,
       getValue: (element: TituloGridDTO) => {

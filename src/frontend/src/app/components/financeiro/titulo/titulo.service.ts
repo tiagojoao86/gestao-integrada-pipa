@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, take } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { TituloDTO } from './model/titulo-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { TituloBackendMessages } from './titulo-backend-message.service';
@@ -19,5 +21,18 @@ export class TituloService extends BaseService<TituloDTO> {
 
   getDominio(): string {
     return TituloService.TITULO;
+  }
+
+  listarUnidadesDisponiveis(): Observable<
+    { id: string; nome: string; codigo: string }[]
+  > {
+    return this.httpClient
+      .get<{ body: { id: string; nome: string; codigo: string }[] }>(
+        this.getUrl('/unidades-disponiveis')
+      )
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
   }
 }

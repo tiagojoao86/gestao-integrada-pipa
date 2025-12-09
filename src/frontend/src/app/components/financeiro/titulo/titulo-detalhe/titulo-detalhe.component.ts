@@ -92,6 +92,12 @@ export class TituloDetalheComponent implements OnInit {
     displayLabel: string;
   } | null = null;
 
+  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+  unidadeNegocioSuggestions: { id: string; nome: string; codigo: string }[] =
+    [];
+  unidadeNegocioInput: { id: string; nome: string; codigo: string } | null =
+    null;
+
   tiposOptions = [
     { label: $localize`A Pagar`, value: 'A_PAGAR' },
     { label: $localize`A Receber`, value: 'A_RECEBER' },
@@ -112,6 +118,7 @@ export class TituloDetalheComponent implements OnInit {
     this.initForm();
     this.loadPessoas();
     this.loadPlanosContas();
+    this.loadUnidadesNegocio();
 
     const canEdit = this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO');
     this.acoesTela = [
@@ -210,6 +217,13 @@ export class TituloDetalheComponent implements OnInit {
         displayLabel: this.titulo.planoContasDescricao || '',
       };
     }
+    if (this.titulo.unidadeNegocioId) {
+      this.unidadeNegocioInput = {
+        id: this.titulo.unidadeNegocioId,
+        nome: this.titulo.unidadeNegocioNome || '',
+        codigo: '',
+      };
+    }
   }
 
   loadPessoas() {
@@ -221,6 +235,12 @@ export class TituloDetalheComponent implements OnInit {
   loadPlanosContas() {
     this.planoContasService.listarParaVinculo().subscribe((planos) => {
       this.allPlanosContas = planos;
+    });
+  }
+
+  loadUnidadesNegocio() {
+    this.service.listarUnidadesDisponiveis().subscribe((unidades) => {
+      this.allUnidadesNegocio = unidades;
     });
   }
 
@@ -241,6 +261,15 @@ export class TituloDetalheComponent implements OnInit {
     });
   }
 
+  searchUnidadesNegocio(event: { query: string }) {
+    const q = event.query ? String(event.query).toLowerCase() : '';
+    this.unidadeNegocioSuggestions = this.allUnidadesNegocio.filter((un) => {
+      const codigo = un?.codigo ? String(un.codigo).toLowerCase() : '';
+      const nome = un?.nome ? String(un.nome).toLowerCase() : '';
+      return codigo.includes(q) || nome.includes(q);
+    });
+  }
+
   onPessoaSelect(pessoa: { id: string; nome: string }) {
     this.titulo.pessoaId = pessoa.id;
     this.titulo.pessoaNome = pessoa.nome;
@@ -256,6 +285,15 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.planoContasDescricao = planoContas.descricao;
   }
 
+  onUnidadeNegocioSelect(unidadeNegocio: {
+    id: string;
+    nome: string;
+    codigo: string;
+  }) {
+    this.titulo.unidadeNegocioId = unidadeNegocio.id;
+    this.titulo.unidadeNegocioNome = unidadeNegocio.nome;
+  }
+
   salvar() {
     if (!this.form.valid) {
       this.messages.erro($localize`Existem campos inválidos.`);
@@ -269,6 +307,11 @@ export class TituloDetalheComponent implements OnInit {
 
     if (!this.titulo.planoContasId) {
       this.messages.erro($localize`Plano de Contas é obrigatório.`);
+      return;
+    }
+
+    if (!this.titulo.unidadeNegocioId) {
+      this.messages.erro($localize`Unidade de Negócio é obrigatória.`);
       return;
     }
 

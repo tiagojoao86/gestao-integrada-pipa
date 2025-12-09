@@ -19,6 +19,7 @@ public class TituloGridDTO implements GridDTO {
     private String numeroDocumento;
     private String descricao;
     private String pessoaNome;
+    private String unidadeNegocioCodigo;
     private BigDecimal valorOriginal;
     private BigDecimal saldo;
     private LocalDate dataVencimento;

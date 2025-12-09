@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
@@ -45,13 +46,10 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                     .orElseThrow(() -> new IllegalArgumentException("Plano de contas não encontrado"));
 
             TipoTitulo tipo = TipoTitulo.valueOf(dto.getTipo());
-            UnidadeNegocio unidadeNegocio = null;
 
-            // Unidade de negócio (opcional)
-            if (dto.getUnidadeNegocioId() != null) {
-                unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
-                        .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
-            }
+            // Unidade de negócio (obrigatória)
+            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
 
             entity = new Titulo.Builder()
                     .tipo(tipo)
@@ -157,6 +155,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .numeroDocumento(entity.getNumeroDocumento())
                 .descricao(entity.getDescricao())
                 .pessoaNome(entity.getPessoa().getNome())
+                .unidadeNegocioCodigo(entity.getUnidadeNegocio().getCodigo())
                 .valorOriginal(entity.getValorOriginal().getValue())
                 .saldo(entity.calcularSaldo().getValue())
                 .dataVencimento(entity.getDataVencimento())
@@ -172,5 +171,16 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     @Override
     protected Class<Titulo> getEntityClass() {
         return Titulo.class;
+    }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
+        return unidadeNegocioRepository.findByAtivaTrue().stream()
+                .map(unidade -> UnidadeNegocioDTO.builder()
+                        .id(unidade.getId())
+                        .codigo(unidade.getCodigo())
+                        .nome(unidade.getNome())
+                        .build())
+                .toList();
     }
 }

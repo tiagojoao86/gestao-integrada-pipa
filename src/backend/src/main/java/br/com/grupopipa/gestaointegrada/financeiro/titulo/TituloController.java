@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloConstants.R_TITULO;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
+import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -42,5 +43,11 @@ public class TituloController extends BaseController<TituloDTO, TituloGridDTO, T
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_DELETAR')")
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
+    }
+
+    @GetMapping("/unidades-disponiveis")
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_EDITAR')")
+    public Response listarUnidadesDisponiveis() {
+        return ok(service.listarUnidadesDisponiveis());
     }
 }
