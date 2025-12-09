@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Table(name = "plano_contas", uniqueConstraints = {
         @UniqueConstraint(name = "uk_plano_contas_codigo", columnNames = "codigo")
 })
-public class PlanoContas extends BaseEntity {
+public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
 
     @Column(name = "codigo", nullable = false, length = 20)
     private String codigo;

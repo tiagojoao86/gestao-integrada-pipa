@@ -1,6 +1,8 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
@@ -22,11 +24,15 @@ public class ContaBancariaServiceImpl
         implements ContaBancariaService {
 
     private final UnidadeNegocioRepository unidadeNegocioRepository;
+    private final UnidadeNegocioService unidadeNegocioService;
 
-    public ContaBancariaServiceImpl(ContaBancariaRepository repository, Specifications<ContaBancaria> specifications,
-            UnidadeNegocioRepository unidadeNegocioRepository) {
+    public ContaBancariaServiceImpl(ContaBancariaRepository repository,
+            Specifications<ContaBancaria> specifications,
+            UnidadeNegocioRepository unidadeNegocioRepository,
+            UnidadeNegocioService unidadeNegocioService) {
         super(repository, specifications);
         this.unidadeNegocioRepository = unidadeNegocioRepository;
+        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     @Override
@@ -109,13 +115,7 @@ public class ContaBancariaServiceImpl
     }
 
     @Override
-    public List<br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO> listarUnidadesDisponiveis() {
-        return unidadeNegocioRepository.findByAtivaTrue().stream()
-                .map(unidade -> br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO.builder()
-                        .id(unidade.getId())
-                        .codigo(unidade.getCodigo())
-                        .nome(unidade.getNome())
-                        .build())
-                .toList();
+    public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
+        return unidadeNegocioService.listarDisponiveisParaUsuario();
     }
 }

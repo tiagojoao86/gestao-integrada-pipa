@@ -18,7 +18,9 @@ import br.com.grupopipa.gestaointegrada.cadastro.perfil.PerfilRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilModuloEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.UsuarioPerfilEntity;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.usuario.entity.UsuarioEntity;
 import br.com.grupopipa.gestaointegrada.config.security.dto.AuthorityDTO;
@@ -34,14 +36,17 @@ public class UsuarioServiceImpl
     private PasswordEncoder passwordEncoder;
     private final PerfilRepository perfilRepository;
     private final UnidadeNegocioRepository unidadeNegocioRepository;
+    private final UnidadeNegocioService unidadeNegocioService;
 
     public UsuarioServiceImpl(PasswordEncoder passwordEncoder, UsuarioRepository repository,
             Specifications<UsuarioEntity> specifications, PerfilRepository perfilRepository,
-            UnidadeNegocioRepository unidadeNegocioRepository) {
+            UnidadeNegocioRepository unidadeNegocioRepository,
+            UnidadeNegocioService unidadeNegocioService) {
         super(repository, specifications);
         this.passwordEncoder = passwordEncoder;
         this.perfilRepository = perfilRepository;
         this.unidadeNegocioRepository = unidadeNegocioRepository;
+        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     @Override
@@ -242,5 +247,10 @@ public class UsuarioServiceImpl
     @Override
     protected Class<UsuarioEntity> getEntityClass() {
         return UsuarioEntity.class;
+    }
+
+    @Override
+    public List<UnidadeNegocioDTO> listarUnidadesParaAssociacao() {
+        return unidadeNegocioService.listarTodasDisponiveis();
     }
 }

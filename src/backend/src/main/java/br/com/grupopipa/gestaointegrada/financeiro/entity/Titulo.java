@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.entity;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
@@ -29,7 +30,7 @@ import java.util.Set;
         @Index(name = "idx_titulo_pessoa", columnList = "pessoa_id"),
         @Index(name = "idx_titulo_plano_contas", columnList = "plano_contas_id")
 })
-public class Titulo extends BaseEntity {
+public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 20)

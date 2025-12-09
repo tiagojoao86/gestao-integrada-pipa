@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.planocontas;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
@@ -18,11 +19,15 @@ public class PlanoContasServiceImpl
         implements PlanoContasService {
 
     private final UnidadeNegocioRepository unidadeNegocioRepository;
+    private final UnidadeNegocioService unidadeNegocioService;
 
-    public PlanoContasServiceImpl(PlanoContasRepository repository, Specifications<PlanoContas> specifications,
-            UnidadeNegocioRepository unidadeNegocioRepository) {
+    public PlanoContasServiceImpl(PlanoContasRepository repository,
+            Specifications<PlanoContas> specifications,
+            UnidadeNegocioRepository unidadeNegocioRepository,
+            UnidadeNegocioService unidadeNegocioService) {
         super(repository, specifications);
         this.unidadeNegocioRepository = unidadeNegocioRepository;
+        this.unidadeNegocioService = unidadeNegocioService;
     }
 
     @Override
@@ -122,12 +127,6 @@ public class PlanoContasServiceImpl
 
     @Override
     public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
-        return unidadeNegocioRepository.findByAtivaTrue().stream()
-                .map(unidade -> UnidadeNegocioDTO.builder()
-                        .id(unidade.getId())
-                        .codigo(unidade.getCodigo())
-                        .nome(unidade.getNome())
-                        .build())
-                .toList();
+        return unidadeNegocioService.listarDisponiveisParaUsuario();
     }
 }
