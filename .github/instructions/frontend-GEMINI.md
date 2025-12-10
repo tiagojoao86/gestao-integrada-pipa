@@ -1,3 +1,59 @@
+# Prática Angular: Controle de Campos Desabilitados
+
+Nunca use `[disabled]` no HTML de campos com `formControlName`. Controle o estado via TypeScript:
+
+```typescript
+this.form.get("campo")?.disable(); // para desabilitar
+this.form.get("campo")?.enable(); // para habilitar
+
+// Ou já criar o FormControl desabilitado:
+campo: new FormControl({ value: null, disabled: true });
+```
+
+---
+
+# Auto-set de Unidade de Negócio Default
+
+Carregue a unidade default do usuário e defina no form após carregar as opções:
+
+```typescript
+const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
+if (defaultUnidade) {
+  this.form.get("unidadeNegocio")?.setValue(defaultUnidade.id);
+}
+```
+
+---
+
+# Exemplos Reais
+
+```html
+<p-select
+  inputId="unidadeNegocio"
+  [options]="allUnidadesNegocio"
+  formControlName="unidadeNegocio"
+  optionLabel="codigo"
+  optionValue="id"
+  [filter]="true"
+  filterBy="codigo,nome"
+  [showClear]="false"
+>
+  <ng-template let-item pTemplate="item">
+    <div>{{ item.codigo }} - {{ item.nome }}</div>
+  </ng-template>
+</p-select>
+```
+
+---
+
+# Fluxo de Autenticação e Cache
+
+1. Backend retorna lista de unidades de negócio (id, nome, código, isDefault) no login
+2. AuthService armazena unidades no sessionStorage/localStorage
+3. Componentes usam métodos do AuthService para preencher combos e setar valores default
+
+---
+
 # Gemini - Frontend
 
 > **Nota:** Eu sou um assistente de IA. Se eu identificar informações importantes que possam ser adicionadas a este arquivo para melhorar nossas interações futuras (como novos comandos, convenções ou detalhes de arquitetura), irei sugerir atualizações. Sinta-se à vontade para me perguntar como melhorá-lo.
@@ -18,21 +74,25 @@ Este projeto contém a interface de usuário (UI) para o sistema Gestão Integra
 **Nota:** Execute os comandos a partir do diretório `src/frontend`.
 
 - **Instalar Dependências:**
+
   ```bash
   npm install
   ```
 
-- **Executar a Aplicação (desenvolvimento):
+- \*\*Executar a Aplicação (desenvolvimento):
+
   ```bash
   ng serve
   ```
 
 - **Executar os Testes:**
+
   ```bash
   ng test
   ```
 
 - **Verificação de Estilo (Lint):**
+
   ```bash
   ng lint
   ```
@@ -49,6 +109,7 @@ Para garantir a qualidade e consistência do código, o projeto utiliza ESLint. 
 ### Comandos Essenciais de Linting
 
 - **Executar o Lint (apenas verificar erros):**
+
   ```bash
   npm run lint
   ```
@@ -62,21 +123,22 @@ Para garantir a qualidade e consistência do código, o projeto utiliza ESLint. 
 
 As seguintes regras foram configuradas para padronizar o desenvolvimento:
 
--   **Remoção de Imports Não Utilizados:**
-    -   Utiliza o plugin `eslint-plugin-unused-imports`.
-    -   `"unused-imports/no-unused-imports": "error"`: Identifica imports desnecessários.
-    -   `"unused-imports/no-unused-vars"`: Configura o tratamento de variáveis não utilizadas (atualmente como `warn`).
-    -   As regras padrão `no-unused-vars` do ESLint e `@typescript-eslint/no-unused-vars` foram desativadas para evitar conflitos e permitir que este plugin gerencie a remoção com `--fix`.
+- **Remoção de Imports Não Utilizados:**
 
--   **Seletores de Angular (prefixos e estilo):**
-    -   `@angular-eslint/directive-selector`:
-        -   `type: "attribute"`
-        -   `prefix: "gi"`: Diretivas devem usar o prefixo `gi` (ex: `[giMinhaDiretiva]`).
-        -   `style: "camelCase"`: O estilo do seletor da diretiva deve ser `camelCase`.
-    -   `@angular-eslint/component-selector`:
-        -   `type: "element"`
-        -   `prefix: "gi"`: Componentes devem usar o prefixo `gi` (ex: `<gi-meu-componente>`).
-        -   `style: "kebab-case"`: O estilo do seletor do componente deve ser `kebab-case`.
+  - Utiliza o plugin `eslint-plugin-unused-imports`.
+  - `"unused-imports/no-unused-imports": "error"`: Identifica imports desnecessários.
+  - `"unused-imports/no-unused-vars"`: Configura o tratamento de variáveis não utilizadas (atualmente como `warn`).
+  - As regras padrão `no-unused-vars` do ESLint e `@typescript-eslint/no-unused-vars` foram desativadas para evitar conflitos e permitir que este plugin gerencie a remoção com `--fix`.
+
+- **Seletores de Angular (prefixos e estilo):**
+  - `@angular-eslint/directive-selector`:
+    - `type: "attribute"`
+    - `prefix: "gi"`: Diretivas devem usar o prefixo `gi` (ex: `[giMinhaDiretiva]`).
+    - `style: "camelCase"`: O estilo do seletor da diretiva deve ser `camelCase`.
+  - `@angular-eslint/component-selector`:
+    - `type: "element"`
+    - `prefix: "gi"`: Componentes devem usar o prefixo `gi` (ex: `<gi-meu-componente>`).
+    - `style: "kebab-case"`: O estilo do seletor do componente deve ser `kebab-case`.
 
 ## Arquitetura e Convenções
 
@@ -91,6 +153,7 @@ As seguintes regras foram configuradas para padronizar o desenvolvimento:
 ## Princípios de Desenvolvimento
 
 ### Componentização
+
 - **Sempre que possível, componentize** funcionalidades reutilizáveis.
 - Identifique padrões que se repetem e extraia-os em componentes separados.
 - Componentes devem ter uma responsabilidade bem definida e única.
@@ -98,6 +161,7 @@ As seguintes regras foram configuradas para padronizar o desenvolvimento:
 - Use `@Input()` e `@Output()` para comunicação entre componentes.
 
 ### Baixo Acoplamento
+
 - **Priorize a criação de componentes com baixo acoplamento**.
 - Componentes não devem depender diretamente de outros componentes específicos.
 - Use serviços para compartilhar estado e lógica entre componentes.
@@ -107,7 +171,8 @@ As seguintes regras foram configuradas para padronizar o desenvolvimento:
 - Componentes devem ser testáveis isoladamente com mocks/stubs de suas dependências.
 
 ### Comentários no Código
-- Adicione comentários no código de forma esparsa. Concentre-se no *porquê* algo é feito, especialmente para lógicas complexas, em vez de *o quê* é feito. Apenas adicione comentários de alto valor se necessário para clareza ou se solicitado pelo usuário.
+
+- Adicione comentários no código de forma esparsa. Concentre-se no _porquê_ algo é feito, especialmente para lógicas complexas, em vez de _o quê_ é feito. Apenas adicione comentários de alto valor se necessário para clareza ou se solicitado pelo usuário.
 
 ## Internacionalização (i18n)
 
@@ -118,28 +183,31 @@ O projeto suporta múltiplos idiomas (português e inglês) usando as ferramenta
 Ao adicionar ou modificar qualquer texto que será visível para o usuário, siga estes passos:
 
 1.  **Marcar a String:** No código TypeScript ou no template HTML, marque a nova string para tradução usando a tag `$localize`.
+
     ```typescript
     // Em um arquivo .ts
     const titulo = $localize`Meu Título`;
-    
+
     // Em um arquivo .html
-    <h1 i18n>Meu Título no Template</h1>
+    <h1 i18n>Meu Título no Template</h1>;
     ```
 
 2.  **Extrair as Strings:** Execute o comando `ng extract-i18n` para escanear o projeto e adicionar as novas strings ao arquivo de origem principal.
+
     ```bash
     # Executar a partir do diretório src/frontend
     ng extract-i18n --output-path src/locale
     ```
 
 3.  **Atualizar Arquivos de Tradução:**
-    -   **Português (`messages.xlf`):** A extração adiciona um novo bloco `<trans-unit>` com a tag `<source>`. Para validar a tradução, adicione uma tag `<target>` com o mesmo conteúdo da tag `<source>`.
-    -   **Inglês (`messages.en.xlf`):** Copie o novo bloco `<trans-unit>` do `messages.xlf` e cole-o no `messages.en.xlf`. Em seguida, preencha a tag `<target>` com a tradução correta em inglês.
+    - **Português (`messages.xlf`):** A extração adiciona um novo bloco `<trans-unit>` com a tag `<source>`. Para validar a tradução, adicione uma tag `<target>` com o mesmo conteúdo da tag `<source>`.
+    - **Inglês (`messages.en.xlf`):** Copie o novo bloco `<trans-unit>` do `messages.xlf` e cole-o no `messages.en.xlf`. Em seguida, preencha a tag `<target>` com a tradução correta em inglês.
 
 ## Autorização e Proteção de Rotas
 
 - **Autenticação:** Todas as rotas que exigem que o usuário esteja logado devem ser protegidas pelo `authGuard`. Ele valida se existe um token de autenticação ativo.
 - **Autorização por Módulo:** Para controlar o acesso a funcionalidades específicas (como telas de cadastro), utilizamos o `moduleAuthorityGuard`.
+
   - Este guarda (`guard`) é configurado na definição da rota e recebe a `key` do módulo como um dado (`data`).
   - Exemplo de como proteger uma rota e exigir a permissão de "listar" para o módulo `CADASTRO_USUARIO`:
     ```typescript

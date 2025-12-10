@@ -1,3 +1,209 @@
+# Exemplos Reais de Componentes e Services
+
+## Exemplo: Select de Unidade de Negócio no Angular
+
+```html
+<p-select
+  inputId="unidadeNegocio"
+  [options]="allUnidadesNegocio"
+  formControlName="unidadeNegocio"
+  optionLabel="codigo"
+  optionValue="id"
+  [filter]="true"
+  filterBy="codigo,nome"
+  [showClear]="false"
+>
+  <ng-template let-item pTemplate="item">
+    <div>{{ item.codigo }} - {{ item.nome }}</div>
+  </ng-template>
+</p-select>
+```
+
+## Exemplo: Service de Carregamento
+
+```typescript
+loadUnidadesNegocio(setDefault = false): void {
+    this.authService.getUnidadesNegocio().subscribe((unidades) => {
+        this.allUnidadesNegocio = unidades;
+        if (setDefault) {
+            const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
+            if (defaultUnidade) {
+                this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+            }
+        }
+    });
+}
+```
+
+---
+
+# Fluxo de Autenticação e Cache de Unidades (Frontend)
+
+## Padrão
+
+1. Usuário faz login e recebe JWT + lista de unidades de negócio (com id, nome, código, isDefault)
+2. AuthService armazena unidades no sessionStorage/localStorage
+3. Métodos:
+   - `getUnidadesNegocio()` retorna array completo
+   - `getDefaultUnidadeNegocio()` retorna objeto `{id, codigo, nome}` da unidade default
+4. Componentes usam esses métodos para preencher combos e setar valores default
+
+---
+
+# Prática Angular: Controle de Campos Desabilitados
+
+## Correto
+
+Em formulários reativos, nunca use `[disabled]` no HTML de campos com `formControlName`. Controle o estado via TypeScript:
+
+```typescript
+this.form.get("campo")?.disable(); // para desabilitar
+this.form.get("campo")?.enable(); // para habilitar
+
+// Ou já criar o FormControl desabilitado:
+campo: new FormControl({ value: null, disabled: true });
+```
+
+## Errado
+
+```html
+<input formControlName="campo" [disabled]="true" />
+```
+
+---
+
+# Estratégia de Auto-set de Unidade de Negócio Default (Frontend)
+
+## Padrão
+
+No cadastro de entidades, carregue a unidade de negócio default do usuário (armazenada no AuthService/sessionStorage) e defina no form:
+
+```typescript
+const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
+if (defaultUnidade) {
+  this.form.get("unidadeNegocio")?.setValue(defaultUnidade.id);
+}
+```
+
+Chame esse set dentro do subscribe do carregamento das unidades para evitar problemas de timing.
+
+---
+
+# Endpoints Dedicados para Vinculação
+
+## Padrão
+
+Cada cadastro que precisa vincular entidades (ex: Título → Pessoa, Plano de Contas) deve ter endpoints REST dedicados no respectivo controller, filtrando automaticamente por UnidadeNegocio.
+
+### Exemplo: TituloController
+
+```java
+@GetMapping("/titulo/pessoas-disponiveis")
+public List<PessoaDTO> listarPessoasDisponiveis() { ... }
+
+@GetMapping("/titulo/planos-disponiveis")
+public List<PlanoContasDTO> listarPlanosDisponiveis(@RequestParam UUID unidadeNegocioId) { ... }
+```
+
+Esses endpoints devem aplicar o filtro de UnidadeNegocio e retornar apenas entidades ativas/válidas para o usuário.
+
+---
+
+# Convenção de DTOs com Campos Extras
+
+## Padrão
+
+Quando o frontend precisa exibir informações adicionais (ex: código da unidade de negócio), inclua esses campos nos DTOs e na resposta de autenticação.
+
+### Exemplo: UsuarioUnidadeNegocioDTO
+
+```java
+public class UsuarioUnidadeNegocioDTO {
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioCodigo;
+    private String unidadeNegocioNome;
+    private boolean isDefault;
+}
+```
+
+No backend, garanta que o builder/populador do DTO inclua todos os campos necessários para o frontend.
+
+---
+
+# Padrão de Filtro Automático por Unidade de Negócio (Multi-tenant)
+
+## Visão Geral
+
+Para garantir que cada usuário só acesse dados das unidades de negócio permitidas, utilize o padrão de filtro automático baseado em marker interface e Specification no backend.
+
+### 1. Marker Interface
+
+Crie uma interface marker chamada `UnidadeNegocioFiltravel`:
+
+```java
+public interface UnidadeNegocioFiltravel {
+    UnidadeNegocio getUnidadeNegocio();
+}
+```
+
+Implemente essa interface em todas as entidades que devem ser filtradas por unidade de negócio (ex: `ContaBancaria`, `Titulo`, `PlanoContas`).
+
+### 2. Specification
+
+Implemente uma Specification genérica:
+
+```java
+public class UnidadeNegocioSpecification {
+    public static <T extends BaseEntity & UnidadeNegocioFiltravel> Specification<T> permitidasParaUsuario(Set<UUID> unidadesPermitidas) {
+        return (root, query, cb) -> {
+            if (unidadesPermitidas == null || unidadesPermitidas.isEmpty()) return null;
+            return root.get("unidadeNegocio").get("id").in(unidadesPermitidas);
+        };
+    }
+}
+```
+
+### 3. Aplicação automática no Service
+
+No `CrudServiceImpl`, aplique o filtro automaticamente nos métodos `list()` e `findById()` para entidades que implementam a interface:
+
+```java
+if (UnidadeNegocioFiltravel.class.isAssignableFrom(entityClass)) {
+    Set<UUID> permitidas = Session.getUnidadeNegocioIds();
+    spec = spec.and(UnidadeNegocioSpecification.permitidasParaUsuario(permitidas));
+}
+```
+
+### 4. Session Helper
+
+Extraia os IDs das unidades permitidas do JWT:
+
+```java
+public static Set<UUID> getUnidadeNegocioIds() {
+    // Extrai claim do token JWT
+}
+```
+
+### 5. Exemplo de uso
+
+Ao criar um novo cadastro, o campo unidade de negócio deve ser preenchido automaticamente com a unidade default do usuário (frontend) e validado no backend.
+
+---
+
+# Checklist de Atualização de Instruções (Dez/2025)
+
+## Itens obrigatórios para atualizar:
+
+- [ ] Documentar padrão de filtro automático por UnidadeNegocio (marker interface, Specification, CrudServiceImpl)
+- [ ] Exemplificar endpoints dedicados para vinculação (pessoas, planos, etc)
+- [ ] Explicar prática correta de controle de campos desabilitados em Angular reativo (apenas via TypeScript)
+- [ ] Detalhar estratégia de auto-set de UnidadeNegocio default no frontend
+- [ ] Explicar convenção de DTOs com campos extras (ex: unidadeNegocioCodigo)
+- [ ] Adicionar exemplos reais dos componentes e services já ajustados
+- [ ] Documentar fluxo de autenticação e cache de unidades no frontend
+
+---
+
 # Copilot/Gemini - Instruções do Projeto
 
 Propósito: centralizar regras e contexto compartilhado para agentes (Copilot / Gemini) e referenciar guias de domínio já existentes.
