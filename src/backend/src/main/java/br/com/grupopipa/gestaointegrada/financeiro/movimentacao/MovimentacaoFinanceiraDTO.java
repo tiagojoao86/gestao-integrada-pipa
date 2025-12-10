@@ -8,16 +8,16 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
 public class MovimentacaoFinanceiraDTO implements DTO {
-    
+
     private UUID id;
-    private UUID tituloId;
-    private String tituloDescricao;
+    private List<MovimentacaoTituloDTO> titulos;
     private UUID contaBancariaId;
     private String contaBancariaNome;
     private String tipo; // PAGAMENTO, RECEBIMENTO, ESTORNO, TRANSFERENCIA

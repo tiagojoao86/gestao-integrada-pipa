@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,6 +59,8 @@ class MovimentacaoFinanceiraServiceTest {
     private ContaBancaria contaBancaria;
     private UnidadeNegocio unidadeNegocio;
     private MovimentacaoFinanceiraDTO dto;
+    private MovimentacaoTituloDTO movTituloDTO;
+    private List<MovimentacaoTituloDTO> movTitulosDTO;
     private MovimentacaoFinanceira entity;
 
     @BeforeEach
@@ -93,6 +96,7 @@ class MovimentacaoFinanceiraServiceTest {
                 .descricao("Pagamento fornecedor")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -106,11 +110,17 @@ class MovimentacaoFinanceiraServiceTest {
                 .agencia("1234")
                 .numeroConta("12345-6")
                 .saldoInicial(Money.zero())
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
-        // Setup DTO
+        // Setup DTO com múltiplos títulos
+        movTituloDTO = MovimentacaoTituloDTO.builder()
+                .id(titulo.getId())
+                .descricao(titulo.getDescricao())
+                .build();
+        movTitulosDTO = List.of(movTituloDTO);
         dto = MovimentacaoFinanceiraDTO.builder()
-                .tituloId(UUID.randomUUID())
+                .titulos(movTitulosDTO)
                 .contaBancariaId(UUID.randomUUID())
                 .tipo(TipoMovimentacao.PAGAMENTO.name())
                 .formaPagamento(FormaPagamento.PIX.name())
@@ -120,7 +130,7 @@ class MovimentacaoFinanceiraServiceTest {
 
         // Setup Entity
         entity = new MovimentacaoFinanceira.Builder()
-                .titulo(titulo)
+                .titulos(java.util.Set.of(titulo))
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.PIX)
@@ -133,7 +143,9 @@ class MovimentacaoFinanceiraServiceTest {
     @DisplayName("Deve criar movimentação de pagamento")
     void deveCriarMovimentacaoPagamento() {
         // Given
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.of(titulo));
+        }
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.of(contaBancaria));
 
         // When
@@ -144,7 +156,7 @@ class MovimentacaoFinanceiraServiceTest {
         assertEquals(TipoMovimentacao.PAGAMENTO, resultado.getTipo());
         assertEquals(FormaPagamento.PIX, resultado.getFormaPagamento());
         assertEquals(new Money(BigDecimal.valueOf(500.00)), resultado.getValor());
-        assertEquals(titulo, resultado.getTitulo());
+        assertTrue(resultado.getTitulos().contains(titulo));
         assertEquals(contaBancaria, resultado.getContaBancaria());
         assertTrue(resultado.isPagamento());
     }
@@ -155,7 +167,9 @@ class MovimentacaoFinanceiraServiceTest {
         // Given
         dto.setTipo(TipoMovimentacao.RECEBIMENTO.name());
 
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.of(titulo));
+        }
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.of(contaBancaria));
 
         // When
@@ -189,7 +203,9 @@ class MovimentacaoFinanceiraServiceTest {
     @DisplayName("Deve salvar movimentação")
     void deveSalvarMovimentacao() {
         // Given
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.of(titulo));
+        }
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.of(contaBancaria));
         when(repository.save(any(MovimentacaoFinanceira.class))).thenReturn(entity);
 
@@ -230,7 +246,9 @@ class MovimentacaoFinanceiraServiceTest {
     @DisplayName("Deve lançar exceção ao criar movimentação sem título")
     void deveLancarExcecaoAoCriarMovimentacaoSemTitulo() {
         // Given
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.empty());
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.empty());
+        }
 
         // When & Then
         assertThrows(RuntimeException.class, () -> service.mergeEntityAndDTO(null, dto));
@@ -240,7 +258,9 @@ class MovimentacaoFinanceiraServiceTest {
     @DisplayName("Deve lançar exceção ao criar movimentação sem conta bancária")
     void deveLancarExcecaoAoCriarMovimentacaoSemContaBancaria() {
         // Given
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.of(titulo));
+        }
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.empty());
 
         // When & Then
@@ -252,7 +272,9 @@ class MovimentacaoFinanceiraServiceTest {
     void deveCriarMovimentacaoComDiferentesFormasPagamento() {
         // Given
         dto.setFormaPagamento(FormaPagamento.BOLETO.name());
-        when(tituloRepository.findById(dto.getTituloId())).thenReturn(Optional.of(titulo));
+        for (MovimentacaoTituloDTO mt : dto.getTitulos()) {
+            when(tituloRepository.findById(mt.getId())).thenReturn(Optional.of(titulo));
+        }
         when(contaBancariaRepository.findById(dto.getContaBancariaId())).thenReturn(Optional.of(contaBancaria));
 
         // When

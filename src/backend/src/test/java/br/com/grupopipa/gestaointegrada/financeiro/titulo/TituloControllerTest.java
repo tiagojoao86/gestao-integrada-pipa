@@ -105,7 +105,7 @@ class TituloControllerTest {
             .thenReturn(pageDTO);
 
         // When & Then
-        mockMvc.perform(post("/api/titulo/query")
+        mockMvc.perform(post("/titulo/query")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -125,7 +125,7 @@ class TituloControllerTest {
         when(service.save(any(TituloDTO.class))).thenReturn(dtoValido);
 
         // When & Then
-        mockMvc.perform(post("/api/titulo")
+        mockMvc.perform(post("/titulo")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dtoValido)))
@@ -145,7 +145,7 @@ class TituloControllerTest {
         when(service.findById(tituloId)).thenReturn(dtoValido);
 
         // When & Then
-        mockMvc.perform(get("/api/titulo/find-by-id")
+        mockMvc.perform(get("/titulo/find-by-id")
                         .param("id", tituloId.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -165,7 +165,7 @@ class TituloControllerTest {
         when(service.delete(tituloId)).thenReturn(tituloId);
 
         // When & Then
-        mockMvc.perform(delete("/api/titulo/{id}", tituloId)
+        mockMvc.perform(delete("/titulo/{id}", tituloId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

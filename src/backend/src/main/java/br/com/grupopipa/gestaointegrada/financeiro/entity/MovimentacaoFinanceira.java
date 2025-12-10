@@ -26,9 +26,9 @@ import java.util.Set;
 })
 public class MovimentacaoFinanceira extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "titulo_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movimentacao_titulo"))
-    private Titulo titulo;
+    @ManyToMany
+    @JoinTable(name = "movimentacao_financeira_titulo", joinColumns = @JoinColumn(name = "movimentacao_financeira_id", foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_mov")), inverseJoinColumns = @JoinColumn(name = "titulo_id", foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_tit")))
+    private Set<Titulo> titulos = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conta_bancaria_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movimentacao_conta"))
@@ -52,33 +52,34 @@ public class MovimentacaoFinanceira extends BaseEntity {
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
-    private MovimentacaoFinanceira(Titulo titulo, ContaBancaria contaBancaria, TipoMovimentacao tipo,
+    private MovimentacaoFinanceira(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
             FormaPagamento formaPagamento, Money valor, LocalDate data) {
-        this.titulo = titulo;
+        this.titulos = titulos;
         this.contaBancaria = contaBancaria;
         this.tipo = tipo;
         this.formaPagamento = formaPagamento;
         this.valor = valor;
         this.data = data;
-
-        // Registra o pagamento no título
-        titulo.registrarPagamento(valor);
+        // Registra o pagamento em todos os títulos
+        if (titulos != null) {
+            titulos.forEach(t -> t.registrarPagamento(valor));
+        }
     }
 
     protected MovimentacaoFinanceira() {
     }
 
     private static class ValidatedData {
-        final Titulo titulo;
+        final Set<Titulo> titulos;
         final ContaBancaria contaBancaria;
         final TipoMovimentacao tipo;
         final FormaPagamento formaPagamento;
         final Money valor;
         final LocalDate data;
 
-        ValidatedData(Titulo titulo, ContaBancaria contaBancaria, TipoMovimentacao tipo,
+        ValidatedData(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
                 FormaPagamento formaPagamento, Money valor, LocalDate data) {
-            this.titulo = titulo;
+            this.titulos = titulos;
             this.contaBancaria = contaBancaria;
             this.tipo = tipo;
             this.formaPagamento = formaPagamento;
@@ -87,12 +88,12 @@ public class MovimentacaoFinanceira extends BaseEntity {
         }
     }
 
-    private static ValidatedData validate(Titulo titulo, ContaBancaria contaBancaria, TipoMovimentacao tipo,
+    private static ValidatedData validate(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
             FormaPagamento formaPagamento, BigDecimal valor, LocalDate data) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (titulo == null) {
-            violations.add(new BeanValidationMessage("titulo", "Título é obrigatório"));
+        if (titulos == null || titulos.isEmpty()) {
+            violations.add(new BeanValidationMessage("titulos", "Pelo menos um título é obrigatório"));
         }
         if (contaBancaria == null) {
             violations.add(new BeanValidationMessage("contaBancaria", "Conta bancária é obrigatória"));
@@ -112,17 +113,21 @@ public class MovimentacaoFinanceira extends BaseEntity {
 
         Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
 
-        // Validar regras de negócio
-        if (titulo != null && !titulo.getStatus().permiteMovimentacao()) {
-            violations.add(new BeanValidationMessage("titulo.status",
-                    "Não é possível criar movimentação para título " + titulo.getStatus().getDescricao()));
-        }
-
-        if (titulo != null && money != null) {
-            Money saldoTitulo = titulo.calcularSaldo();
-            if (money.isGreaterThan(saldoTitulo)) {
-                violations.add(new BeanValidationMessage("valor",
-                        "Valor da movimentação (" + money + ") excede o saldo do título (" + saldoTitulo + ")"));
+        // Validar regras de negócio para cada título
+        if (titulos != null) {
+            for (Titulo titulo : titulos) {
+                if (!titulo.getStatus().permiteMovimentacao()) {
+                    violations.add(new BeanValidationMessage("titulo.status",
+                            "Não é possível criar movimentação para título " + titulo.getStatus().getDescricao()));
+                }
+                if (money != null) {
+                    Money saldoTitulo = titulo.calcularSaldo();
+                    if (money.isGreaterThan(saldoTitulo)) {
+                        violations.add(new BeanValidationMessage("valor",
+                                "Valor da movimentação (" + money + ") excede o saldo do título (" + saldoTitulo
+                                        + ")"));
+                    }
+                }
             }
         }
 
@@ -130,7 +135,7 @@ public class MovimentacaoFinanceira extends BaseEntity {
             throw new BeanValidationException("movimentacaoFinanceira", violations);
         }
 
-        return new ValidatedData(titulo, contaBancaria, tipo, formaPagamento, money, data);
+        return new ValidatedData(titulos, contaBancaria, tipo, formaPagamento, money, data);
     }
 
     public void adicionarObservacao(String observacao) {
@@ -154,8 +159,8 @@ public class MovimentacaoFinanceira extends BaseEntity {
     }
 
     // Getters
-    public Titulo getTitulo() {
-        return titulo;
+    public Set<Titulo> getTitulos() {
+        return titulos;
     }
 
     public ContaBancaria getContaBancaria() {
@@ -191,26 +196,31 @@ public class MovimentacaoFinanceira extends BaseEntity {
         if (!super.equals(o))
             return false;
         MovimentacaoFinanceira that = (MovimentacaoFinanceira) o;
-        return Objects.equals(titulo, that.titulo) &&
+        return Objects.equals(titulos, that.titulos) &&
                 Objects.equals(data, that.data) &&
                 Objects.equals(valor, that.valor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), titulo, data, valor);
+        return Objects.hash(super.hashCode(), titulos, data, valor);
     }
 
     public static class Builder {
-        private Titulo titulo;
+        private Set<Titulo> titulos = new HashSet<>();
         private ContaBancaria contaBancaria;
         private TipoMovimentacao tipo;
         private FormaPagamento formaPagamento;
         private Money valor;
         private LocalDate data;
 
-        public Builder titulo(Titulo titulo) {
-            this.titulo = titulo;
+        public Builder titulos(Set<Titulo> titulos) {
+            this.titulos = titulos;
+            return this;
+        }
+
+        public Builder addTitulo(Titulo titulo) {
+            this.titulos.add(titulo);
             return this;
         }
 
@@ -241,9 +251,9 @@ public class MovimentacaoFinanceira extends BaseEntity {
 
         public MovimentacaoFinanceira build() {
             BigDecimal valorValue = (this.valor != null) ? this.valor.getValue() : null;
-            ValidatedData data = validate(this.titulo, this.contaBancaria, this.tipo,
+            ValidatedData data = validate(this.titulos, this.contaBancaria, this.tipo,
                     this.formaPagamento, valorValue, this.data);
-            return new MovimentacaoFinanceira(data.titulo, data.contaBancaria, data.tipo,
+            return new MovimentacaoFinanceira(data.titulos, data.contaBancaria, data.tipo,
                     data.formaPagamento, data.valor, data.data);
         }
     }

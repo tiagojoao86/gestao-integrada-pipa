@@ -94,7 +94,7 @@ class UnidadeNegocioControllerTest {
             .thenReturn(pageDTO);
 
         // When/Then
-        mockMvc.perform(post("/api/unidade-negocio/query")
+        mockMvc.perform(post("/unidade-negocio/query")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(pageRequest)))
@@ -116,7 +116,7 @@ class UnidadeNegocioControllerTest {
         when(service.save(any(UnidadeNegocioDTO.class))).thenReturn(dtoValido);
 
         // When/Then
-        mockMvc.perform(post("/api/unidade-negocio")
+        mockMvc.perform(post("/unidade-negocio")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dtoValido)))
@@ -138,7 +138,7 @@ class UnidadeNegocioControllerTest {
         when(service.findById(id)).thenReturn(dtoValido);
 
         // When/Then
-        mockMvc.perform(get("/api/unidade-negocio/find-by-id")
+        mockMvc.perform(get("/unidade-negocio/find-by-id")
                 .param("id", id.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
@@ -156,7 +156,7 @@ class UnidadeNegocioControllerTest {
         when(service.delete(id)).thenReturn(id);
 
         // When/Then
-        mockMvc.perform(delete("/api/unidade-negocio/{id}", id)
+        mockMvc.perform(delete("/unidade-negocio/{id}", id)
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
@@ -172,7 +172,7 @@ class UnidadeNegocioControllerTest {
     @WithMockUser(authorities = "CADASTRO_UNIDADE_NEGOCIO_EDITAR")
     void deveRetornar400AoEnviarJsonInvalido() throws Exception {
         // When/Then
-        mockMvc.perform(post("/api/unidade-negocio")
+        mockMvc.perform(post("/unidade-negocio")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{invalid json}"))

@@ -36,8 +36,12 @@ public class MovimentacaoFinanceiraServiceImpl extends
     protected MovimentacaoFinanceira mergeEntityAndDTO(MovimentacaoFinanceira entity, MovimentacaoFinanceiraDTO dto) {
         if (Objects.isNull(entity)) {
             // Buscar entidades relacionadas
-            Titulo titulo = tituloRepository.findById(dto.getTituloId())
-                    .orElseThrow(() -> new IllegalArgumentException("Título não encontrado"));
+            List<Titulo> titulos = dto.getTitulos() == null ? List.of()
+                    : dto.getTitulos().stream()
+                            .map(t -> tituloRepository.findById(t.getId())
+                                    .orElseThrow(
+                                            () -> new IllegalArgumentException("Título não encontrado: " + t.getId())))
+                            .toList();
             ContaBancaria contaBancaria = contaBancariaRepository.findById(dto.getContaBancariaId())
                     .orElseThrow(() -> new IllegalArgumentException("Conta bancária não encontrada"));
 
@@ -45,7 +49,7 @@ public class MovimentacaoFinanceiraServiceImpl extends
             FormaPagamento formaPagamento = FormaPagamento.valueOf(dto.getFormaPagamento());
 
             entity = new MovimentacaoFinanceira.Builder()
-                    .titulo(titulo)
+                    .titulos(new java.util.HashSet<>(titulos))
                     .contaBancaria(contaBancaria)
                     .tipo(tipo)
                     .formaPagamento(formaPagamento)
@@ -71,10 +75,15 @@ public class MovimentacaoFinanceiraServiceImpl extends
 
     @Override
     protected MovimentacaoFinanceiraDTO buildDTOFromEntity(MovimentacaoFinanceira entity) {
+        List<MovimentacaoTituloDTO> titulos = entity.getTitulos().stream()
+                .map(t -> MovimentacaoTituloDTO.builder()
+                        .id(t.getId())
+                        .descricao(t.getDescricao())
+                        .build())
+                .toList();
         return MovimentacaoFinanceiraDTO.builder()
                 .id(entity.getId())
-                .tituloId(entity.getTitulo().getId())
-                .tituloDescricao(entity.getTitulo().getDescricao())
+                .titulos(titulos)
                 .contaBancariaId(entity.getContaBancaria().getId())
                 .contaBancariaNome(entity.getContaBancaria().getNome())
                 .tipo(entity.getTipo().name())
@@ -91,9 +100,12 @@ public class MovimentacaoFinanceiraServiceImpl extends
 
     @Override
     protected MovimentacaoFinanceiraGridDTO buildGridDTOFromEntity(MovimentacaoFinanceira entity) {
+        String titulosDescricao = entity.getTitulos().stream()
+                .map(t -> t.getDescricao())
+                .reduce((a, b) -> a + ", " + b).orElse("");
         return MovimentacaoFinanceiraGridDTO.builder()
                 .id(entity.getId())
-                .tituloDescricao(entity.getTitulo().getDescricao())
+                .tituloDescricao(titulosDescricao)
                 .contaBancariaNome(entity.getContaBancaria().getNome())
                 .tipo(entity.getTipo().name())
                 .formaPagamento(entity.getFormaPagamento().name())

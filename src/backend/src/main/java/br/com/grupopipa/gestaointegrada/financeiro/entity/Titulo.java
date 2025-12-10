@@ -13,9 +13,7 @@ import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -101,8 +99,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @JoinColumn(name = "titulo_origem_id", foreignKey = @ForeignKey(name = "fk_titulo_origem"))
     private Titulo tituloOrigem;
 
-    @OneToMany(mappedBy = "titulo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MovimentacaoFinanceira> movimentacoes = new ArrayList<>();
+    @ManyToMany(mappedBy = "titulos")
+    private Set<MovimentacaoFinanceira> movimentacoes = new HashSet<>();
 
     private Titulo(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
             PlanoContas planoContas, UnidadeNegocio unidadeNegocio, Money valorOriginal,
@@ -457,7 +455,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         return tituloOrigem;
     }
 
-    public List<MovimentacaoFinanceira> getMovimentacoes() {
+    public Set<MovimentacaoFinanceira> getMovimentacoes() {
         return movimentacoes;
     }
 

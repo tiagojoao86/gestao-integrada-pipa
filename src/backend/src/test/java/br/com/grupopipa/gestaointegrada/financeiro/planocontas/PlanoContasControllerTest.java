@@ -91,7 +91,7 @@ class PlanoContasControllerTest {
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class))).thenReturn(pageDTO);
 
         // When & Then
-        mockMvc.perform(post("/api/plano-contas/query")
+        mockMvc.perform(post("/plano-contas/query")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
@@ -108,7 +108,7 @@ class PlanoContasControllerTest {
         when(service.save(any(PlanoContasDTO.class))).thenReturn(planoContasDTO);
 
         // When & Then
-        mockMvc.perform(post("/api/plano-contas")
+        mockMvc.perform(post("/plano-contas")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(planoContasDTO)))
@@ -127,7 +127,7 @@ class PlanoContasControllerTest {
         when(service.findById(id)).thenReturn(planoContasDTO);
 
         // When & Then
-        mockMvc.perform(get("/api/plano-contas/find-by-id")
+        mockMvc.perform(get("/plano-contas/find-by-id")
                         .param("id", id.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -145,7 +145,7 @@ class PlanoContasControllerTest {
         when(service.delete(id)).thenReturn(id);
 
         // When & Then
-        mockMvc.perform(delete("/api/plano-contas/{id}", id)
+        mockMvc.perform(delete("/plano-contas/{id}", id)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
