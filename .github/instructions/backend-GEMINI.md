@@ -1,3 +1,50 @@
+# Multi-tenant: Filtro Automático por Unidade de Negócio
+
+Implemente a interface marker `UnidadeNegocioFiltravel` nas entidades que exigem restrição por unidade de negócio. Use Specification para aplicar o filtro automaticamente no service.
+
+```java
+public interface UnidadeNegocioFiltravel {
+    UnidadeNegocio getUnidadeNegocio();
+}
+
+// No service
+if (UnidadeNegocioFiltravel.class.isAssignableFrom(entityClass)) {
+    Set<UUID> permitidas = Session.getUnidadeNegocioIds();
+    spec = spec.and(UnidadeNegocioSpecification.permitidasParaUsuario(permitidas));
+}
+```
+
+---
+
+# Endpoints Dedicados
+
+Exponha endpoints REST específicos para vinculação de entidades, filtrando por unidade de negócio e status ativo.
+
+```java
+@GetMapping("/titulo/pessoas-disponiveis")
+public List<PessoaDTO> listarPessoasDisponiveis() { ... }
+
+@GetMapping("/titulo/planos-disponiveis")
+public List<PlanoContasDTO> listarPlanosDisponiveis(@RequestParam UUID unidadeNegocioId) { ... }
+```
+
+---
+
+# DTOs com Campos Extras
+
+Inclua campos adicionais necessários para o frontend (ex: unidadeNegocioCodigo) nos DTOs e nas respostas de autenticação.
+
+```java
+public class UsuarioUnidadeNegocioDTO {
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioCodigo;
+    private String unidadeNegocioNome;
+    private boolean isDefault;
+}
+```
+
+---
+
 # Gemini - Backend
 
 > **Nota:** Eu sou um assistente de IA. Se eu identificar informações importantes que possam ser adicionadas a este arquivo para melhorar nossas interações futuras (como novos comandos, convenções ou detalhes de arquitetura), irei sugerir atualizações. Sinta-se à vontade para me perguntar como melhorá-lo.
@@ -19,22 +66,26 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
 **Nota:** Execute os comandos a partir do diretório `src/backend`.
 
 - **Compilar o Projeto:**
+
   ```bash
   ./mvnw compile
   ```
 
 - **Executar os Testes:**
+
   ```bash
   ./mvnw test
   ```
 
 - **Executar a Aplicação (desenvolvimento):**
+
   ```bash
   ./mvnw spring-boot:run
   ```
 
 - **Verificação de Estilo (Lint):**
-  *(Confirme o comando no `pom.xml`, mas geralmente é algo como:)*
+  _(Confirme o comando no `pom.xml`, mas geralmente é algo como:)_
+
   ```bash
   ./mvnw checkstyle:check
   ```
@@ -58,13 +109,14 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
   - `createdAt`, `updatedAt` (auditoria de timestamps)
   - `createdBy`, `updatedBy` (auditoria de usuários)
 - **Migrations devem usar `UUID` para chaves primárias e estrangeiras**, não `BIGSERIAL`
+
   ```sql
   -- ✅ CORRETO
   CREATE TABLE pessoa (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       nome VARCHAR(255) NOT NULL
   );
-  
+
   -- ❌ ERRADO
   CREATE TABLE pessoa (
       id BIGSERIAL PRIMARY KEY,
@@ -75,6 +127,7 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
 ## Princípios de Desenvolvimento
 
 ### Clean Code
+
 - Escreva código legível e autoexplicativo.
 - Use nomes descritivos para classes, métodos e variáveis.
 - Mantenha métodos pequenos e com responsabilidade única.
@@ -96,21 +149,21 @@ Este projeto contém a API RESTful para o sistema Gestão Integrada. É respons�
 public class Email {
     @Column(name = "email")
     private final String value;
-    
+
     protected Email() { this.value = null; } // JPA only
-    
+
     public Email(String value) {
         if (value == null || !value.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             throw new IllegalArgumentException("Email inválido: " + value);
         }
         this.value = value.toLowerCase();
     }
-    
+
     public String getValue() { return value; }
-    
+
     @Override
     public boolean equals(Object o) { /* implementar */ }
-    
+
     @Override
     public int hashCode() { /* implementar */ }
 }
@@ -120,7 +173,7 @@ public class Email {
 public class Pessoa extends BaseEntity {
     @Embedded
     private Email email;
-    
+
     private Money saldo; // Outro Value Object
 }
 
@@ -133,6 +186,7 @@ public class Pessoa extends BaseEntity {
 ```
 
 **Value Objects Comuns:**
+
 - `Email` - Validação de formato de email
 - `CPF` - Validação de CPF com dígitos verificadores
 - `CNPJ` - Validação de CNPJ
@@ -143,6 +197,7 @@ public class Pessoa extends BaseEntity {
 - `TaxId` - ID fiscal genérico
 
 **Benefícios:**
+
 - Type safety (compilador detecta erros)
 - Validações centralizadas e reutilizáveis
 - Expressividade do domínio
@@ -158,6 +213,7 @@ public class Pessoa extends BaseEntity {
 - Services devem apenas **orquestrar** a lógica, não conter regras de negócio.
 
 **Arquitetura de Camadas:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Controller (REST APIs)             │ ← Recebe requisições HTTP
@@ -178,43 +234,43 @@ public class Pessoa extends BaseEntity {
 public class Titulo extends BaseEntity {
     @Embedded
     private Money valorOriginal;
-    
+
     @Embedded
     private Money valorPago;
-    
+
     @Enumerated(EnumType.STRING)
     private StatusTitulo status;
-    
+
     private LocalDate dataVencimento;
-    
+
     // Método de negócio - validação interna
     public void pagar(Money valor, LocalDate dataPagamento) {
         if (this.status == StatusTitulo.PAGO) {
             throw new DomainException("Título já está pago");
         }
-        
+
         if (valor.isNegative()) {
             throw new DomainException("Valor de pagamento não pode ser negativo");
         }
-        
+
         Money novoValorPago = this.valorPago.add(valor);
-        
+
         if (novoValorPago.isGreaterThan(this.valorOriginal)) {
             throw new DomainException("Valor pago excede valor original do título");
         }
-        
+
         this.valorPago = novoValorPago;
-        this.status = this.valorPago.equals(this.valorOriginal) 
-            ? StatusTitulo.PAGO 
+        this.status = this.valorPago.equals(this.valorOriginal)
+            ? StatusTitulo.PAGO
             : StatusTitulo.PARCIAL;
     }
-    
+
     public Money getSaldo() {
         return valorOriginal.subtract(valorPago);
     }
-    
+
     public boolean isVencido() {
-        return status == StatusTitulo.ABERTO 
+        return status == StatusTitulo.ABERTO
             && dataVencimento.isBefore(LocalDate.now());
     }
 }
@@ -225,10 +281,10 @@ public class TituloService {
     public void pagarTitulo(UUID tituloId, Money valor, LocalDate data) {
         Titulo titulo = repository.findById(tituloId)
             .orElseThrow(() -> new NotFoundException("Título não encontrado"));
-        
+
         // A lógica está NO DOMÍNIO, não no service
         titulo.pagar(valor, data);
-        
+
         repository.save(titulo);
         eventPublisher.publish(new TituloPagoEvent(titulo));
     }
@@ -246,7 +302,7 @@ public class TituloBusinessService {
             throw new Exception("Valor negativo");
         }
         // ...mais 50 linhas de validações...
-        
+
         titulo.setValorPago(valor);
         titulo.setStatus("PAGO");
     }
@@ -263,6 +319,7 @@ public class TituloBusinessService {
 6. **Specifications:** Para queries complexas com lógica de negócio
 
 **Anti-Padrões a Evitar:**
+
 - ❌ Getters/setters públicos sem validação
 - ❌ Entidades anêmicas (só dados, sem comportamento)
 - ❌ Services fazendo validações de domínio
