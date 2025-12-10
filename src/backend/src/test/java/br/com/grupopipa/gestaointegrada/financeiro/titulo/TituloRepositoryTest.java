@@ -82,6 +82,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .descricao("Pagamento fornecedor - NF 12345")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -120,6 +121,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .codigo("3.1.001")
                 .descricao("Vendas de Produtos")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
         entityManager.persist(planoReceita);
         entityManager.flush();
@@ -129,6 +131,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .descricao("Venda de produtos - NF 54321")
                 .pessoa(cliente)
                 .planoContas(planoReceita)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(2500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(15))
@@ -155,6 +158,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .descricao("Título original")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(10))
@@ -184,6 +188,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .descricao("Título para deletar")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(5))
@@ -209,6 +214,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .descricao("Busca por ID")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(750.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(20))

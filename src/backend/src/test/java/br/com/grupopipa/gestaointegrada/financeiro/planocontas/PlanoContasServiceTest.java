@@ -57,7 +57,7 @@ class PlanoContasServiceTest {
                 .build();
 
         // Configurar mock do repository
-        when(unidadeNegocioRepository.findById(unidadeNegocioId))
+        lenient().when(unidadeNegocioRepository.findById(unidadeNegocioId))
                 .thenReturn(Optional.of(unidadeNegocio));
 
         // DTO de Receitas (raiz)
@@ -158,6 +158,7 @@ class PlanoContasServiceTest {
                 .codigo("1")
                 .descricao("Receitas Atualizadas")
                 .tipo(TipoPlanoContas.RECEITA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .ativo(true)
                 .build();
 
@@ -325,6 +326,7 @@ class PlanoContasServiceTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .ativo(false)
                 .build();
 
@@ -346,6 +348,7 @@ class PlanoContasServiceTest {
                 .codigo("1")
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA.name())
+                .unidadeNegocioId(unidadeNegocioId)
                 .ativo(true)
                 .build();
 

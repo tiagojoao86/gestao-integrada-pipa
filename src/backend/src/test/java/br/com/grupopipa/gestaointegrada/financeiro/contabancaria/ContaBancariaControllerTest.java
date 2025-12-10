@@ -97,7 +97,7 @@ class ContaBancariaControllerTest {
             .thenReturn(pageDTO);
 
         // When & Then
-        mockMvc.perform(post("/api/conta-bancaria/query")
+        mockMvc.perform(post("/conta-bancaria/query")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -116,7 +116,7 @@ class ContaBancariaControllerTest {
         when(service.save(any(ContaBancariaDTO.class))).thenReturn(dtoValido);
 
         // When & Then
-        mockMvc.perform(post("/api/conta-bancaria")
+        mockMvc.perform(post("/conta-bancaria")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dtoValido)))
@@ -135,7 +135,7 @@ class ContaBancariaControllerTest {
         when(service.findById(contaId)).thenReturn(dtoValido);
 
         // When & Then
-        mockMvc.perform(get("/api/conta-bancaria/find-by-id")
+        mockMvc.perform(get("/conta-bancaria/find-by-id")
                         .param("id", contaId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
@@ -152,7 +152,7 @@ class ContaBancariaControllerTest {
         when(service.delete(contaId)).thenReturn(contaId);
 
         // When & Then
-        mockMvc.perform(delete("/api/conta-bancaria/{id}", contaId)
+        mockMvc.perform(delete("/conta-bancaria/{id}", contaId)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))

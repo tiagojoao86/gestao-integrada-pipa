@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TituloService - Testes Unitários")
 class TituloServiceTest {
+    // unidadeNegocio é inicializada no setUp()
 
     @Mock
     private TituloRepository repository;
@@ -104,6 +105,7 @@ class TituloServiceTest {
                 .descricao("Pagamento fornecedor")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -116,6 +118,7 @@ class TituloServiceTest {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoContas));
+        when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
 
         // When
         Titulo resultado = service.mergeEntityAndDTO(null, dto);
@@ -139,10 +142,12 @@ class TituloServiceTest {
                 .codigo("3.1.001")
                 .descricao("Vendas")
                 .tipo(TipoPlanoContas.RECEITA)
+                .unidadeNegocio(unidadeNegocio)
                 .build();
 
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoReceita));
+        when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
 
         // When
         Titulo resultado = service.mergeEntityAndDTO(null, dto);
@@ -163,6 +168,7 @@ class TituloServiceTest {
                 .descricao("Descrição original")
                 .pessoa(pessoa)
                 .planoContas(planoContas)
+                .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(15))
@@ -203,6 +209,7 @@ class TituloServiceTest {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoContas));
+        when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
         when(repository.save(any(Titulo.class))).thenReturn(entity);
 
         // When

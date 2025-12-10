@@ -35,8 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Valida os endpoints REST da API de movimentações financeiras.
  */
 @DisplayName("MovimentacaoFinanceiraController - Testes Unitários")
-@WebMvcTest(value = MovimentacaoFinanceiraController.class,
-    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
+@WebMvcTest(value = MovimentacaoFinanceiraController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
 @AutoConfigureMockMvc(addFilters = false)
 class MovimentacaoFinanceiraControllerTest {
 
@@ -55,10 +54,14 @@ class MovimentacaoFinanceiraControllerTest {
     @BeforeEach
     void setUp() {
         movimentacaoId = UUID.randomUUID();
-        
+
+        MovimentacaoTituloDTO movTituloDTO = MovimentacaoTituloDTO.builder()
+                .id(UUID.randomUUID())
+                .descricao("Pagamento fornecedor")
+                .build();
         dto = MovimentacaoFinanceiraDTO.builder()
                 .id(movimentacaoId)
-                .tituloId(UUID.randomUUID())
+                .titulos(List.of(movTituloDTO))
                 .contaBancariaId(UUID.randomUUID())
                 .tipo(TipoMovimentacao.PAGAMENTO.name())
                 .formaPagamento(FormaPagamento.PIX.name())
@@ -72,8 +75,8 @@ class MovimentacaoFinanceiraControllerTest {
     @WithMockUser(authorities = "FINANCEIRO_MOVIMENTACAO_LISTAR")
     void deveListarMovimentacoesPaginadas() throws Exception {
         // Given
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = 
-            br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
                 .page(0)
                 .size(10)
                 .order(List.of())
@@ -90,16 +93,15 @@ class MovimentacaoFinanceiraControllerTest {
         PageDTO<MovimentacaoFinanceiraGridDTO> pageDTO = new PageDTO<>(
                 List.of(gridDTO),
                 PageRequest.of(0, 10),
-                1L
-        );
+                1L);
 
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(pageDTO);
+                .thenReturn(pageDTO);
 
         // When & Then
-        mockMvc.perform(post("/api/movimentacao-financeira/query")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(post("/movimentacao-financeira/query")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.content[0].tipo").value(TipoMovimentacao.PAGAMENTO.name()))
@@ -116,10 +118,10 @@ class MovimentacaoFinanceiraControllerTest {
         when(service.save(any(MovimentacaoFinanceiraDTO.class))).thenReturn(dto);
 
         // When & Then
-        mockMvc.perform(post("/api/movimentacao-financeira")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        mockMvc.perform(post("/movimentacao-financeira")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)))
                 .andExpect(jsonPath("$.body.id", is(movimentacaoId.toString())))
@@ -136,9 +138,9 @@ class MovimentacaoFinanceiraControllerTest {
         when(service.findById(movimentacaoId)).thenReturn(dto);
 
         // When & Then
-        mockMvc.perform(get("/api/movimentacao-financeira/find-by-id")
-                        .param("id", movimentacaoId.toString())
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/movimentacao-financeira/find-by-id")
+                .param("id", movimentacaoId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)))
                 .andExpect(jsonPath("$.body.id", is(movimentacaoId.toString())));
@@ -154,8 +156,8 @@ class MovimentacaoFinanceiraControllerTest {
         when(service.delete(movimentacaoId)).thenReturn(movimentacaoId);
 
         // When & Then
-        mockMvc.perform(delete("/api/movimentacao-financeira/{id}", movimentacaoId)
-                        .with(csrf()))
+        mockMvc.perform(delete("/movimentacao-financeira/{id}", movimentacaoId)
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)));
 

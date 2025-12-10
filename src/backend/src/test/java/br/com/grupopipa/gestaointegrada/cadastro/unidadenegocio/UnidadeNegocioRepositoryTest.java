@@ -41,7 +41,7 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
                 assertEquals("UN001", recuperada.getCodigo());
                 assertEquals("Unidade Teste", recuperada.getNome());
                 assertEquals("Descrição de teste", recuperada.getDescricao());
-                assertEquals("11.222.333/0001-81", recuperada.getCnpj());
+                assertEquals("11222333000181", recuperada.getCnpj());
                 assertTrue(recuperada.isAtiva());
         }
 
@@ -187,6 +187,6 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
                 UnidadeNegocio atualizada = repository.save(salva);
 
                 // Then
-                assertEquals("34.028.316/0001-03", atualizada.getCnpj());
+                assertEquals("34028316000103", atualizada.getCnpj());
         }
 }

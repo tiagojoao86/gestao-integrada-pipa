@@ -287,6 +287,7 @@ button.secundario {
   background-color: var(--inverted-text-color) !important;
   color: var(--text-color) !important;
   width: 100% !important;
+  border-color: var(--border-color) !important;
 
   .p-select-dropdown {
     color: var(--text-color) !important;
@@ -299,15 +300,15 @@ button.secundario {
 }
 
 .p-select:hover {
-  background-color: var(--secondary-color) !important;
+  background-color: var(--transparent) !important;
 
   .p-select-label {
-    color: var(--inverted-text-color) !important;
+    color: var(--text-color) !important;
     font-size: var(--text-size) !important;
   }
 
   .p-select-dropdown {
-    color: var(--inverted-text-color) !important;
+    color: var(--text-color) !important;
   }
 }
 

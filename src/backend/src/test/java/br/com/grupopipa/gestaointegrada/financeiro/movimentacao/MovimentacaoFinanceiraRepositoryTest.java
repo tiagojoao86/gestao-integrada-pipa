@@ -82,6 +82,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .descricao("Pagamento fornecedor")
                                 .pessoa(pessoa)
                                 .planoContas(planoContas)
+                                .unidadeNegocio(unidadeNegocio)
                                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                                 .dataEmissao(LocalDate.now())
                                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -96,6 +97,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .agencia("1234")
                                 .numeroConta("12345-6")
                                 .saldoInicial(Money.of(BigDecimal.valueOf(5000.00)))
+                                .unidadeNegocio(unidadeNegocio)
                                 .build();
                 entityManager.persist(contaBancaria);
 
@@ -107,7 +109,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveSalvarERecuperarMovimentacaoPagamento() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.PIX)
@@ -149,6 +151,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .codigo("3.1.001")
                                 .descricao("Vendas")
                                 .tipo(TipoPlanoContas.RECEITA)
+                                .unidadeNegocio(unidadeNegocio)
                                 .build();
                 entityManager.persist(planoReceita);
 
@@ -157,6 +160,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .descricao("Venda de produtos")
                                 .pessoa(cliente)
                                 .planoContas(planoReceita)
+                                .unidadeNegocio(unidadeNegocio)
                                 .valorOriginal(Money.of(BigDecimal.valueOf(2000.00)))
                                 .dataEmissao(LocalDate.now())
                                 .dataVencimento(LocalDate.now().plusDays(15))
@@ -165,7 +169,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 entityManager.flush();
 
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(tituloReceber)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(tituloReceber)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.RECEBIMENTO)
                                 .formaPagamento(FormaPagamento.BOLETO)
@@ -189,7 +193,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveAdicionarObservacoesMovimentacao() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.TED)
@@ -216,7 +220,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveRegistrarPagamentoParcialNoTitulo() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.DINHEIRO)
@@ -240,7 +244,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveRegistrarPagamentoTotalETituloPago() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.CARTAO_CREDITO)
@@ -265,7 +269,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveDeletarMovimentacao() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.DOC)
@@ -289,7 +293,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         void deveBuscarMovimentacaoPorId() {
                 // Given
                 MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                                .titulo(titulo)
+                                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                 .contaBancaria(contaBancaria)
                                 .tipo(TipoMovimentacao.PAGAMENTO)
                                 .formaPagamento(FormaPagamento.CHEQUE)
@@ -315,7 +319,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 // When & Then
                 assertThrows(BeanValidationException.class, () -> {
                         new MovimentacaoFinanceira.Builder()
-                                        .titulo(titulo)
+                                        .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                         .contaBancaria(contaBancaria)
                                         .tipo(TipoMovimentacao.PAGAMENTO)
                                         .formaPagamento(FormaPagamento.PIX)
@@ -331,7 +335,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 // When & Then
                 assertThrows(BeanValidationException.class, () -> {
                         new MovimentacaoFinanceira.Builder()
-                                        .titulo(null) // Título nulo
+                                        .titulos(new java.util.HashSet<>()) // Nenhum título
                                         .contaBancaria(contaBancaria)
                                         .tipo(TipoMovimentacao.PAGAMENTO)
                                         .formaPagamento(FormaPagamento.PIX)
@@ -347,7 +351,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 // When & Then
                 assertThrows(BeanValidationException.class, () -> {
                         new MovimentacaoFinanceira.Builder()
-                                        .titulo(titulo)
+                                        .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                         .contaBancaria(null) // Conta bancária nula
                                         .tipo(TipoMovimentacao.PAGAMENTO)
                                         .formaPagamento(FormaPagamento.PIX)
@@ -363,7 +367,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 // When & Then
                 assertThrows(BeanValidationException.class, () -> {
                         new MovimentacaoFinanceira.Builder()
-                                        .titulo(titulo)
+                                        .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
                                         .contaBancaria(contaBancaria)
                                         .tipo(TipoMovimentacao.PAGAMENTO)
                                         .formaPagamento(FormaPagamento.PIX)

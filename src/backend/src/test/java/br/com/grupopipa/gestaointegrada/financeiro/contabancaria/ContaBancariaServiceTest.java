@@ -1,5 +1,7 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
@@ -30,6 +32,9 @@ class ContaBancariaServiceTest {
     @Mock
     private ContaBancariaRepository repository;
 
+    @Mock
+    private UnidadeNegocioRepository unidadeNegocioRepository;
+
     @InjectMocks
     private ContaBancariaServiceImpl service;
 
@@ -41,6 +46,14 @@ class ContaBancariaServiceTest {
     void setup() {
         contaId = UUID.randomUUID();
 
+        UnidadeNegocio unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+
+        lenient().when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
+
         dtoValido = ContaBancariaDTO.builder()
                 .nome("Conta Corrente Principal")
                 .banco("Banco do Brasil")
@@ -48,6 +61,7 @@ class ContaBancariaServiceTest {
                 .numeroConta("12345-6")
                 .tipo(TipoConta.CORRENTE.name())
                 .saldoInicial(BigDecimal.valueOf(1000.00))
+                .unidadeNegocioId(unidadeNegocio.getId())
                 .build();
 
         entidadeValida = new ContaBancaria.Builder()
@@ -57,6 +71,7 @@ class ContaBancariaServiceTest {
                 .agencia("1234")
                 .numeroConta("12345-6")
                 .saldoInicial(Money.of(BigDecimal.valueOf(1000.00)))
+                .unidadeNegocio(unidadeNegocio)
                 .build();
     }
 

@@ -26,6 +26,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class UsuarioRepositoryTest extends AbstractIntegrationTest {
+    @org.springframework.beans.factory.annotation.Autowired
+    private jakarta.persistence.EntityManager entityManager;
+
+    private final br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio unidadeNegocio = new br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio.Builder()
+            .codigo("UN001")
+            .nome("Unidade Teste")
+            .cnpj("11222333000181")
+            .build();
 
     @Autowired
     private UsuarioRepository repository;
@@ -39,12 +47,15 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve salvar e recuperar usuário sem perfis")
     void deveSalvarERecuperarUsuarioSemPerfis() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("João Silva")
-            .login("joao.silva")
-            .senha("senha123")
-            .build(passwordEncoder);
+                .nome("João Silva")
+                .login("joao.silva")
+                .senha("senha123")
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
 
         // When
         UsuarioEntity usuarioSalvo = repository.save(usuario);
@@ -60,19 +71,23 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve salvar usuário com perfil")
     void deveSalvarUsuarioComPerfil() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         PerfilEntity perfil = new PerfilEntity.Builder()
-            .nome("Administrador")
-            .build();
+                .nome("Administrador")
+                .build();
         perfilRepository.save(perfil);
 
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("Maria Santos")
-            .login("maria.santos")
-            .senha("senha456")
-            .build(passwordEncoder);
-        
-        // Nota: Teste simplificado - relacionamento com perfis é testado via UsuarioService
+                .nome("Maria Santos")
+                .login("maria.santos")
+                .senha("senha456")
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
+
+        // Nota: Teste simplificado - relacionamento com perfis é testado via
+        // UsuarioService
 
         // When
         UsuarioEntity usuarioSalvo = repository.save(usuario);
@@ -86,13 +101,16 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve buscar usuário por ID")
     void deveBuscarUsuarioPorId() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("Carlos Oliveira")
-            .login("carlos.oliveira")
-            .senha("senha789")
-            .build(passwordEncoder);
-        
+                .nome("Carlos Oliveira")
+                .login("carlos.oliveira")
+                .senha("senha789")
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
+
         UsuarioEntity usuarioSalvo = repository.save(usuario);
 
         // When
@@ -107,13 +125,16 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve deletar usuário")
     void deveDeletarUsuario() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("Usuário Temporário")
-            .login("temp.user")
-            .senha("senha303")
-            .build(passwordEncoder);
-        
+                .nome("Usuário Temporário")
+                .login("temp.user")
+                .senha("senha303")
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
+
         UsuarioEntity usuarioSalvo = repository.save(usuario);
 
         // When
@@ -127,12 +148,15 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve validar campos obrigatórios")
     void deveValidarCamposObrigatorios() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("Validação User")
-            .login("validacao.user")
-            .senha("senha404")
-            .build(passwordEncoder);
+                .nome("Validação User")
+                .login("validacao.user")
+                .senha("senha404")
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
 
         // When
         UsuarioEntity usuarioSalvo = repository.save(usuario);
@@ -148,13 +172,16 @@ class UsuarioRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve verificar senha criptografada")
     void deveVerificarSenhaCriptografada() {
+        entityManager.persist(unidadeNegocio);
+        entityManager.flush();
         // Given
         String senhaTexto = "senha505";
         UsuarioEntity usuario = new UsuarioEntity.Builder()
-            .nome("Senha User")
-            .login("senha.user")
-            .senha(senhaTexto)
-            .build(passwordEncoder);
+                .nome("Senha User")
+                .login("senha.user")
+                .senha(senhaTexto)
+                .build(passwordEncoder);
+        usuario.addUnidadeNegocio(unidadeNegocio, true);
 
         // When
         UsuarioEntity usuarioSalvo = repository.save(usuario);
