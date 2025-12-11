@@ -38,15 +38,10 @@
   font-size: var(--text-size);
 }
 
-
 .permissoes-container {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1rem;
   max-height: 65vh; /* Limita a altura a 65% da altura da janela */
   overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
-}
-
-#permissoes-table tbody tr.even-row {
-  background-color: var(--item-transparency) !important; /* Forçar aplicação do zebra striping */
 }

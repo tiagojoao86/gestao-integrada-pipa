@@ -13,6 +13,11 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
+import jakarta.transaction.Transactional;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -187,6 +192,35 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     @Override
     public List<UnidadeNegocioDTO> listarUnidadesDisponiveis() {
         return unidadeNegocioService.listarDisponiveisParaUsuario();
+    }
+
+    @Transactional
+    @Override
+    public List<TituloDTO> searchByQuery(String q, int size) {
+        if (q == null || q.isBlank())
+            return List.of();
+
+        String pattern = "%" + q.toLowerCase() + "%";
+
+        Specification<Titulo> descricaoSpec = (root, query, cb) -> cb
+                .like(cb.lower(root.get("descricao")), pattern);
+
+        Specification<Titulo> numeroDocSpec = (root, query, cb) -> cb
+                .like(cb.lower(root.get("numeroDocumento")), pattern);
+
+        Specification<Titulo> combined = descricaoSpec.or(numeroDocSpec);
+
+        // Apply automatic unidadeNegocio filter provided by CrudServiceImpl via
+        // getUnidadeNegocioFilter()
+        var unidadeSpec = this.getUnidadeNegocioFilter();
+        if (unidadeSpec != null) {
+            combined = combined.and(unidadeSpec);
+        }
+
+        var page = ((JpaSpecificationExecutor<Titulo>) this.repository)
+                .findAll(combined, PageRequest.of(0, Math.max(1, size)));
+
+        return page.stream().map(this::buildDTOFromEntity).toList();
     }
 
     @Override

@@ -20,4 +20,6 @@ public class MovimentacaoFinanceiraGridDTO implements GridDTO {
     private String formaPagamento;
     private BigDecimal valor;
     private LocalDate data;
+    private java.util.UUID unidadeNegocioId;
+    private String unidadeNegocioNome;
 }

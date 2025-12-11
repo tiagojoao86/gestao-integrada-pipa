@@ -61,4 +61,16 @@ export class TituloService extends BaseService<TituloDTO> {
         take(1)
       );
   }
+
+  search(query: string, size = 10): Observable<TituloDTO[]> {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    params.set('size', String(size));
+    // Endpoint moved to MovimentacaoFinanceiraController: /movimentacao-financeira/titulos/search
+    const url = `/api/movimentacao-financeira/titulos/search?${params.toString()}`;
+    return this.httpClient.get<{ body: TituloDTO[] }>(url).pipe(
+      map((r) => r.body),
+      take(1)
+    );
+  }
 }
