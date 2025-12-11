@@ -8,7 +8,7 @@
   --main-toolbar: rgba(229, 229, 229, 1);
   --toolbar: rgba(250, 250, 250, 1);
   --content: rgba(250, 250, 250, 1);
-  --item-transparency: rgba(0, 0, 0, 0.2);
+  --item-transparency: rgba(210, 210, 210, 1);
   --secondary-color: rgba(61, 104, 159, 1);
   --danger-color: rgba(255, 172, 172, 1);
   --border-color: rgb(215, 215, 215, 1);
@@ -261,26 +261,46 @@ button.secundario {
   font-size: var(--text-size);
 }
 
+.p-datatable-table {
+  border-collapse: separate !important;
+  border-width: 1px !important;
+  border-color: var(--dark-border-color) !important;
+  border-style: solid !important;
+}
+
 .p-datatable-thead > tr > th {
-  background-color: var(--text-color) !important;
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
   font-size: var(--text-size) !important;
   font-weight: 500 !important;
-  border-width: 2px !important;
-  border-color: var(--background-color) !important;
-  padding: 12px 10px !important;
+  border-width: 0px 1px 0px 0px !important;
+  border-color: var(--border-color) !important;
+  padding: 8px 10px !important;
+}
+
+.p-datatable-thead > tr > th:last-child {
+  border: none !important;
 }
 
 .p-datatable-tbody > tr > td {
-  background-color: var(--main-toolbar) !important;
+  background-color: var(--transparent) !important;
   font-size: var(--text-size) !important;
-  border-width: 2px !important;
-  border-color: var(--background-color) !important;
-  padding: 2px 10px !important;
+  border-width: 0px 1px 0px 0px !important;
+  border-color: var(--border-color) !important;
+  padding: 0px 10px !important;
   color: var(--text-color);
+}
+
+.p-datatable-tbody > tr > td:last-child {
+  border: none !important;
 }
 
 .p-datatable-tbody > tr {
   background-color: var(--transparent) !important;
+}
+
+.p-datatable-tbody > tr:nth-child(odd) {
+  background-color: var(--item-transparency) !important;
 }
 
 .p-select {
@@ -372,11 +392,25 @@ input:-webkit-autofill:active {
   width: 100% !important;
 }
 
+.p-autocomplete-input-multiple {
+  background-color: var(--inverted-text-color) !important;
+  color: var(--text-color) !important;
+  font-size: var(--text-size) !important;
+  border-color: var(--border-color) !important;
+  width: 100% !important;
+  padding-left: 2.5rem !important;
+}
+
 .p-autocomplete {
   width: 100% !important;
 }
 
 .p-autocomplete-overlay {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+}
+
+.p-autocomplete-chip.p-chip {
   background-color: var(--secondary-color) !important;
   color: var(--inverted-text-color) !important;
 }

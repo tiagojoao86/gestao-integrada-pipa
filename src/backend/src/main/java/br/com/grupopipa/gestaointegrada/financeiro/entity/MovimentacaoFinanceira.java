@@ -1,6 +1,8 @@
 package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
@@ -24,7 +26,10 @@ import java.util.Set;
         @Index(name = "idx_movimentacao_titulo", columnList = "titulo_id"),
         @Index(name = "idx_movimentacao_conta", columnList = "conta_bancaria_id")
 })
-public class MovimentacaoFinanceira extends BaseEntity {
+public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocioFiltravel {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_negocio_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movimentacao_unidade_negocio"))
+    private UnidadeNegocio unidadeNegocio;
 
     @ManyToMany
     @JoinTable(name = "movimentacao_financeira_titulo", joinColumns = @JoinColumn(name = "movimentacao_financeira_id", foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_mov")), inverseJoinColumns = @JoinColumn(name = "titulo_id", foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_tit")))
@@ -53,13 +58,14 @@ public class MovimentacaoFinanceira extends BaseEntity {
     private String observacoes;
 
     private MovimentacaoFinanceira(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
-            FormaPagamento formaPagamento, Money valor, LocalDate data) {
+            FormaPagamento formaPagamento, Money valor, LocalDate data, UnidadeNegocio unidadeNegocio) {
         this.titulos = titulos;
         this.contaBancaria = contaBancaria;
         this.tipo = tipo;
         this.formaPagamento = formaPagamento;
         this.valor = valor;
         this.data = data;
+        this.unidadeNegocio = unidadeNegocio;
         // Registra o pagamento em todos os títulos
         if (titulos != null) {
             titulos.forEach(t -> t.registrarPagamento(valor));
@@ -76,20 +82,22 @@ public class MovimentacaoFinanceira extends BaseEntity {
         final FormaPagamento formaPagamento;
         final Money valor;
         final LocalDate data;
+        final UnidadeNegocio unidadeNegocio;
 
         ValidatedData(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
-                FormaPagamento formaPagamento, Money valor, LocalDate data) {
+                FormaPagamento formaPagamento, Money valor, LocalDate data, UnidadeNegocio unidadeNegocio) {
             this.titulos = titulos;
             this.contaBancaria = contaBancaria;
             this.tipo = tipo;
             this.formaPagamento = formaPagamento;
             this.valor = valor;
             this.data = data;
+            this.unidadeNegocio = unidadeNegocio;
         }
     }
 
     private static ValidatedData validate(Set<Titulo> titulos, ContaBancaria contaBancaria, TipoMovimentacao tipo,
-            FormaPagamento formaPagamento, BigDecimal valor, LocalDate data) {
+            FormaPagamento formaPagamento, BigDecimal valor, LocalDate data, UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (titulos == null || titulos.isEmpty()) {
@@ -110,6 +118,9 @@ public class MovimentacaoFinanceira extends BaseEntity {
         if (data == null) {
             violations.add(new BeanValidationMessage("data", "Data é obrigatória"));
         }
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
+        }
 
         Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
 
@@ -123,7 +134,7 @@ public class MovimentacaoFinanceira extends BaseEntity {
                 if (money != null) {
                     Money saldoTitulo = titulo.calcularSaldo();
                     if (money.isGreaterThan(saldoTitulo)) {
-                        violations.add(new BeanValidationMessage("valor",
+                        violations.add(new BeanValidationMessage("valor.valorMovimentoMaiorTitulo",
                                 "Valor da movimentação (" + money + ") excede o saldo do título (" + saldoTitulo
                                         + ")"));
                     }
@@ -135,7 +146,16 @@ public class MovimentacaoFinanceira extends BaseEntity {
             throw new BeanValidationException("movimentacaoFinanceira", violations);
         }
 
-        return new ValidatedData(titulos, contaBancaria, tipo, formaPagamento, money, data);
+        return new ValidatedData(titulos, contaBancaria, tipo, formaPagamento, money, data, unidadeNegocio);
+    }
+
+    @Override
+    public UnidadeNegocio getUnidadeNegocio() {
+        return unidadeNegocio;
+    }
+
+    public void setUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
+        this.unidadeNegocio = unidadeNegocio;
     }
 
     public void adicionarObservacao(String observacao) {
@@ -213,6 +233,7 @@ public class MovimentacaoFinanceira extends BaseEntity {
         private FormaPagamento formaPagamento;
         private Money valor;
         private LocalDate data;
+        private UnidadeNegocio unidadeNegocio;
 
         public Builder titulos(Set<Titulo> titulos) {
             this.titulos = titulos;
@@ -249,12 +270,23 @@ public class MovimentacaoFinanceira extends BaseEntity {
             return this;
         }
 
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
+            this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
         public MovimentacaoFinanceira build() {
+            // Inferir unidadeNegocio a partir da contaBancaria se não fornecida
+            // explicitamente
+            if (this.unidadeNegocio == null && this.contaBancaria != null) {
+                this.unidadeNegocio = this.contaBancaria.getUnidadeNegocio();
+            }
+
             BigDecimal valorValue = (this.valor != null) ? this.valor.getValue() : null;
             ValidatedData data = validate(this.titulos, this.contaBancaria, this.tipo,
-                    this.formaPagamento, valorValue, this.data);
+                    this.formaPagamento, valorValue, this.data, this.unidadeNegocio);
             return new MovimentacaoFinanceira(data.titulos, data.contaBancaria, data.tipo,
-                    data.formaPagamento, data.valor, data.data);
+                    data.formaPagamento, data.valor, data.data, data.unidadeNegocio);
         }
     }
 }

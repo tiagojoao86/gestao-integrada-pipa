@@ -14,4 +14,6 @@ public interface TituloService extends CrudService<TituloDTO, TituloGridDTO> {
     List<PessoaDTO> listarPessoasDisponiveis();
 
     List<PlanoContasDTO> listarPlanosDisponiveis(UUID unidadeNegocioId);
+
+    List<TituloDTO> searchByQuery(String q, int size);
 }

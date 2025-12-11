@@ -38,7 +38,36 @@ public enum DatabaseConstraintsEnum {
     // Constraints de Movimentação Financeira
     CHK_MOVIMENTACAO_TIPO("movimentacaoFinanceira.tipo.invalid"),
     CHK_MOVIMENTACAO_FORMA("movimentacaoFinanceira.formaPagamento.invalid"),
-    CHK_MOVIMENTACAO_VALOR("movimentacaoFinanceira.valor.positive");
+    CHK_MOVIMENTACAO_VALOR("movimentacaoFinanceira.valor.positive"),
+
+    // Constraints adicionais encontradas nas migrations (FK / UK)
+    FK_MOVIMENTACAO_FINANCEIRA_UNIDADE_NEGOCIO("movimentacaoFinanceira.unidadeNegocio"),
+    FK_PLANO_CONTAS_UNIDADE_NEGOCIO("planoContas.unidadeNegocio"),
+    FK_CONTA_BANCARIA_UNIDADE_NEGOCIO("contaBancaria.unidadeNegocio"),
+
+    UK_USUARIO_UNIDADE_NEGOCIO("usuario.unidadeNegocio.unique"),
+    FK_USUARIO_UNIDADE_NEGOCIO_USUARIO("usuarioUnidadeNegocio.usuario.foreignKey"),
+    FK_USUARIO_UNIDADE_NEGOCIO_UNIDADE("usuarioUnidadeNegocio.unidadeNegocio.foreignKey"),
+
+    FK_TITULO_PESSOA("titulo.pessoa.foreignKey"),
+    FK_TITULO_PLANO_CONTAS("titulo.planoContas.foreignKey"),
+    FK_TITULO_UNIDADE_NEGOCIO("titulo.unidadeNegocio.foreignKey"),
+    FK_TITULO_ORIGEM("titulo.origem.foreignKey"),
+
+    FK_MOVIMENTACAO_TITULO("movimentacaoFinanceira.titulo.foreignKey"),
+    FK_MOVIMENTACAO_CONTA("movimentacaoFinanceira.contaBancaria.foreignKey"),
+    FK_MOVIMENTACAO_TITULO_MOV("movimentacaoFinanceira.titulo.foreignKey"),
+    FK_MOVIMENTACAO_TITULO_TIT("movimentacaoFinanceira.titulo.foreignKey"),
+
+    FK_PLANO_CONTAS_PAI("planoContas.pai.foreignKey"),
+
+    FK_USUARIO_PERFIL_USUARIO("usuarioPerfil.usuario.foreignKey"),
+    FK_USUARIO_PERFIL_PERFIL("usuarioPerfil.perfil.foreignKey"),
+    FK_PERFIL_MODULO_PERFIL("perfilModulo.perfil.foreignKey"),
+    FK_PERFIL_MODULO_MODULO("perfilModulo.modulo.foreignKey"),
+
+    UK_PESSOA_CPF("pessoa.cpf.unique"),
+    UK_PESSOA_CNPJ("pessoa.cnpj.unique");
 
     String userMessageKey;
 

@@ -335,7 +335,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (status == StatusTitulo.PAGO) {
-            violations.add(new BeanValidationMessage("status", "Não é possível cancelar título já pago"));
+            violations.add(new BeanValidationMessage("status.cancelar.pago", "Não é possível cancelar título já pago"));
         }
         if (!movimentacoes.isEmpty()) {
             violations.add(

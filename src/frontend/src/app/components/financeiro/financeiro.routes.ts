@@ -44,15 +44,15 @@ export const routes: Routes = [
       moduleKey: 'FINANCEIRO_TITULO',
     },
   },
-  /*{
+  {
     path: 'movimentacao',
     loadComponent: () =>
-      import('./movimentacao/movimentacao.component').then(
-        (app) => app.MovimentacaoComponent
-      ),
+      import(
+        './movimentacao-financeira/movimentacao-financeira.component'
+      ).then((app) => app.MovimentacaoFinanceiraComponent),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
       moduleKey: 'FINANCEIRO_MOVIMENTACAO',
     },
-  },*/
+  },
 ];

@@ -1,0 +1,10 @@
+@if (viewMode === 'GRID') {
+<gi-movimentacao-financeira-grid
+  (selecionar)="openDetail($event)"
+></gi-movimentacao-financeira-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-movimentacao-financeira-detalhe
+  [id]="detailId"
+  (backEvent)="backToGrid()"
+></gi-movimentacao-financeira-detalhe>
+}

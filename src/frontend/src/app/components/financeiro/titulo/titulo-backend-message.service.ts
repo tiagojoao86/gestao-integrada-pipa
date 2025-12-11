@@ -14,6 +14,8 @@ export class TituloBackendMessages extends AbstractBackendMessageService {
       'titulo.valorOriginal.notNull': $localize`:@@titulo.valorOriginal.notNull:O valor original é obrigatório.`,
       'titulo.dataEmissao.notNull': $localize`:@@titulo.dataEmissao.notNull:A data de emissão é obrigatória.`,
       'titulo.dataVencimento.notNull': $localize`:@@titulo.dataVencimento.notNull:A data de vencimento é obrigatória.`,
+      'titulo.status': $localize`:@@titulo.status:Não é possível alterar título com esse status.`,
+      'titulo.status.cancelar.pago': $localize`:@@titulo.status.cancelar.pago:Não é possível cancelar título já pago.`,
     };
   }
 }

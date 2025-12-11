@@ -1,0 +1,130 @@
+<gi-app-base
+  [title]="tituloTela"
+  [actions]="acoesTela"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+      <!-- Títulos (multi-select via autocomplete) -->
+      <p-iftalabel class="w-100">
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <p-autoComplete
+            inputId="titulos"
+            [suggestions]="tituloSuggestions"
+            (completeMethod)="searchTitulos($event)"
+            optionLabel="descricao"
+            (onSelect)="onTitulosChange($event.value)"
+            [(ngModel)]="selectedTitulos"
+            [ngModelOptions]="{ standalone: true }"
+            [forceSelection]="true"
+            [multiple]="true"
+            [minLength]="1"
+          >
+            <ng-template let-item pTemplate="item">
+              <div>{{ `${item.numeroDocumento} - ${item.descricao}` }}</div>
+            </ng-template>
+          </p-autoComplete>
+        </p-iconfield>
+        <label for="titulos" i18n>Títulos</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="contaBancaria"
+          formControlName="contaBancaria"
+          [options]="contasOptions"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.label }}</div>
+          </ng-template>
+        </p-select>
+        <label for="contaBancaria" i18n>Conta Bancária</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="tipo"
+          formControlName="tipo"
+          [options]="tiposOptions"
+          optionLabel="label"
+          optionValue="value"
+        ></p-select>
+        <label for="tipo" i18n>Tipo</label>
+        @if (isControlInvalid('tipo')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="formaPagamento"
+          formControlName="formaPagamento"
+          [options]="formaOptions"
+          optionLabel="label"
+          optionValue="value"
+        ></p-select>
+        <label for="formaPagamento" i18n>Forma de Pagamento</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-inputNumber
+          inputId="valor"
+          formControlName="valor"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+        ></p-inputNumber>
+        <label for="valor" i18n>Valor</label>
+        @if (isControlInvalid('valor')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-datepicker
+          inputId="data"
+          formControlName="data"
+          dateFormat="dd/mm/yy"
+        >
+        </p-datepicker>
+        <label for="data" i18n>Data</label>
+        @if (isControlInvalid('data')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="unidadeNegocio"
+          [options]="allUnidadesNegocio"
+          formControlName="unidadeNegocio"
+          optionLabel="codigo"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigo,nome"
+          [showClear]="false"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
+        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-100">
+        <textarea
+          pInputTextarea
+          id="observacoes"
+          formControlName="observacoes"
+          rows="4"
+        ></textarea>
+        <label for="observacoes" i18n>Observações</label>
+      </p-iftalabel>
+    </div>
+  </div>
+</gi-app-base>
