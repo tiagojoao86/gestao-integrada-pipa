@@ -80,7 +80,9 @@ public class TenantService {
      * Cria o schema no PostgreSQL
      * Usa conexão em AUTOCOMMIT para garantir que o schema seja criado imediatamente
      */
-    private void criarSchema(String schemaName) {
+    private void
+    
+    criarSchema(String schemaName) {
         try {
             // Verificar se schema já existe
             String checkSql = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?";

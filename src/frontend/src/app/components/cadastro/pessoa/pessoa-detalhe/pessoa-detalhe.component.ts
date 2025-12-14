@@ -8,10 +8,8 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { PessoaService } from '../pessoa.service';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -44,15 +42,15 @@ import { InputMaskModule } from 'primeng/inputmask';
     CheckboxModule,
     DatePickerModule,
     TextareaModule,
-    InputMaskModule
-],
+    InputMaskModule,
+  ],
   templateUrl: './pessoa-detalhe.component.html',
   styleUrl: './pessoa-detalhe.component.css',
   providers: [PessoaService],
 })
 export class PessoaDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   pessoa: PessoaDTO = {} as PessoaDTO;
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
@@ -62,7 +60,7 @@ export class PessoaDetalheComponent implements OnInit {
 
   titulo = $localize`Pessoa: `;
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
   ngOnInit(): void {
@@ -70,7 +68,7 @@ export class PessoaDetalheComponent implements OnInit {
 
     // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_PESSOA');
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -82,9 +80,9 @@ export class PessoaDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
-          this.salvar();
+          this.savePessoa();
         },
         icon: 'save',
         title: $localize`Salvar` + ' (enter)',
@@ -93,7 +91,7 @@ export class PessoaDetalheComponent implements OnInit {
     }
 
     if (this.detailId === RouteConstants.P_ADD) {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.titulo += $localize`Nova`;
       this.pessoa = {
         tipoPessoa: TipoPessoa.FISICA,
@@ -101,7 +99,7 @@ export class PessoaDetalheComponent implements OnInit {
       } as PessoaDTO;
       this.fillForm();
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.pessoa = response.body;
         this.titulo += this.pessoa.nome;
@@ -173,7 +171,7 @@ export class PessoaDetalheComponent implements OnInit {
     }
   }
 
-  salvar() {
+  savePessoa() {
     if (!this.form.valid) {
       this.messages.erro($localize`Existem campos inválidos.`);
       return;

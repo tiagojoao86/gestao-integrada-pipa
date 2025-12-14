@@ -8,8 +8,6 @@ export interface TituloDTO {
   // Relacionamentos
   pessoaId: string;
   pessoaNome?: string;
-  planoContasId: string;
-  planoContasDescricao?: string;
   unidadeNegocioId?: string;
   unidadeNegocioNome?: string;
 

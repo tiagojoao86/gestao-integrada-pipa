@@ -48,6 +48,9 @@ class MovimentacaoFinanceiraControllerTest {
     @MockitoBean
     private MovimentacaoFinanceiraService service;
 
+    @MockitoBean
+    private br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloService tituloService;
+
     private MovimentacaoFinanceiraDTO dto;
     private UUID movimentacaoId;
 
@@ -105,7 +108,8 @@ class MovimentacaoFinanceiraControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.content[0].tipo").value(TipoMovimentacao.PAGAMENTO.name()))
-                .andExpect(jsonPath("$.body.content[0].formaPagamento").value(FormaPagamento.PIX.name()));
+                .andExpect(jsonPath("$.body.content[0].formaPagamento")
+                        .value(FormaPagamento.PIX.name()));
 
         verify(service, times(1)).list(any(), any(org.springframework.data.domain.Pageable.class));
     }

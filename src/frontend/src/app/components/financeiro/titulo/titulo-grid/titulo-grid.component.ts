@@ -5,24 +5,18 @@ import {
   LOCALE_ID,
   Output,
 } from '@angular/core';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 import { TituloService } from '../titulo.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { TituloGridDTO } from '../model/titulo-grid-dto';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
   FilterProperty,
   FilterComponent,
@@ -32,7 +26,12 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 
 @Component({
   selector: 'gi-titulo-grid',
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+  ],
   providers: [TituloService, DatePipe, CurrencyPipe],
   templateUrl: './titulo-grid.component.html',
   styleUrl: './titulo-grid.component.css',
@@ -48,7 +47,7 @@ export class TituloGridComponent {
 
   titulosList: TituloGridDTO[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<TituloGridDTO>[] = [
     {
       name: 'tipo',
       label: $localize`Tipo`,
@@ -129,9 +128,9 @@ export class TituloGridComponent {
     },
   ];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<TituloGridDTO>[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   filtros: FilterProperty[] = [
     {
       property: 'tipo',
@@ -196,14 +195,14 @@ export class TituloGridComponent {
       this.auth.hasAuthorityDeletarToModulo('FINANCEIRO_TITULO');
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: TituloGridDTO) =>
           this.openDetailEvent.emit(element.id),
       });
     }
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: TituloGridDTO) => {
           this.service.delete(element.id).subscribe(() => this.listarTitulos());
@@ -211,7 +210,7 @@ export class TituloGridComponent {
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.refreshList();
@@ -223,7 +222,7 @@ export class TituloGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO')) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetailEvent.emit('add');
         },
@@ -233,9 +232,9 @@ export class TituloGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -266,30 +265,30 @@ export class TituloGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
     this.listarTitulos();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
 
     this.listarTitulos();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
     this.listarTitulos();
-    this.ajustaBadgePesquisa(filter);
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -299,7 +298,7 @@ export class TituloGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 

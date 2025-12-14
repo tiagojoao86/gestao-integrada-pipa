@@ -6,12 +6,10 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNe
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
-import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
+// PlanoContas removed from Titulo - tests adjusted accordingly
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
-import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
-import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,9 +42,6 @@ class TituloServiceTest {
     private PessoaRepository pessoaRepository;
 
     @Mock
-    private PlanoContasRepository planoContasRepository;
-
-    @Mock
     private UnidadeNegocioRepository unidadeNegocioRepository;
 
     @Mock
@@ -56,7 +51,6 @@ class TituloServiceTest {
     private TituloServiceImpl service;
 
     private Pessoa pessoa;
-    private PlanoContas planoContas;
     private UnidadeNegocio unidadeNegocio;
     private TituloDTO dto;
     private Titulo entity;
@@ -80,20 +74,12 @@ class TituloServiceTest {
                 .razaoSocial("Fornecedor LTDA")
                 .build();
 
-        // Setup plano de contas
-        planoContas = new PlanoContas.Builder()
-                .codigo("4.1.001")
-                .descricao("Fornecedores")
-                .tipo(TipoPlanoContas.DESPESA)
-                .unidadeNegocio(unidadeNegocio)
-                .build();
-
         // Setup DTO
         dto = TituloDTO.builder()
                 .tipo(TipoTitulo.A_PAGAR.name())
                 .descricao("Pagamento fornecedor")
+                .unidadeNegocioId(unidadeNegocio.getId())
                 .pessoaId(UUID.randomUUID())
-                .planoContasId(UUID.randomUUID())
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -104,7 +90,7 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Pagamento fornecedor")
                 .pessoa(pessoa)
-                .planoContas(planoContas)
+
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
@@ -117,7 +103,6 @@ class TituloServiceTest {
     void deveCriarTituloAPagar() {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
-        when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoContas));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
 
         // When
@@ -130,7 +115,6 @@ class TituloServiceTest {
         assertEquals("Pagamento fornecedor", resultado.getDescricao());
         assertEquals(new Money(BigDecimal.valueOf(1000.00)), resultado.getValorOriginal());
         assertEquals(pessoa, resultado.getPessoa());
-        assertEquals(planoContas, resultado.getPlanoContas());
     }
 
     @Test
@@ -138,15 +122,7 @@ class TituloServiceTest {
     void deveCriarTituloAReceber() {
         // Given
         dto.setTipo(TipoTitulo.A_RECEBER.name());
-        PlanoContas planoReceita = new PlanoContas.Builder()
-                .codigo("3.1.001")
-                .descricao("Vendas")
-                .tipo(TipoPlanoContas.RECEITA)
-                .unidadeNegocio(unidadeNegocio)
-                .build();
-
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
-        when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoReceita));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
 
         // When
@@ -156,7 +132,6 @@ class TituloServiceTest {
         assertNotNull(resultado);
         assertEquals(TipoTitulo.A_RECEBER, resultado.getTipo());
         assertEquals(StatusTitulo.ABERTO, resultado.getStatus());
-        assertEquals(planoReceita, resultado.getPlanoContas());
     }
 
     @Test
@@ -167,7 +142,7 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Descrição original")
                 .pessoa(pessoa)
-                .planoContas(planoContas)
+
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
@@ -208,7 +183,6 @@ class TituloServiceTest {
     void deveSalvarTitulo() {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
-        when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.of(planoContas));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
         when(repository.save(any(Titulo.class))).thenReturn(entity);
 
@@ -258,11 +232,7 @@ class TituloServiceTest {
     @Test
     @DisplayName("Deve lançar exceção ao tentar criar título sem plano de contas")
     void deveLancarExcecaoAoCriarTituloSemPlanoContas() {
-        // Given
-        when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
-        when(planoContasRepository.findById(dto.getPlanoContasId())).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(RuntimeException.class, () -> service.mergeEntityAndDTO(null, dto));
+        // This test was removed because `PlanoContas` is no longer required on
+        // `Titulo`.
     }
 }

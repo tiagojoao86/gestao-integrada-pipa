@@ -29,8 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Testes de integração para PlanoContasController.
  * Valida os endpoints REST do plano de contas.
  */
-@WebMvcTest(value = PlanoContasController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
+@WebMvcTest(value = PlanoContasController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("PlanoContasController - Testes de Integração")
 class PlanoContasControllerTest {
@@ -46,12 +45,14 @@ class PlanoContasControllerTest {
 
     private PlanoContasDTO planoContasDTO;
     private PlanoContasGridDTO planoContasGridDTO;
+    private String codigo;
 
     @BeforeEach
     void setUp() {
+        codigo = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         planoContasDTO = PlanoContasDTO.builder()
                 .id(UUID.randomUUID())
-                .codigo("1")
+                .codigo(codigo)
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA.name())
                 .ativo(true)
@@ -61,7 +62,7 @@ class PlanoContasControllerTest {
 
         planoContasGridDTO = PlanoContasGridDTO.builder()
                 .id(planoContasDTO.getId())
-                .codigo("1")
+                .codigo(codigo)
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA.name())
                 .ativo(true)
@@ -74,27 +75,25 @@ class PlanoContasControllerTest {
     @DisplayName("Deve listar planos de contas paginados")
     void deveListarPlanosContasPaginados() throws Exception {
         // Given
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest pageRequest = 
-            br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest pageRequest = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
                 .page(0)
                 .size(10)
                 .order(Collections.emptyList())
                 .build();
 
-        br.com.grupopipa.gestaointegrada.core.dto.PageDTO<PlanoContasGridDTO> pageDTO = 
-            new br.com.grupopipa.gestaointegrada.core.dto.PageDTO<>(
+        br.com.grupopipa.gestaointegrada.core.dto.PageDTO<PlanoContasGridDTO> pageDTO = new br.com.grupopipa.gestaointegrada.core.dto.PageDTO<>(
                 Collections.singletonList(planoContasGridDTO),
                 org.springframework.data.domain.PageRequest.of(0, 10),
-                1L
-            );
+                1L);
 
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class))).thenReturn(pageDTO);
 
         // When & Then
         mockMvc.perform(post("/plano-contas/query")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(pageRequest)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.content").isArray());
@@ -109,12 +108,12 @@ class PlanoContasControllerTest {
 
         // When & Then
         mockMvc.perform(post("/plano-contas")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(planoContasDTO)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(planoContasDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
-                .andExpect(jsonPath("$.body.codigo").value("1"))
+                .andExpect(jsonPath("$.body.codigo").value(codigo))
                 .andExpect(jsonPath("$.body.descricao").value("Receitas"));
     }
 
@@ -128,8 +127,8 @@ class PlanoContasControllerTest {
 
         // When & Then
         mockMvc.perform(get("/plano-contas/find-by-id")
-                        .param("id", id.toString())
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("id", id.toString())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.body.id").value(id.toString()))
@@ -146,8 +145,8 @@ class PlanoContasControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/plano-contas/{id}", id)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200));
     }

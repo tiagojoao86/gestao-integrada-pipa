@@ -19,7 +19,7 @@ export class ContaBancariaService extends BaseService<ContaBancariaDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return ContaBancariaService.CONTA_BANCARIA;
   }
 

@@ -19,7 +19,7 @@ export class TituloService extends BaseService<TituloDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return TituloService.TITULO;
   }
 

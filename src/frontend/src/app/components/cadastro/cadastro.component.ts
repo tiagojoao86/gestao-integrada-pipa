@@ -1,32 +1,30 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseComponent } from '../base/base.component';
 
-import {
-  GrupoRecurso,
-  RecursoGrupoComponent,
-} from '../base/menu/recurso-grupo/recurso-grupo.component';
+import { SystemModuleGroupComponent } from '../base/menu/system-module-group/system-module-group.component';
 import { AuthService } from '../base/auth/auth-service';
-import { Recurso } from '../base/menu/recurso/recurso.component';
+import { SystemModuleGroup } from '../base/menu/system-module-group/system-module-group';
+import { SystemModule } from '../base/menu/system-module/system-module';
 
 @Component({
   selector: 'gi-cadastro',
-  imports: [BaseComponent, RecursoGrupoComponent],
+  imports: [BaseComponent, SystemModuleGroupComponent],
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.css',
   standalone: true,
 })
 export class CadastroComponent implements OnInit {
-  titulo: string = $localize`Cadastros`;
-  recursos: GrupoRecurso[] = [];
+  title: string = $localize`Cadastros`;
+  systemModules: SystemModuleGroup[] = [];
 
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const recursosCadastros: Recurso[] = [];
+    const systemModulesCadastros: SystemModule[] = [];
     if (this.authService.hasAuthorityListarToModulo('CADASTRO_PESSOA')) {
-      recursosCadastros.push({
-        nome: $localize`Pessoas`,
-        icone: 'groups',
+      systemModulesCadastros.push({
+        name: $localize`Pessoas`,
+        icon: 'groups',
         url: '/cadastro/pessoa',
       });
     }
@@ -34,38 +32,41 @@ export class CadastroComponent implements OnInit {
     if (
       this.authService.hasAuthorityListarToModulo('CADASTRO_UNIDADE_NEGOCIO')
     ) {
-      recursosCadastros.push({
-        nome: $localize`Unidades de Negócio`,
-        icone: 'business',
+      systemModulesCadastros.push({
+        name: $localize`Unidades de Negócio`,
+        icon: 'business',
         url: '/cadastro/unidade-negocio',
       });
     }
 
-    if (recursosCadastros.length > 0) {
-      this.recursos.push({
-        nome: $localize`Geral`,
-        recursos: recursosCadastros,
+    if (systemModulesCadastros.length > 0) {
+      this.systemModules.push({
+        name: $localize`Geral`,
+        systemModules: systemModulesCadastros,
       });
     }
-    const recursosGeral: Recurso[] = [];
+    const systemModulesGeral: SystemModule[] = [];
     if (this.authService.hasAuthorityListarToModulo('CADASTRO_USUARIO')) {
-      recursosGeral.push({
-        nome: $localize`Usuários`,
-        icone: 'person',
+      systemModulesGeral.push({
+        name: $localize`Usuários`,
+        icon: 'person',
         url: '/cadastro/usuario',
       });
     }
 
     if (this.authService.hasAuthorityListarToModulo('CADASTRO_PERFIL')) {
-      recursosGeral.push({
-        nome: $localize`Perfis`,
-        icone: 'badge',
+      systemModulesGeral.push({
+        name: $localize`Perfis`,
+        icon: 'badge',
         url: '/cadastro/perfil',
       });
     }
 
-    if (recursosGeral.length > 0) {
-      this.recursos.push({ nome: $localize`Sistema`, recursos: recursosGeral });
+    if (systemModulesGeral.length > 0) {
+      this.systemModules.push({
+        name: $localize`Sistema`,
+        systemModules: systemModulesGeral,
+      });
     }
   }
 }

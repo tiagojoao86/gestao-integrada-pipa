@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,8 +54,9 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar plano de contas raiz")
     void deveSalvarERecuperarPlanoContasRaiz() {
         // Given
+        String codigo = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas planoReceitas = new PlanoContas.Builder()
-                .codigo("1")
+                .codigo(codigo)
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
                 .unidadeNegocio(unidadeNegocio)
@@ -65,7 +67,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
 
         // Then
         assertNotNull(planoSalvo.getId());
-        assertEquals("1", planoSalvo.getCodigo());
+        assertEquals(codigo, planoSalvo.getCodigo());
         assertEquals("Receitas", planoSalvo.getDescricao());
         assertEquals(TipoPlanoContas.RECEITA, planoSalvo.getTipo());
         assertNull(planoSalvo.getPlanoPai());
@@ -77,16 +79,18 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve salvar e recuperar plano de contas com pai")
     void deveSalvarERecuperarPlanoContasComPai() {
         // Given
+        String codigoPai = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas planoPai = new PlanoContas.Builder()
-                .codigo("1")
+                .codigo(codigoPai)
                 .descricao("Receitas")
                 .tipo(TipoPlanoContas.RECEITA)
                 .unidadeNegocio(unidadeNegocio)
                 .build();
         planoPai = repository.save(planoPai);
 
+        String codigoFilho = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas planoFilho = new PlanoContas.Builder()
-                .codigo("1.1")
+                .codigo(codigoFilho)
                 .descricao("Receitas Operacionais")
                 .tipo(TipoPlanoContas.RECEITA)
                 .unidadeNegocio(unidadeNegocio)
@@ -98,7 +102,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
 
         // Then
         assertNotNull(planoSalvo.getId());
-        assertEquals("1.1", planoSalvo.getCodigo());
+        assertEquals(codigoFilho, planoSalvo.getCodigo());
         assertEquals("Receitas Operacionais", planoSalvo.getDescricao());
         assertNotNull(planoSalvo.getPlanoPai());
         assertEquals(planoPai.getId(), planoSalvo.getPlanoPai().getId());
@@ -109,8 +113,9 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve buscar plano de contas por ID")
     void deveBuscarPlanoContasPorId() {
         // Given
+        String codigo = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas plano = new PlanoContas.Builder()
-                .codigo("2")
+                .codigo(codigo)
                 .descricao("Despesas")
                 .tipo(TipoPlanoContas.DESPESA)
                 .unidadeNegocio(unidadeNegocio)
@@ -130,8 +135,11 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar constraint de código único")
     void deveValidarConstraintCodigoUnico() {
         // Given
+        String uniqueCodigo = ("3" + UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0,
+                18);
+
         PlanoContas plano1 = new PlanoContas.Builder()
-                .codigo("3")
+                .codigo(uniqueCodigo)
                 .descricao("Ativos")
                 .tipo(TipoPlanoContas.ATIVO)
                 .unidadeNegocio(unidadeNegocio)
@@ -139,7 +147,7 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
         repository.save(plano1);
 
         PlanoContas plano2 = new PlanoContas.Builder()
-                .codigo("3")
+                .codigo(uniqueCodigo)
                 .descricao("Ativos Duplicado")
                 .tipo(TipoPlanoContas.ATIVO)
                 .unidadeNegocio(unidadeNegocio)
@@ -156,8 +164,9 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve deletar plano de contas")
     void deveDeletarPlanoContas() {
         // Given
+        String codigo = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas plano = new PlanoContas.Builder()
-                .codigo("4")
+                .codigo(codigo)
                 .descricao("Passivos")
                 .tipo(TipoPlanoContas.PASSIVO)
                 .unidadeNegocio(unidadeNegocio)
@@ -176,8 +185,9 @@ class PlanoContasRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar campos obrigatórios")
     void deveValidarCamposObrigatorios() {
         // Given
+        String codigo = (UUID.randomUUID().toString() + System.nanoTime()).replace("-", "").substring(0, 18);
         PlanoContas plano = new PlanoContas.Builder()
-                .codigo("5")
+                .codigo(codigo)
                 .descricao("Ativo Circulante")
                 .tipo(TipoPlanoContas.ATIVO)
                 .unidadeNegocio(unidadeNegocio)

@@ -1,22 +1,16 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 import { ContaBancariaService } from '../conta-bancaria.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { ContaBancariaGridDTO } from '../model/conta-bancaria-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
   FilterProperty,
   FilterComponent,
@@ -27,7 +21,12 @@ import { TipoConta } from '../model/tipo-conta.enum';
 
 @Component({
   selector: 'gi-conta-bancaria-grid',
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+  ],
   providers: [ContaBancariaService, DatePipe],
   templateUrl: './conta-bancaria-grid.component.html',
   styleUrl: './conta-bancaria-grid.component.css',
@@ -43,7 +42,7 @@ export class ContaBancariaGridComponent {
 
   contasList: ContaBancariaGridDTO[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<ContaBancariaGridDTO>[] = [
     {
       name: 'nome',
       label: $localize`Nome`,
@@ -91,9 +90,9 @@ export class ContaBancariaGridComponent {
     },
   ];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<ContaBancariaGridDTO>[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
   filtros: FilterProperty[] = [
     {
@@ -149,7 +148,7 @@ export class ContaBancariaGridComponent {
     );
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: ContaBancariaGridDTO) =>
           this.openDetail.emit(element.id),
@@ -157,7 +156,7 @@ export class ContaBancariaGridComponent {
     }
 
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: ContaBancariaGridDTO) => {
           this.service.delete(element.id).subscribe(() => this.listarContas());
@@ -165,7 +164,7 @@ export class ContaBancariaGridComponent {
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.refreshList();
@@ -177,7 +176,7 @@ export class ContaBancariaGridComponent {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
         },
@@ -187,9 +186,9 @@ export class ContaBancariaGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -209,29 +208,29 @@ export class ContaBancariaGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
     this.listarContas();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
     this.listarContas();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
     this.listarContas();
-    this.ajustaBadgePesquisa(filter);
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -241,7 +240,7 @@ export class ContaBancariaGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 

@@ -9,7 +9,6 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNe
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
-import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
@@ -51,8 +50,6 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             // Buscar entidades relacionadas
             Pessoa pessoa = pessoaRepository.findById(dto.getPessoaId())
                     .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada"));
-            PlanoContas planoContas = planoContasRepository.findById(dto.getPlanoContasId())
-                    .orElseThrow(() -> new IllegalArgumentException("Plano de contas não encontrado"));
 
             TipoTitulo tipo = TipoTitulo.valueOf(dto.getTipo());
 
@@ -65,7 +62,6 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                     .descricao(dto.getDescricao())
                     .numeroDocumento(dto.getNumeroDocumento())
                     .pessoa(pessoa)
-                    .planoContas(planoContas)
                     .unidadeNegocio(unidadeNegocio)
                     .valorOriginal(Money.of(dto.getValorOriginal()))
                     .dataEmissao(dto.getDataEmissao())
@@ -133,8 +129,6 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .descricao(entity.getDescricao())
                 .pessoaId(entity.getPessoa().getId())
                 .pessoaNome(entity.getPessoa().getNome())
-                .planoContasId(entity.getPlanoContas().getId())
-                .planoContasDescricao(entity.getPlanoContas().toString())
                 .unidadeNegocioId(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
                 .unidadeNegocioNome(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getNome() : null)
                 .valorOriginal(entity.getValorOriginal().getValue())

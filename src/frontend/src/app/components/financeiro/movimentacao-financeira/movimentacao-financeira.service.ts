@@ -19,7 +19,7 @@ export class MovimentacaoFinanceiraService extends BaseService<MovimentacaoFinan
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return MovimentacaoFinanceiraService.MOVIMENTACAO_FINANCEIRA;
   }
 

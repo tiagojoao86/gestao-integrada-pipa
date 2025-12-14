@@ -1,8 +1,8 @@
 <gi-app-base
   [title]="titulo"
-  [actions]="acoesTela"
+  [actions]="toolbarActions"
   [goBackFn]="goBackFn.bind(this)"
-  >
+>
   <div body-content>
     <div class="form" [formGroup]="form">
       <div class="campos-principais">
@@ -10,56 +10,52 @@
           <input pInputText id="codigoUnidade" formControlName="codigo" />
           <label for="codigoUnidade" i18n>Código</label>
           @if (isControlInvalid('codigo')) {
-            <small i18n
-              >O código não pode ser em branco.</small
-              >
-            }
-          </p-iftalabel>
+          <small i18n>O código não pode ser em branco.</small>
+          }
+        </p-iftalabel>
 
-          <p-iftalabel class="w-75">
-            <input pInputText id="nomeUnidade" formControlName="nome" />
-            <label for="nomeUnidade" i18n>Nome</label>
-            @if (isControlInvalid('nome')) {
-              <small i18n
-                >O nome não pode ser em branco.</small
-                >
-              }
-            </p-iftalabel>
+        <p-iftalabel class="w-75">
+          <input pInputText id="nomeUnidade" formControlName="nome" />
+          <label for="nomeUnidade" i18n>Nome</label>
+          @if (isControlInvalid('nome')) {
+          <small i18n>O nome não pode ser em branco.</small>
+          }
+        </p-iftalabel>
 
-            <p-iftalabel class="w-15">
-              <p-inputMask
-                id="cnpjUnidade"
-                formControlName="cnpj"
-                mask="99.999.999/9999-99"
-                />
-              <label for="cnpjUnidade" i18n>CNPJ</label>
-              @if (isControlInvalid('cnpj')) {
-                <small i18n>CNPJ inválido.</small>
-              }
-            </p-iftalabel>
+        <p-iftalabel class="w-15">
+          <p-inputMask
+            id="cnpjUnidade"
+            formControlName="cnpj"
+            mask="99.999.999/9999-99"
+          />
+          <label for="cnpjUnidade" i18n>CNPJ</label>
+          @if (isControlInvalid('cnpj')) {
+          <small i18n>CNPJ inválido.</small>
+          }
+        </p-iftalabel>
 
-            <div class="ativa-field">
-              <p-checkbox
-                formControlName="ativa"
-                [binary]="true"
-                inputId="ativaUnidade"
-                />
-              <label for="ativaUnidade" i18n>Ativa</label>
-            </div>
-          </div>
-
-          <!-- Descrição -->
-          <div class="campo-descricao">
-            <p-iftalabel class="w-100">
-              <textarea
-                pTextarea
-                id="descricaoUnidade"
-                formControlName="descricao"
-                rows="5"
-              ></textarea>
-              <label for="descricaoUnidade" i18n>Descrição</label>
-            </p-iftalabel>
-          </div>
+        <div class="ativa-field">
+          <p-checkbox
+            formControlName="ativa"
+            [binary]="true"
+            inputId="ativaUnidade"
+          />
+          <label for="ativaUnidade" i18n>Ativa</label>
         </div>
       </div>
-    </gi-app-base>
+
+      <!-- Descrição -->
+      <div class="campo-descricao">
+        <p-iftalabel class="w-100">
+          <textarea
+            pTextarea
+            id="descricaoUnidade"
+            formControlName="descricao"
+            rows="5"
+          ></textarea>
+          <label for="descricaoUnidade" i18n>Descrição</label>
+        </p-iftalabel>
+      </div>
+    </div>
+  </div>
+</gi-app-base>

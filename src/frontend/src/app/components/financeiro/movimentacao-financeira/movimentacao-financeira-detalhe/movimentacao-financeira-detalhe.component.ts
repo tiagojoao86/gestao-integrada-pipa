@@ -17,10 +17,7 @@ import {
   map,
   take,
 } from 'rxjs/operators';
-import {
-  BaseComponent,
-  RegisterActionToolbar,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
 import { TituloService } from '../../titulo/titulo.service';
 import { ContaBancariaService } from '../../conta-bancaria/conta-bancaria.service';
@@ -49,6 +46,7 @@ import {
   MovimentacaoTituloDTO,
 } from '../model/movimentacao-financeira.dto';
 import { TituloDTO } from '../../titulo/model/titulo-dto';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 @Component({
   selector: 'gi-movimentacao-financeira-detalhe',
@@ -79,7 +77,7 @@ export class MovimentacaoFinanceiraDetalheComponent
 {
   tituloTela = $localize`Movimentação Financeira: `;
   form: FormGroup = new FormGroup({});
-  modoEdicao = false;
+  editMode = false;
   movimentacao: MovimentacaoFinanceiraDTO = {} as MovimentacaoFinanceiraDTO;
   @Input() id: string | null = null;
   @Output() backEvent = new EventEmitter<void>();
@@ -114,7 +112,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     { label: $localize`Depósito`, value: 'DEPOSITO' },
   ];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
 
@@ -148,7 +146,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       'FINANCEIRO_MOVIMENTACAO'
     );
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -160,7 +158,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.salvar();
         },
@@ -171,13 +169,13 @@ export class MovimentacaoFinanceiraDetalheComponent
     }
 
     if (this.id === 'add') {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.movimentacao = {} as MovimentacaoFinanceiraDTO;
       this.form.get('data')?.setValue(new Date());
       // When creating, set default unidade after loading unidades
       this.loadUnidadesNegocio(true);
     } else if (this.id) {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.id)).subscribe((response) => {
         this.movimentacao = response.body;
         this.fillForm();

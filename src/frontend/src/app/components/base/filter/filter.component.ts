@@ -18,8 +18,8 @@ import { DatePicker } from 'primeng/datepicker';
     InputTextModule,
     ButtonModule,
     SelectModule,
-    DatePicker
-],
+    DatePicker,
+  ],
   templateUrl: './filter.component.html',
   styleUrl: './filter.component.css',
 })
@@ -28,8 +28,8 @@ export class FilterComponent implements OnInit {
 
   @Input() filters: FilterProperty[] = [];
   selectedFilters: FilterProperty[] = [];
-  @Output() doFilter = new EventEmitter<FilterDTO>();
-  @Output() doCancel = new EventEmitter<boolean>();
+  @Output() filterEvent = new EventEmitter<FilterDTO>();
+  @Output() cancelEvent = new EventEmitter<boolean>();
 
   operations: FilterOperator[] = FilterOperator.getAll();
   logicOperators: FilterLogicOperator[] = FilterLogicOperator.getAll();
@@ -113,13 +113,13 @@ export class FilterComponent implements OnInit {
     const index = this.selectedFilters.indexOf(property);
     if (index !== -1) {
       this.selectedFilters.splice(index, 1);
-      this.onFiltrar();
+      this.onFilter();
     }
   }
 
-  onFiltrar() {
+  onFilter() {
     if (this.selectedFilters.length === 0) {
-      this.doFilter.emit();
+      this.filterEvent.emit();
       return;
     }
 
@@ -157,7 +157,7 @@ export class FilterComponent implements OnInit {
         });
       }
     });
-    this.doFilter.emit({
+    this.filterEvent.emit({
       items: items,
       filterLogicOperator: this.formSelector
         .get('filterLogicOperator')
@@ -165,8 +165,8 @@ export class FilterComponent implements OnInit {
     });
   }
 
-  onCancelar() {
-    this.doCancel.emit();
+  onCancel() {
+    this.cancelEvent.emit();
   }
 }
 

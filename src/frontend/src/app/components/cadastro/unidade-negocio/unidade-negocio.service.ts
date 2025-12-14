@@ -19,7 +19,7 @@ export class UnidadeNegocioService extends BaseService<UnidadeNegocioDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return UnidadeNegocioService.UNIDADE_NEGOCIO;
   }
 

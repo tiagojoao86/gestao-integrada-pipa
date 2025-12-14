@@ -21,7 +21,7 @@ export class PessoaService extends BaseService<PessoaDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return PessoaService.PESSOA;
   }
 

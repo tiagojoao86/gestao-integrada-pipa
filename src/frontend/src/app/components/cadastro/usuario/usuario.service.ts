@@ -21,7 +21,7 @@ export class UsuarioService extends BaseService<UsuarioDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return UsuarioService.USUARIO;
   }
 

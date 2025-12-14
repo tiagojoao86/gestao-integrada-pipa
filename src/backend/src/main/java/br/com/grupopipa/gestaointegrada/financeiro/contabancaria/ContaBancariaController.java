@@ -23,31 +23,31 @@ public class ContaBancariaController
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_LISTAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_LISTAR')")
     public Response list(@RequestBody PageRequest request) {
         return super.list(request);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_EDITAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_EDITAR')")
     public Response save(@RequestBody ContaBancariaDTO body) {
         return super.save(body);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_VISUALIZAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_VISUALIZAR')")
     public Response findById(@RequestParam(F_ID) UUID id) {
         return super.findById(id);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_DELETAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_DELETAR')")
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
 
     @GetMapping("/unidades-disponiveis")
-    @PreAuthorize("hasAuthority('CADASTRO_CONTA_BANCARIA_EDITAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_EDITAR')")
     public Response listarUnidadesDisponiveis() {
         return ok(service.listarUnidadesDisponiveis());
     }

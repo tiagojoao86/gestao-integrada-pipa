@@ -35,7 +35,7 @@ export abstract class BaseService<D> {
     this.backendMessageService = backendMessageService;
   }
 
-  abstract getDominio(): string;
+  abstract getDomain(): string;
 
   list(request: PageRequest): Observable<Response> {
     return this.httpClient
@@ -79,7 +79,7 @@ export abstract class BaseService<D> {
   }
 
   getUrl(contexto = ''): string {
-    return this.urlBase + this.getDominio() + contexto;
+    return this.urlBase + this.getDomain() + contexto;
   }
 
   getHeaders(): HttpHeaders {

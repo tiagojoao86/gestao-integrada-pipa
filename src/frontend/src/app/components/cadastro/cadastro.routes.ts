@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from '../base/auth/auth-guard';
 import { moduleAuthorityGuard } from '../base/auth/module-authority.guard';
 import { groupAuthorityGuard } from '../base/auth/group-authority.guard';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 export const routes: Routes = [
   {
@@ -10,7 +11,7 @@ export const routes: Routes = [
       import('./cadastro.component').then((app) => app.CadastroComponent),
     canActivate: [authGuard, groupAuthorityGuard],
     data: {
-      group: 'CADASTROS',
+      group: SystemModuleKey.CADASTRO,
     },
   },
   {
@@ -21,7 +22,7 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_USUARIO',
+      moduleKey: SystemModuleKey.CADASTRO_USUARIO,
     },
   },
   {
@@ -30,7 +31,7 @@ export const routes: Routes = [
       import('./perfil/perfil.component').then((app) => app.PerfilComponent),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_PERFIL',
+      moduleKey: SystemModuleKey.CADASTRO_PERFIL,
     },
   },
   {
@@ -39,7 +40,7 @@ export const routes: Routes = [
       import('./pessoa/pessoa.component').then((app) => app.PessoaComponent),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_PESSOA',
+      moduleKey: SystemModuleKey.CADASTRO_PESSOA,
     },
   },
   {
@@ -50,7 +51,7 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_UNIDADE_NEGOCIO',
+      moduleKey: SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO,
     },
   },
 ];

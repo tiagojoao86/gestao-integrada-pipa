@@ -1,8 +1,5 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 import { UnidadeNegocioService } from '../unidade-negocio.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { UnidadeNegocioGridDTO } from '../model/unidade-negocio-grid-dto';
@@ -10,30 +7,27 @@ import { UnidadeNegocioGridDTO } from '../model/unidade-negocio-grid-dto';
 import { AuthService } from '../../../base/auth/auth-service';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
 import {
   FilterProperty,
   FilterType,
   FilterComponent,
 } from '../../../base/filter/filter.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'gi-unidade-negocio-grid',
   imports: [
     BaseComponent,
-    PaginatorComponent,
+    PaginationComponent,
     TableComponent,
-    FilterComponent
-],
+    FilterComponent,
+  ],
   providers: [UnidadeNegocioService, DatePipe],
   templateUrl: './unidade-negocio-grid.component.html',
   styleUrl: './unidade-negocio-grid.component.css',
@@ -49,7 +43,7 @@ export class UnidadeNegocioGridComponent {
 
   unidadesList: UnidadeNegocioGridDTO[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<UnidadeNegocioGridDTO>[] = [
     {
       name: 'codigo',
       label: $localize`Código`,
@@ -80,9 +74,9 @@ export class UnidadeNegocioGridComponent {
     },
   ];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<UnidadeNegocioGridDTO>[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
   filtros: FilterProperty[] = [
     {
@@ -134,7 +128,7 @@ export class UnidadeNegocioGridComponent {
     );
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         action: (element: UnidadeNegocioGridDTO) => {
           this.openDetail(element.id);
         },
@@ -143,7 +137,7 @@ export class UnidadeNegocioGridComponent {
     }
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetail('add');
         },
@@ -153,7 +147,7 @@ export class UnidadeNegocioGridComponent {
     }
 
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         action: (element: UnidadeNegocioGridDTO) => {
           this.excluir(element);
         },
@@ -161,9 +155,9 @@ export class UnidadeNegocioGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -183,29 +177,29 @@ export class UnidadeNegocioGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
     this.listarUnidades();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
     this.listarUnidades();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
     this.listarUnidades();
-    this.ajustaBadgePesquisa(filter);
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -215,7 +209,7 @@ export class UnidadeNegocioGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 

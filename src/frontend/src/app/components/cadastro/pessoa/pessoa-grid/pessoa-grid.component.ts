@@ -1,22 +1,13 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { PessoaService } from '../pessoa.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { PessoaGridDTO } from '../model/pessoa-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
   FilterProperty,
   FilterComponent,
@@ -24,10 +15,18 @@ import {
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { TipoPessoa } from '../model/pessoa-dto';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
 
 @Component({
   selector: 'gi-pessoa-grid',
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+  ],
   providers: [PessoaService, DatePipe],
   templateUrl: './pessoa-grid.component.html',
   styleUrl: './pessoa-grid.component.css',
@@ -43,7 +42,7 @@ export class PessoaGridComponent {
 
   pessoasList: PessoaGridDTO[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<PessoaGridDTO>[] = [
     {
       name: 'nome',
       label: $localize`Nome`,
@@ -83,9 +82,9 @@ export class PessoaGridComponent {
     },
   ];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<PessoaGridDTO>[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   filtros: FilterProperty[] = [
     {
       property: 'nome',
@@ -143,21 +142,21 @@ export class PessoaGridComponent {
     const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_PESSOA');
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: PessoaGridDTO) => this.openDetail.emit(element.id),
       });
     }
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: PessoaGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarPessoas());
+          this.service.delete(element.id).subscribe(() => this.listPessoas());
         },
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.refreshList();
@@ -169,7 +168,7 @@ export class PessoaGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('CADASTRO_PESSOA')) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
         },
@@ -179,9 +178,9 @@ export class PessoaGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -189,10 +188,10 @@ export class PessoaGridComponent {
       shortcut: 'alt.p',
     });
 
-    this.listarPessoas();
+    this.listPessoas();
   }
 
-  listarPessoas() {
+  listPessoas() {
     this.service.list(this.request).subscribe((response) => {
       if (response.body) {
         this.pessoasList = response.body.content;
@@ -201,44 +200,44 @@ export class PessoaGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
-    this.listarPessoas();
+    this.listPessoas();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
 
-    this.listarPessoas();
+    this.listPessoas();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
-    this.listarPessoas();
-    this.ajustaBadgePesquisa(filter);
+    this.listPessoas();
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
-    if (acao.length > 0) {
+  updateFilterBadge(filter: FilterDTO) {
+    const action = this.toolbarActions.filter((it) => it.icon === 'search');
+    if (action.length > 0) {
       if (filter) {
-        acao[0].value = filter.items.length + '';
+        action[0].value = filter.items.length + '';
         return;
       }
-      acao[0].value = '0';
+      action[0].value = '0';
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 
   refreshList() {
-    this.listarPessoas();
+    this.listPessoas();
   }
 }

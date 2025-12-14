@@ -1,8 +1,8 @@
 <gi-app-base
   [title]="titulo"
-  [actions]="acoesTela"
+  [actions]="toolbarActions"
   [goBackFn]="goBackFn.bind(this)"
-  >
+>
   <div body-content>
     <div class="form" [formGroup]="form">
       <!-- Tipo de Pessoa -->
@@ -16,7 +16,7 @@
               formControlName="tipoPessoa"
               (onClick)="onTipoPessoaChange()"
               inputId="tipoFisica"
-              />
+            />
             <label for="tipoFisica" i18n>Pessoa Física</label>
           </div>
           <div class="radio-group">
@@ -26,7 +26,7 @@
               formControlName="tipoPessoa"
               (onClick)="onTipoPessoaChange()"
               inputId="tipoJuridica"
-              />
+            />
             <label for="tipoJuridica" i18n>Pessoa Jurídica</label>
           </div>
         </div>
@@ -35,7 +35,7 @@
             formControlName="ativa"
             [binary]="true"
             inputId="ativaPessoa"
-            />
+          />
           <label for="ativaPessoa" i18n>Ativa</label>
         </div>
       </div>
@@ -45,114 +45,102 @@
         <p-iftalabel class="w-33">
           <input pInputText id="nomePessoa" formControlName="nome" />
           @if (isFisica()) {
-            <label for="nomePessoa" i18n>Nome</label>
+          <label for="nomePessoa" i18n>Nome</label>
+          } @if (isJuridica()) {
+          <label for="nomePessoa" i18n>Nome Fantasia</label>
+          } @if (isControlInvalid('nome')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
           }
-          @if (isJuridica()) {
-            <label for="nomePessoa" i18n
-              >Nome Fantasia</label
-              >
-            }
-            @if (isControlInvalid('nome')) {
-              <small i18n
-                >Esse campo não pode ser em branco.</small
-                >
-              }
-            </p-iftalabel>
+        </p-iftalabel>
 
-            <p-iftalabel class="w-33">
-              <input pInputText id="emailPessoa" formControlName="email" />
-              <label for="emailPessoa" i18n>E-mail</label>
-              @if (isControlInvalid('email')) {
-                <small i18n>E-mail inválido.</small>
-              }
-            </p-iftalabel>
+        <p-iftalabel class="w-33">
+          <input pInputText id="emailPessoa" formControlName="email" />
+          <label for="emailPessoa" i18n>E-mail</label>
+          @if (isControlInvalid('email')) {
+          <small i18n>E-mail inválido.</small>
+          }
+        </p-iftalabel>
 
-            <p-iftalabel class="w-33">
-              <input pInputText id="telefonePessoa" formControlName="telefone" />
-              <label for="telefonePessoa" i18n>Telefone</label>
-              @if (isControlInvalid('telefone')) {
-                <small i18n
-                  >Telefone inválido.</small
-                  >
-                }
-              </p-iftalabel>
-            </div>
+        <p-iftalabel class="w-33">
+          <input pInputText id="telefonePessoa" formControlName="telefone" />
+          <label for="telefonePessoa" i18n>Telefone</label>
+          @if (isControlInvalid('telefone')) {
+          <small i18n>Telefone inválido.</small>
+          }
+        </p-iftalabel>
+      </div>
 
-            <!-- Campos Pessoa Física -->
-            @if (isFisica()) {
-              <div class="campos-fisica">
-                <p-iftalabel class="w-33">
-                  <p-inputMask
-                    id="cpfPessoa"
-                    formControlName="cpf"
-                    mask="999.999.999-99"
-                    />
-                  <label for="cpfPessoa" i18n>CPF</label>
-                  @if (isControlInvalid('cpf')) {
-                    <small i18n>CPF inválido.</small>
-                  }
-                </p-iftalabel>
-                <p-iftalabel class="w-33">
-                  <p-datepicker
-                    inputId="dataNascimentoPessoa"
-                    formControlName="dataNascimento"
-                    dateFormat="dd/mm/yy"
-                    [showIcon]="true"
-                    />
-                  <label for="dataNascimentoPessoa" i18n>Data de Nascimento</label>
-                  @if (isControlInvalid('dataNascimento')) {
-                    <small i18n
-                      >Data inválida.</small
-                      >
-                    }
-                  </p-iftalabel>
-                </div>
-              }
+      <!-- Campos Pessoa Física -->
+      @if (isFisica()) {
+      <div class="campos-fisica">
+        <p-iftalabel class="w-33">
+          <p-inputMask
+            id="cpfPessoa"
+            formControlName="cpf"
+            mask="999.999.999-99"
+          />
+          <label for="cpfPessoa" i18n>CPF</label>
+          @if (isControlInvalid('cpf')) {
+          <small i18n>CPF inválido.</small>
+          }
+        </p-iftalabel>
+        <p-iftalabel class="w-33">
+          <p-datepicker
+            inputId="dataNascimentoPessoa"
+            formControlName="dataNascimento"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+          />
+          <label for="dataNascimentoPessoa" i18n>Data de Nascimento</label>
+          @if (isControlInvalid('dataNascimento')) {
+          <small i18n>Data inválida.</small>
+          }
+        </p-iftalabel>
+      </div>
+      }
 
-              <!-- Campos Pessoa Jurídica -->
-              @if (isJuridica()) {
-                <div class="campos-juridica">
-                  <p-iftalabel class="w-33">
-                    <p-inputMask
-                      id="cnpjPessoa"
-                      formControlName="cnpj"
-                      mask="99.999.999/9999-99"
-                      />
-                    <label for="cnpjPessoa" i18n>CNPJ</label>
-                    @if (isControlInvalid('cnpj')) {
-                      <small i18n>CNPJ inválido.</small>
-                    }
-                  </p-iftalabel>
-                  <p-iftalabel class="w-33">
-                    <input
-                      pInputText
-                      id="inscricaoEstadual"
-                      formControlName="inscricaoEstadual"
-                      />
-                    <label for="inscricaoEstadual" i18n>Inscrição Estadual</label>
-                  </p-iftalabel>
-                  <p-iftalabel class="w-33">
-                    <input pInputText id="razaoSocial" formControlName="razaoSocial" />
-                    <label for="razaoSocial" i18n>Razão Social</label>
-                    @if (isControlInvalid('razaoSocial')) {
-                      <small i18n
-                        >Esse campo não pode ser em branco.</small
-                        >
-                      }
-                    </p-iftalabel>
-                  </div>
-                }
+      <!-- Campos Pessoa Jurídica -->
+      @if (isJuridica()) {
+      <div class="campos-juridica">
+        <p-iftalabel class="w-33">
+          <p-inputMask
+            id="cnpjPessoa"
+            formControlName="cnpj"
+            mask="99.999.999/9999-99"
+          />
+          <label for="cnpjPessoa" i18n>CNPJ</label>
+          @if (isControlInvalid('cnpj')) {
+          <small i18n>CNPJ inválido.</small>
+          }
+        </p-iftalabel>
+        <p-iftalabel class="w-33">
+          <input
+            pInputText
+            id="inscricaoEstadual"
+            formControlName="inscricaoEstadual"
+          />
+          <label for="inscricaoEstadual" i18n>Inscrição Estadual</label>
+        </p-iftalabel>
+        <p-iftalabel class="w-33">
+          <input pInputText id="razaoSocial" formControlName="razaoSocial" />
+          <label for="razaoSocial" i18n>Razão Social</label>
+          @if (isControlInvalid('razaoSocial')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+          }
+        </p-iftalabel>
+      </div>
+      }
 
-                <!-- Observações -->
-                <p-iftalabel class="w-100">
-                  <textarea
-                    pTextarea
-                    id="observacoesPessoa"
-                    formControlName="observacoes"
-                    rows="4"
-                  ></textarea>
-                  <label for="observacoesPessoa" i18n>Observações</label>
-                </p-iftalabel>
-              </div>
-            </div>
-          </gi-app-base>
+      <!-- Observações -->
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="observacoesPessoa"
+          formControlName="observacoes"
+          rows="4"
+        ></textarea>
+        <label for="observacoesPessoa" i18n>Observações</label>
+      </p-iftalabel>
+    </div>
+  </div>
+</gi-app-base>

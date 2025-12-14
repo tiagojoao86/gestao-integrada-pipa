@@ -32,13 +32,13 @@ public class MovimentacaoFinanceiraController extends
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_LISTAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_LISTAR')")
     public Response list(@RequestBody PageRequest request) {
         return super.list(request);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_EDITAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_EDITAR')")
     public Response save(@RequestBody MovimentacaoFinanceiraDTO body) {
         if (LOGGER.isInfoEnabled()) {
             try {
@@ -54,19 +54,19 @@ public class MovimentacaoFinanceiraController extends
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_VISUALIZAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_VISUALIZAR')")
     public Response findById(@RequestParam(F_ID) UUID id) {
         return super.findById(id);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_DELETAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_DELETAR')")
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
 
     @GetMapping("/titulos/search")
-    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_LISTAR')")
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_LISTAR')")
     public Response searchTitulos(@RequestParam(name = "q", required = false) String q,
             @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
         List<TituloDTO> results = tituloService.searchByQuery(q, size);

@@ -8,10 +8,8 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { UnidadeNegocioService } from '../unidade-negocio.service';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -40,15 +38,15 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputTextModule,
     CheckboxModule,
     TextareaModule,
-    InputMaskModule
-],
+    InputMaskModule,
+  ],
   templateUrl: './unidade-negocio-detalhe.component.html',
   styleUrl: './unidade-negocio-detalhe.component.css',
   providers: [UnidadeNegocioService],
 })
 export class UnidadeNegocioDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   unidadeNegocio: UnidadeNegocioDTO = {} as UnidadeNegocioDTO;
 
   @Input() id: string | number | null = null;
@@ -59,7 +57,7 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
 
   titulo = $localize`Unidade de Negócio: `;
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
   ngOnInit(): void {
@@ -69,7 +67,7 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
       'CADASTRO_UNIDADE_NEGOCIO'
     );
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -81,7 +79,7 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.salvar();
         },
@@ -92,14 +90,14 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
     }
 
     if (this.id === RouteConstants.P_ADD) {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.titulo += $localize`Nova`;
       this.unidadeNegocio = {
         ativa: true,
       } as UnidadeNegocioDTO;
       this.fillForm();
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
         this.unidadeNegocio = response.body;
         this.titulo += this.unidadeNegocio.nome;

@@ -1,9 +1,11 @@
-<gi-app-base [title]="titulo" [hideFooter]="true">
+<gi-app-base [title]="title" [hideFooter]="true">
   <div body-content>
-    @for (grupo of recursos; track grupo) {
-      <div>
-        <gi-recurso-grupo [recursoGrupo]="grupo"></gi-recurso-grupo>
-      </div>
+    @for (systemModuleGroup of systemModules; track systemModuleGroup) {
+    <div>
+      <gi-system-module-group
+        [systemModuleGroup]="systemModuleGroup"
+      ></gi-system-module-group>
+    </div>
     }
   </div>
 </gi-app-base>

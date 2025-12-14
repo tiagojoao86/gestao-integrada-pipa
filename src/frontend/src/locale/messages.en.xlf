@@ -1445,6 +1445,194 @@
         <source>Parcela</source>
         <target>Installment</target>
       </trans-unit>
+      <trans-unit id="6202898052226439446" datatype="html">
+        <source>Categorias de Título</source>
+        <target>Title Categories</target>
+      </trans-unit>
+      <trans-unit id="8126406057772488293" datatype="html">
+        <source>Selecione uma Unidade de Negócio antes de salvar.</source>
+        <target>Select a Business Unit before saving.</target>
+      </trans-unit>
+      <trans-unit id="5853714755829026137" datatype="html">
+        <source>Unidade de Negócio</source>
+        <target>Business Unit</target>
+      </trans-unit>
+      <trans-unit id="planoContas.unidadeNegocio" datatype="html">
+        <source>Unidade</source>
+        <target>Unit</target>
+      </trans-unit>
+      <trans-unit id="planoContas.unidadeNegocioObrigatoria" datatype="html">
+        <source>Unidade de negócio é obrigatória</source>
+        <target>Business unit is required</target>
+      </trans-unit>
+      <trans-unit id="categoriaTitulo.nome.notBlank" datatype="html">
+        <source>Nome da categoria é obrigatório.</source>
+        <target>Category name is required.</target>
+      </trans-unit>
+      <trans-unit id="8672365134112049537" datatype="html">
+        <source>Categoria de Título: </source>
+        <target>Title Category: </target>
+      </trans-unit>
+      <trans-unit id="3562798950353926440" datatype="html">
+        <source>Categoria salva com sucesso.</source>
+        <target>Category saved successfully.</target>
+      </trans-unit>
+      <trans-unit id="7300634805813883639" datatype="html">
+        <source>Categorias de Títulos</source>
+        <target>Title Categories</target>
+      </trans-unit>
+      <trans-unit id="7260225809014627320" datatype="html">
+        <source>Unidade de Negócio é obrigatória.</source>
+        <target>Business unit is required.</target>
+      </trans-unit>
+      <trans-unit id="4469287370653117732" datatype="html">
+        <source>Unidade</source>
+        <target>Unit</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.titulos" datatype="html">
+        <source>Pelo menos um título é obrigatório</source>
+        <target>At least one title is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.contaBancaria" datatype="html">
+        <source>Conta bancária é obrigatória</source>
+        <target>Bank account is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.tipo" datatype="html">
+        <source>Tipo de movimentação é obrigatório</source>
+        <target>Transaction type is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.formaPagamento" datatype="html">
+        <source>Forma de pagamento é obrigatória</source>
+        <target>Payment method is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.valor" datatype="html">
+        <source>Valor deve ser maior que zero</source>
+        <target>Amount must be greater than zero.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.valor.valorMovimentoMaiorTitulo" datatype="html">
+        <source>Valor da movimentação excede o saldo do título</source>
+        <target>Transaction amount exceeds the title balance.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.data" datatype="html">
+        <source>Data é obrigatória</source>
+        <target>Date is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.unidadeNegocio" datatype="html">
+        <source>Unidade de negócio é obrigatória</source>
+        <target>Business unit is required.</target>
+      </trans-unit>
+      <trans-unit id="movimentacaoFinanceira.titulo.status" datatype="html">
+        <source>Não é possível criar movimentação para título com o status atual</source>
+        <target>Cannot create transaction for a title in the current status.</target>
+      </trans-unit>
+      <trans-unit id="8354544002473582212" datatype="html">
+        <source>Movimentações Financeiras</source>
+        <target>Financial Transactions</target>
+      </trans-unit>
+      <trans-unit id="2519221048669104768" datatype="html">
+        <source>Pagamento</source>
+        <target>Payment</target>
+      </trans-unit>
+      <trans-unit id="6228008228800870122" datatype="html">
+        <source>Recebimento</source>
+        <target>Receipt</target>
+      </trans-unit>
+      <trans-unit id="8178368788396215345" datatype="html">
+        <source>Estorno</source>
+        <target>Reversal</target>
+      </trans-unit>
+      <trans-unit id="4948671240046526608" datatype="html">
+        <source>Transferência</source>
+        <target>Transfer</target>
+      </trans-unit>
+      <trans-unit id="5474447446495107748" datatype="html">
+        <source>Conta / Banco</source>
+        <target>Account / Bank</target>
+      </trans-unit>
+      <trans-unit id="5526733194778250038" datatype="html">
+        <source>Movimentação Financeira: </source>
+        <target>Financial Transaction: </target>
+      </trans-unit>
+      <trans-unit id="1425645135013601519" datatype="html">
+        <source>Dinheiro</source>
+        <target>Cash</target>
+      </trans-unit>
+      <trans-unit id="9018606601641617744" datatype="html">
+        <source>Boleto</source>
+        <target>Bank Slip</target>
+      </trans-unit>
+      <trans-unit id="7291873603583880274" datatype="html">
+        <source>Cartão de Crédito</source>
+        <target>Credit Card</target>
+      </trans-unit>
+      <trans-unit id="5106140615681547950" datatype="html">
+        <source>Cartão de Débito</source>
+        <target>Debit Card</target>
+      </trans-unit>
+      <trans-unit id="2541204709581671340" datatype="html">
+        <source>Cheque</source>
+        <target>Check</target>
+      </trans-unit>
+      <trans-unit id="8664790966514706451" datatype="html">
+        <source>Depósito</source>
+        <target>Deposit</target>
+      </trans-unit>
+      <trans-unit id="6729247049125278288" datatype="html">
+        <source>Pelo menos um título é obrigatório.</source>
+        <target>At least one title is required.</target>
+      </trans-unit>
+      <trans-unit id="16998816601880253" datatype="html">
+        <source>Conta bancária é obrigatória.</source>
+        <target>Bank account is required.</target>
+      </trans-unit>
+      <trans-unit id="736021346603943808" datatype="html">
+        <source>Tipo de movimentação é obrigatório.</source>
+        <target>Transaction type is required.</target>
+      </trans-unit>
+      <trans-unit id="7436743726715774367" datatype="html">
+        <source>Forma de pagamento é obrigatória.</source>
+        <target>Payment method is required.</target>
+      </trans-unit>
+      <trans-unit id="6987033881069415979" datatype="html">
+        <source>Valor deve ser maior que zero.</source>
+        <target>Amount must be greater than zero.</target>
+      </trans-unit>
+      <trans-unit id="5314946770691435270" datatype="html">
+        <source>Data é obrigatória.</source>
+        <target>Date is required.</target>
+      </trans-unit>
+      <trans-unit id="428018487733135243" datatype="html">
+        <source>Unidade de negócio é obrigatória.</source>
+        <target>Business unit is required.</target>
+      </trans-unit>
+      <trans-unit id="1691570675841545666" datatype="html">
+        <source>Movimentação salva com sucesso.</source>
+        <target>Transaction saved successfully.</target>
+      </trans-unit>
+      <trans-unit id="4968207424965468147" datatype="html">
+        <source>Conta Bancária</source>
+        <target>Bank Account</target>
+      </trans-unit>
+      <trans-unit id="6603307687208267957" datatype="html">
+        <source>Forma de Pagamento</source>
+        <target>Payment Method</target>
+      </trans-unit>
+      <trans-unit id="2103567143306052291" datatype="html">
+        <source>Padrão</source>
+        <target>Default</target>
+      </trans-unit>
+      <trans-unit id="146442697456175258" datatype="html">
+        <source>Data</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="titulo.status" datatype="html">
+        <source>Não é possível alterar título com esse status.</source>
+        <target>Cannot change title with this status.</target>
+      </trans-unit>
+      <trans-unit id="titulo.status.cancelar.pago" datatype="html">
+        <source>Não é possível cancelar título já pago.</source>
+        <target>Cannot cancel a title that has already been paid.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
