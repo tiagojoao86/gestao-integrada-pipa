@@ -35,8 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Usa MockMvc para testar os endpoints REST sem subir o servidor.
  */
 @DisplayName("TituloController - Testes Unitários")
-@WebMvcTest(value = TituloController.class,
-    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
+@WebMvcTest(value = TituloController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
 @AutoConfigureMockMvc(addFilters = false)
 class TituloControllerTest {
 
@@ -64,8 +63,7 @@ class TituloControllerTest {
                 .descricao("Pagamento fornecedor")
                 .pessoaId(UUID.randomUUID())
                 .pessoaNome("Fornecedor Teste")
-                .planoContasId(UUID.randomUUID())
-                .planoContasDescricao("Fornecedores")
+                // planoContas removed; categoriaTitulo will be added later
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
@@ -88,8 +86,8 @@ class TituloControllerTest {
     @WithMockUser(authorities = "FINANCEIRO_TITULO_LISTAR")
     void deveListarTitulosPaginados() throws Exception {
         // Given
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = 
-            br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
                 .page(0)
                 .size(10)
                 .order(List.of())
@@ -98,17 +96,16 @@ class TituloControllerTest {
         PageDTO<TituloGridDTO> pageDTO = new PageDTO<>(
                 List.of(gridDTO),
                 PageRequest.of(0, 10),
-                1L
-        );
+                1L);
 
         when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(pageDTO);
+                .thenReturn(pageDTO);
 
         // When & Then
         mockMvc.perform(post("/titulo/query")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)))
                 .andExpect(jsonPath("$.body.content[0].id", is(tituloId.toString())))
@@ -126,9 +123,9 @@ class TituloControllerTest {
 
         // When & Then
         mockMvc.perform(post("/titulo")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dtoValido)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dtoValido)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)))
                 .andExpect(jsonPath("$.body.id", is(tituloId.toString())))
@@ -146,8 +143,8 @@ class TituloControllerTest {
 
         // When & Then
         mockMvc.perform(get("/titulo/find-by-id")
-                        .param("id", tituloId.toString())
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("id", tituloId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)))
                 .andExpect(jsonPath("$.body.id", is(tituloId.toString())))
@@ -166,8 +163,8 @@ class TituloControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/titulo/{id}", tituloId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode", is(200)));
 

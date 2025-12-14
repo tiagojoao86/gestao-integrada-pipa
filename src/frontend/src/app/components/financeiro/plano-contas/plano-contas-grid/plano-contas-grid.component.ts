@@ -1,21 +1,15 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { PlanoContasGridDTO } from '../model/plano-contas-grid-dto';
 import { PlanoContasService } from '../plano-contas.service';
 
 import { AuthService } from '../../../base/auth/auth-service';
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
   FilterProperty,
   FilterComponent,
@@ -27,7 +21,12 @@ import { TipoPlanoContas } from '../model/tipo-plano-contas.enum';
 
 @Component({
   selector: 'gi-plano-contas-grid',
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+  ],
   providers: [PlanoContasService],
   templateUrl: './plano-contas-grid.component.html',
   styleUrl: './plano-contas-grid.component.css',
@@ -46,7 +45,7 @@ export class PlanoContasGridComponent {
   authService = inject(AuthService);
   service = inject(PlanoContasService);
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<PlanoContasGridDTO>[] = [
     {
       name: 'codigo',
       label: $localize`:@@planoContas.codigo:Código`,
@@ -145,9 +144,9 @@ export class PlanoContasGridComponent {
     },
   ];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<PlanoContasGridDTO>[] = [];
 
   request = new PageRequest(
     { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
@@ -168,7 +167,7 @@ export class PlanoContasGridComponent {
     );
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: PlanoContasGridDTO) =>
           this.openDetail.emit(element.id),
@@ -176,7 +175,7 @@ export class PlanoContasGridComponent {
     }
 
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: PlanoContasGridDTO) => {
           this.service
@@ -186,7 +185,7 @@ export class PlanoContasGridComponent {
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.refreshList();
@@ -198,7 +197,7 @@ export class PlanoContasGridComponent {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
         },
@@ -208,9 +207,9 @@ export class PlanoContasGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -230,30 +229,30 @@ export class PlanoContasGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
     this.listarPlanoContas();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
 
     this.listarPlanoContas();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
     this.listarPlanoContas();
-    this.ajustaBadgePesquisa(filter);
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -263,7 +262,7 @@ export class PlanoContasGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 

@@ -17,7 +17,7 @@ export class PerfilService extends BaseService<PerfilDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return PerfilService.PERFIL;
   }
 }

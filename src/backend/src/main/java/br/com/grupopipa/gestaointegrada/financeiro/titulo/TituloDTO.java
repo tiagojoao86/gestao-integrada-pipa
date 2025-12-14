@@ -14,21 +14,19 @@ import java.util.UUID;
 @Setter
 @Builder
 public class TituloDTO implements DTO {
-    
+
     private UUID id;
     private String tipo; // A_PAGAR, A_RECEBER
     private String status; // ABERTO, PARCIAL, PAGO, CANCELADO, VENCIDO
     private String numeroDocumento;
     private String descricao;
-    
+
     // Relacionamentos
     private UUID pessoaId;
     private String pessoaNome;
-    private UUID planoContasId;
-    private String planoContasDescricao;
     private UUID unidadeNegocioId;
     private String unidadeNegocioNome;
-    
+
     // Valores
     private BigDecimal valorOriginal;
     private BigDecimal valorPago;
@@ -36,19 +34,19 @@ public class TituloDTO implements DTO {
     private BigDecimal valorJuros;
     private BigDecimal valorMulta;
     private BigDecimal saldo; // Calculado
-    
+
     // Datas
     private LocalDate dataEmissao;
     private LocalDate dataVencimento;
     private LocalDate dataPagamento;
-    
+
     private String observacoes;
-    
+
     // Parcelamento
     private Integer numeroParcela;
     private Integer totalParcelas;
     private UUID tituloOrigemId;
-    
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

@@ -1,0 +1,11 @@
+@if (systemModuleGroup && systemModuleGroup.systemModules &&
+systemModuleGroup.systemModules.length > 0) {
+<div class="system-module-group">
+  <div class="group-name">{{ systemModuleGroup.name }}</div>
+  <div class="group-items">
+    @for (systemModule of systemModuleGroup.systemModules; track systemModule) {
+    <gi-system-module [systemModule]="systemModule"></gi-system-module>
+    }
+  </div>
+</div>
+}

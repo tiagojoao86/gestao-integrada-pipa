@@ -21,7 +21,7 @@ export class PlanoContasService extends BaseService<PlanoContasDTO> {
     );
   }
 
-  getDominio(): string {
+  getDomain(): string {
     return PlanoContasService.PLANO_CONTAS;
   }
 

@@ -1,10 +1,24 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { PerfilService } from '../perfil.service';
-import { RegisterActionToolbar, BaseComponent } from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from '../../../base/messages/messages.service';
 import { PerfilDTO } from '../model/perfil-dto';
@@ -14,22 +28,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
 import { PerfilModuloDTO } from '../model/perfil-modulo-dto';
 import { CheckboxChangeEvent } from 'primeng/checkbox';
-import { Response } from '../../../base/model/response'; 
+import { Response } from '../../../base/model/response';
 import { AuthService } from '../../../base/auth/auth-service';
-
-interface PermissaoFormGroupValue {
-  id?: string;
-  perfilId: string;
-  moduloId: string;
-  moduloNome: string;
-  chave: string;
-  grupo: string;
-  selecionado: boolean;
-  podeListar: boolean;
-  podeVisualizar: boolean;
-  podeEditar: boolean;
-  podeDeletar: boolean;
-}
+import { PermissaoFormGroupValue } from './permissao-form-group-value';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 @Component({
   selector: 'gi-perfil-detalhe',
@@ -40,15 +42,15 @@ interface PermissaoFormGroupValue {
     ReactiveFormsModule,
     InputTextModule,
     CheckboxModule,
-    AccordionModule
-],
+    AccordionModule,
+  ],
   templateUrl: './perfil-detalhe.component.html',
   styleUrl: './perfil-detalhe.component.css',
   providers: [PerfilService, ModuloService],
 })
 export class PerfilDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   perfil: PerfilDTO = { id: '', nome: '', permissoes: [] };
   modulosAgrupados: Record<string, ModuloDTO[]> = {};
   @Input() detailId: string | number | null = null;
@@ -59,10 +61,10 @@ export class PerfilDetalheComponent implements OnInit {
   private moduloService: ModuloService = inject(ModuloService);
   private fb = inject(FormBuilder).nonNullable;
 
-  titulo = $localize`Perfil: `;
+  title = $localize`Perfil: `;
 
-  acoesTela: RegisterActionToolbar[] = [];
-  
+  toolbarActions: ToolbarActionModel[] = [];
+
   private auth: AuthService = inject(AuthService);
 
   get permissoes(): FormArray {
@@ -73,12 +75,22 @@ export class PerfilDetalheComponent implements OnInit {
     this.initForm();
     // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_PERFIL');
-    this.acoesTela = [
-      { action: () => this.goBackFn(), icon: 'close', title: $localize`Cancelar` + ' (esc)', shortcut: 'escape' },
+    this.toolbarActions = [
+      {
+        action: () => this.goBackFn(),
+        icon: 'close',
+        title: $localize`Cancelar` + ' (esc)',
+        shortcut: 'escape',
+      },
     ];
 
     if (canEdit) {
-      this.acoesTela.push({ action: () => this.salvar(), icon: 'save', title: $localize`Salvar` + ' (enter)', shortcut: 'enter' });
+      this.toolbarActions.push({
+        action: () => this.savePerfil(),
+        icon: 'save',
+        title: $localize`Salvar` + ' (enter)',
+        shortcut: 'enter',
+      });
     }
 
     this.loadData();
@@ -86,21 +98,23 @@ export class PerfilDetalheComponent implements OnInit {
 
   private loadData(): void {
     this.moduloService.getGroupedModules().subscribe((response: Response) => {
-      const modulos = response.body as Record<string, ModuloDTO[]>; 
+      const modulos = response.body as Record<string, ModuloDTO[]>;
       for (const grupo in modulos) {
-        modulos[grupo].sort((a: ModuloDTO, b: ModuloDTO) => a.nome.localeCompare(b.nome));
+        modulos[grupo].sort((a: ModuloDTO, b: ModuloDTO) =>
+          a.nome.localeCompare(b.nome)
+        );
       }
       this.modulosAgrupados = modulos;
-      
+
       if (this.detailId === RouteConstants.P_ADD) {
-        this.modoEdicao = false;
-        this.titulo += $localize`Novo`;
+        this.editMode = false;
+        this.title += $localize`Novo`;
         this.buildPermissoesForm();
       } else {
-        this.modoEdicao = true;
-        this.service.findById(String(this.detailId!)).subscribe(response => {          
+        this.editMode = true;
+        this.service.findById(String(this.detailId!)).subscribe((response) => {
           this.perfil = response.body as PerfilDTO;
-          this.titulo += this.perfil.nome;
+          this.title += this.perfil.nome;
           this.fillForm();
           this.buildPermissoesForm();
         });
@@ -110,15 +124,22 @@ export class PerfilDetalheComponent implements OnInit {
 
   private buildPermissoesForm(): void {
     const allModules = Object.values(this.modulosAgrupados).flat();
-    allModules.forEach(modulo => {
-      if (modulo) {        
-        const permissaoExistente = this.perfil.permissoes.find(p => p.moduloId === modulo.id);
-        this.permissoes.push(this.createPermissaoGroup(modulo, permissaoExistente));
+    allModules.forEach((modulo) => {
+      if (modulo) {
+        const permissaoExistente = this.perfil.permissoes.find(
+          (p) => p.moduloId === modulo.id
+        );
+        this.permissoes.push(
+          this.createPermissaoFormGroup(modulo, permissaoExistente)
+        );
       }
     });
   }
 
-  private createPermissaoGroup(modulo: ModuloDTO, permissao?: PerfilModuloDTO): FormGroup {
+  private createPermissaoFormGroup(
+    modulo: ModuloDTO,
+    permissao?: PerfilModuloDTO
+  ): FormGroup {
     return this.fb.group({
       id: [permissao?.id || null],
       perfilId: [this.perfil.id],
@@ -137,22 +158,25 @@ export class PerfilDetalheComponent implements OnInit {
   initForm(): void {
     this.form = this.fb.group({
       nome: [null, [Validators.required]],
-      permissoes: this.fb.array([])
+      permissoes: this.fb.array([]),
     });
   }
 
   fillForm(): void {
-    this.form.get('nome')?.setValue(this.perfil.nome);    
+    this.form.get('nome')?.setValue(this.perfil.nome);
   }
 
-  salvar(): void {
+  savePerfil(): void {
     if (!this.form.valid) {
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
-  
+
     const payloadPermissoes: PerfilModuloDTO[] = this.permissoes.value
-      .filter((p: PermissaoFormGroupValue) => p.podeListar || p.podeVisualizar || p.podeEditar || p.podeDeletar)
+      .filter(
+        (p: PermissaoFormGroupValue) =>
+          p.podeListar || p.podeVisualizar || p.podeEditar || p.podeDeletar
+      )
       .map((p: PermissaoFormGroupValue): PerfilModuloDTO => {
         return {
           id: p.id,
@@ -170,8 +194,8 @@ export class PerfilDetalheComponent implements OnInit {
       ...this.form.value,
       id: this.perfil.id,
       permissoes: payloadPermissoes,
-    };   
-  
+    };
+
     this.service.save(payload, {
       onSuccess: (data: PerfilDTO) => {
         this.perfil = data;
@@ -200,7 +224,10 @@ export class PerfilDetalheComponent implements OnInit {
     );
   }
 
-  onSelecaoModuloChange(permissaoGroup: AbstractControl, event: CheckboxChangeEvent): void {
+  onSelectModuloChange(
+    permissaoGroup: AbstractControl,
+    event: CheckboxChangeEvent
+  ): void {
     const selecionado = event.checked;
     if (!selecionado) {
       permissaoGroup.get('podeListar')?.setValue(false);

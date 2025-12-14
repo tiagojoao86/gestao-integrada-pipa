@@ -8,10 +8,8 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { UsuarioService } from '../usuario.service';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -58,7 +56,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 })
 export class UsuarioDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   usuario: UsuarioDTO = {} as UsuarioDTO;
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
@@ -78,7 +76,7 @@ export class UsuarioDetalheComponent implements OnInit {
   selectedUnidades: UsuarioUnidadeNegocioDTO[] = [];
   unidadeDefaultId: string | null = null;
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
   ngOnInit(): void {
@@ -86,7 +84,7 @@ export class UsuarioDetalheComponent implements OnInit {
 
     // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_USUARIO');
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -98,7 +96,7 @@ export class UsuarioDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.salvar();
         },
@@ -109,13 +107,13 @@ export class UsuarioDetalheComponent implements OnInit {
     }
 
     if (this.detailId === RouteConstants.P_ADD) {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.titulo += $localize`Novo`;
       this.usuario = {} as UsuarioDTO;
       this.loadPerfisAndInitLists();
       this.loadUnidadesAndInitLists();
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.usuario = response.body;
         this.titulo += this.usuario.nome;

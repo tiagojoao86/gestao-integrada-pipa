@@ -1,33 +1,38 @@
-<p-table [value]="dataSource" sortMode="multiple" [resizableColumns]="true" (onSort)="sortChange($event.multisortmeta)" [lazy]="true">
+<p-table
+  [value]="data"
+  sortMode="multiple"
+  [resizableColumns]="true"
+  (onSort)="sortChange($event.multisortmeta)"
+  [lazy]="true"
+>
   <ng-template #header>
     <tr>
-      @for (col of columnDefinition; track col) {
-        <th [pSortableColumn]="col.name" pResizableColumn>
-          <span class="header">{{ col.label }}</span><p-sortIcon [field]="col.name" />
-        </th>
-      }
-      @if (actions) {
-        <th i18n>Ações</th>
+      @for (col of columns; track col) {
+      <th [pSortableColumn]="col.name" pResizableColumn>
+        <span class="header">{{ col.label }}</span
+        ><p-sortIcon [field]="col.name" />
+      </th>
+      } @if (actions) {
+      <th i18n>Ações</th>
       }
     </tr>
   </ng-template>
-  <ng-template #body let-rowData let-columns="columnDefinition">
+  <ng-template #body let-rowData>
     <tr>
-      @for (col of columnDefinition; track col) {
-        <td>
-          {{ col.getValue(rowData) }}
-        </td>
-      }
-      @if (actions) {
-        <td>
-          <div class="actions">
-            @for (action of actions; track action) {
-              <p-button (click)="action.action(rowData)">
-                <span class="material-icons table-icon">{{action.icon}}</span>
-              </p-button>
-            }
-          </div>
-        </td>
+      @for (col of columns; track col) {
+      <td>
+        {{ col.getValue(rowData) }}
+      </td>
+      } @if (actions) {
+      <td>
+        <div class="actions">
+          @for (action of actions; track action) {
+          <p-button (click)="action.action(rowData)">
+            <span class="material-icons table-icon">{{ action.icon }}</span>
+          </p-button>
+          }
+        </div>
+      </td>
       }
     </tr>
   </ng-template>

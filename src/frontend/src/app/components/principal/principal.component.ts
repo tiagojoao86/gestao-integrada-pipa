@@ -2,9 +2,8 @@ import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 import {
-  GrupoMenu,
-  MenuPrincipalItemComponent,
-} from '../base/menu/menu-principal-item/menu-principal-item.component';
+  MainMenuItemComponent,
+} from '../base/menu/main-menu-item/main-menu-item.component';
 import {
   animate,
   state,
@@ -16,12 +15,13 @@ import { Toolbar } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { MessagesComponent } from '../base/messages/messages.component';
 import { AuthService } from '../base/auth/auth-service';
+import { GroupMenu } from '../base/menu/main-menu-item/group-menu';
 
 @Component({
   selector: 'gi-principal-component',
   imports: [
     RouterModule,
-    MenuPrincipalItemComponent,
+    MainMenuItemComponent,
     Toolbar,
     ButtonModule,
     MessagesComponent,
@@ -60,7 +60,7 @@ export class PrincipalComponent implements OnInit {
     icone: 'menu',
   };
 
-  menu: GrupoMenu[] = [];
+  menu: GroupMenu[] = [];
 
   ngOnInit(): void {
     this.buildMenu();
@@ -69,24 +69,24 @@ export class PrincipalComponent implements OnInit {
   buildMenu() {
     if (this.authService.hasAuthorityToGrupo('CADASTROS')) {
       this.menu.push({
-        nome: $localize`Cadastros`,
-        icone: 'widgets',
+        name: $localize`Cadastros`,
+        icon: 'widgets',
         url: '/cadastro',
       });
     }
 
     if (this.authService.hasAuthorityToGrupo('FINANCEIRO')) {
       this.menu.push({
-        nome: $localize`Financeiro`,
-        icone: 'attach_money',
+        name: $localize`Financeiro`,
+        icon: 'attach_money',
         url: '/financeiro',
       });
     }
 
     if (this.authService.hasAuthorityToGrupo('ATENDIMENTO')) {
       this.menu.push({
-        nome: $localize`Atendimento`,
-        icone: 'child_care',
+        name: $localize`Atendimento`,
+        icon: 'child_care',
         url: '/atendimento',
       });
     }

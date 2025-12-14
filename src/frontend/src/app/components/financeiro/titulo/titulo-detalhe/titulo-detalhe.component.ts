@@ -8,10 +8,8 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { TituloService } from '../titulo.service';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -54,7 +52,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 })
 export class TituloDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   titulo: TituloDTO = {} as TituloDTO;
   @Input() id: string | number | null = null;
   @Output() backEvent = new EventEmitter<void>();
@@ -69,24 +67,7 @@ export class TituloDetalheComponent implements OnInit {
   pessoaSuggestions: { id: string; nome: string }[] = [];
   pessoaInput: { id: string; nome: string } | null = null;
 
-  allPlanosContas: {
-    id: string;
-    codigo: string;
-    descricao: string;
-    displayLabel: string;
-  }[] = [];
-  planoContasSuggestions: {
-    id: string;
-    codigo: string;
-    descricao: string;
-    displayLabel: string;
-  }[] = [];
-  planoContasInput: {
-    id: string;
-    codigo: string;
-    descricao: string;
-    displayLabel: string;
-  } | null = null;
+  // planoContas removed
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
 
@@ -103,7 +84,7 @@ export class TituloDetalheComponent implements OnInit {
     { label: $localize`Vencido`, value: 'VENCIDO' },
   ];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
   ngOnInit(): void {
@@ -111,20 +92,13 @@ export class TituloDetalheComponent implements OnInit {
     this.loadPessoas();
     this.loadUnidadesNegocio();
 
-    // Listen to unidadeNegocio changes to reload planos de contas
-    this.form
-      .get('unidadeNegocio')
-      ?.valueChanges.subscribe((unidadeNegocioId) => {
-        if (unidadeNegocioId) {
-          this.loadPlanosContas(unidadeNegocioId);
-        } else {
-          this.allPlanosContas = [];
-          this.planoContasInput = null;
-        }
-      });
+    // Listen to unidadeNegocio changes (no planos de contas handling anymore)
+    this.form.get('unidadeNegocio')?.valueChanges.subscribe(() => {
+      // Intentionally left blank: plano de contas was removed from the UI/model
+    });
 
     const canEdit = this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO');
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -136,7 +110,7 @@ export class TituloDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.salvar();
         },
@@ -147,7 +121,7 @@ export class TituloDetalheComponent implements OnInit {
     }
 
     if (this.id === RouteConstants.P_ADD) {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.tituloTela += $localize`Novo`;
       this.titulo = {} as TituloDTO;
       this.form.get('tipo')?.setValue('A_PAGAR');
@@ -156,14 +130,14 @@ export class TituloDetalheComponent implements OnInit {
       // Load unidades and set default after loading
       this.loadUnidadesNegocio(true);
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
         this.titulo = response.body;
         this.tituloTela += this.titulo.descricao;
         this.fillForm();
         // Load planos de contas after filling form with unidadeNegocioId
         if (this.titulo.unidadeNegocioId) {
-          this.loadPlanosContas(this.titulo.unidadeNegocioId);
+          // planos de contas removed - no action
         }
       });
     }
@@ -222,36 +196,13 @@ export class TituloDetalheComponent implements OnInit {
         nome: this.titulo.pessoaNome || '',
       };
     }
-    if (this.titulo.planoContasId) {
-      this.planoContasInput = {
-        id: this.titulo.planoContasId,
-        codigo: '',
-        descricao: this.titulo.planoContasDescricao || '',
-        displayLabel: this.titulo.planoContasDescricao || '',
-      };
-    }
+    // planoContas removed
   }
 
   loadPessoas() {
     this.service.listarPessoasDisponiveis().subscribe((pessoas) => {
       this.allPessoas = pessoas;
     });
-  }
-
-  loadPlanosContas(unidadeNegocioId: string) {
-    if (!unidadeNegocioId) {
-      this.allPlanosContas = [];
-      this.planoContasInput = null;
-      return;
-    }
-    this.service
-      .listarPlanosDisponiveis(unidadeNegocioId)
-      .subscribe((planos) => {
-        this.allPlanosContas = planos.map((p) => ({
-          ...p,
-          displayLabel: `${p.codigo} - ${p.descricao}`,
-        }));
-      });
   }
 
   loadUnidadesNegocio(setDefault = false) {
@@ -287,38 +238,12 @@ export class TituloDetalheComponent implements OnInit {
     });
   }
 
-  searchPlanosContas(event: { query: string }) {
-    // Se não há planos carregados e temos uma unidade de negócio selecionada, carregar
-    const unidadeNegocioId = this.form.get('unidadeNegocio')?.value;
-    if (this.allPlanosContas.length === 0 && unidadeNegocioId) {
-      this.loadPlanosContas(unidadeNegocioId);
-      // Como o load é assíncrono, retornar vazio por enquanto
-      this.planoContasSuggestions = [];
-      return;
-    }
-
-    const q = event.query ? String(event.query).toLowerCase() : '';
-    this.planoContasSuggestions = this.allPlanosContas.filter((pc) => {
-      const codigo = pc?.codigo ? String(pc.codigo).toLowerCase() : '';
-      const descricao = pc?.descricao ? String(pc.descricao).toLowerCase() : '';
-      return codigo.includes(q) || descricao.includes(q);
-    });
-  }
-
   onPessoaSelect(pessoa: { id: string; nome: string }) {
     this.titulo.pessoaId = pessoa.id;
     this.titulo.pessoaNome = pessoa.nome;
   }
 
-  onPlanoContasSelect(planoContas: {
-    id: string;
-    codigo: string;
-    descricao: string;
-    displayLabel: string;
-  }) {
-    this.titulo.planoContasId = planoContas.id;
-    this.titulo.planoContasDescricao = planoContas.descricao;
-  }
+  // planoContas related handlers removed
 
   salvar() {
     if (!this.form.valid) {
@@ -331,10 +256,7 @@ export class TituloDetalheComponent implements OnInit {
       return;
     }
 
-    if (!this.titulo.planoContasId) {
-      this.messages.erro($localize`Plano de Contas é obrigatório.`);
-      return;
-    }
+    // planoContas removed - validation not required
 
     const unidadeNegocioId = this.form.value.unidadeNegocio;
     if (!unidadeNegocioId) {

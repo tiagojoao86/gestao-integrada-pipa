@@ -21,10 +21,8 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { PlanoContasDTO } from '../model/plano-contas-dto';
 import { PlanoContasService } from '../plano-contas.service';
 import { TipoPlanoContas } from '../model/tipo-plano-contas.enum';
@@ -58,7 +56,7 @@ import {
 })
 export class PlanoContasDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   entity: PlanoContasDTO = this.createEmptyEntity();
 
   @Input() detailId!: string;
@@ -81,7 +79,7 @@ export class PlanoContasDetalheComponent implements OnInit {
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
   createEmptyEntity(): PlanoContasDTO {
     return {
@@ -95,7 +93,7 @@ export class PlanoContasDetalheComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -110,7 +108,7 @@ export class PlanoContasDetalheComponent implements OnInit {
       'CADASTRO_PLANO_CONTAS'
     );
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.onSave();
         },
@@ -121,13 +119,13 @@ export class PlanoContasDetalheComponent implements OnInit {
     }
 
     if (this.detailId === 'add') {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.titulo += $localize`:@@common.new:Novo`;
       this.entity = this.createEmptyEntity();
       // Load unidades and set default after loading
       this.loadUnidadesNegocio(true);
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.planoContasService.findById(this.detailId).subscribe({
         next: (response) => {
           this.entity = response.body;

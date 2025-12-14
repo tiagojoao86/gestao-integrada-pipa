@@ -1,24 +1,24 @@
-<gi-app-base [title]="titulo" [actions]="acoesTela" style="flex-grow: 1">
+<gi-app-base [title]="titulo" [actions]="toolbarActions" style="flex-grow: 1">
   <div body-content>
     <gi-filter-component
       [filters]="filtros"
       [hidden]="hideFilters"
-      (doFilter)="filtrar($event)"
-      (doCancel)="cancelar()"
+      (filterEvent)="filter($event)"
+      (cancelEvent)="closeFilter()"
     ></gi-filter-component>
     <gi-table-component
-      [columnDefinition]="colunas"
-      [dataSource]="pessoasList"
-      [actions]="acoesTabela"
-      (sortingEvent)="ordenar($event)"
+      [columns]="columns"
+      [data]="pessoasList"
+      [actions]="tableActions"
+      (sortingEvent)="sort($event)"
     ></gi-table-component>
   </div>
 
   <div footer-content>
-    <gi-paginator-component
-      (paginationEvent)="paginar($event)"
+    <gi-pagination-component
+      (paginationEvent)="paginate($event)"
       [itemsPerPage]="itensPorPagina"
-      [totalRegisters]="totalElements"
-    ></gi-paginator-component>
+      [totalElements]="totalElements"
+    ></gi-pagination-component>
   </div>
 </gi-app-base>

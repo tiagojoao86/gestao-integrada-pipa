@@ -1,6 +1,6 @@
 <gi-app-base
   [title]="tituloTela"
-  [actions]="acoesTela"
+  [actions]="toolbarActions"
   [goBackFn]="goBackFn.bind(this)"
 >
   <div body-content>
@@ -91,28 +91,7 @@
         <label for="pessoa" i18n>Pessoa</label>
       </p-iftalabel>
 
-      <!-- Plano de Contas -->
-      <p-iftalabel class="w-33">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <p-autoComplete
-            inputId="planoContas"
-            [suggestions]="planoContasSuggestions"
-            (completeMethod)="searchPlanosContas($event)"
-            [optionLabel]="'displayLabel'"
-            (onSelect)="onPlanoContasSelect($event.value)"
-            [(ngModel)]="planoContasInput"
-            [ngModelOptions]="{ standalone: true }"
-            [forceSelection]="true"
-            [minLength]="1"
-          >
-            <ng-template let-item pTemplate="item">
-              <div>{{ item.codigo }} - {{ item.descricao }}</div>
-            </ng-template>
-          </p-autoComplete>
-        </p-iconfield>
-        <label for="planoContas" i18n>Plano de Contas</label>
-      </p-iftalabel>
+      <!-- Plano de Contas removed -->
 
       <!-- Valores -->
       <p-iftalabel class="w-33">

@@ -1,9 +1,9 @@
-
 import { Component, HostListener, inject, Input } from '@angular/core';
 import { Location } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Toolbar } from 'primeng/toolbar';
 import { BadgeModule } from 'primeng/badge';
+import { ToolbarActionModel } from './model/toolbar-action.model';
 
 @Component({
   selector: 'gi-app-base',
@@ -15,7 +15,7 @@ export class BaseComponent {
   private location: Location = inject(Location);
 
   @Input() title: string = $localize`Título`;
-  @Input() actions: RegisterActionToolbar[] = [];
+  @Input() actions: ToolbarActionModel[] = [];
   @Input() hideFooter = false;
   @Input() hideToolbar = false;
   @Input() goBackFn: (() => void) | null = null;
@@ -52,12 +52,4 @@ export class BaseComponent {
     if (event.key) parts.push(event.key.toLowerCase());
     return parts.join('.');
   }
-}
-
-export interface RegisterActionToolbar {
-  action: () => void;
-  icon: string;
-  title: string;
-  shortcut?: string;
-  value?: string;
 }

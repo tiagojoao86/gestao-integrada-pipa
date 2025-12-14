@@ -11,69 +11,65 @@
         formControlName="property"
         placeholder="Selecione um campo"
         i18n-placeholder
-        />
+      />
     </div>
     @if (selectedFilters.length > 1) {
-      <div class="formulario-grupo-input w-15">
-        <label for="filterLogicOperator" i18n>Operador Lógico</label>
-        <p-select
-          class="w-100"
-          [options]="logicOperators"
-          formControlName="filterLogicOperator"
-          id="filterLogicOperator"
-          />
-      </div>
+    <div class="formulario-grupo-input w-15">
+      <label for="filterLogicOperator" i18n>Operador Lógico</label>
+      <p-select
+        class="w-100"
+        [options]="logicOperators"
+        formControlName="filterLogicOperator"
+        id="filterLogicOperator"
+      />
+    </div>
     }
   </div>
   <div [formGroup]="form" class="filtros">
     @for (filter of selectedFilters; track filter) {
-      <div class="item">
-        <div class="label">
-          <span class="nome">{{ filter.label }}:</span>
-          <div class="valores">
-            <p-select
-              [formControlName]="filter.property + '_operacao'"
-              [options]="getOperacoes(filter.filterType)"
-              />
-            @if (filter.filterType === FilterType.TEXT) {
-              <input
-                pInputText
-                [id]="filter.property + '_id'"
-                [formControlName]="filter.property"
-                autocomplete="off"
-                />
-            }
-            @if (filter.filterType === FilterType.DATE) {
-              <p-datepicker
-                class="w-full"
-                [style]="{ width: '100%' }"
-                [formControlName]="filter.property"
-                />
-            }
-            @if (
-              filter.filterType === FilterType.SELECT ||
-              filter.filterType === FilterType.BOOLEAN
-              ) {
-              <p-select
-                class="w-full"
-                [formControlName]="filter.property"
-                [options]="filter.options"
-                />
-            }
-          </div>
-          <p-button (click)="removerFiltro(filter)">
-            <span class="material-icons">close</span>
-          </p-button>
+    <div class="item">
+      <div class="label">
+        <span class="nome">{{ filter.label }}:</span>
+        <div class="valores">
+          <p-select
+            [formControlName]="filter.property + '_operacao'"
+            [options]="getOperacoes(filter.filterType)"
+          />
+          @if (filter.filterType === FilterType.TEXT) {
+          <input
+            pInputText
+            [id]="filter.property + '_id'"
+            [formControlName]="filter.property"
+            autocomplete="off"
+          />
+          } @if (filter.filterType === FilterType.DATE) {
+          <p-datepicker
+            class="w-full"
+            [style]="{ width: '100%' }"
+            [formControlName]="filter.property"
+          />
+          } @if ( filter.filterType === FilterType.SELECT || filter.filterType
+          === FilterType.BOOLEAN ) {
+          <p-select
+            class="w-full"
+            [formControlName]="filter.property"
+            [options]="filter.options"
+          />
+          }
         </div>
+        <p-button (click)="removerFiltro(filter)">
+          <span class="material-icons">close</span>
+        </p-button>
       </div>
+    </div>
     }
   </div>
   <div class="acoes">
-    <button pButton class="secundario" (click)="onCancelar()">
+    <button pButton class="secundario" (click)="onCancel()">
       <span class="material-icons">close</span>
       <span pButtonLabel i18n>Cancelar</span>
     </button>
-    <button pButton class="primario" (click)="onFiltrar()">
+    <button pButton class="primario" (click)="onFilter()">
       <span class="material-icons">search</span>
       <span pButtonLabel i18n>Filtrar</span>
     </button>

@@ -8,20 +8,12 @@ import {
 } from '@angular/core';
 import { MovimentacaoFinanceiraGridDTO } from '../model/movimentacao-financeira-grid.dto';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
-import {
-  BaseComponent,
-  RegisterActionToolbar,
-} from '../../../base/base.component';
-import {
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import { PaginatorComponent } from '../../../base/paginator/paginator.component';
+import { BaseComponent } from '../../../base/base.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import { FilterComponent } from '../../../base/filter/filter.component';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
-import { Action } from '../../../base/table/table.component';
-import { PaginationEvent } from '../../../base/paginator/paginator.component';
 import {
   FilterProperty,
   FilterType,
@@ -29,12 +21,23 @@ import {
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { PageRequest, Order } from '../../../base/model/page-request';
 import { LocaleUtils } from '../../../base/utils/locale-utils';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { ColumnModel } from '../../../base/table/column.model';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'gi-movimentacao-financeira-grid',
   templateUrl: './movimentacao-financeira-grid.component.html',
   styleUrls: ['./movimentacao-financeira-grid.component.css'],
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+    FormsModule
+],
   providers: [MovimentacaoFinanceiraService, DatePipe, CurrencyPipe],
 })
 export class MovimentacaoFinanceiraGridComponent {
@@ -46,10 +49,10 @@ export class MovimentacaoFinanceiraGridComponent {
   filtros: FilterProperty[] = [];
   hideFilters = true;
   totalElements = 0;
-  acoesTela: RegisterActionToolbar[] = [];
-  acoesTabela: Action[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
+  tableActions: ActionModel<MovimentacaoFinanceiraGridDTO>[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<MovimentacaoFinanceiraGridDTO>[] = [
     {
       name: 'data',
       label: $localize`Data`,
@@ -116,14 +119,14 @@ export class MovimentacaoFinanceiraGridComponent {
     );
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: MovimentacaoFinanceiraGridDTO) =>
           this.selecionar.emit(element.id),
       });
     }
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: MovimentacaoFinanceiraGridDTO) =>
           this.service
@@ -132,7 +135,7 @@ export class MovimentacaoFinanceiraGridComponent {
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => this.refreshList(),
         icon: 'refresh',
@@ -142,7 +145,7 @@ export class MovimentacaoFinanceiraGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('FINANCEIRO_MOVIMENTACAO')) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => this.selecionar.emit('add'),
         icon: 'add',
         title: $localize`Adicionar`,
@@ -150,8 +153,8 @@ export class MovimentacaoFinanceiraGridComponent {
       });
     }
 
-    this.acoesTela.push({
-      action: () => this.alternarMostrarFiltros(),
+    this.toolbarActions.push({
+      action: () => this.toggleShowFilters(),
       icon: 'search',
       title: $localize`Pesquisar`,
       value: '0',
@@ -184,29 +187,29 @@ export class MovimentacaoFinanceiraGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
     this.listarMovimentacoes();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
     this.listarMovimentacoes();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
     this.listarMovimentacoes();
-    this.ajustaBadgePesquisa(filter);
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -216,7 +219,7 @@ export class MovimentacaoFinanceiraGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 

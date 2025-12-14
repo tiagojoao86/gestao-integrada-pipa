@@ -1,0 +1,14 @@
+@if (groupMenu) {
+  <div class="group-menu">
+    <div class="group" (click)="goTo(groupMenu.url)" (keyup.enter)="goTo(groupMenu.url)" tabindex="0">
+      <i [title]="groupMenu.name">
+        <span class="material-icons">{{ groupMenu.icon }}</span>
+      </i>
+      @if (!onlyIcon) {
+        <div class="name">
+          {{ groupMenu.name }}
+        </div>
+      }
+    </div>
+  </div>
+}

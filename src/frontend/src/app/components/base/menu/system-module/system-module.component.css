@@ -1,0 +1,44 @@
+.system-module {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  padding: 15px 15px 15px 15px;
+
+  .name {
+    margin-top: 5px;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .name .font-normal {
+    font-size: 0.875rem; /* 14px */
+  }
+
+  .name .font-small {
+    font-size: 0.8125rem; /* 13px */
+  }
+
+  .name .font-smaller {
+    font-size: 0.75rem; /* 12px */
+  }
+
+  .name .font-tiny {
+    font-size: 0.6875rem; /* 11px */
+  }
+}
+
+.system-module:hover {
+  color: var(--inverted-text-color);
+  background-color: var(--secondary-color);
+
+  i {
+    color: var(--inverted-text-color);
+  }
+}

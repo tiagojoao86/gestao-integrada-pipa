@@ -1,78 +1,80 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseComponent } from '../base/base.component';
 
-import {
-  GrupoRecurso,
-  RecursoGrupoComponent,
-} from '../base/menu/recurso-grupo/recurso-grupo.component';
+import { SystemModuleGroupComponent } from '../base/menu/system-module-group/system-module-group.component';
 import { AuthService } from '../base/auth/auth-service';
-import { Recurso } from '../base/menu/recurso/recurso.component';
+import { SystemModule } from '../base/menu/system-module/system-module';
+import { SystemModuleGroup } from '../base/menu/system-module-group/system-module-group';
 
 @Component({
   selector: 'gi-financeiro',
-  imports: [BaseComponent, RecursoGrupoComponent],
+  imports: [BaseComponent, SystemModuleGroupComponent],
   templateUrl: './financeiro.component.html',
   styleUrl: './financeiro.component.css',
   standalone: true,
 })
 export class FinanceiroComponent implements OnInit {
-  titulo: string = $localize`Financeiro`;
-  recursos: GrupoRecurso[] = [];
+  title: string = $localize`Financeiro`;
+  systemModuleGroups: SystemModuleGroup[] = [];
 
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const recursosCadastros: Recurso[] = [];
-
-    if (this.authService.hasAuthorityListarToModulo('CADASTRO_PLANO_CONTAS')) {
-      recursosCadastros.push({
-        nome: $localize`Plano de Contas`,
-        icone: 'account_tree',
-        url: '/financeiro/plano-contas',
-      });
-    }
+    const cadastrosModules: SystemModule[] = [];
 
     if (
-      this.authService.hasAuthorityListarToModulo('CADASTRO_CONTA_BANCARIA')
+      this.authService.hasAuthorityListarToModulo('FINANCEIRO_CONTA_BANCARIA')
     ) {
-      recursosCadastros.push({
-        nome: $localize`Contas Bancárias`,
-        icone: 'account_balance',
+      cadastrosModules.push({
+        name: $localize`Contas Bancárias`,
+        icon: 'account_balance',
         url: '/financeiro/conta-bancaria',
       });
     }
 
-    const recursosOperacoes: Recurso[] = [];
+    if (
+      this.authService.hasAuthorityListarToModulo('FINANCEIRO_TITULO_CATEGORIA')
+    ) {
+      cadastrosModules.push({
+        name: $localize`Categorias de Título`,
+        icon: 'category',
+        url: '/financeiro/categoria-titulo',
+      });
+    }
+
+    const financeiroModules: SystemModule[] = [];
 
     if (this.authService.hasAuthorityListarToModulo('FINANCEIRO_TITULO')) {
-      recursosOperacoes.push({
-        nome: $localize`Títulos`,
-        icone: 'receipt_long',
+      financeiroModules.push({
+        name: $localize`Títulos`,
+        icon: 'receipt_long',
         url: '/financeiro/titulo',
       });
     }
 
     if (
-      this.authService.hasAuthorityListarToModulo('FINANCEIRO_MOVIMENTACAO')
+      this.authService.hasAuthorityListarToModulo(
+        'FINANCEIRO_MOVIMENTACAO_FINANCEIRA'
+      )
     ) {
-      recursosOperacoes.push({
-        nome: $localize`Movimentações`,
-        icone: 'payments',
+      financeiroModules.push({
+        name: $localize`Movimentações`,
+        icon: 'payments',
         url: '/financeiro/movimentacao',
       });
     }
 
-    if (recursosOperacoes.length > 0) {
-      this.recursos.push({
-        nome: $localize`Operações`,
-        recursos: recursosOperacoes,
+    if (financeiroModules.length > 0) {
+      this.systemModuleGroups.push({
+        name: $localize`Operações`,
+        systemModules: financeiroModules,
       });
     }
 
-    if (recursosCadastros.length > 0) {
-      this.recursos.push({
-        nome: $localize`Cadastros`,
-        recursos: recursosCadastros,
+    if (cadastrosModules.length > 0) {
+      this.systemModuleGroups.push({
+        name: $localize`Cadastros`,
+        systemModules: cadastrosModules,
       });
     }
   }

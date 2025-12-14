@@ -1,0 +1,4 @@
+/* Styles for categoria-titulo */
+:host {
+  display: block;
+}

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from '../base/auth/auth-guard';
 import { moduleAuthorityGuard } from '../base/auth/module-authority.guard';
 import { groupAuthorityGuard } from '../base/auth/group-authority.guard';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 export const routes: Routes = [
   {
@@ -10,7 +11,7 @@ export const routes: Routes = [
       import('./financeiro.component').then((app) => app.FinanceiroComponent),
     canActivate: [authGuard, groupAuthorityGuard],
     data: {
-      group: 'FINANCEIRO',
+      group: SystemModuleKey.FINANCEIRO,
     },
   },
   {
@@ -21,18 +22,18 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_CONTA_BANCARIA',
+      moduleKey: SystemModuleKey.FINANCEIRO_CONTA_BANCARIA,
     },
   },
   {
-    path: 'plano-contas',
+    path: 'categoria-titulo',
     loadComponent: () =>
-      import('./plano-contas/plano-contas.component').then(
-        (app) => app.PlanoContasComponent
+      import('./categoria-titulo/categoria-titulo.component').then(
+        (app) => app.CategoriaTituloComponent
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'CADASTRO_PLANO_CONTAS',
+      moduleKey: SystemModuleKey.FINANCEIRO_CATEGORIA_TITULO,
     },
   },
   {
@@ -41,7 +42,7 @@ export const routes: Routes = [
       import('./titulo/titulo.component').then((app) => app.TituloComponent),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'FINANCEIRO_TITULO',
+      moduleKey: SystemModuleKey.FINANCEIRO_TITULO,
     },
   },
   {
@@ -52,7 +53,7 @@ export const routes: Routes = [
       ).then((app) => app.MovimentacaoFinanceiraComponent),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: 'FINANCEIRO_MOVIMENTACAO',
+      moduleKey: SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA,
     },
   },
 ];

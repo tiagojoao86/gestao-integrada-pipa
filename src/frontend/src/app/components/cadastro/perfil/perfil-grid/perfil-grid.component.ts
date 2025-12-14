@@ -1,6 +1,5 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import {
-  RegisterActionToolbar,
   BaseComponent,
 } from '../../../base/base.component';
 import { PerfilService } from '../perfil.service';
@@ -8,26 +7,28 @@ import { Order, PageRequest } from '../../../base/model/page-request';
 import { PerfilGridDTO } from '../model/perfil-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
-import {
-  Action,
-  DataSourceColumn,
-  TableComponent,
-} from '../../../base/table/table.component';
-import {
-  PaginationEvent,
-  PaginatorComponent,
-} from '../../../base/paginator/paginator.component';
+import { TableComponent } from '../../../base/table/table.component';
+import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
   FilterProperty,
   FilterComponent,
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
+import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
+import { ColumnModel } from '../../../base/table/column.model';
+import { ActionModel } from '../../../base/table/action.model';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 @Component({
   selector: 'gi-perfil-grid',
   standalone: true,
-  imports: [BaseComponent, TableComponent, PaginatorComponent, FilterComponent],
+  imports: [
+    BaseComponent,
+    TableComponent,
+    PaginationComponent,
+    FilterComponent,
+  ],
   providers: [PerfilService, DatePipe],
   templateUrl: './perfil-grid.component.html',
   styleUrl: './perfil-grid.component.css',
@@ -43,7 +44,7 @@ export class PerfilGridComponent {
 
   perfisList: PerfilGridDTO[] = [];
 
-  colunas: DataSourceColumn[] = [
+  columns: ColumnModel<PerfilGridDTO>[] = [
     {
       name: 'nome',
       label: $localize`Nome`,
@@ -60,9 +61,9 @@ export class PerfilGridComponent {
     },
   ];
 
-  acoesTabela: Action[] = [];
+  tableActions: ActionModel<PerfilGridDTO>[] = [];
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
 
   filtros: FilterProperty[] = [
     {
@@ -93,21 +94,21 @@ export class PerfilGridComponent {
     const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_PERFIL');
 
     if (canView) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'edit_note',
         action: (element: PerfilGridDTO) => this.openDetail.emit(element.id),
       });
     }
     if (canDelete) {
-      this.acoesTabela.push({
+      this.tableActions.push({
         icon: 'delete',
         action: (element: PerfilGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarPerfis());
+          this.service.delete(element.id).subscribe(() => this.listPerfis());
         },
       });
     }
 
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.refreshList();
@@ -119,7 +120,7 @@ export class PerfilGridComponent {
     ];
 
     if (this.auth.hasAuthorityEditarToModulo('CADASTRO_PERFIL')) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
         },
@@ -129,9 +130,9 @@ export class PerfilGridComponent {
       });
     }
 
-    this.acoesTela.push({
+    this.toolbarActions.push({
       action: () => {
-        this.alternarMostrarFiltros();
+        this.toggleShowFilters();
       },
       icon: 'search',
       title: $localize`Pesquisar` + ' (alt + p)',
@@ -139,10 +140,10 @@ export class PerfilGridComponent {
       shortcut: 'alt.p',
     });
 
-    this.listarPerfis();
+    this.listPerfis();
   }
 
-  listarPerfis() {
+  listPerfis() {
     this.service.list(this.request).subscribe((response) => {
       if (response.body) {
         this.perfisList = response.body.content;
@@ -151,30 +152,30 @@ export class PerfilGridComponent {
     });
   }
 
-  ordenar(order: Order[]) {
+  sort(order: Order[]) {
     this.request.order = order;
-    this.listarPerfis();
+    this.listPerfis();
   }
 
-  paginar(page: PaginationEvent) {
+  paginate(page: PaginationEvent) {
     this.request.page = page.pageNumber;
     this.request.size = page.itemsPerPage;
 
-    this.listarPerfis();
+    this.listPerfis();
   }
 
-  filtrar(filter: FilterDTO) {
+  filter(filter: FilterDTO) {
     this.request.filter = filter;
-    this.listarPerfis();
-    this.ajustaBadgePesquisa(filter);
+    this.listPerfis();
+    this.updateFilterBadge(filter);
   }
 
-  cancelar() {
-    this.alternarMostrarFiltros();
+  closeFilter() {
+    this.toggleShowFilters();
   }
 
-  ajustaBadgePesquisa(filter: FilterDTO) {
-    const acao = this.acoesTela.filter((it) => it.icon === 'search');
+  updateFilterBadge(filter: FilterDTO) {
+    const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
         acao[0].value = filter.items.length + '';
@@ -184,11 +185,11 @@ export class PerfilGridComponent {
     }
   }
 
-  alternarMostrarFiltros() {
+  toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
   }
 
   refreshList() {
-    this.listarPerfis();
+    this.listPerfis();
   }
 }

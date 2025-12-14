@@ -1,4 +1,4 @@
-import { GrupoModuloEnum } from "./grupo-modulo.enum";
+import { GrupoModuloEnum } from './grupo-modulo.enum';
 
 export interface ModuloDTO {
   id: string;

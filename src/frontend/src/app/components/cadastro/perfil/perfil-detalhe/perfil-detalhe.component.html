@@ -1,4 +1,8 @@
-<gi-app-base [title]="titulo" [actions]="acoesTela" [goBackFn]="goBackFn.bind(this)">
+<gi-app-base
+  [title]="title"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
   <div body-content>
     <div class="form grid" [formGroup]="form">
       <div class="col-12">
@@ -6,7 +10,7 @@
           <input pInputText id="nomePerfil" formControlName="nome" />
           <label for="nomePerfil" i18n>Nome</label>
           @if (isControlInvalid('nome')) {
-            <small i18n>Esse campo não pode ser em branco.</small>
+          <small i18n>Esse campo não pode ser em branco.</small>
           }
         </p-iftalabel>
       </div>
@@ -25,24 +29,60 @@
             </thead>
             <tbody formArrayName="permissoes">
               @for (grupo of getGrupos(); track grupo) {
-                <tr class="group-header-row">
-                  <td colspan="5"><strong>{{ grupo }}</strong></td>
-                </tr>
-                @for (permissao of getPermissoesDoGrupo(grupo); track permissao; let i = $index; let even = $even) {
-                  <tr [formGroupName]="permissoes.controls.indexOf(permissao)" [class.even-row]="even">
-                    <td>
-                      <div class="flex align-items-center ml-2">
-                        <p-checkbox formControlName="selecionado" [binary]="true" [inputId]="'perm_sel_' + i" (onChange)="onSelecaoModuloChange(permissao, $event)"></p-checkbox>
-                        <label [for]="'perm_sel_' + i" class="ml-2">{{ permissao.get('moduloNome')?.value }}</label>
-                      </div>
-                    </td>
-                    <td><p-checkbox formControlName="podeListar" [binary]="true" [inputId]="'perm_listar_' + i"></p-checkbox></td>
-                    <td><p-checkbox formControlName="podeVisualizar" [binary]="true" [inputId]="'perm_visualizar_' + i"></p-checkbox></td>
-                    <td><p-checkbox formControlName="podeEditar" [binary]="true" [inputId]="'perm_editar_' + i"></p-checkbox></td>
-                    <td><p-checkbox formControlName="podeDeletar" [binary]="true" [inputId]="'perm_excluir_' + i"></p-checkbox></td>
-                  </tr>
-                }
-              }
+              <tr class="group-header-row">
+                <td colspan="5">
+                  <strong>{{ grupo }}</strong>
+                </td>
+              </tr>
+              @for (permissao of getPermissoesDoGrupo(grupo); track permissao;
+              let i = $index; let even = $even) {
+              <tr
+                [formGroupName]="permissoes.controls.indexOf(permissao)"
+                [class.even-row]="even"
+              >
+                <td>
+                  <div class="flex align-items-center ml-2">
+                    <p-checkbox
+                      formControlName="selecionado"
+                      [binary]="true"
+                      [inputId]="'perm_sel_' + i"
+                      (onChange)="onSelectModuloChange(permissao, $event)"
+                    ></p-checkbox>
+                    <label [for]="'perm_sel_' + i" class="ml-2">{{
+                      permissao.get("moduloNome")?.value
+                    }}</label>
+                  </div>
+                </td>
+                <td>
+                  <p-checkbox
+                    formControlName="podeListar"
+                    [binary]="true"
+                    [inputId]="'perm_listar_' + i"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <p-checkbox
+                    formControlName="podeVisualizar"
+                    [binary]="true"
+                    [inputId]="'perm_visualizar_' + i"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <p-checkbox
+                    formControlName="podeEditar"
+                    [binary]="true"
+                    [inputId]="'perm_editar_' + i"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <p-checkbox
+                    formControlName="podeDeletar"
+                    [binary]="true"
+                    [inputId]="'perm_excluir_' + i"
+                  ></p-checkbox>
+                </td>
+              </tr>
+              } }
             </tbody>
           </table>
         </div>

@@ -8,10 +8,8 @@ import {
 } from '@angular/core';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { ContaBancariaService } from '../conta-bancaria.service';
-import {
-  RegisterActionToolbar,
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
+import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -49,7 +47,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 })
 export class ContaBancariaDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
-  modoEdicao = false;
+  editMode = false;
   contaBancaria: ContaBancariaDTO = {} as ContaBancariaDTO;
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
@@ -66,7 +64,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     value: tipo.getKey(),
   }));
 
-  acoesTela: RegisterActionToolbar[] = [];
+  toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
   ngOnInit(): void {
@@ -76,7 +74,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       'CADASTRO_CONTA_BANCARIA'
     );
-    this.acoesTela = [
+    this.toolbarActions = [
       {
         action: () => {
           this.goBackFn();
@@ -88,7 +86,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     ];
 
     if (canEdit) {
-      this.acoesTela.push({
+      this.toolbarActions.push({
         action: () => {
           this.salvar();
         },
@@ -99,7 +97,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     }
 
     if (this.detailId === RouteConstants.P_ADD) {
-      this.modoEdicao = false;
+      this.editMode = false;
       this.titulo += $localize`Nova`;
       this.contaBancaria = {
         nome: '',
@@ -110,7 +108,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
       // Load unidades and set default after loading
       this.loadUnidadesNegocio(true);
     } else {
-      this.modoEdicao = true;
+      this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.contaBancaria = response.body;
         this.titulo += this.contaBancaria.nome;

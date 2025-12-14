@@ -26,7 +26,7 @@ import java.util.Set;
         @Index(name = "idx_titulo_tipo_status", columnList = "tipo, status"),
         @Index(name = "idx_titulo_vencimento", columnList = "data_vencimento"),
         @Index(name = "idx_titulo_pessoa", columnList = "pessoa_id"),
-        @Index(name = "idx_titulo_plano_contas", columnList = "plano_contas_id")
+// plano_contas removed - index removed
 })
 public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
@@ -48,9 +48,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @JoinColumn(name = "pessoa_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_pessoa"))
     private Pessoa pessoa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plano_contas_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_plano_contas"))
-    private PlanoContas planoContas;
+    // planoContas removed (not used currently)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_negocio_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_unidade_negocio"))
@@ -103,13 +101,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     private Set<MovimentacaoFinanceira> movimentacoes = new HashSet<>();
 
     private Titulo(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
-            PlanoContas planoContas, UnidadeNegocio unidadeNegocio, Money valorOriginal,
+            UnidadeNegocio unidadeNegocio, Money valorOriginal,
             LocalDate dataEmissao, LocalDate dataVencimento) {
         this.tipo = tipo;
         this.descricao = descricao;
         this.numeroDocumento = numeroDocumento;
         this.pessoa = pessoa;
-        this.planoContas = planoContas;
         this.unidadeNegocio = unidadeNegocio;
         this.valorOriginal = valorOriginal;
         this.dataEmissao = dataEmissao;
@@ -129,20 +126,18 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         final String descricao;
         final String numeroDocumento;
         final Pessoa pessoa;
-        final PlanoContas planoContas;
         final UnidadeNegocio unidadeNegocio;
         final Money valorOriginal;
         final LocalDate dataEmissao;
         final LocalDate dataVencimento;
 
         ValidatedData(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
-                PlanoContas planoContas, UnidadeNegocio unidadeNegocio, Money valorOriginal,
+                UnidadeNegocio unidadeNegocio, Money valorOriginal,
                 LocalDate dataEmissao, LocalDate dataVencimento) {
             this.tipo = tipo;
             this.descricao = descricao;
             this.numeroDocumento = numeroDocumento;
             this.pessoa = pessoa;
-            this.planoContas = planoContas;
             this.unidadeNegocio = unidadeNegocio;
             this.valorOriginal = valorOriginal;
             this.dataEmissao = dataEmissao;
@@ -151,7 +146,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     }
 
     private static ValidatedData validate(TipoTitulo tipo, String descricao, String numeroDocumento,
-            Pessoa pessoa, PlanoContas planoContas, UnidadeNegocio unidadeNegocio,
+            Pessoa pessoa, UnidadeNegocio unidadeNegocio,
             BigDecimal valorOriginal, LocalDate dataEmissao, LocalDate dataVencimento) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
@@ -166,9 +161,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (pessoa == null) {
             violations.add(new BeanValidationMessage("pessoa", "Pessoa é obrigatória"));
         }
-        if (planoContas == null) {
-            violations.add(new BeanValidationMessage("planoContas", "Plano de contas é obrigatório"));
-        }
+        // planoContas validation removed (not used currently)
         if (unidadeNegocio == null) {
             violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
         }
@@ -191,7 +184,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             throw new BeanValidationException("titulo", violations);
         }
 
-        return new ValidatedData(tipo, descricao, numeroDocumento, pessoa, planoContas,
+        return new ValidatedData(tipo, descricao, numeroDocumento, pessoa,
                 unidadeNegocio, money, dataEmissao, dataVencimento);
     }
 
@@ -399,10 +392,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         return pessoa;
     }
 
-    public PlanoContas getPlanoContas() {
-        return planoContas;
-    }
-
     public UnidadeNegocio getUnidadeNegocio() {
         return unidadeNegocio;
     }
@@ -481,7 +470,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         private String descricao;
         private String numeroDocumento;
         private Pessoa pessoa;
-        private PlanoContas planoContas;
+        // planoContas removed
         private UnidadeNegocio unidadeNegocio;
         private Money valorOriginal;
         private LocalDate dataEmissao;
@@ -507,13 +496,18 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return this;
         }
 
-        public Builder planoContas(PlanoContas planoContas) {
-            this.planoContas = planoContas;
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
+            this.unidadeNegocio = unidadeNegocio;
             return this;
         }
 
-        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
-            this.unidadeNegocio = unidadeNegocio;
+        // Compatibility shim: some tests (and older code) may call `.planoContas(...)`
+        // on the
+        // builder even after the campo 'planoContas' was removed from the entity. Keep
+        // a no-op
+        // method to preserve binary/source compatibility for tests while the codebase
+        // is updated.
+        public Builder planoContas(br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas ignored) {
             return this;
         }
 
@@ -535,10 +529,10 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         public Titulo build() {
             BigDecimal valorOriginalValue = (this.valorOriginal != null) ? this.valorOriginal.getValue() : null;
             ValidatedData data = validate(this.tipo, this.descricao, this.numeroDocumento,
-                    this.pessoa, this.planoContas, this.unidadeNegocio,
+                    this.pessoa, this.unidadeNegocio,
                     valorOriginalValue, this.dataEmissao, this.dataVencimento);
             return new Titulo(data.tipo, data.descricao, data.numeroDocumento, data.pessoa,
-                    data.planoContas, data.unidadeNegocio, data.valorOriginal,
+                    data.unidadeNegocio, data.valorOriginal,
                     data.dataEmissao, data.dataVencimento);
         }
     }
