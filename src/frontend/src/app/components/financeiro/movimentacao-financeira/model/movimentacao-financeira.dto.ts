@@ -1,9 +1,14 @@
-export interface MovimentacaoTituloDTO {
+export class MovimentacaoTituloDTO {
   id?: string;
   descricao?: string;
+
+  constructor(id?: string, descricao?: string) {
+    this.id = id;
+    this.descricao = descricao;
+  }
 }
 
-export interface MovimentacaoFinanceiraDTO {
+export class MovimentacaoFinanceiraDTO {
   id?: string;
   titulos: MovimentacaoTituloDTO[];
   contaBancariaId?: string;
@@ -15,4 +20,28 @@ export interface MovimentacaoFinanceiraDTO {
   data: string;
   unidadeNegocio: string;
   observacoes?: string;
+
+  constructor(
+    id?: string,
+    titulos: MovimentacaoTituloDTO[] = [],
+    contaBancariaId?: string,
+    contaBancaria?: string,
+    tipo = '',
+    formaPagamento = '',
+    valor = 0,
+    data = '',
+    unidadeNegocio = '',
+    observacoes?: string
+  ) {
+    this.id = id;
+    this.titulos = titulos;
+    this.contaBancariaId = contaBancariaId;
+    this.contaBancaria = contaBancaria;
+    this.tipo = tipo;
+    this.formaPagamento = formaPagamento;
+    this.valor = valor;
+    this.data = data;
+    this.unidadeNegocio = unidadeNegocio;
+    this.observacoes = observacoes;
+  }
 }

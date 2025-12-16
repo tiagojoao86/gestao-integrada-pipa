@@ -1,0 +1,43 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <form class="form" [formGroup]="form">
+      <p-iftalabel class="w-50">
+        <input pInputText id="nome" formControlName="nome" />
+        <label for="nome" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-35">
+        <p-select
+          inputId="unidadeNegocio"
+          formControlName="unidadeNegocioId"
+          [options]="unidadesNegocioOptions"
+          optionLabel="unidadeNegocioCodigo"
+          optionValue="unidadeNegocioId"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>
+              {{ item.unidadeNegocioCodigo }} - {{ item.unidadeNegocioNome }}
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+      </p-iftalabel>
+
+      <div class="checkbox-container w-11">
+        <p-checkbox
+          inputId="centroResultado"
+          formControlName="centroResultado"
+          [binary]="true"
+        ></p-checkbox>
+        <label for="centroResultado" i18n>Centro Resultado</label>
+      </div>
+    </form>
+  </div>
+</gi-app-base>

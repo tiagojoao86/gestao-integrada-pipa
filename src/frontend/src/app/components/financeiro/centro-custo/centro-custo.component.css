@@ -1,0 +1,4 @@
+/* Styles for centro-custo wrapper component */
+:host {
+  display: block;
+}

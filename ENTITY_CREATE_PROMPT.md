@@ -1,183 +1,889 @@
-PRINCIPAIS CORREÇÕES (importante ler antes de usar)
+# ENTITY GENERATION PROMPT - Gestão Integrada Pipa
 
-1. Não use importações inline com FQCNs espalhadas no código (ex.: `br.com.grupopipa.gestaointegrada.core.exceptions.BeanValidationMessage`). Ao gerar código, inclua o import correto no topo do arquivo:
+## PRINCIPAIS CORREÇÕES (IMPORTANTE - leia antes de usar)
 
-   import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+Resumo rápido das lições aprendidas ao gerar entidades neste repositório:
 
-   Observação: o pacote correto é `br.com.grupopipa.gestaointegrada.core.exception.beanvalidation`.
+### Backend (Java)
 
-2. Value Objects: NÃO use `new Nome(nome)`. Use sempre o método fábrica `of` quando o VO existir:
+- **Imports**: Use imports no topo dos arquivos — NÃO embuta FQCNs inline. Exemplo:
+  ```java
+  import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+  ```
 
-   // errado
-   new Nome(nome);
+- **Value Objects**: NÃO use construtores diretos. Sempre use o método fábrica `of` quando o VO existir (ex.: `Nome.of(value)`). Consulte `src/backend/src/main/java/br/com/grupopipa/gestaointegrada/core/valueobject`.
 
-   // correto
-   Nome.of(nome);
+- **DTOs obrigatórios**: Gere sempre `{{EntityName}}DTO` e `{{EntityName}}GridDTO` no pacote backend com Lombok `@Builder` e `@Data`.
 
-   Consulte `src/backend/src/main/java/br/com/grupopipa/gestaointegrada/core/valueobject` para exemplos.
+- **Serviços**:
+  - Interface: estenda `CrudService<DTO, GridDTO>`
+  - Implementação: estenda `CrudServiceImpl<DTO, GridDTO, Entity, Repository>` e implemente `mergeEntityAndDTO` e `buildDTOFromEntity`
 
-3. DTOs são obrigatórios — o prompt deve gerar explicitamente pelo menos dois DTOs: `{{EntityName}}DTO` e `{{EntityName}}GridDTO`. Use os pacotes do projeto e os tipos padrão (`UUID`, `LocalDateTime`, etc.).
+- **Mensagens de validação**: Use `BeanValidationMessage` com **chave** e **mensagem curta**. As chaves são usadas no frontend para i18n (ex.: `centroCusto.nome.notBlank`).
 
-4. Interfaces de service: a interface deve estender `CrudService<DTO, GridDTO>` indicando as classes corretas. Exemplo:
+- **Entity Packages & DataSourceConfig**:
+  - Coloque entidades em pacote dedicado `entity`: `br.com.grupopipa.gestaointegrada.{domain}.{entityPackage}.entity`
+  - NÃO misture DTOs, services ou controllers no pacote `entity`
+  - **IMPORTANTE**: Adicione o novo pacote à constante `ENTITY_PACKAGES` em `DataSourceConfig`:
+    ```java
+    "br.com.grupopipa.gestaointegrada.{domain}.{entityPackage}.entity",
+    ```
+  - Sem esse passo, os testes falharão com "Not a managed type"
 
-   public interface CentroCustoService extends CrudService<CentroCustoDTO, CentroCustoGridDTO> {
-   }
+### Migrations (Tenant)
 
-5. Mensagens de validação: gere `BeanValidationException` usando `BeanValidationMessage` com chave e mensagem. As chaves devem ser usadas posteriormente em i18n. Exemplo de chave: `centroCusto.nome.notBlank`.
+- **Idempotência obrigatória**: Use `IF NOT EXISTS` ou blocos `DO $$ BEGIN ... EXCEPTION WHEN others THEN ... END $$`
+- **Localização**: `src/main/resources/db/tenant-migrations/`
+- **Naming de constraints** (obrigatório):
+  - UNIQUE: `uk_<table>_<field>`
+  - FOREIGN KEY: `fk_<table>_<referenced_table>`
+  - CHECK: `ck_<table>_<field>` ou `chk_<table>_<field>`
 
-6. Migrations tenant: sempre idempotentes (IF NOT EXISTS / DO $$ BEGIN ... EXCEPTION WHEN others THEN ... END $$). Nomeie constraints conforme convenção:
-   - UNIQUE: `uk_<table>_<field>`
-   - FK: `fk_<table>_<referenced_table>`
-   - CHECK: `ck_<table>_<field>`
+### DatabaseConstraintsEnum ⚠️ CRÍTICO
 
-PROMPT (copiar inteiro para o gerador)
+**OBRIGATÓRIO**: Toda constraint criada DEVE ser registrada em `DatabaseConstraintsEnum.java`
 
-"""
-Você é um assistente de geração de código para o repositório "Gestão Integrada Pipa". Gere todos os arquivos e scripts necessários para uma nova entidade de domínio obedecendo estritamente as convenções abaixo. Retorne um objeto JSON onde cada chave é o caminho do arquivo no repositório e o valor é o conteúdo do arquivo (string). Não execute comandos no sistema; apenas gere os conteúdos dos arquivos.
+- **Localização**: `src/backend/src/main/java/br/com/grupopipa/gestaointegrada/core/dao/DatabaseConstraintsEnum.java`
+- **Sem esse registro**: Erros de constraint retornarão mensagem genérica ao usuário
+- **Padrão do enum**: `UK_CENTRO_CUSTO_NOME("centroCusto.nome.unique")`
+- **Fluxo**: Constraint violada → Enum mapeia → Frontend exibe mensagem traduzida
+- **Ver seção completa** sobre DatabaseConstraintsEnum na seção de Migrations do prompt
 
-Regras obrigatórias (resumo):
+### Frontend (Angular + TypeScript)
 
-- IDs: UUID (UUIDv7) em Java (`UUID`) e SQL `DEFAULT gen_random_uuid()`.
-- Entidades Java devem:
+#### Estrutura de Diretórios
 
-  - Estar em `br.com.grupopipa.gestaointegrada.{{domain}}.{{entityPackage}}` ou `.entity` (siga padrão do repo).
-  - Estender `BaseEntity` (ID provido pelo base).
-  - Ter Builder pattern, método de validação central `validate(...)` retornando `ValidatedData` e lançar `BeanValidationException` para erros.
-  - Usar imports no topo (não use FQCN inline). Import correto para BeanValidationMessage:
+```
+src/frontend/src/app/components/{{domain}}/{{entity}}/
+├── {{entity}}.component.ts/html/css (orquestrador principal)
+├── grid/
+│   └── {{entity}}-grid.component.ts/html/css
+├── detalhe/
+│   └── {{entity}}-detalhe.component.ts/html/css
+├── model/
+│   ├── {{entity}}.dto.ts
+│   ├── {{entity}}-grid.dto.ts
+│   └── {{entity}}-tipo.enum.ts (se aplicável)
+├── {{entity}}.service.ts
+└── {{entity}}-backend-message.service.ts
+```
 
-    import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+#### DTOs TypeScript (CRÍTICO - Nova Estrutura)
 
-  - Usar value objects via método fábrica `of`, por exemplo `Nome.of(value)`.
+**SEMPRE use CLASSES (não interfaces) com decorators do `class-transformer`:**
 
-- DTOs: Gere explicitamente `{{EntityName}}DTO` e `{{EntityName}}GridDTO` no pacote `{{domain}}.{{entityPackage}}`.
+```typescript
+import { Exclude, Expose, Transform, TransformationType, TransformFnParams } from 'class-transformer';
 
-- Repositórios: estender `JpaRepository<..., UUID>` e `JpaSpecificationExecutor<...>`.
+@Exclude()
+export class {{Entity}}DTO {
+  @Expose()
+  id?: string;
 
-- Serviços: criar interface que estende `CrudService<{{EntityName}}DTO, {{EntityName}}GridDTO>` e `ServiceImpl` que estende `CrudServiceImpl<DTO, GridDTO, Entity, Repository>` e implementa `mergeEntityAndDTO` e `buildDTOFromEntity`.
+  @Expose()
+  nome: string;
 
-- Controllers: estender `BaseController<DTO, GridDTO, Service>` e anotar endpoints com `@PreAuthorize` seguindo padrão `<MODULE>_<ENTITY_UPPER>_<ACTION>`.
+  @Expose()
+  descricao?: string;
 
-- Migrations tenant: colocar em `src/main/resources/db/tenant-migrations/`, SQL idempotente e constraints com nomes explícitos.
+  // Para campos enum, use @Transform para conversão bidirecional
+  @Transform((params: TransformFnParams) => {
+    const { type, value } = params;
 
-- Frontend: componentes `gi-` (grid + detalhe) e contratos de `gi-filter-component`, `gi-table-component`, `gi-pagination-component` e `gi-app-base` descritos no exemplo abaixo. Gere também `{{entity}}.service.ts`, DTOs TS e `{{entity}}-backend-message.service.ts` que estende `AbstractBackendMessageService`.
+    if (TransformationType.PLAIN_TO_CLASS === type) {
+      return {{Entity}}TipoEnum.getByKey(value);
+    }
 
-- i18n: Gere trans-units para `src/frontend/src/app/locale/messages.xlf` (pt-BR) e `messages.en.xlf` (en-US) com as chaves de validação e textos visíveis.
+    if (TransformationType.CLASS_TO_PLAIN === type) {
+      return value.key;
+    }
 
-- Tests: inclua skeletons de testes de repositório/serviço que utilizem geração runtime-única para campos `codigo`.
+    return value;
+  })
+  @Expose()
+  tipo: {{Entity}}TipoEnum;
 
-Validação e mensagens
-
-- Use `BeanValidationMessage` com chave (para i18n) e mensagem curta. Evite inserir mensagens literais no código que não sejam chaves (as chaves são obrigatórias).
-
-Exemplo de `input` JSON (preencha e envie ao LLM):
-{
-"EntityName": "CategoriaTitulo",
-"table_name": "categoria_titulo",
-"domain": "financeiro",
-"entityPackage": "categoria",
-"ShortDescription": "Categoria para títulos financeiros",
-"fields": [
-{"name":"nome","javaType":"String","required":true,"maxLength":200},
-{"name":"codigo","javaType":"String","required":true,"unique":true,"maxLength":20},
-{"name":"unidadeNegocioId","javaType":"UUID","required":true,"fk":"unidade_negocio(id)"}
-]
+  constructor(nome: string, tipo: {{Entity}}TipoEnum, descricao?: string, id?: string) {
+    this.nome = nome;
+    this.tipo = tipo;
+    this.descricao = descricao;
+    this.id = id;
+  }
 }
+```
 
-Regras extras para o gerador (validação):
+**Por que usar classes com `class-transformer`?**
+- ✅ Transformação automática de enums (string ↔ objeto)
+- ✅ Controle de exposição de campos (`@Exclude`/`@Expose`)
+- ✅ Instâncias reais de classe (não apenas type cast)
+- ✅ Serialização/deserialização bidirecional
+- ✅ Type safety em runtime (não apenas compile-time)
 
-- Truncar códigos que excedam limites (ex.: `codigo` <= 20) e/ou usar pattern de geração em testes para evitar colisões.
-- Todas as constraints SQL devem ter nomes explícitos.
-- Migrations devem ser idempotentes.
-- Backend message keys para validações devem seguir `{{entity}}.{{field}}.<rule>` (ex.: `categoriaTitulo.nome.notBlank`).
+#### Enums TypeScript
 
-Saída esperada do LLM: JSON com caminhos de arquivo e conteúdos. Exemplo:
-{
-"src/backend/.../CategoriaTitulo.java": "<conteúdo>",
-"src/backend/.../db/tenant-migrations/V20251213000001\_\_create_categoria_titulo_table.sql": "<sql content>",
-"src/frontend/.../categoria-titulo-grid.component.ts": "<content>",
-"i18n/pt": [ { "key":"categoriaTitulo.nome.notBlank", "source":"Nome da categoria é obrigatório.", "target":"Nome da categoria é obrigatório." } ],
-"i18n/en": [ { "key":"categoriaTitulo.nome.notBlank", "source":"Nome da categoria é obrigatório.", "target":"Category name is required." } ]
-}
+```typescript
+export class {{Entity}}TipoEnum {
+  public static readonly OPCAO1 = new {{Entity}}TipoEnum(
+    'OPCAO1',
+    $localize`Opção 1`
+  );
+  public static readonly OPCAO2 = new {{Entity}}TipoEnum(
+    'OPCAO2',
+    $localize`Opção 2`
+  );
 
-"""
+  constructor(public readonly key: string, public readonly label: string) {}
 
-**Fim do prompt corrigido.**
-
-Front-end — contratos detalhados (Grid)
-
-- Estrutura: cada grid deve usar `gi-app-base` com áreas `body-content` e `footer-content`.
-- Dentro de `body-content`:
-  - `<gi-filter-component [filters]="filters" [hidden]="filterHidden" (filterEvent)="onFilter($event)" (cancelEvent)="onFilterCancel()"></gi-filter-component>`
-    - `filters`: objeto de filtros atual
-    - `hidden`: booleano controla visibilidade
-    - `filterEvent`: emite filtros aplicados
-    - `cancelEvent`: emite quando usuário fecha o filtro
-  - `<gi-table-component [columns]="columns" [rows]="rows" [loading]="loading" [selected]="selected" (rowSelect)="onRowSelect($event)" (edit)="onEdit($event)" (delete)="onDelete($event)"></gi-table-component>`
-- Dentro de `footer-content`:
-  - `<gi-pagination-component [page]="page" [pageSize]="pageSize" [total]="total" (pageChange)="onPageChange($event)"></gi-pagination-component>`
-- `gi-filter-component` deve ser dumb: receber `filters`, `hidden` e emitir `filterEvent` (FilterModel) e `cancelEvent`.
-- `gi-table-component` deve ser dumb: receber `columns`, `rows`, `loading`, `selected` e emitir `rowSelect`, `edit`, `delete`.
-- `gi-pagination-component` deve emitir `pageChange` com `{page, pageSize}`.
-
-Front-end — contratos detalhados (Detail)
-
-- Usar `gi-app-base` com `body-content` contendo form (`formGroup`) e `footer-content` com botões Salvar/Cancelar.
-- `ngOnInit`: se `id` presente, carregar via service e popular `form`.
-- `save()`: validar form, chamar service.save(dto), tratar mensagens (BackendMessageService).
-
-Output requerido (arquivos)
-
-- Backend Java:
-  - `src/backend/src/main/java/br/com/grupopipa/gestaointegrada/{{domain}}/{{entityPackage}}/{{EntityName}}.java` (entidade)
-  - `.../{{EntityName}}Repository.java`
-  - `.../service/{{EntityName}}Service.java` e `.../service/{{EntityName}}ServiceImpl.java`
-  - `.../controller/{{EntityName}}Controller.java`
-- Migrations (tenant):
-  - `src/backend/src/main/resources/db/tenant-migrations/V{{ts}}__create_{{table_name}}_table.sql` (idempotente)
-  - opcional: `V{{ts}}__add_fk_...sql` se FK for necessária posteriormente
-- DTOs backend/frontend as needed
-- Frontend:
-  - `src/frontend/src/app/components/{{domain}}/{{entity}}/{{entity}}-grid/{{entity}}-grid.component.ts` and `.html`
-  - `src/frontend/src/app/components/{{domain}}/{{entity}}/{{entity}}-detalhe/{{entity}}-detalhe.component.ts` and `.html`
-  - `src/frontend/src/app/components/{{domain}}/{{entity}}/{{entity}}.service.ts`
-  - `src/frontend/src/app/components/{{domain}}/{{entity}}/model/{{entity}}.dto.ts` and `{{entity}}-grid.dto.ts`
-  - `src/frontend/src/app/components/{{domain}}/{{entity}}/{{entity}}-backend-message.service.ts` (extends `AbstractBackendMessageService`)
-  - route entry to be added/updated in `src/frontend/src/app/components/{{domain}}/{{domain}}.routes.ts` (or `financeiro.routes.ts`) — include `moduleKey` where appropriate.
-- i18n:
-  - Add `trans-unit` entries to `src/frontend/src/app/locale/messages.xlf` and `messages.en.xlf` for visible strings and validation keys.
-- Tests:
-  - Repository and Service unit test skeletons with runtime-unique `codigo` samples.
-
-Formato de retorno exigido
-
-- Retorne um único JSON com todos os arquivos. Exemplo (pseudo):
-  {
-  "src/backend/.../CategoriaTitulo.java": "<conteúdo>",
-  "src/backend/.../db/tenant-migrations/V20251213000001\_\_create_categoria_titulo_table.sql": "<sql content>",
-  "src/frontend/.../categoria-titulo-grid.component.ts": "<content>",
-  "i18n/pt": [ { "key":"categoriaTitulo.nome.notBlank", "source":"Nome da categoria é obrigatório.", "target":"Nome da categoria é obrigatório." } ],
-  "i18n/en": [ { "key":"categoriaTitulo.nome.notBlank", "source":"Nome da categoria é obrigatório.", "target":"Category name is required." } ]
+  public static getList(): {{Entity}}TipoEnum[] {
+    return [this.OPCAO1, this.OPCAO2];
   }
 
-Exemplo de `input` JSON (preencha e envie ao LLM):
-{
-"EntityName": "CategoriaTitulo",
-"table_name": "categoria_titulo",
-"domain": "financeiro",
-"entityPackage": "categoria",
-"ShortDescription": "Categoria para títulos financeiros",
-"fields": [
-{"name":"nome","javaType":"String","required":true,"maxLength":200},
-{"name":"codigo","javaType":"String","required":true,"unique":true,"maxLength":20},
-{"name":"unidadeNegocioId","javaType":"UUID","required":true,"fk":"unidade_negocio(id)"}
-]
+  public static getByKey(key: string): {{Entity}}TipoEnum | undefined {
+    return {{Entity}}TipoEnum.getList().find((tipo) => tipo.key === key);
+  }
+}
+```
+
+#### Serviços Frontend
+
+**SEMPRE estenda `BaseService<DTO, GridDTO>` e implemente os métodos abstratos de conversão:**
+
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { plainToInstance } from 'class-transformer';
+import { MessageService } from '../../base/messages/messages.service';
+import { {{Entity}}BackendMessageService } from './{{entity}}-backend-message.service';
+import { BaseService } from '../../base/base-service';
+import { {{Entity}}DTO } from './model/{{entity}}.dto';
+import { {{Entity}}GridDTO } from './model/{{entity}}-grid.dto';
+
+@Injectable()
+export class {{Entity}}Service extends BaseService<{{Entity}}DTO, {{Entity}}GridDTO> {
+  private static readonly DOMINIO = '{{entity-kebab}}';
+
+  constructor() {
+    super(
+      inject(HttpClient),
+      inject(MessageService),
+      inject({{Entity}}BackendMessageService)
+    );
+  }
+
+  // OBRIGATÓRIO: Conversão DTO (com plainToInstance para transformações)
+  protected override convertToDto(body: unknown): {{Entity}}DTO {
+    return plainToInstance({{Entity}}DTO, body as object) as {{Entity}}DTO;
+  }
+
+  // OBRIGATÓRIO: Conversão GridDTO (com plainToInstance para transformações)
+  protected override convertToGrid(item: {{Entity}}GridDTO): {{Entity}}GridDTO {
+    return plainToInstance({{Entity}}GridDTO, item as object) as {{Entity}}GridDTO;
+  }
+
+  getDomain(): string {
+    return {{Entity}}Service.DOMINIO;
+  }
+
+  // Adicione métodos customizados apenas se necessário
+  // NÃO reimplemente list(), save(), findById(), delete()
+}
+```
+
+**IMPORTANTE**:
+- NÃO reimplemente métodos CRUD básicos (`list`, `save`, `findById`, `delete`)
+- Eles já estão implementados no `BaseService`
+- `plainToInstance` é **essencial** para aplicar decorators `@Transform` e criar instâncias reais de classe
+
+#### Contratos de Componentes do Frontend
+
+**Grid:**
+- Usa `gi-app-base` com `body-content` e `footer-content`
+- `gi-filter-component`: `[filters]` (FilterProperty[]), `[hidden]`, emite `(filterEvent)` e `(cancelEvent)`
+- `gi-table-component`: `[columns]` (ColumnModel[]), `[data]`, `[actions]`, emite `(sortingEvent)`
+- `gi-pagination-component`: `[itemsPerPage]`, `[totalElements]`, emite `(paginationEvent)`
+
+**Detalhe:**
+- Usa `gi-app-base` com `[actions]` ou `[goBackFn]`
+- Ações (Salvar/Cancelar) inicializadas no TS e passadas via `[actions]`
+- NÃO coloque botões brutos dentro de `footer-content`
+- `ngOnInit`: se `id` presente, carregar via `service.findById(id)`
+- `save()`: chamar `service.save(dto, { onSuccess })` - NÃO forneça `onError` (já tratado pelo BaseService)
+
+#### Response Types
+
+Use os tipos definidos em `src/frontend/src/app/components/base/model/response.ts`:
+
+```typescript
+// Para findById
+this.service.findById(id).subscribe((response: Response<MyDTO>) => {
+  if (response.body) {
+    this.form.patchValue(response.body);
+  }
+});
+
+// Para save
+this.service.save(dto, {
+  onSuccess: (data: MyDTO) => {
+    this.messageService.sucesso('Salvo com sucesso!');
+    this.goBack();
+  }
+  // onError é opcional - BaseService já trata
+});
+```
+
+### i18n
+
+- Marque strings com `i18n` no HTML: `<label i18n>Nome</label>`
+- NÃO use pipe `translate` para rótulos estáticos
+- Adicione `trans-unit` em `src/frontend/src/app/locale/messages.xlf` (pt-BR) e `messages.en.xlf` (en-US)
+- Inclua chaves de validação do backend (ex.: `{{entity}}.{{field}}.notBlank`)
+
+### Testes (Backend)
+
+- **NÃO use valores determinísticos** para campos `codigo`
+- Use geração runtime: `"test-" + System.nanoTime()` ou `UUID.randomUUID().toString().substring(0, 12)`
+- **Testes de integração**: persista entidades pai (FKs) antes da entidade filha
+- **Testes unitários**: use `UUID` concreto para IDs, mocqueie `findById()` para entidades referenciadas
+- Estenda `AbstractIntegrationTest` quando disponível
+- Use AssertJ (`assertThat(...)`) para asserções
+
+---
+
+## PROMPT PRINCIPAL (cole inteiro no gerador)
+
+```
+Você é um assistente gerador de código para o repositório "Gestão Integrada Pipa".
+Gere um conjunto completo de arquivos necessários para uma nova entidade de domínio,
+obedecendo estritamente as convenções abaixo.
+
+Sua saída deve ser um JSON onde cada chave é o caminho relativo do arquivo no
+repositório e o valor é o conteúdo (string). NÃO execute comandos no sistema.
+
+## 1. BACKEND (Java)
+
+### Entidade
+- Pacote: `br.com.grupopipa.gestaointegrada.{domain}.{entityPackage}.entity`
+- Estender `BaseEntity` (fornece UUID id, createdAt, updatedAt, createdBy, updatedBy)
+- Usar Builder pattern com validação centralizada
+- Método `validate()` privado retornando `ValidatedData`
+- Lançar `BeanValidationException` com `BeanValidationMessage` em violações
+- Value Objects: usar método fábrica `Nome.of(...)`, não `new Nome(...)`
+
+```java
+@Entity
+@Table(name = "{{table_name}}")
+public class {{EntityName}} extends BaseEntity {
+
+    @Embedded
+    private Nome nome;
+
+    @Column(name = "codigo", length = 20, nullable = false)
+    private String codigo;
+
+    // Construtor privado (apenas Builder)
+    private {{EntityName}}(Nome nome, String codigo) {
+        this.nome = nome;
+        this.codigo = codigo;
+    }
+
+    protected {{EntityName}}() {} // JPA
+
+    private static class ValidatedData {
+        final Nome nome;
+        final String codigo;
+
+        ValidatedData(Nome nome, String codigo) {
+            this.nome = nome;
+            this.codigo = codigo;
+        }
+    }
+
+    private static ValidatedData validate(String nomeStr, String codigo) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        Nome nome = ValidationUtils.validateAndGet(
+            () -> Nome.of(nomeStr), violations
+        );
+
+        if (codigo == null || codigo.isBlank()) {
+            violations.add(new BeanValidationMessage("codigo", "Código é obrigatório"));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("{{entityCamel}}", violations);
+        }
+
+        return new ValidatedData(nome, codigo);
+    }
+
+    public void atualizar(String nomeStr, String codigo) {
+        ValidatedData data = validate(nomeStr, codigo);
+        this.nome = data.nome;
+        this.codigo = data.codigo;
+    }
+
+    // Getters retornam String (não expõe VOs)
+    public String getNome() {
+        return nome != null ? nome.getValue() : null;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public static class Builder {
+        private String nome;
+        private String codigo;
+
+        public Builder nome(String nome) {
+            this.nome = nome;
+            return this;
+        }
+
+        public Builder codigo(String codigo) {
+            this.codigo = codigo;
+            return this;
+        }
+
+        public {{EntityName}} build() {
+            ValidatedData data = validate(this.nome, this.codigo);
+            return new {{EntityName}}(data.nome, data.codigo);
+        }
+    }
+}
+```
+
+### DTOs Backend
+```java
+@Data
+@Builder
+public class {{EntityName}}DTO {
+    private UUID id;
+    private String nome;
+    private String codigo;
+    // Adicione outros campos conforme necessário
 }
 
-Regras extras para o gerador (validação):
+@Data
+@Builder
+public class {{EntityName}}GridDTO {
+    private UUID id;
+    private String nome;
+    private String codigo;
+    // Campos para exibição em grid (pode ser subset do DTO)
+}
+```
 
-- Truncar códigos que excedam limites (ex.: `codigo` <= 20) e/ou usar pattern de geração em testes.
-- Todas as constraints SQL devem ter nomes explícitos.
-- Migrations devem ser idempotentes.
-- Backend message keys para validações devem seguir `{{entity}}.{{field}}.<rule>` (e.g., `categoriaTitulo.nome.notBlank`).
+### Repository
+```java
+public interface {{EntityName}}Repository extends
+    JpaRepository<{{EntityName}}, UUID>,
+    JpaSpecificationExecutor<{{EntityName}}> {
 
-"""
+    Optional<{{EntityName}}> findByCodigo(String codigo);
+}
+```
+
+### Service
+```java
+public interface {{EntityName}}Service extends
+    CrudService<{{EntityName}}DTO, {{EntityName}}GridDTO> {
+    // Métodos customizados se necessário
+}
+
+@Service
+@Transactional(readOnly = true)
+public class {{EntityName}}ServiceImpl extends
+    CrudServiceImpl<{{EntityName}}DTO, {{EntityName}}GridDTO, {{EntityName}}, {{EntityName}}Repository>
+    implements {{EntityName}}Service {
+
+    @Override
+    protected {{EntityName}} mergeEntityAndDTO({{EntityName}} entity, {{EntityName}}DTO dto) {
+        if (Objects.isNull(entity)) {
+            return new {{EntityName}}.Builder()
+                .nome(dto.getNome())
+                .codigo(dto.getCodigo())
+                .build();
+        }
+        entity.atualizar(dto.getNome(), dto.getCodigo());
+        return entity;
+    }
+
+    @Override
+    protected {{EntityName}}DTO buildDTOFromEntity({{EntityName}} entity) {
+        return {{EntityName}}DTO.builder()
+            .id(entity.getId())
+            .nome(entity.getNome())
+            .codigo(entity.getCodigo())
+            .build();
+    }
+
+    @Override
+    protected {{EntityName}}GridDTO buildGridDTOFromEntity({{EntityName}} entity) {
+        return {{EntityName}}GridDTO.builder()
+            .id(entity.getId())
+            .nome(entity.getNome())
+            .codigo(entity.getCodigo())
+            .build();
+    }
+}
+```
+
+### Controller
+```java
+@RestController
+@RequestMapping("/{{entity-kebab}}")
+public class {{EntityName}}Controller extends
+    BaseController<{{EntityName}}DTO, {{EntityName}}GridDTO, {{EntityName}}Service> {
+
+    @Override
+    @PreAuthorize("hasAuthority('{{MODULE}}_{{ENTITY_UPPER}}_LISTAR')")
+    public ResponseEntity<Response<PageResponse<{{EntityName}}GridDTO>>> query(
+        @RequestBody PageRequest filterPageRequest) {
+        return super.query(filterPageRequest);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('{{MODULE}}_{{ENTITY_UPPER}}_VISUALIZAR')")
+    public ResponseEntity<Response<{{EntityName}}DTO>> findById(@RequestParam UUID id) {
+        return super.findById(id);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('{{MODULE}}_{{ENTITY_UPPER}}_EDITAR')")
+    public ResponseEntity<Response<{{EntityName}}DTO>> save(@RequestBody {{EntityName}}DTO dto) {
+        return super.save(dto);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('{{MODULE}}_{{ENTITY_UPPER}}_DELETAR')")
+    public ResponseEntity<ResponseString> delete(@PathVariable UUID id) {
+        return super.delete(id);
+    }
+}
+```
+
+## 2. MIGRATIONS (Tenant)
+
+**Arquivo**: `src/main/resources/db/tenant-migrations/V{timestamp}__create_{{table_name}}_table.sql`
+
+```sql
+-- Idempotente: verifica existência antes de criar
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables
+                   WHERE table_schema = current_schema()
+                   AND table_name = '{{table_name}}') THEN
+
+        CREATE TABLE {{table_name}} (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            nome VARCHAR(255) NOT NULL,
+            codigo VARCHAR(20) NOT NULL,
+
+            -- Campos de auditoria (BaseEntity)
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP,
+            created_by VARCHAR(255),
+            updated_by VARCHAR(255)
+        );
+
+        -- Constraints nomeadas
+        ALTER TABLE {{table_name}}
+            ADD CONSTRAINT uk_{{table_name}}_codigo UNIQUE (codigo);
+
+        -- Se tiver FK
+        -- ALTER TABLE {{table_name}}
+        --     ADD CONSTRAINT fk_{{table_name}}_unidade_negocio
+        --     FOREIGN KEY (unidade_negocio_id) REFERENCES unidade_negocio(id);
+
+    END IF;
+END $$;
+
+-- Inserir módulo no sistema (idempotente)
+INSERT INTO modulo (id, chave, nome, grupo)
+SELECT gen_random_uuid(), '{{MODULE}}_{{ENTITY_UPPER}}', '{{EntityDescription}}', '{{MODULE}}'
+WHERE NOT EXISTS (SELECT 1 FROM modulo WHERE chave = '{{MODULE}}_{{ENTITY_UPPER}}');
+
+-- Vincular ao perfil Administrador Geral (idempotente)
+INSERT INTO perfil_modulo (
+    id, perfil_id, modulo_id,
+    pode_listar, pode_visualizar, pode_editar, pode_deletar,
+    created_at, created_by
+)
+SELECT
+    gen_random_uuid(),
+    p.id,
+    m.id,
+    TRUE, TRUE, TRUE, TRUE,
+    CURRENT_TIMESTAMP,
+    'migration'
+FROM perfil p
+CROSS JOIN modulo m
+WHERE p.nome = 'Administrador Geral'
+  AND m.chave = '{{MODULE}}_{{ENTITY_UPPER}}'
+  AND NOT EXISTS (
+    SELECT 1 FROM perfil_modulo pm
+    WHERE pm.perfil_id = p.id AND pm.modulo_id = m.id
+  );
+```
+
+### DatabaseConstraintsEnum
+
+**CRÍTICO**: Toda constraint criada na migration DEVE ser registrada no enum `DatabaseConstraintsEnum`.
+
+**Localização**: `src/backend/src/main/java/br/com/grupopipa/gestaointegrada/core/dao/DatabaseConstraintsEnum.java`
+
+**Padrão de nomenclatura**:
+- Enum: `UK_{{TABLE_NAME}}_{{FIELD_NAME}}` (para UNIQUE)
+- Enum: `FK_{{TABLE_NAME}}_{{REFERENCED_TABLE}}` (para FOREIGN KEY)
+- Enum: `CHK_{{TABLE_NAME}}_{{FIELD_NAME}}` (para CHECK)
+- MessageKey: `{{entityCamel}}.{{field}}.{{type}}` (ex: `centroCusto.nome.unique`)
+
+**Exemplo**:
+```java
+// Após criar constraint na migration:
+// ALTER TABLE centro_custo ADD CONSTRAINT uk_centro_custo_nome UNIQUE (nome);
+
+// Adicionar no DatabaseConstraintsEnum.java:
+// Constraints de Centro de Custo
+UK_CENTRO_CUSTO_NOME("centroCusto.nome.unique"),
+FK_CENTRO_CUSTO_UNIDADE_NEGOCIO("centroCusto.unidadeNegocio.foreignKey"),
+CHK_CENTRO_CUSTO_ATIVO("centroCusto.ativo.invalid"),
+```
+
+**Tipos de mensagens comuns**:
+- UNIQUE: `.unique` (ex: `centroCusto.codigo.unique`)
+- FOREIGN KEY: `.foreignKey` (ex: `titulo.pessoa.foreignKey`)
+- CHECK (enum): `.invalid` (ex: `titulo.tipo.invalid`)
+- CHECK (valor positivo): `.positive` (ex: `titulo.valor.positive`)
+- CHECK (datas): `.after{{Campo}}` (ex: `titulo.dataVencimento.afterEmissao`)
+
+**Fluxo de tratamento de erros**:
+1. Constraint violada no banco → `DataIntegrityViolationException`
+2. `RestExceptionHandler` captura e extrai nome da constraint
+3. `DatabaseConstraintsEnum.getByKey()` mapeia para `userMessageKey`
+4. Response JSON inclui `userMessageKey: ["centroCusto.nome.unique"]`
+5. Frontend usa `BackendMessageService` para traduzir e exibir
+
+**IMPORTANTE**:
+- Se a constraint não estiver no enum, a mensagem será genérica (`errors.internalServerError`)
+- SEMPRE adicione a constraint ao enum junto com a migration
+- SEMPRE adicione a tradução correspondente no `BackendMessageService` do frontend
+
+## 3. FRONTEND (Angular + TypeScript)
+
+### DTOs TypeScript (CLASSES com decorators)
+
+**{{entity}}.dto.ts**:
+```typescript
+import { Exclude, Expose, Transform, TransformationType, TransformFnParams } from 'class-transformer';
+import { {{Entity}}TipoEnum } from './{{entity}}-tipo.enum';
+
+@Exclude()
+export class {{Entity}}DTO {
+  @Expose()
+  id?: string;
+
+  @Expose()
+  nome: string;
+
+  @Expose()
+  codigo: string;
+
+  @Expose()
+  descricao?: string;
+
+  // Se tiver enum, use @Transform para conversão
+  @Transform((params: TransformFnParams) => {
+    const { type, value } = params;
+    if (TransformationType.PLAIN_TO_CLASS === type) {
+      return {{Entity}}TipoEnum.getByKey(value);
+    }
+    if (TransformationType.CLASS_TO_PLAIN === type) {
+      return value.key;
+    }
+    return value;
+  })
+  @Expose()
+  tipo?: {{Entity}}TipoEnum;
+
+  constructor(nome: string, codigo: string, descricao?: string, tipo?: {{Entity}}TipoEnum, id?: string) {
+    this.nome = nome;
+    this.codigo = codigo;
+    this.descricao = descricao;
+    this.tipo = tipo;
+    this.id = id;
+  }
+}
+```
+
+**{{entity}}-grid.dto.ts**: Similar ao DTO, mas com campos para grid
+
+### Enum TypeScript
+
+**{{entity}}-tipo.enum.ts**:
+```typescript
+export class {{Entity}}TipoEnum {
+  public static readonly OPCAO1 = new {{Entity}}TipoEnum('OPCAO1', $localize`Opção 1`);
+  public static readonly OPCAO2 = new {{Entity}}TipoEnum('OPCAO2', $localize`Opção 2`);
+
+  constructor(public readonly key: string, public readonly label: string) {}
+
+  public static getList(): {{Entity}}TipoEnum[] {
+    return [this.OPCAO1, this.OPCAO2];
+  }
+
+  public static getByKey(key: string): {{Entity}}TipoEnum | undefined {
+    return this.getList().find(t => t.key === key);
+  }
+}
+```
+
+### Service Frontend
+
+**{{entity}}.service.ts**:
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { plainToInstance } from 'class-transformer';
+import { MessageService } from '../../base/messages/messages.service';
+import { {{Entity}}BackendMessageService } from './{{entity}}-backend-message.service';
+import { BaseService } from '../../base/base-service';
+import { {{Entity}}DTO } from './model/{{entity}}.dto';
+import { {{Entity}}GridDTO } from './model/{{entity}}-grid.dto';
+
+@Injectable()
+export class {{Entity}}Service extends BaseService<{{Entity}}DTO, {{Entity}}GridDTO> {
+  private static readonly DOMINIO = '{{entity-kebab}}';
+
+  constructor() {
+    super(
+      inject(HttpClient),
+      inject(MessageService),
+      inject({{Entity}}BackendMessageService)
+    );
+  }
+
+  protected override convertToDto(body: unknown): {{Entity}}DTO {
+    return plainToInstance({{Entity}}DTO, body as object) as {{Entity}}DTO;
+  }
+
+  protected override convertToGrid(item: {{Entity}}GridDTO): {{Entity}}GridDTO {
+    return plainToInstance({{Entity}}GridDTO, item as object) as {{Entity}}GridDTO;
+  }
+
+  getDomain(): string {
+    return {{Entity}}Service.DOMINIO;
+  }
+}
+```
+
+### Backend Message Service
+
+**{{entity}}-backend-message.service.ts**:
+```typescript
+import { Injectable } from '@angular/core';
+import { AbstractBackendMessageService } from '../../base/services/backend-messsages/abstract-backend-message.service';
+
+@Injectable()
+export class {{Entity}}BackendMessageService extends AbstractBackendMessageService {
+  override messages(): Record<string, string> {
+    return {
+      '{{entityCamel}}.nome.notBlank': $localize`:@@{{entityCamel}}.nome.notBlank:Nome é obrigatório`,
+      '{{entityCamel}}.codigo.notBlank': $localize`:@@{{entityCamel}}.codigo.notBlank:Código é obrigatório`,
+      '{{entityCamel}}.codigo.unique': $localize`:@@{{entityCamel}}.codigo.unique:Código já cadastrado`,
+    };
+  }
+}
+```
+
+### Componentes (Grid, Detalhe, Principal)
+
+Siga o padrão dos componentes existentes:
+- Grid: `gi-app-base`, `gi-filter-component`, `gi-table-component`, `gi-pagination-component`
+- Detalhe: `gi-app-base` com `[actions]`, ReactiveForm
+- Principal: ViewMode (GRID/DETAIL), orquestra grid e detalhe
+
+## 4. i18n
+
+Adicione em `src/frontend/src/app/locale/messages.xlf` e `messages.en.xlf`:
+
+```xml
+<!-- messages.xlf (pt-BR) -->
+<trans-unit id="{{entityCamel}}.nome.notBlank" datatype="html">
+  <source>Nome é obrigatório</source>
+  <target>Nome é obrigatório</target>
+</trans-unit>
+
+<!-- messages.en.xlf (en-US) -->
+<trans-unit id="{{entityCamel}}.nome.notBlank" datatype="html">
+  <source>Nome é obrigatório</source>
+  <target>Name is required</target>
+</trans-unit>
+```
+
+## 5. TESTES (Backend)
+
+### Repository Test
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Testcontainers
+public class {{EntityName}}RepositoryTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private {{EntityName}}Repository repository;
+
+    @Test
+    void deveSalvarERecuperar{{EntityName}}() {
+        String codigo = "test-" + System.nanoTime();
+
+        {{EntityName}} entity = new {{EntityName}}.Builder()
+            .nome("Test Nome")
+            .codigo(codigo)
+            .build();
+
+        {{EntityName}} saved = repository.save(entity);
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getCodigo()).isEqualTo(codigo);
+
+        Optional<{{EntityName}}> found = repository.findByCodigo(codigo);
+        assertThat(found).isPresent();
+    }
+}
+```
+
+### Service Test
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Testcontainers
+public class {{EntityName}}ServiceTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private {{EntityName}}Service service;
+
+    @Test
+    void deveCriar{{EntityName}}() {
+        String codigo = UUID.randomUUID().toString().substring(0, 12);
+
+        {{EntityName}}DTO dto = {{EntityName}}DTO.builder()
+            .nome("Test Nome")
+            .codigo(codigo)
+            .build();
+
+        {{EntityName}}DTO saved = service.save(dto);
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getCodigo()).isEqualTo(codigo);
+    }
+}
+```
+
+## 6. OUTPUT FORMAT
+
+Retorne um JSON com:
+- Chave: caminho relativo do arquivo
+- Valor: conteúdo do arquivo
+
+```json
+{
+  "src/backend/src/main/java/.../{{EntityName}}.java": "...",
+  "src/backend/src/main/resources/db/tenant-migrations/V...sql": "...",
+  "src/frontend/src/app/components/{{domain}}/{{entity}}/model/{{entity}}.dto.ts": "...",
+  "databaseConstraints": [
+    {"enum": "UK_{{TABLE_NAME}}_{{FIELD}}", "messageKey": "{{entityCamel}}.{{field}}.unique"},
+    {"enum": "FK_{{TABLE_NAME}}_{{REF_TABLE}}", "messageKey": "{{entityCamel}}.{{refEntity}}.foreignKey"},
+    {"enum": "CHK_{{TABLE_NAME}}_{{FIELD}}", "messageKey": "{{entityCamel}}.{{field}}.invalid"}
+  ],
+  "i18n/pt": [
+    {"key": "{{entityCamel}}.nome.notBlank", "source": "Nome é obrigatório", "target": "Nome é obrigatório"},
+    {"key": "{{entityCamel}}.nome.unique", "source": "Nome já cadastrado", "target": "Nome já cadastrado"}
+  ],
+  "i18n/en": [
+    {"key": "{{entityCamel}}.nome.notBlank", "source": "Nome é obrigatório", "target": "Name is required"},
+    {"key": "{{entityCamel}}.nome.unique", "source": "Nome já cadastrado", "target": "Name already exists"}
+  ]
+}
+```
+
+## EXEMPLO DE INPUT JSON
+
+```json
+{
+  "EntityName": "TituloCategoria",
+  "entityCamel": "tituloCategoria",
+  "entity-kebab": "titulo-categoria",
+  "table_name": "titulo_categoria",
+  "domain": "financeiro",
+  "entityPackage": "titulocategoria",
+  "MODULE": "FINANCEIRO",
+  "ENTITY_UPPER": "TITULO_CATEGORIA",
+  "EntityDescription": "Categoria de Títulos Financeiros",
+  "fields": [
+    {"name": "nome", "javaType": "String", "required": true, "maxLength": 200},
+    {"name": "codigo", "javaType": "String", "required": true, "unique": true, "maxLength": 20},
+    {"name": "descricao", "javaType": "String", "required": false, "maxLength": 500},
+    {"name": "tipo", "javaType": "TituloCategoriaTipoEnum", "required": true, "enum": true,
+     "enumValues": ["RECEITA", "DESPESA"]}
+  ]
+}
+```
+
+## INSTRUÇÕES FINAIS
+
+1. NÃO execute comandos no sistema
+2. Gere TODOS os arquivos necessários
+3. Siga RIGOROSAMENTE os padrões descritos
+4. Use `plainToInstance` nos serviços frontend
+5. Use classes (não interfaces) para DTOs TypeScript
+6. Migrations DEVEM ser idempotentes
+7. Adicione pacote entity ao `DataSourceConfig.ENTITY_PACKAGES`
+8. Testes com valores únicos em runtime
+9. **CRÍTICO**: Registre TODAS as constraints no `DatabaseConstraintsEnum`
+```
+
+---
+
+## CHECKLIST DE VALIDAÇÃO
+
+Antes de usar o código gerado, verifique:
+
+### Backend
+- [ ] Entidade usa Builder pattern com validação centralizada
+- [ ] Value Objects via método fábrica (`Nome.of(...)`)
+- [ ] DTOs com Lombok @Builder/@Data
+- [ ] Service estende CrudServiceImpl corretamente
+- [ ] Controller com @PreAuthorize correto
+
+### Migrations
+- [ ] Idempotente (IF NOT EXISTS ou DO$$)
+- [ ] Constraints nomeadas (uk_, fk_, ck_)
+- [ ] Módulo inserido na tabela `modulo`
+- [ ] Perfil vinculado em `perfil_modulo`
+
+### DatabaseConstraintsEnum ⚠️ CRÍTICO
+- [ ] **TODAS as constraints registradas no enum**
+- [ ] Nomenclatura correta (UK_, FK_, CHK_)
+- [ ] MessageKeys seguem padrão `{{entityCamel}}.{{field}}.{{type}}`
+- [ ] Constraints de UNIQUE, FK e CHECK mapeadas
+
+### Frontend
+- [ ] DTOs são CLASSES com @Exclude/@Expose
+- [ ] Service usa `plainToInstance` nos métodos convert*
+- [ ] Enum com getByKey() para conversão
+- [ ] Backend message service implementado
+- [ ] Mensagens de constraints incluídas no BackendMessageService
+
+### i18n
+- [ ] Trans-units de validação em pt-BR (messages.xlf)
+- [ ] Trans-units de validação em en-US (messages.en.xlf)
+- [ ] **Mensagens de constraints incluídas** (ex: `.unique`, `.foreignKey`)
+
+### Testes
+- [ ] Valores únicos em runtime (não determinísticos)
+- [ ] Repository test implementado
+- [ ] Service test implementado
+
+### Configuração
+- [ ] Pacote entity adicionado a `DataSourceConfig.ENTITY_PACKAGES`
+- [ ] Rotas adicionadas ao arquivo de rotas do módulo

@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
@@ -47,20 +46,25 @@ public abstract class AbstractIntegrationTest {
 
     /**
      * Container PostgreSQL compartilhado entre todos os testes.
-     * O uso de um container estático garante que ele seja iniciado
-     * apenas uma vez para toda a suite de testes, economizando tempo.
-     * 
+     * O container é iniciado manualmente no bloco static e fica ativo durante
+     * toda a execução da suite de testes. Não usamos @Container aqui porque
+     * queremos controlar manualmente o ciclo de vida do container para evitar
+     * que ele seja parado entre classes de teste.
+     *
      * Nota: O warning de "resource leak" é um falso positivo. O Testcontainers
-     * gerencia automaticamente o ciclo de vida do container através da anotação @Container.
+     * gerencia automaticamente o cleanup através do Ryuk container.
      */
-    @Container
     @SuppressWarnings("resource")
-    protected static final PostgreSQLContainer<?> POSTGRES_CONTAINER = 
-        new PostgreSQLContainer<>("postgres:16-alpine")
+    protected static final PostgreSQLContainer<?> POSTGRES_CONTAINER;
+
+    static {
+        POSTGRES_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test")
             .withReuse(true); // Reutiliza o container entre execuções
+        POSTGRES_CONTAINER.start(); // Inicia o container uma vez para todos os testes
+    }
 
     protected static final String TEST_TENANT_SCHEMA = "teste_tenant";
 

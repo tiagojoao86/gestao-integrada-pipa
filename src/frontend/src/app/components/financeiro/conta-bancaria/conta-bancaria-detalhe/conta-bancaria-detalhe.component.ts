@@ -27,6 +27,7 @@ import { ContaBancariaDTO } from '../model/conta-bancaria-dto';
 import { AuthService } from '../../../base/auth/auth-service';
 import { TipoConta } from '../model/tipo-conta.enum';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-conta-bancaria-detalhe',
@@ -72,7 +73,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
 
     // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'CADASTRO_CONTA_BANCARIA'
+      SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
     );
     this.toolbarActions = [
       {
@@ -110,7 +111,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
-        this.contaBancaria = response.body;
+        this.contaBancaria = response.body!;
         this.titulo += this.contaBancaria.nome;
         this.fillForm();
       });

@@ -1,0 +1,8 @@
+@if (viewMode === 'GRID') {
+<gi-centro-custo-grid (openDetail)="openDetail($event)"></gi-centro-custo-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-centro-custo-detalhe
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+></gi-centro-custo-detalhe>
+}

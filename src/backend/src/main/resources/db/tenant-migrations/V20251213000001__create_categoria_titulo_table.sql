@@ -1,18 +1,23 @@
--- Migration: create categoria_titulo table for tenant schemas
+-- Migration: create titulo_categoria table for tenant schemas
 -- Date: 2025-12-12 (moved version to run last)
 
-CREATE TABLE IF NOT EXISTS categoria_titulo (
+CREATE TABLE IF NOT EXISTS titulo_categoria (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(400),
+    tipo VARCHAR(20) NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE,
     updated_at TIMESTAMP WITHOUT TIME ZONE,
     created_by VARCHAR(255),
-    updated_by VARCHAR(255)
+    updated_by VARCHAR(255),
+    CONSTRAINT chk_titulo_categoria_tipo CHECK (
+        tipo IN ('RECEITA', 'DESPESA')
+    ),
+    CONSTRAINT uk_titulo_categoria_nome UNIQUE (nome)
 );
 
 -- Optional: create index on nome for faster searches
-CREATE INDEX IF NOT EXISTS idx_categoria_titulo_nome ON categoria_titulo (nome);
+CREATE INDEX IF NOT EXISTS idx_titulo_categoria_nome ON titulo_categoria (nome);
 
 -- Criação do módulo para Categoria de Títulos (idempotente)
 INSERT INTO

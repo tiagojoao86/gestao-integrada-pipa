@@ -28,7 +28,6 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
 import { PerfilModuloDTO } from '../model/perfil-modulo-dto';
 import { CheckboxChangeEvent } from 'primeng/checkbox';
-import { Response } from '../../../base/model/response';
 import { AuthService } from '../../../base/auth/auth-service';
 import { PermissaoFormGroupValue } from './permissao-form-group-value';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
@@ -97,7 +96,7 @@ export class PerfilDetalheComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.moduloService.getGroupedModules().subscribe((response: Response) => {
+    this.moduloService.getGroupedModules().subscribe((response) => {
       const modulos = response.body as Record<string, ModuloDTO[]>;
       for (const grupo in modulos) {
         modulos[grupo].sort((a: ModuloDTO, b: ModuloDTO) =>

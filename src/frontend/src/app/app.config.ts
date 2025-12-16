@@ -107,11 +107,11 @@ export function refreshTokenInterceptor(
         return authService.refreshToken().pipe(
           switchMap((newToken) => {
             isRefreshing = false;
-            return next(
-              req.clone({
-                setHeaders: { Authorization: `Bearer ${newToken.body.token}` },
-              })
-            );
+            const token = newToken.body?.token ?? newToken.body?.accessToken;
+            const headers = token
+              ? { Authorization: `Bearer ${token}` }
+              : undefined;
+            return next(req.clone({ setHeaders: headers }));
           }),
           catchError((e) => {
             console.log(e);

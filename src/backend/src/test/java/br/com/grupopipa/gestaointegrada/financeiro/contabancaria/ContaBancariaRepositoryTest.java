@@ -1,7 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
-import jakarta.persistence.EntityManager;
-
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 
 import br.com.grupopipa.gestaointegrada.config.AbstractIntegrationTest;
@@ -30,21 +29,26 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
+
     @Autowired
-    private EntityManager entityManager;
-    private UnidadeNegocio unidadeNegocio = new UnidadeNegocio.Builder()
-            .codigo("UN001")
-            .nome("Unidade Teste")
-            .cnpj("11222333000181")
-            .build();
+    private UnidadeNegocioRepository unidadeNegocioRepository;
 
     @Autowired
     private ContaBancariaRepository repository;
 
+    private UnidadeNegocio criarUnidadeNegocio(String codigoSufixo) {
+        return new UnidadeNegocio.Builder()
+                .codigo("UN" + codigoSufixo + java.util.UUID.randomUUID().toString().substring(0, 8))
+                .nome("Unidade Teste " + codigoSufixo)
+                .cnpj("11222333000181")
+                .build();
+    }
+
     @Test
     @DisplayName("Deve salvar e recuperar conta bancária")
     void deveSalvarERecuperarContaBancaria() {
-        entityManager.persist(unidadeNegocio);
+        UnidadeNegocio unidadeNegocio = criarUnidadeNegocio("001");
+        unidadeNegocioRepository.save(unidadeNegocio);
         // Given
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Corrente Principal")
@@ -72,7 +76,8 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve buscar conta bancária por ID")
     void deveBuscarContaBancariaPorId() {
-        entityManager.persist(unidadeNegocio);
+        UnidadeNegocio unidadeNegocio = criarUnidadeNegocio("002");
+        unidadeNegocioRepository.save(unidadeNegocio);
         // Given
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Poupança")
@@ -94,7 +99,8 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve deletar conta bancária")
     void deveDeletarContaBancaria() {
-        entityManager.persist(unidadeNegocio);
+        UnidadeNegocio unidadeNegocio = criarUnidadeNegocio("003");
+        unidadeNegocioRepository.save(unidadeNegocio);
         // Given
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Temporária")
@@ -115,7 +121,8 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve validar campos obrigatórios")
     void deveValidarCamposObrigatorios() {
-        entityManager.persist(unidadeNegocio);
+        UnidadeNegocio unidadeNegocio = criarUnidadeNegocio("004");
+        unidadeNegocioRepository.save(unidadeNegocio);
         // Given
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Validação")

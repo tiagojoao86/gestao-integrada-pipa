@@ -132,7 +132,7 @@ export class TituloDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
-        this.titulo = response.body;
+        this.titulo = response.body!;
         this.tituloTela += this.titulo.descricao;
         this.fillForm();
         // Load planos de contas after filling form with unidadeNegocioId

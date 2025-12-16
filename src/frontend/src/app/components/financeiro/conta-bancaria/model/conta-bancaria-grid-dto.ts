@@ -1,4 +1,4 @@
-export interface ContaBancariaGridDTO {
+export class ContaBancariaGridDTO {
   id: string;
   nome: string;
   banco?: string;
@@ -6,4 +6,22 @@ export interface ContaBancariaGridDTO {
   saldoInicial?: number;
   unidadeNegocioCodigo?: string;
   ativa: boolean;
+
+  constructor(
+    id: string,
+    nome: string,
+    banco: string | undefined,
+    tipo: string,
+    saldoInicial: number | undefined,
+    unidadeNegocioCodigo: string | undefined,
+    ativa: boolean
+  ) {
+    this.id = id;
+    this.nome = nome;
+    this.banco = banco;
+    this.tipo = tipo;
+    this.saldoInicial = saldoInicial;
+    this.unidadeNegocioCodigo = unidadeNegocioCodigo;
+    this.ativa = ativa;
+  }
 }

@@ -1,0 +1,42 @@
+<gi-app-base
+  [title]="title"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+      <p-iftalabel class="w-50">
+        <input pInputText id="nomeCategoria" formControlName="nome" />
+        <label for="nomeCategoria" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="tipo"
+          [options]="tiposCategoria"
+          formControlName="tipo"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.label }}</div>
+          </ng-template>
+        </p-select>
+        <label for="tipo" i18n>Tipo</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="descricao"
+          formControlName="descricao"
+          rows="4"
+        ></textarea>
+        <label for="descricao" i18n>Descrição</label>
+      </p-iftalabel>
+    </div>
+  </div>
+
+  <div footer-content></div>
+</gi-app-base>

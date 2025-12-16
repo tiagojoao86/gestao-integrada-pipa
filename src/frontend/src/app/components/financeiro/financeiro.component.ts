@@ -5,6 +5,7 @@ import { SystemModuleGroupComponent } from '../base/menu/system-module-group/sys
 import { AuthService } from '../base/auth/auth-service';
 import { SystemModule } from '../base/menu/system-module/system-module';
 import { SystemModuleGroup } from '../base/menu/system-module-group/system-module-group';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-financeiro',
@@ -23,7 +24,9 @@ export class FinanceiroComponent implements OnInit {
     const cadastrosModules: SystemModule[] = [];
 
     if (
-      this.authService.hasAuthorityListarToModulo('FINANCEIRO_CONTA_BANCARIA')
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
+      )
     ) {
       cadastrosModules.push({
         name: $localize`Contas Bancárias`,
@@ -33,18 +36,36 @@ export class FinanceiroComponent implements OnInit {
     }
 
     if (
-      this.authService.hasAuthorityListarToModulo('FINANCEIRO_TITULO_CATEGORIA')
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA
+      )
     ) {
       cadastrosModules.push({
         name: $localize`Categorias de Título`,
         icon: 'category',
-        url: '/financeiro/categoria-titulo',
+        url: '/financeiro/titulo-categoria',
+      });
+    }
+
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
+      )
+    ) {
+      cadastrosModules.push({
+        name: $localize`Centros de Custo`,
+        icon: 'account_balance',
+        url: '/financeiro/centro-custo',
       });
     }
 
     const financeiroModules: SystemModule[] = [];
 
-    if (this.authService.hasAuthorityListarToModulo('FINANCEIRO_TITULO')) {
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_TITULO
+      )
+    ) {
       financeiroModules.push({
         name: $localize`Títulos`,
         icon: 'receipt_long',
@@ -54,7 +75,7 @@ export class FinanceiroComponent implements OnInit {
 
     if (
       this.authService.hasAuthorityListarToModulo(
-        'FINANCEIRO_MOVIMENTACAO_FINANCEIRA'
+        SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
       )
     ) {
       financeiroModules.push({

@@ -1,7 +1,21 @@
-export interface UnidadeNegocioGridDTO {
+export class UnidadeNegocioGridDTO {
   id: string;
   codigo: string;
   nome: string;
   cnpj?: string;
   ativa: boolean;
+
+  constructor(
+    id: string,
+    codigo: string,
+    nome: string,
+    cnpj: string | undefined,
+    ativa: boolean
+  ) {
+    this.id = id;
+    this.codigo = codigo;
+    this.nome = nome;
+    this.cnpj = cnpj;
+    this.ativa = ativa;
+  }
 }

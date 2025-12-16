@@ -177,7 +177,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     } else if (this.id) {
       this.editMode = true;
       this.service.findById(String(this.id)).subscribe((response) => {
-        this.movimentacao = response.body;
+        this.movimentacao = response.body!;
         this.fillForm();
         // If there are existing títulos, extract ids and fetch them to populate selection
         if (

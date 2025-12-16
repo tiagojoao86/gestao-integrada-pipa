@@ -1,0 +1,5 @@
+/* Styles for centro-custo grid */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}

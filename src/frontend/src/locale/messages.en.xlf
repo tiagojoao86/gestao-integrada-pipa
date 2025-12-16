@@ -1633,6 +1633,39 @@
         <source>Não é possível cancelar título já pago.</source>
         <target>Cannot cancel a title that has already been paid.</target>
       </trans-unit>
+      <!-- Centro de Custo -->
+      <trans-unit id="6959592388089963200" datatype="html">
+        <source>Centros de Custo</source>
+        <target>Cost Centers</target>
+      </trans-unit>
+      <trans-unit id="2210273801974498616" datatype="html">
+        <source>Centro de Custo</source>
+        <target>Cost Center</target>
+      </trans-unit>
+      <trans-unit id="5466043916439805000" datatype="html">
+        <source>Centro Resultado</source>
+        <target>Profit Center</target>
+      </trans-unit>
+      <trans-unit id="1410556977755617029" datatype="html">
+        <source>Unidade Negócio</source>
+        <target>Business Unit</target>
+      </trans-unit>
+      <trans-unit id="tituloCategoria.nome.notBlank" datatype="html">
+        <source>Nome da categoria é obrigatório.</source>
+        <target>Category name is required.</target>
+      </trans-unit>
+      <trans-unit id="centroCusto.nome.notBlank" datatype="html">
+        <source>O nome do centro de custo é obrigatório.</source>
+        <target>Cost center name is required.</target>
+      </trans-unit>
+      <trans-unit id="centroCusto.nome.maxLength" datatype="html">
+        <source>O nome deve ter no máximo 200 caracteres.</source>
+        <target>Name must have at most 200 characters.</target>
+      </trans-unit>
+      <trans-unit id="centroCusto.unidadeNegocio.required" datatype="html">
+        <source>Unidade de negócio é obrigatória.</source>
+        <target>Business unit is required.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

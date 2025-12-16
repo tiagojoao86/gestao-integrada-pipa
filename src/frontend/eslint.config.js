@@ -13,6 +13,17 @@ module.exports = tseslint.config(
       ...tseslint.configs.stylistic,
       ...angular.configs.tsRecommended,
     ],
+    languageOptions: {
+      parserOptions: {
+        // 1. Habilita o suporte à sintaxe de Decoradores
+        ecmaFeatures: {
+          decorators: true,
+        },
+        // 2. Garante que o ESLint carregue as configurações de tipagem
+        project: "./tsconfig.json",
+      },
+      // NOTA: O parser do TypeScript já é injetado pelo angular.configs.tsRecommended
+    },
     processor: angular.processInlineTemplates,
     plugins: {
       "unused-imports": unusedImports,
@@ -41,10 +52,10 @@ module.exports = tseslint.config(
       "unused-imports/no-unused-vars": [
         "warn",
         {
-          "vars": "all",
-          "varsIgnorePattern": "^_",
-          "args": "after-used",
-          "argsIgnorePattern": "^_",
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
         },
       ],
     },

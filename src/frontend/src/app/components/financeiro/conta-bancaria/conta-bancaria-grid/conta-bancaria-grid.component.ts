@@ -18,6 +18,7 @@ import {
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { TipoConta } from '../model/tipo-conta.enum';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-conta-bancaria-grid',
@@ -138,13 +139,13 @@ export class ContaBancariaGridComponent {
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
-      'CADASTRO_CONTA_BANCARIA'
+      SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
     );
     const canDelete = this.auth.hasAuthorityDeletarToModulo(
-      'CADASTRO_CONTA_BANCARIA'
+      SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
     );
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'CADASTRO_CONTA_BANCARIA'
+      SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
     );
 
     if (canView) {
