@@ -14,7 +14,7 @@
     margin-top: 5px;
     text-align: center;
     line-height: 1.2;
-    word-break: break-word;
+    word-break: auto-phrase;
   }
 
   .name .font-normal {

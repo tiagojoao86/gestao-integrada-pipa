@@ -74,12 +74,14 @@ class UnidadeNegocioRepositoryTest extends AbstractIntegrationTest {
                 UnidadeNegocio ativa = new UnidadeNegocio.Builder()
                                 .codigo("UN003")
                                 .nome("Unidade Ativa")
+                                .cnpj("09.373.731/0001-57")
                                 .build();
                 repository.save(ativa);
 
                 UnidadeNegocio inativa = new UnidadeNegocio.Builder()
                                 .codigo("UN004")
                                 .nome("Unidade Inativa")
+                                .cnpj("65.389.347/0001-13")
                                 .build();
                 inativa.inativar();
                 repository.save(inativa);

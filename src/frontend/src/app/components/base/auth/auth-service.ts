@@ -4,6 +4,16 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, tap } from 'rxjs';
 import { Response } from '../model/response';
 import { AuthorityDTO } from '../model/authority-dto';
+import { UsuarioUnidadeNegocioDTO } from '../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+
+interface AuthResponse {
+  accessToken?: string;
+  token?: string;
+  username?: string;
+  nome?: string;
+  authorities?: AuthorityDTO[];
+  unidadesNegocio?: UsuarioUnidadeNegocioDTO[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -23,14 +33,15 @@ export class AuthService {
     this.setTenantId(tenantId);
 
     return this.http
-      .post<Response>('/api/authenticate', { username, password })
+      .post<Response<AuthResponse>>('/api/authenticate', { username, password })
       .pipe(
         tap((response) => {
-          this.setToken(response.body.accessToken);
-          this.setUsername(response.body.username);
-          this.setNome(response.body.nome);
-          this.setUserAuthorities(response.body.authorities);
-          this.setUnidadesNegocio(response.body.unidadesNegocio);
+          const body = response.body!;
+          this.setToken(body.accessToken ?? body.token ?? '');
+          this.setUsername(body.username ?? '');
+          this.setNome(body.nome ?? '');
+          this.setUserAuthorities(body.authorities ?? []);
+          this.setUnidadesNegocio(body.unidadesNegocio ?? []);
           this.router.navigate(['/']);
         }),
         catchError((e) => {
@@ -49,18 +60,19 @@ export class AuthService {
 
   refreshToken() {
     return this.http
-      .post<Response>(
+      .post<Response<AuthResponse>>(
         '/api/authenticate/refresh',
         {},
         { withCredentials: true }
       )
       .pipe(
         tap((response) => {
-          this.setToken(response.body.accessToken);
-          this.setUsername(response.body.username);
-          this.setNome(response.body.nome);
-          this.setUserAuthorities(response.body.authorities);
-          this.setUnidadesNegocio(response.body.unidadesNegocio);
+          const body = response.body!;
+          this.setToken(body.accessToken ?? body.token ?? '');
+          this.setUsername(body.username ?? '');
+          this.setNome(body.nome ?? '');
+          this.setUserAuthorities(body.authorities ?? []);
+          this.setUnidadesNegocio(body.unidadesNegocio ?? []);
         }),
         catchError(() => {
           this.logout();
@@ -196,12 +208,7 @@ export class AuthService {
     sessionStorage.setItem('unidadesNegocio', JSON.stringify(unidades));
   }
 
-  getUnidadesNegocio(): {
-    unidadeNegocioId: string;
-    unidadeNegocioCodigo: string;
-    unidadeNegocioNome: string;
-    isDefault: boolean;
-  }[] {
+  getUnidadesNegocio(): UsuarioUnidadeNegocioDTO[] {
     const unidades = sessionStorage.getItem('unidadesNegocio');
     if (unidades) {
       return JSON.parse(unidades);

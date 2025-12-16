@@ -99,8 +99,8 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
-        this.unidadeNegocio = response.body;
-        this.titulo += this.unidadeNegocio.nome;
+          this.unidadeNegocio = response.body!;
+          this.titulo += this.unidadeNegocio.nome;
         this.fillForm();
         // Desabilita o campo código em modo edição
         this.form.get('codigo')?.disable();
@@ -147,8 +147,7 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
   }
 
   isControlInvalid(campo: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fc: AbstractControl<any, any> | null = this.form.get(campo);
+    const fc: AbstractControl<unknown, unknown> | null = this.form.get(campo);
 
     if (fc !== null && fc.invalid && (fc.touched || fc.dirty)) {
       return true;

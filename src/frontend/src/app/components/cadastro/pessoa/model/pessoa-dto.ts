@@ -1,4 +1,4 @@
-export interface PessoaDTO {
+export class PessoaDTO {
   id: string;
   nome: string;
   email?: string;
@@ -22,6 +22,42 @@ export interface PessoaDTO {
   updatedAt?: Date;
   createdBy?: string;
   updatedBy?: string;
+
+  constructor(
+    id: string,
+    nome: string,
+    ativa: boolean,
+    tipoPessoa: TipoPessoa,
+    email?: string,
+    telefone?: string,
+    observacoes?: string,
+    cpf?: string,
+    dataNascimento?: Date,
+    cnpj?: string,
+    razaoSocial?: string,
+    inscricaoEstadual?: string,
+    createdAt?: Date,
+    updatedAt?: Date,
+    createdBy?: string,
+    updatedBy?: string
+  ) {
+    this.id = id;
+    this.nome = nome;
+    this.ativa = ativa;
+    this.tipoPessoa = tipoPessoa;
+    this.email = email;
+    this.telefone = telefone;
+    this.observacoes = observacoes;
+    this.cpf = cpf;
+    this.dataNascimento = dataNascimento;
+    this.cnpj = cnpj;
+    this.razaoSocial = razaoSocial;
+    this.inscricaoEstadual = inscricaoEstadual;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.createdBy = createdBy;
+    this.updatedBy = updatedBy;
+  }
 }
 
 export class TipoPessoa {

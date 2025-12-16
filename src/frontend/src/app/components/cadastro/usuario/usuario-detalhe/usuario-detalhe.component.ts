@@ -115,7 +115,7 @@ export class UsuarioDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
-        this.usuario = response.body;
+        this.usuario = response.body!;
         this.titulo += this.usuario.nome;
         this.fillForm();
         this.loadPerfisAndInitLists();
@@ -192,6 +192,7 @@ export class UsuarioDetalheComponent implements OnInit {
       this.selectedUnidades.push({
         unidadeNegocioId: unidade.id,
         unidadeNegocioNome: unidade.nome,
+        unidadeNegocioCodigo: unidade.codigo,
         isDefault: this.selectedUnidades.length === 0, // First one is default
       });
       // Set as default if it's the first
@@ -244,8 +245,7 @@ export class UsuarioDetalheComponent implements OnInit {
   }
 
   isControlInvalid(campo: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fc: AbstractControl<any, any> | null = this.form.get(campo);
+    const fc: AbstractControl<unknown, unknown> | null = this.form.get(campo);
 
     if (fc !== null && fc.invalid && (fc.touched || fc.dirty)) {
       return true;

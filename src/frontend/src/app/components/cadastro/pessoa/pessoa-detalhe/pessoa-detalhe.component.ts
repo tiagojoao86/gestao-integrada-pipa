@@ -101,7 +101,7 @@ export class PessoaDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
-        this.pessoa = response.body;
+        this.pessoa = response.body!;
         this.titulo += this.pessoa.nome;
         this.fillForm();
         // Desabilita o campo tipoPessoa em modo edição
@@ -210,8 +210,7 @@ export class PessoaDetalheComponent implements OnInit {
   }
 
   isControlInvalid(campo: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fc: AbstractControl<any, any> | null = this.form.get(campo);
+    const fc: AbstractControl<unknown, unknown> | null = this.form.get(campo);
 
     if (fc !== null && fc.invalid && (fc.touched || fc.dirty)) {
       return true;

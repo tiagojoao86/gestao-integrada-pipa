@@ -66,7 +66,7 @@ gi-app-root {
   display: flex;
   flex-direction: row;
   justify-items: center;
-  align-items: center;
+  align-items: stretch;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -87,6 +87,10 @@ gi-app-root {
 
 .w-10 {
   width: 10% !important;
+}
+
+.w-11 {
+  width: 11% !important;
 }
 
 .w-15 {
@@ -461,6 +465,19 @@ router-outlet + * {
   border-color: var(--text-color) !important;
   color: var(--text-color) !important;
   font-size: var(--text-size) !important;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.3rem;
+  margin-left: 0.5rem;
+}
+
+.checkbox-container label {
+  margin: 0;
+  cursor: pointer;
 }
 
 .p-radiobutton-checked .p-radiobutton-box {

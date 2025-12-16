@@ -32,7 +32,7 @@ public class DataSourceConfig {
             "br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity",
             "br.com.grupopipa.gestaointegrada.financeiro.entity",
             "br.com.grupopipa.gestaointegrada.tenant.entity"
-        };
+    };
 
     @Value("${spring.datasource.url}")
     private String dbUrl;
@@ -62,7 +62,7 @@ public class DataSourceConfig {
             br.com.grupopipa.gestaointegrada.tenant.config.TenantConnectionProvider tenantConnectionProvider,
             br.com.grupopipa.gestaointegrada.tenant.config.TenantIdentifierResolver tenantIdentifierResolver) {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        //vendorAdapter.setDatabasePlatform("org.hibernate.dialect.PostgreSQLDialect");
+        // vendorAdapter.setDatabasePlatform("org.hibernate.dialect.PostgreSQLDialect");
         vendorAdapter.setGenerateDdl(false);
         vendorAdapter.setShowSql(showSql);
 
@@ -76,7 +76,7 @@ public class DataSourceConfig {
         properties.put("hibernate.type.descriptor.sql.BasicBinder", "TRACE");
         properties.put("logging.level.org.hibernate.SQL", "DEBUG");
         properties.put("logging.level.org.hibernate.orm.jdbc.bind", "TRACE");
-        
+
         // ⭐ CONFIGURAÇÃO DE MULTI-TENANCY ⭐
         properties.put("hibernate.multiTenancy", "SCHEMA");
         properties.put("hibernate.multi_tenant_connection_provider", tenantConnectionProvider);

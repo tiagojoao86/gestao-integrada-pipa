@@ -6,8 +6,9 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, take } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { PageRequest } from './model/page-request';
-import { Response } from './model/response';
+import { Response, ResponseList, ResponseString } from './model/response';
 import { HttpConstants } from './constants/http-constants';
 import { MessageService } from './messages/messages.service';
 import { AbstractBackendMessageService } from './services/backend-messsages/abstract-backend-message.service';
@@ -18,7 +19,7 @@ export interface ExecutionCallbacks<T> {
 }
 
 @Injectable()
-export abstract class BaseService<D> {
+export abstract class BaseService<D, G = D> {
   urlBase = '/api/';
 
   protected httpClient: HttpClient;
@@ -37,21 +38,38 @@ export abstract class BaseService<D> {
 
   abstract getDomain(): string;
 
-  list(request: PageRequest): Observable<Response> {
+  list(request: PageRequest): Observable<ResponseList<G>> {
     return this.httpClient
-      .post<Response>(this.getUrl(HttpConstants.R_QUERY), request, {
+      .post<ResponseList<G>>(this.getUrl(HttpConstants.R_QUERY), request, {
         headers: this.getHeaders(),
       })
-      .pipe(take(1));
+      .pipe(
+        map((response: ResponseList<G>) => {
+          if (response?.body) {
+            const content = response.body.content || [];
+            const converted = content.map((c: G) => this.convertToGrid(c));
+            return {
+              ...response,
+              body: { ...response.body, content: converted },
+            } as ResponseList<G>;
+          }
+          return response;
+        }),
+        take(1)
+      );
   }
 
   save(dto: D, callbacks: ExecutionCallbacks<D>) {
     this.httpClient
-      .post<Response>(this.getUrl(), dto, { headers: this.getHeaders() })
+      .post<Response<D>>(this.getUrl(), dto, { headers: this.getHeaders() })
       .pipe(take(1))
       .subscribe({
-        next: (response) => {
-          callbacks.onSuccess(response.body);
+        next: (response: Response<D>) => {
+          if (response.body) {
+            const body = response.body;
+            const converted = this.convertToDto(body);
+            callbacks.onSuccess(converted as D);
+          }
         },
         error: (error: HttpErrorResponse) => {
           if (callbacks.onError) {
@@ -61,18 +79,31 @@ export abstract class BaseService<D> {
       });
   }
 
-  findById(id: string): Observable<Response> {
+  findById(id: string): Observable<Response<D>> {
     return this.httpClient
-      .get<Response>(this.getUrl(HttpConstants.R_FIND_BY_ID), {
+      .get<Response<D>>(this.getUrl(HttpConstants.R_FIND_BY_ID), {
         headers: this.getHeaders(),
         params: { id: id },
       })
-      .pipe(take(1));
+      .pipe(
+        map((response: Response<D>) => {
+          if (response?.body) {
+            const converted = this.convertToDto(response.body);
+            return { ...response, body: converted } as Response<D>;
+          }
+          return response;
+        }),
+        take(1)
+      );
   }
 
-  delete(id: string): Observable<Response> {
+  protected abstract convertToDto(body: D): D;
+
+  protected abstract convertToGrid(item: G): G;
+
+  delete(id: string): Observable<ResponseString> {
     return this.httpClient
-      .delete<Response>(this.getUrl('/' + id), {
+      .delete<ResponseString>(this.getUrl('/' + id), {
         headers: this.getHeaders(),
       })
       .pipe(take(1));

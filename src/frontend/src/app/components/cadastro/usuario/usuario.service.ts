@@ -8,9 +8,11 @@ import { PerfilParaVinculoDTO } from '../perfil/model/perfil-para-vinculo-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { UsuarioBackendMessages } from './usuario-backend-message.service';
 import { BaseService } from '../../base/base-service';
+import { UsuarioGridDTO } from './model/usuario-grid-dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class UsuarioService extends BaseService<UsuarioDTO> {
+export class UsuarioService extends BaseService<UsuarioDTO, UsuarioGridDTO> {
   private static readonly USUARIO = 'usuario';
 
   constructor() {
@@ -41,5 +43,13 @@ export class UsuarioService extends BaseService<UsuarioDTO> {
         map((response) => response.body),
         take(1)
       );
+  }
+
+  protected override convertToDto(body: unknown): UsuarioDTO {
+    return plainToInstance(UsuarioDTO, body as object) as UsuarioDTO;
+  }
+
+  protected override convertToGrid(item: UsuarioGridDTO): UsuarioGridDTO {
+    return plainToInstance(UsuarioGridDTO, item as object) as UsuarioGridDTO;
   }
 }

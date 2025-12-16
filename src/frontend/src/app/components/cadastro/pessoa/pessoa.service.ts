@@ -1,16 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { PessoaDTO } from './model/pessoa-dto';
+import { PessoaGridDTO } from './model/pessoa-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { PessoaBackendMessages } from './pessoa-backend-message.service';
 import { BaseService } from '../../base/base-service';
-import { PageRequest } from '../../base/model/page-request';
-import { FilterLogicOperator } from '../../base/model/filter-dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class PessoaService extends BaseService<PessoaDTO> {
+export class PessoaService extends BaseService<PessoaDTO, PessoaGridDTO> {
   private static readonly PESSOA = 'pessoa';
 
   constructor() {
@@ -25,20 +23,11 @@ export class PessoaService extends BaseService<PessoaDTO> {
     return PessoaService.PESSOA;
   }
 
-  listarParaVinculo(): Observable<{ id: string; nome: string }[]> {
-    const request = new PageRequest(
-      { filterLogicOperator: FilterLogicOperator.AND.getKey(), items: [] },
-      1000,
-      0,
-      []
-    );
-    return this.list(request).pipe(
-      map((response) =>
-        response.body.content.map((p: PessoaDTO) => ({
-          id: p.id!,
-          nome: p.nome,
-        }))
-      )
-    );
+  protected override convertToDto(body: unknown): PessoaDTO {
+    return plainToInstance(PessoaDTO, body as object) as PessoaDTO;
+  }
+
+  protected override convertToGrid(item: PessoaGridDTO): PessoaGridDTO {
+    return plainToInstance(PessoaGridDTO, item as object) as PessoaGridDTO;
   }
 }

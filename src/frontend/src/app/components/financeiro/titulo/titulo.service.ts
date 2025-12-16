@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, take } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TituloDTO } from './model/titulo-dto';
+import { TituloGridDTO } from './model/titulo-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { TituloBackendMessages } from './titulo-backend-message.service';
 import { BaseService } from '../../base/base-service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class TituloService extends BaseService<TituloDTO> {
+export class TituloService extends BaseService<TituloDTO, TituloGridDTO> {
   private static readonly TITULO = 'titulo';
 
   constructor() {
@@ -72,5 +74,16 @@ export class TituloService extends BaseService<TituloDTO> {
       map((r) => r.body),
       take(1)
     );
+  }
+
+  protected override convertToDto(body: unknown): TituloDTO {
+    return plainToInstance(TituloDTO, body as object) as TituloDTO;
+  }
+
+  protected override convertToGrid(item: TituloGridDTO): TituloGridDTO {
+    return plainToInstance(
+      TituloGridDTO,
+      item as object
+    ) as TituloGridDTO;
   }
 }

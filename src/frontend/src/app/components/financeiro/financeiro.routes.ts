@@ -26,14 +26,14 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'categoria-titulo',
+    path: 'titulo-categoria',
     loadComponent: () =>
-      import('./categoria-titulo/categoria-titulo.component').then(
-        (app) => app.CategoriaTituloComponent
+      import('./titulo-categoria/titulo-categoria.component').then(
+        (app) => app.TituloCategoriaComponent
       ),
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
-      moduleKey: SystemModuleKey.FINANCEIRO_CATEGORIA_TITULO,
+      moduleKey: SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA,
     },
   },
   {
@@ -54,6 +54,17 @@ export const routes: Routes = [
     canActivate: [authGuard, moduleAuthorityGuard],
     data: {
       moduleKey: SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA,
+    },
+  },
+  {
+    path: 'centro-custo',
+    loadComponent: () =>
+      import('./centro-custo/centro-custo.component').then(
+        (app) => app.CentroCustoComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.FINANCEIRO_CENTRO_CUSTO,
     },
   },
 ];

@@ -1,0 +1,10 @@
+@if (viewMode === 'GRID') {
+<gi-titulo-categoria-grid
+  (openDetail)="openDetail($event)"
+></gi-titulo-categoria-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-titulo-categoria-detalhe
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+></gi-titulo-categoria-detalhe>
+}
