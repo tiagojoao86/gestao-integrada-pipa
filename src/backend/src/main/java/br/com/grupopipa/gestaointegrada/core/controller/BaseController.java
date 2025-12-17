@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.core.controller;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.PV_ID;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_FIND_BY_ID;
+import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_LIST;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_QUERY;
 import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
+import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.OrderDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
@@ -39,6 +41,11 @@ public abstract class BaseController<D extends DTO, G extends GridDTO, S extends
         Pageable pageable = org.springframework.data.domain.PageRequest.of(request.getPage(), request.getSize(),
                 sort);
         return ok(service.list(request.getFilter(), pageable));
+    }
+
+    @GetMapping(R_LIST)
+    public Response listAll() {
+        return ok(service.list(new FilterDTO()));
     }
 
     @PostMapping

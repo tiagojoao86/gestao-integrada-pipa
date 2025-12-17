@@ -1,0 +1,8 @@
+@if (viewMode === 'GRID') {
+<gi-setor-grid (openDetail)="openDetail($event)"></gi-setor-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-setor-detalhe
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+></gi-setor-detalhe>
+}

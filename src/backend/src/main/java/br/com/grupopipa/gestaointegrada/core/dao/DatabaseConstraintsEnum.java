@@ -41,6 +41,10 @@ public enum DatabaseConstraintsEnum {
     // -------- Unidade de Negócio --------
     UK_UNIDADE_NEGOCIO_CODIGO("unidadeNegocio.codigo.unique"),
 
+    // -------- Setor --------
+    UK_SETOR_NOME("setor.nome.unique"),
+    FK_SETOR_CENTRO_CUSTO("setor.centroCusto.foreignKey"),
+
     // ========================================
     // MÓDULO FINANCEIRO
     // ========================================

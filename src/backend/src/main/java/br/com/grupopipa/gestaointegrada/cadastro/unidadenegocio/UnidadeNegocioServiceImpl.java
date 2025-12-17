@@ -4,7 +4,6 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNe
 
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
-import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,12 +33,7 @@ public class UnidadeNegocioServiceImpl
             return entity;
         }
 
-        CNPJ cnpj = null;
-        if (dto.getCnpj() != null && !dto.getCnpj().isBlank()) {
-            cnpj = new CNPJ(dto.getCnpj());
-        }
-
-        entity.atualizar(dto.getNome(), dto.getDescricao(), cnpj);
+        entity.atualizar(dto.getNome(), dto.getDescricao(), dto.getCnpj());
 
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {

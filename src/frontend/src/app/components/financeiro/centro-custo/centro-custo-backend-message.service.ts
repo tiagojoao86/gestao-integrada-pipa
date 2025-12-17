@@ -8,6 +8,7 @@ export class CentroCustoBackendMessageService extends AbstractBackendMessageServ
       'centroCusto.nome.notBlank': $localize`:@@centroCusto.nome.notBlank:O nome do centro de custo é obrigatório.`,
       'centroCusto.nome.maxLength': $localize`:@@centroCusto.nome.maxLength:O nome deve ter no máximo 200 caracteres.`,
       'centroCusto.unidadeNegocio.required': $localize`:@@centroCusto.unidadeNegocio.required:Unidade de negócio é obrigatória.`,
+      'centroCusto.nome.unique': $localize`:@@centroCusto.nome.unique:Este centro de custo já está cadastrado.`,
     };
   }
 }

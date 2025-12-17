@@ -22,25 +22,27 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * Para usar, basta estender esta classe nos seus testes de integração:
  * 
  * <pre>
- * {@code
- * class MeuRepositoryTest extends AbstractIntegrationTest {
- *     @Autowired
- *     private MeuRepository repository;
- *     
- *     @Test
- *     void deveFazerAlgo() {
- *         // seu teste aqui - rodará no schema 'teste_tenant'
+ * {
+ *     &#64;code
+ *     class MeuRepositoryTest extends AbstractIntegrationTest {
+ *         &#64;Autowired
+ *         private MeuRepository repository;
+ * 
+ *         @Test
+ *         void deveFazerAlgo() {
+ *             // seu teste aqui - rodará no schema 'teste_tenant'
+ *         }
  *     }
- * }
  * }
  * </pre>
  */
+@SuppressWarnings("resource")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers
 @ActiveProfiles("test")
 @Import({
-    TestTenantInitializer.class,
-    TestMultiTenancyConfig.class
+        TestTenantInitializer.class,
+        TestMultiTenancyConfig.class
 })
 public abstract class AbstractIntegrationTest {
 
@@ -54,15 +56,14 @@ public abstract class AbstractIntegrationTest {
      * Nota: O warning de "resource leak" é um falso positivo. O Testcontainers
      * gerencia automaticamente o cleanup através do Ryuk container.
      */
-    @SuppressWarnings("resource")
     protected static final PostgreSQLContainer<?> POSTGRES_CONTAINER;
 
     static {
         POSTGRES_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withReuse(true); // Reutiliza o container entre execuções
+                .withDatabaseName("testdb")
+                .withUsername("test")
+                .withPassword("test")
+                .withReuse(true); // Reutiliza o container entre execuções
         POSTGRES_CONTAINER.start(); // Inicia o container uma vez para todos os testes
     }
 
@@ -88,12 +89,12 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
-        
+
         // Configurações específicas para testes
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
         registry.add("spring.flyway.enabled", () -> "true");
         registry.add("spring.flyway.clean-disabled", () -> "false");
-        
+
         // Multi-tenancy configurado para usar tenant de teste
         registry.add("app.multitenancy.default-schema", () -> TEST_TENANT_SCHEMA);
     }

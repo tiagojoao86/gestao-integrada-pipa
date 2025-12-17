@@ -54,4 +54,13 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO,
     },
   },
+  {
+    path: 'setor',
+    loadComponent: () =>
+      import('./setor/setor.component').then((app) => app.SetorComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.CADASTRO_SETOR,
+    },
+  },
 ];
