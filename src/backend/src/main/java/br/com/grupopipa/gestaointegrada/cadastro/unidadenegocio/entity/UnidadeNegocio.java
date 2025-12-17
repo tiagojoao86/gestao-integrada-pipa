@@ -3,7 +3,9 @@ package br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
+import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -21,8 +23,8 @@ public class UnidadeNegocio extends BaseEntity {
     @Column(name = "codigo", nullable = false, length = 20)
     private String codigo;
 
-    @Column(name = "nome", nullable = false, length = 200)
-    private String nome;
+    @Embedded
+    private Nome nome;
 
     @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;
@@ -33,7 +35,7 @@ public class UnidadeNegocio extends BaseEntity {
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
 
-    private UnidadeNegocio(String codigo, String nome, String descricao, CNPJ cnpj) {
+    private UnidadeNegocio(String codigo, Nome nome, String descricao, CNPJ cnpj) {
         this.codigo = codigo;
         this.nome = nome;
         this.descricao = descricao;
@@ -45,11 +47,11 @@ public class UnidadeNegocio extends BaseEntity {
 
     private static class ValidatedData {
         final String codigo;
-        final String nome;
+        final Nome nome;
         final String descricao;
         final CNPJ cnpj;
 
-        ValidatedData(String codigo, String nome, String descricao, CNPJ cnpj) {
+        ValidatedData(String codigo, Nome nome, String descricao, CNPJ cnpj) {
             this.codigo = codigo;
             this.nome = nome;
             this.descricao = descricao;
@@ -57,7 +59,7 @@ public class UnidadeNegocio extends BaseEntity {
         }
     }
 
-    private static ValidatedData validate(String codigo, String nome, String descricao, CNPJ cnpj) {
+    private static ValidatedData validate(String codigo, String nomeStr, String descricao, String cnpjStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (codigo == null || codigo.isBlank()) {
@@ -66,13 +68,11 @@ public class UnidadeNegocio extends BaseEntity {
             violations.add(new BeanValidationMessage("codigo", "Código deve ter no máximo 20 caracteres"));
         }
 
-        if (nome == null || nome.isBlank()) {
-            violations.add(new BeanValidationMessage("nome", "Nome é obrigatório"));
-        } else if (nome.length() > 200) {
-            violations.add(new BeanValidationMessage("nome", "Nome deve ter no máximo 200 caracteres"));
+        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
+        CNPJ cnpj = null;
+        if (cnpjStr != null && !cnpjStr.isBlank()) {
+            cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
         }
-
-        // CNPJ já é validado pelo próprio ValueObject
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("unidadeNegocio", violations);
@@ -81,16 +81,14 @@ public class UnidadeNegocio extends BaseEntity {
         return new ValidatedData(codigo, nome, descricao, cnpj);
     }
 
-    public void atualizar(String nome, String descricao, CNPJ cnpj) {
+    public void atualizar(String nomeStr, String descricao, String cnpjStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (nome == null || nome.isBlank()) {
-            violations.add(new BeanValidationMessage("nome", "Nome é obrigatório"));
-        } else if (nome.length() > 200) {
-            violations.add(new BeanValidationMessage("nome", "Nome deve ter no máximo 200 caracteres"));
+        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
+        CNPJ cnpj = null;
+        if (cnpjStr != null && !cnpjStr.isBlank()) {
+            cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
         }
-
-        // CNPJ já é validado pelo próprio ValueObject
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("unidadeNegocio", violations);
@@ -115,7 +113,7 @@ public class UnidadeNegocio extends BaseEntity {
     }
 
     public String getNome() {
-        return nome;
+        return nome != null ? nome.getValue() : null;
     }
 
     public String getDescricao() {
@@ -153,7 +151,7 @@ public class UnidadeNegocio extends BaseEntity {
 
     @Override
     public String toString() {
-        return codigo + " - " + nome;
+        return codigo + " - " + getNome();
     }
 
     public static class Builder {
@@ -183,11 +181,7 @@ public class UnidadeNegocio extends BaseEntity {
         }
 
         public UnidadeNegocio build() {
-            CNPJ cnpjVO = null;
-            if (this.cnpj != null && !this.cnpj.isBlank()) {
-                cnpjVO = new CNPJ(this.cnpj);
-            }
-            ValidatedData data = validate(this.codigo, this.nome, this.descricao, cnpjVO);
+            ValidatedData data = validate(this.codigo, this.nome, this.descricao, this.cnpj);
             return new UnidadeNegocio(data.codigo, data.nome, data.descricao, data.cnpj);
         }
     }

@@ -40,6 +40,7 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         this.specifications = specifications;
     }
 
+    @Override
     @Transactional
     public D save(D dto) {
         if (Objects.nonNull(dto.getId())) {
@@ -61,17 +62,14 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         return id;
     }
 
+    @Override
     @Transactional
     @SuppressWarnings("unchecked")
     public PageDTO<G> list(FilterDTO filter, Pageable pageable) {
         Specification<T> specification = this.buildSpecification(filter);
 
         // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
-        if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
-            Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
-            Specification<T> unidadeSpec = (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
-            specification = specification != null ? specification.and(unidadeSpec) : unidadeSpec;
-        }
+        addUnidadeNegocioFilterIfApplicable(specification);
 
         if (this.repository instanceof JpaSpecificationExecutor) {
             Page<T> page = ((JpaSpecificationExecutor<T>) this.repository).findAll(specification, pageable);
@@ -85,6 +83,35 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
 
     }
 
+    @Override
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public List<G> list(FilterDTO filter) {
+        Specification<T> specification = this.buildSpecification(filter);
+
+        // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
+        addUnidadeNegocioFilterIfApplicable(specification);
+
+        if (this.repository instanceof JpaSpecificationExecutor) {
+            return ((JpaSpecificationExecutor<T>) this.repository).findAll(specification).stream()
+                    .map(this::buildGridDTOFromEntity)
+                    .toList();
+        }
+
+        return null;
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addUnidadeNegocioFilterIfApplicable(Specification<T> specification) {
+        if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
+            Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
+            Specification<T> unidadeSpec = (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
+            specification = specification != null ? specification.and(unidadeSpec) : unidadeSpec;
+        }
+    }
+
+    @Override
     @Transactional
     public D findById(UUID id) {
         T entity = this.findEntityById(id);

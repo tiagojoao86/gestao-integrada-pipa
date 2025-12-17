@@ -39,6 +39,14 @@ export class CadastroComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo('CADASTRO_SETOR')) {
+      systemModulesCadastros.push({
+        name: $localize`Setores`,
+        icon: 'business',
+        url: '/cadastro/setor',
+      });
+    }
+
     if (systemModulesCadastros.length > 0) {
       this.systemModules.push({
         name: $localize`Geral`,

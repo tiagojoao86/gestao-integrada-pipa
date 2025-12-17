@@ -24,6 +24,12 @@ export interface ResponseList<G> {
   erroMessage: string | null;
 }
 
+export interface ResponseListNoPagination<G> {
+  body: G[];
+  statusCode: number;
+  erroMessage: string | null;
+}
+
 export interface ResponseString {
   body: string | null;
   statusCode: number;

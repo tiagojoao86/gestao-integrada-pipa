@@ -30,6 +30,7 @@ public class DataSourceConfig {
             "br.com.grupopipa.gestaointegrada.cadastro.modulo.entity",
             "br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity",
             "br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity",
+            "br.com.grupopipa.gestaointegrada.cadastro.setor.entity",
             "br.com.grupopipa.gestaointegrada.financeiro.entity",
             "br.com.grupopipa.gestaointegrada.tenant.entity"
     };

@@ -1,0 +1,47 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <form class="form" [formGroup]="form">
+      <p-iftalabel class="w-50">
+        <input pInputText id="nome" formControlName="nome" />
+        <label for="nome" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="centroCusto"
+          formControlName="centroCustoId"
+          [options]="centrosCustoOptions"
+          optionLabel="nome"
+          optionValue="id"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>
+              {{ `${item.nome} (${item.unidadeNegocioCodigo})` }}
+            </div>
+          </ng-template>
+        </p-select>
+        <label for="centroCusto" i18n>Centro de Custo</label>
+        @if (isControlInvalid('centroCustoId')) {
+        <small i18n>Esse campo é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="descricao"
+          formControlName="descricao"
+          rows="3"
+        ></textarea>
+        <label for="descricao" i18n>Descrição</label>
+      </p-iftalabel>
+    </form>
+  </div>
+</gi-app-base>

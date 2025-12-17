@@ -301,13 +301,22 @@ public class {{EntityName}} extends BaseEntity {
     private static ValidatedData validate(String nomeStr, String codigo) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
+        // IMPORTANTE: Use ValidationUtils.validateAndGet para Value Objects
+        // Isso captura BeanValidationExceptions e adiciona ao set de violations
         Nome nome = ValidationUtils.validateAndGet(
             () -> Nome.of(nomeStr), violations
         );
 
+        // Validações simples podem ser inline
         if (codigo == null || codigo.isBlank()) {
             violations.add(new BeanValidationMessage("codigo", "Código é obrigatório"));
         }
+
+        // Para VOs opcionais como CNPJ, use o mesmo padrão:
+        // CNPJ cnpj = null;
+        // if (cnpjStr != null && !cnpjStr.isBlank()) {
+        //     cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+        // }
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("{{entityCamel}}", violations);

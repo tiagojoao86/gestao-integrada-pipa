@@ -1666,6 +1666,43 @@
         <source>Unidade de negócio é obrigatória.</source>
         <target>Business unit is required.</target>
       </trans-unit>
+      <trans-unit id="centroCusto.nome.unique" datatype="html">
+        <source>Este centro de custo já está cadastrado.</source>
+        <target>This cost center is already registered.</target>
+      </trans-unit>
+      <!-- Setor -->
+      <trans-unit id="3210134704215731947" datatype="html">
+        <source>Setores</source>
+        <target>Sectors</target>
+      </trans-unit>
+      <trans-unit id="7521779850579429319" datatype="html">
+        <source>Setor</source>
+        <target>Sector</target>
+      </trans-unit>
+      <trans-unit id="setor.nome.notBlank" datatype="html">
+        <source>O nome do setor é obrigatório.</source>
+        <target>Sector name is required.</target>
+      </trans-unit>
+      <trans-unit id="setor.nome.maxLength" datatype="html">
+        <source>O nome deve ter no máximo 200 caracteres.</source>
+        <target>Name must have at most 200 characters.</target>
+      </trans-unit>
+      <trans-unit id="setor.descricao.maxLength" datatype="html">
+        <source>A descrição deve ter no máximo 500 caracteres.</source>
+        <target>Description must have at most 500 characters.</target>
+      </trans-unit>
+      <trans-unit id="setor.centroCusto.required" datatype="html">
+        <source>Centro de custo é obrigatório.</source>
+        <target>Cost center is required.</target>
+      </trans-unit>
+      <trans-unit id="setor.nome.unique" datatype="html">
+        <source>Este setor já está cadastrado.</source>
+        <target>This sector is already registered.</target>
+      </trans-unit>
+      <trans-unit id="setor.centroCusto.foreignKey" datatype="html">
+        <source>Centro de custo não encontrado.</source>
+        <target>Cost center not found.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

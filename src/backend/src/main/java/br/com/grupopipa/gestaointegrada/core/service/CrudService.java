@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.core.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,8 @@ public interface CrudService<D extends DTO, G extends GridDTO> {
     public UUID delete(UUID id);
 
     public PageDTO<G> list(FilterDTO filter, Pageable pageable);
+
+    public List<G> list(FilterDTO filter);
 
     public D findById(UUID id);
 

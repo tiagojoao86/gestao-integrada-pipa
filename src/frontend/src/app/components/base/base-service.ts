@@ -8,7 +8,12 @@ import { Injectable } from '@angular/core';
 import { Observable, take } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PageRequest } from './model/page-request';
-import { Response, ResponseList, ResponseString } from './model/response';
+import {
+  Response,
+  ResponseList,
+  ResponseListNoPagination,
+  ResponseString,
+} from './model/response';
 import { HttpConstants } from './constants/http-constants';
 import { MessageService } from './messages/messages.service';
 import { AbstractBackendMessageService } from './services/backend-messsages/abstract-backend-message.service';
@@ -52,6 +57,27 @@ export abstract class BaseService<D, G = D> {
               ...response,
               body: { ...response.body, content: converted },
             } as ResponseList<G>;
+          }
+          return response;
+        }),
+        take(1)
+      );
+  }
+
+  listAll(): Observable<ResponseListNoPagination<G>> {
+    return this.httpClient
+      .get<ResponseListNoPagination<G>>(this.getUrl(HttpConstants.R_LIST), {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        map((response: ResponseListNoPagination<G>) => {
+          if (response?.body) {
+            const content = response.body || [];
+            const converted = content.map((c: G) => this.convertToGrid(c));
+            return {
+              ...response,
+              body: converted,
+            } as ResponseListNoPagination<G>;
           }
           return response;
         }),
