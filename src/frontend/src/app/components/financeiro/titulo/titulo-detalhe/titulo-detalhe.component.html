@@ -2,6 +2,7 @@
   [title]="tituloTela"
   [actions]="toolbarActions"
   [goBackFn]="goBackFn.bind(this)"
+  [hideFooter]="true"
 >
   <div body-content>
     <div class="form" [formGroup]="form">
@@ -183,6 +184,15 @@
         ></textarea>
         <label for="observacoes" i18n>Observações</label>
       </p-iftalabel>
+
+      <!-- Rateio por Setores -->
+      <div class="w-100">
+        <gi-titulo-setor-rateio
+          [setoresSelecionados]="setoresSelecionados"
+          [valorTitulo]="valorOriginalForRateio"
+          (setoresChange)="onSetoresChange($event)"
+        ></gi-titulo-setor-rateio>
+      </div>
     </div>
   </div>
 </gi-app-base>

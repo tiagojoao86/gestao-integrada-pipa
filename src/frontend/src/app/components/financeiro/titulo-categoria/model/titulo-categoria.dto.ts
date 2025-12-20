@@ -2,6 +2,7 @@ import { TituloCategoriaTipoEnum } from './titulo-categoria-tipo.enum';
 import {
   Exclude,
   Expose,
+  plainToInstance,
   Transform,
   TransformationType,
   TransformFnParams,
@@ -22,7 +23,12 @@ export class TituloCategoriaDTO {
     const { type, value } = params;
 
     if (TransformationType.PLAIN_TO_CLASS === type) {
-      return TituloCategoriaTipoEnum.getByKey(value);
+      if (typeof value === 'string') {
+        return TituloCategoriaTipoEnum.getByKey(value);
+      } else if (value instanceof TituloCategoriaTipoEnum) {
+        return value;
+      }
+      return undefined;
     }
 
     if (TransformationType.CLASS_TO_PLAIN === type) {
@@ -44,5 +50,9 @@ export class TituloCategoriaDTO {
     this.tipo = tipo;
     this.descricao = descricao;
     this.id = id;
+  }
+
+  static from(data: Partial<TituloCategoriaDTO>): TituloCategoriaDTO {
+    return plainToInstance(TituloCategoriaDTO, data);
   }
 }

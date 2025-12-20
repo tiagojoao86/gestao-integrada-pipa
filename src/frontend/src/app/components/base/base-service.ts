@@ -86,6 +86,7 @@ export abstract class BaseService<D, G = D> {
   }
 
   save(dto: D, callbacks: ExecutionCallbacks<D>) {
+    dto = this.convertToPlain(dto);
     this.httpClient
       .post<Response<D>>(this.getUrl(), dto, { headers: this.getHeaders() })
       .pipe(take(1))
@@ -126,6 +127,10 @@ export abstract class BaseService<D, G = D> {
   protected abstract convertToDto(body: D): D;
 
   protected abstract convertToGrid(item: G): G;
+
+  protected convertToPlain(item: D): D {
+    return item;
+  }
 
   delete(id: string): Observable<ResponseString> {
     return this.httpClient

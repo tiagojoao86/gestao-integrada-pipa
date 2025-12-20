@@ -2,6 +2,8 @@ package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
+import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
@@ -30,18 +32,21 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     private final PlanoContasRepository planoContasRepository;
     private final UnidadeNegocioRepository unidadeNegocioRepository;
     private final UnidadeNegocioService unidadeNegocioService;
+    private final SetorRepository setorRepository;
 
     public TituloServiceImpl(TituloRepository repository,
             Specifications<Titulo> specifications,
             PessoaRepository pessoaRepository,
             PlanoContasRepository planoContasRepository,
             UnidadeNegocioRepository unidadeNegocioRepository,
-            UnidadeNegocioService unidadeNegocioService) {
+            UnidadeNegocioService unidadeNegocioService,
+            SetorRepository setorRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
         this.unidadeNegocioRepository = unidadeNegocioRepository;
         this.unidadeNegocioService = unidadeNegocioService;
+        this.setorRepository = setorRepository;
     }
 
     @Override
@@ -92,6 +97,12 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 entity.adicionarObservacao(dto.getObservacoes());
             }
 
+            // Processar setores
+            processarSetores(entity, dto);
+
+            // Validar setores antes de salvar
+            entity.validarSetores();
+
             return entity;
         }
 
@@ -116,11 +127,42 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             entity.aplicarMulta(Money.of(dto.getValorMulta()));
         }
 
+        // Processar setores na atualização
+        if (dto.getSetores() != null) {
+            processarSetores(entity, dto);
+            entity.validarSetores();
+        }
+
         return entity;
+    }
+
+    private void processarSetores(Titulo entity, TituloDTO dto) {
+        if (dto.getSetores() == null || dto.getSetores().isEmpty()) {
+            return;
+        }
+
+        // Limpar setores existentes
+        entity.limparSetores();
+
+        // Adicionar novos setores
+        for (TituloSetorDTO setorDTO : dto.getSetores()) {
+            Setor setor = setorRepository.findById(setorDTO.getSetorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado: " + setorDTO.getSetorId()));
+
+            entity.adicionarSetor(setor, setorDTO.getPercentualRateio());
+        }
     }
 
     @Override
     protected TituloDTO buildDTOFromEntity(Titulo entity) {
+        List<TituloSetorDTO> setoresDTO = entity.getSetores().stream()
+                .map(ts -> TituloSetorDTO.builder()
+                        .setorId(ts.getSetor().getId())
+                        .setorNome(ts.getSetor().getNome())
+                        .percentualRateio(ts.getPercentualRateio())
+                        .build())
+                .toList();
+
         return TituloDTO.builder()
                 .id(entity.getId())
                 .tipo(entity.getTipo().name())
@@ -144,6 +186,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .numeroParcela(entity.getNumeroParcela())
                 .totalParcelas(entity.getTotalParcelas())
                 .tituloOrigemId(entity.getTituloOrigem() != null ? entity.getTituloOrigem().getId() : null)
+                .setores(setoresDTO)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())

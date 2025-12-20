@@ -54,7 +54,7 @@ export class FinanceiroComponent implements OnInit {
     ) {
       cadastrosModules.push({
         name: $localize`Centros de Custo`,
-        icon: 'account_balance',
+        icon: 'paid',
         url: '/financeiro/centro-custo',
       });
     }

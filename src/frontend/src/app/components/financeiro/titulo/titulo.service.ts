@@ -7,7 +7,7 @@ import { TituloGridDTO } from './model/titulo-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { TituloBackendMessages } from './titulo-backend-message.service';
 import { BaseService } from '../../base/base-service';
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, instanceToPlain, instanceToInstance } from 'class-transformer';
 
 @Injectable()
 export class TituloService extends BaseService<TituloDTO, TituloGridDTO> {
@@ -85,5 +85,15 @@ export class TituloService extends BaseService<TituloDTO, TituloGridDTO> {
       TituloGridDTO,
       item as object
     ) as TituloGridDTO;
+  }
+
+  protected override convertToPlain(item: TituloDTO): TituloDTO {
+    // First ensure it's a proper class instance with CLASS_TO_CLASS transformation
+    const instance = instanceToInstance(item);
+    // Then convert to plain object with transformations applied
+    return instanceToPlain(instance, {
+      enableCircularCheck: true,
+      exposeDefaultValues: true,
+    }) as TituloDTO;
   }
 }

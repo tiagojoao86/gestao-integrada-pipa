@@ -4,8 +4,11 @@ import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 // PlanoContas removed from Titulo - tests adjusted accordingly
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
@@ -20,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +49,9 @@ class TituloServiceTest {
     private UnidadeNegocioRepository unidadeNegocioRepository;
 
     @Mock
+    private SetorRepository setorRepository;
+
+    @Mock
     private Specifications<Titulo> specifications;
 
     @InjectMocks
@@ -52,6 +59,8 @@ class TituloServiceTest {
 
     private Pessoa pessoa;
     private UnidadeNegocio unidadeNegocio;
+    private Setor setor;
+    private CentroCusto centroCusto;
     private TituloDTO dto;
     private Titulo entity;
 
@@ -64,6 +73,18 @@ class TituloServiceTest {
                 .cnpj("11222333000181")
                 .build();
 
+        // Setup centro de custo
+        centroCusto = new CentroCusto.Builder()
+                .nome("Centro Custo Teste")
+                .unidadeNegocio(unidadeNegocio)
+                .build();
+
+        // Setup setor
+        setor = new Setor.Builder()
+                .nome("Setor Teste")
+                .centroCusto(centroCusto)
+                .build();
+
         // Setup pessoa
         pessoa = new Pessoa.Builder()
                 .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
@@ -74,7 +95,13 @@ class TituloServiceTest {
                 .razaoSocial("Fornecedor LTDA")
                 .build();
 
-        // Setup DTO
+        // Setup DTO with setores
+        TituloSetorDTO setorDTO = TituloSetorDTO.builder()
+                .setorId(setor.getId())
+                .setorNome("Setor Teste")
+                .percentualRateio(BigDecimal.valueOf(100.00))
+                .build();
+
         dto = TituloDTO.builder()
                 .tipo(TipoTitulo.A_PAGAR.name())
                 .descricao("Pagamento fornecedor")
@@ -83,6 +110,7 @@ class TituloServiceTest {
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
+                .setores(List.of(setorDTO))
                 .build();
 
         // Setup Entity
@@ -90,12 +118,14 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Pagamento fornecedor")
                 .pessoa(pessoa)
-
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
                 .build();
+
+        // Add setor to entity
+        entity.adicionarSetor(setor, BigDecimal.valueOf(100.00));
     }
 
     @Test
@@ -104,6 +134,7 @@ class TituloServiceTest {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
+        when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
         // When
         Titulo resultado = service.mergeEntityAndDTO(null, dto);
@@ -124,6 +155,7 @@ class TituloServiceTest {
         dto.setTipo(TipoTitulo.A_RECEBER.name());
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
+        when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
         // When
         Titulo resultado = service.mergeEntityAndDTO(null, dto);
@@ -142,15 +174,18 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Descrição original")
                 .pessoa(pessoa)
-
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(15))
                 .build();
 
+        // Add setor to existing titulo
+        tituloExistente.adicionarSetor(setor, BigDecimal.valueOf(100.00));
+
         dto.setDescricao("Descrição atualizada");
         dto.setDataVencimento(LocalDate.now().plusDays(45));
+        when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
         // When
         Titulo resultado = service.mergeEntityAndDTO(tituloExistente, dto);
@@ -184,6 +219,7 @@ class TituloServiceTest {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
+        when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
         when(repository.save(any(Titulo.class))).thenReturn(entity);
 
         // When

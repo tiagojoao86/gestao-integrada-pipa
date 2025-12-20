@@ -9,26 +9,19 @@
       <div class="tipo-pessoa-ativa">
         <div class="tipo-pessoa-selector w-80">
           <label for="tipoFisica" i18n>Tipo de Pessoa:</label>
+          @for (tipoPessoa of tiposPessoa; track tipoPessoa.getKey()) {
           <div class="radio-group">
             <p-radioButton
               name="tipoPessoa"
-              value="FISICA"
+              [inputId]="tipoPessoa.getKey()"
+              [value]="tipoPessoa"
               formControlName="tipoPessoa"
               (onClick)="onTipoPessoaChange()"
               inputId="tipoFisica"
             />
-            <label for="tipoFisica" i18n>Pessoa Física</label>
+            <label for="tipoFisica" i18n>{{ tipoPessoa.getLabel() }}</label>
           </div>
-          <div class="radio-group">
-            <p-radioButton
-              name="tipoPessoa"
-              value="JURIDICA"
-              formControlName="tipoPessoa"
-              (onClick)="onTipoPessoaChange()"
-              inputId="tipoJuridica"
-            />
-            <label for="tipoJuridica" i18n>Pessoa Jurídica</label>
-          </div>
+          }
         </div>
         <div class="checkbox-field w-20">
           <p-checkbox

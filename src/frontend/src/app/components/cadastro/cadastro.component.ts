@@ -34,7 +34,7 @@ export class CadastroComponent implements OnInit {
     ) {
       systemModulesCadastros.push({
         name: $localize`Unidades de Negócio`,
-        icon: 'business',
+        icon: 'factory',
         url: '/cadastro/unidade-negocio',
       });
     }

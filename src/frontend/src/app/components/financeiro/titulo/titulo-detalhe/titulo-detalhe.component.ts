@@ -29,6 +29,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from '../../../base/messages/messages.service';
 import { TituloDTO } from '../model/titulo-dto';
 import { AuthService } from '../../../base/auth/auth-service';
+import { TituloSetorRateioComponent, TituloSetorRateio } from '../titulo-setor-rateio/titulo-setor-rateio.component';
 
 @Component({
   selector: 'gi-titulo-detalhe',
@@ -45,6 +46,7 @@ import { AuthService } from '../../../base/auth/auth-service';
     TextareaModule,
     IconFieldModule,
     InputIconModule,
+    TituloSetorRateioComponent,
   ],
   templateUrl: './titulo-detalhe.component.html',
   styleUrl: './titulo-detalhe.component.css',
@@ -70,6 +72,9 @@ export class TituloDetalheComponent implements OnInit {
   // planoContas removed
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+
+  // Setores para rateio
+  setoresSelecionados: TituloSetorRateio[] = [];
 
   tiposOptions = [
     { label: $localize`A Pagar`, value: 'A_PAGAR' },
@@ -196,6 +201,15 @@ export class TituloDetalheComponent implements OnInit {
         nome: this.titulo.pessoaNome || '',
       };
     }
+
+    // Load setores
+    if (this.titulo.setores && this.titulo.setores.length > 0) {
+      this.setoresSelecionados = this.titulo.setores.map((s) => ({
+        setorId: s.setorId,
+        setorNome: s.setorNome || '',
+        percentualRateio: Number(s.percentualRateio),
+      }));
+    }
     // planoContas removed
   }
 
@@ -243,6 +257,25 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.pessoaNome = pessoa.nome;
   }
 
+  onSetoresChange(setores: TituloSetorRateio[]) {
+    this.setoresSelecionados = setores;
+  }
+
+  get valorOriginalForRateio(): number {
+    return this.form.value.valorOriginal || 0;
+  }
+
+  get setoresValidos(): boolean {
+    if (this.setoresSelecionados.length === 0) {
+      return false;
+    }
+    const soma = this.setoresSelecionados.reduce(
+      (sum, s) => sum + (s.percentualRateio || 0),
+      0
+    );
+    return Math.abs(soma - 100) < 0.01;
+  }
+
   // planoContas related handlers removed
 
   salvar() {
@@ -264,6 +297,14 @@ export class TituloDetalheComponent implements OnInit {
       return;
     }
 
+    // Validação de setores
+    if (!this.setoresValidos) {
+      this.messages.erro(
+        $localize`É necessário pelo menos um setor e a soma dos percentuais deve ser 100%.`
+      );
+      return;
+    }
+
     this.titulo.unidadeNegocioId = unidadeNegocioId;
     this.titulo.tipo = this.form.value.tipo;
     this.titulo.status = this.form.value.status;
@@ -277,6 +318,13 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.dataVencimento = this.form.value.dataVencimento;
     this.titulo.dataPagamento = this.form.value.dataPagamento;
     this.titulo.observacoes = this.form.value.observacoes;
+
+    // Map setores to DTO
+    this.titulo.setores = this.setoresSelecionados.map((s) => ({
+      setorId: s.setorId,
+      setorNome: s.setorNome,
+      percentualRateio: s.percentualRateio,
+    }));
 
     this.service.save(this.titulo, {
       onSuccess: (data: TituloDTO) => {

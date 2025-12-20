@@ -1703,6 +1703,46 @@
         <source>Centro de custo não encontrado.</source>
         <target>Cost center not found.</target>
       </trans-unit>
+      <trans-unit id="1841715135505040403" datatype="html">
+        <source>Rateio por Setores</source>
+        <target>Sector Distribution</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-setor-rateio/titulo-setor-rateio.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="937943848986403568" datatype="html">
+        <source>Exibir como:</source>
+        <target>Display as:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-setor-rateio/titulo-setor-rateio.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5652601400559415636" datatype="html">
+        <source> Nenhum setor adicionado. Selecione um setor acima para começar. </source>
+        <target> No sector added. Select a sector above to get started. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-setor-rateio/titulo-setor-rateio.component.html</context>
+          <context context-type="linenumber">57,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="187187500641108332" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ item.nome }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ item.nome }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-setor-rateio/titulo-setor-rateio.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1942476109861544011" datatype="html">
+        <source>É necessário pelo menos um setor e a soma dos percentuais deve ser 100%.</source>
+        <target>At least one sector is required and the sum of percentages must be 100%.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-detalhe/titulo-detalhe.component.ts</context>
+          <context context-type="linenumber">270</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>
