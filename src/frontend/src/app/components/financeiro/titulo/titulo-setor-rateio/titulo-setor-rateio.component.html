@@ -1,0 +1,121 @@
+<div class="titulo-setor-rateio">
+  <div class="header">
+    <h3 i18n>Rateio por Setores</h3>
+    <div class="tipo-rateio-toggle">
+      <label for="tipoRateio" i18n>Exibir como:</label>
+      <p-select
+        inputId="tipoRateio"
+        [(ngModel)]="tipoRateio"
+        [options]="tipoRateioOptions"
+        optionLabel="label"
+        optionValue="value"
+      ></p-select>
+    </div>
+  </div>
+
+  <div class="selecao-setor">
+    <p-select
+      [(ngModel)]="setorSelecionado"
+      [options]="setoresDisponiveisParaSelecao"
+      optionLabel="nome"
+      placeholder="Selecione um setor"
+      [showClear]="true"
+      styleClass="w-full"
+    >
+      <ng-template let-item pTemplate="item">
+        <div>
+          {{ item.nome }}
+          @if (item.centroCustoNome) {
+          <small class="text-muted"> - {{ item.centroCustoNome }}</small>
+          }
+        </div>
+      </ng-template>
+    </p-select>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      (click)="adicionarSetor()"
+      [disabled]="!setorSelecionado"
+    >
+      <span i18n>Adicionar</span>
+    </button>
+  </div>
+
+  <div class="validacao-mensagem" [class.valido]="percentualValido">
+    <i
+      class="pi"
+      [class.pi-check-circle]="percentualValido"
+      [class.pi-exclamation-triangle]="!percentualValido"
+    ></i>
+    {{ mensagemValidacao }}
+    <span class="soma-total"
+      >(Total: {{ somaPercentuais.toFixed(2) }}%)</span
+    >
+  </div>
+
+  <div class="setores-lista">
+    @if (setoresSelecionados.length === 0) {
+    <div class="empty-state" i18n>
+      Nenhum setor adicionado. Selecione um setor acima para começar.
+    </div>
+    } @else {
+    <table class="setores-tabela">
+      <thead>
+        <tr>
+          <th i18n>Setor</th>
+          <th i18n>{{ tipoRateio === 'percentual' ? 'Percentual (%)' : 'Valor (R$)' }}</th>
+          <th i18n>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (setor of setoresSelecionados; track setor.setorId; let i = $index) {
+        <tr>
+          <td>{{ setor.setorNome }}</td>
+          <td>
+            @if (tipoRateio === 'percentual') {
+            <p-inputNumber
+              [(ngModel)]="setor.percentualRateio"
+              (ngModelChange)="onPercentualChange(i, $event)"
+              [min]="0"
+              [max]="100"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              suffix="%"
+              styleClass="input-rateio"
+            ></p-inputNumber>
+            } @else {
+            <p-inputNumber
+              [ngModel]="calcularValorPorSetor(setor.percentualRateio)"
+              (ngModelChange)="onValorChange(i, $event)"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              styleClass="input-rateio"
+            ></p-inputNumber>
+            <small class="percentual-equivalente">
+              ({{ setor.percentualRateio.toFixed(2) }}%)
+            </small>
+            }
+          </td>
+          <td>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              (click)="removerSetor(i)"
+              aria-label="Remover setor"
+            ></button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+</div>

@@ -1,3 +1,5 @@
+import { TituloSetorDTO } from './titulo-setor-dto';
+
 export class TituloDTO {
   id?: string;
   tipo: string; // A_PAGAR, A_RECEBER
@@ -10,6 +12,9 @@ export class TituloDTO {
   pessoaNome?: string;
   unidadeNegocioId?: string;
   unidadeNegocioNome?: string;
+
+  // Setores para rateio
+  setores?: TituloSetorDTO[];
 
   // Valores
   valorOriginal: number;

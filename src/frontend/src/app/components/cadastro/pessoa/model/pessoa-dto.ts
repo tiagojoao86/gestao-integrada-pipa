@@ -1,26 +1,100 @@
+import {
+  Exclude,
+  Expose,
+  Transform,
+  TransformationType,
+  TransformFnParams,
+} from 'class-transformer';
+
+@Exclude()
 export class PessoaDTO {
+  @Expose()
   id: string;
+  @Expose()
   nome: string;
+  @Expose()
   email?: string;
+  @Expose()
   telefone?: string;
+  @Expose()
   observacoes?: string;
+  @Expose()
   ativa: boolean;
 
   // Pessoa Física
+  @Expose()
   cpf?: string;
+  @Expose()
   dataNascimento?: Date;
 
   // Pessoa Jurídica
+  @Expose()
   cnpj?: string;
+  @Expose()
   razaoSocial?: string;
+  @Expose()
   inscricaoEstadual?: string;
 
+  /**
+   * Factory method to ensure we always work with proper class instances
+   */
+  static from(data: Partial<PessoaDTO>): PessoaDTO {
+    const instance = new PessoaDTO(
+      data.id || '',
+      data.nome || '',
+      data.ativa ?? true,
+      data.tipoPessoa || TipoPessoa.FISICA,
+      data.email,
+      data.telefone,
+      data.observacoes,
+      data.cpf,
+      data.dataNascimento,
+      data.cnpj,
+      data.razaoSocial,
+      data.inscricaoEstadual,
+      data.createdAt,
+      data.updatedAt,
+      data.createdBy,
+      data.updatedBy
+    );
+    return instance;
+  }
+
   // Tipo para identificar se é PF ou PJ
+  @Transform((params: TransformFnParams) => {
+    const { type, value } = params;
+
+    if (TransformationType.PLAIN_TO_CLASS === type) {
+      // Converting from backend (string) to frontend (TipoPessoa object)
+      if (typeof value === 'string') {
+        return TipoPessoa.getByKey(value);
+      }
+      return value;
+    }
+
+    if (TransformationType.CLASS_TO_PLAIN === type) {
+      // Converting from frontend (TipoPessoa object) to backend (string)
+      if (value && typeof value.getKey === 'function') {
+        return value.getKey();
+      }
+      if (typeof value === 'string') {
+        return TipoPessoa.getByKey(value);
+      }
+      return value;
+    }
+
+    return value;
+  })
+  @Expose()
   tipoPessoa: TipoPessoa;
 
+  @Expose()
   createdAt?: Date;
+  @Expose()
   updatedAt?: Date;
+  @Expose()
   createdBy?: string;
+  @Expose()
   updatedBy?: string;
 
   constructor(
@@ -92,5 +166,9 @@ export class TipoPessoa {
 
   getLabel(): string {
     return this.label;
+  }
+
+  public static getByKey(key: string): TipoPessoa | undefined {
+    return TipoPessoa.getList().find((tipo) => tipo.key === key);
   }
 }

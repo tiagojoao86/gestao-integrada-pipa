@@ -100,6 +100,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @ManyToMany(mappedBy = "titulos")
     private Set<MovimentacaoFinanceira> movimentacoes = new HashSet<>();
 
+    @OneToMany(mappedBy = "titulo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TituloSetor> setores = new HashSet<>();
+
     private Titulo(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
             UnidadeNegocio unidadeNegocio, Money valorOriginal,
             LocalDate dataEmissao, LocalDate dataVencimento) {
@@ -446,6 +449,74 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     public Set<MovimentacaoFinanceira> getMovimentacoes() {
         return movimentacoes;
+    }
+
+    public Set<TituloSetor> getSetores() {
+        return setores;
+    }
+
+    public void adicionarSetor(br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor, BigDecimal percentualRateio) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (setor == null) {
+            violations.add(new BeanValidationMessage("setor", "Setor é obrigatório"));
+        }
+
+        if (percentualRateio == null || percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
+            violations.add(new BeanValidationMessage("percentualRateio", "Percentual deve ser maior que zero"));
+        }
+
+        if (percentualRateio != null && percentualRateio.compareTo(new BigDecimal("100")) > 0) {
+            violations.add(new BeanValidationMessage("percentualRateio", "Percentual não pode ser maior que 100"));
+        }
+
+        // Verifica se o setor já foi adicionado
+        if (setor != null && setores.stream().anyMatch(ts -> ts.getSetor().equals(setor))) {
+            violations.add(new BeanValidationMessage("setor", "Este setor já está vinculado ao título"));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
+
+        TituloSetor tituloSetor = new TituloSetor.Builder()
+                .titulo(this)
+                .setor(setor)
+                .percentualRateio(percentualRateio)
+                .build();
+
+        this.setores.add(tituloSetor);
+    }
+
+    public void removerSetor(br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor) {
+        setores.removeIf(ts -> ts.getSetor().equals(setor));
+    }
+
+    public void limparSetores() {
+        setores.clear();
+    }
+
+    public void validarSetores() {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (setores.isEmpty()) {
+            violations.add(new BeanValidationMessage("setores", "Pelo menos um setor deve ser vinculado ao título"));
+        }
+
+        if (!setores.isEmpty()) {
+            BigDecimal somaPercentuais = setores.stream()
+                    .map(TituloSetor::getPercentualRateio)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            if (somaPercentuais.compareTo(new BigDecimal("100")) != 0) {
+                violations.add(new BeanValidationMessage("setores",
+                        "A soma dos percentuais deve ser exatamente 100%"));
+            }
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
     }
 
     @Override

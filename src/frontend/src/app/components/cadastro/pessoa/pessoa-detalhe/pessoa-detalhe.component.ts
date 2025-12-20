@@ -62,6 +62,7 @@ export class PessoaDetalheComponent implements OnInit {
 
   toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
+  tiposPessoa = TipoPessoa.getList();
 
   ngOnInit(): void {
     this.initForm();
@@ -112,7 +113,7 @@ export class PessoaDetalheComponent implements OnInit {
 
   initForm() {
     const fb = new FormBuilder().nonNullable;
-    this.form.addControl('tipoPessoa', fb.control('FISICA'));
+    this.form.addControl('tipoPessoa', fb.control(TipoPessoa.FISICA));
     this.form.addControl('nome', fb.control(null));
     this.form.addControl('email', fb.control(null));
     this.form.addControl('telefone', fb.control(null));
@@ -130,7 +131,9 @@ export class PessoaDetalheComponent implements OnInit {
   }
 
   fillForm() {
-    this.form.get('tipoPessoa')?.setValue(this.pessoa.tipoPessoa || 'FISICA');
+    this.form
+      .get('tipoPessoa')
+      ?.setValue(this.pessoa.tipoPessoa || TipoPessoa.FISICA);
     this.form.get('nome')?.setValue(this.pessoa.nome);
     this.form.get('email')?.setValue(this.pessoa.email);
     this.form.get('telefone')?.setValue(this.pessoa.telefone);
@@ -152,11 +155,11 @@ export class PessoaDetalheComponent implements OnInit {
   }
 
   isFisica(): boolean {
-    return this.form.get('tipoPessoa')?.value === 'FISICA';
+    return this.form.get('tipoPessoa')?.value === TipoPessoa.FISICA;
   }
 
   isJuridica(): boolean {
-    return this.form.get('tipoPessoa')?.value === 'JURIDICA';
+    return this.form.get('tipoPessoa')?.value === TipoPessoa.JURIDICA;
   }
 
   onTipoPessoaChange() {

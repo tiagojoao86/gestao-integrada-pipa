@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { TituloCategoriaDTO } from './model/titulo-categoria.dto';
 import { TituloCategoriaGridDTO } from './model/titulo-categoria-grid.dto';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
 import { TituloCategoriaBackendMessageService } from './titulo-categoria-backend-message.service';
 import { BaseService } from '../../base/base-service';
@@ -38,6 +38,18 @@ export class TituloCategoriaService extends BaseService<
       TituloCategoriaGridDTO,
       item as object
     ) as TituloCategoriaGridDTO;
+  }
+
+  protected override convertToPlain(
+    item: TituloCategoriaDTO
+  ): TituloCategoriaDTO {
+    // Ensure it's a proper class instance using the factory method
+    const instance = TituloCategoriaDTO.from(item);
+    // Then convert to plain object with transformations applied
+    return instanceToPlain(instance, {
+      enableCircularCheck: true,
+      exposeDefaultValues: true,
+    }) as TituloCategoriaDTO;
   }
 
   getDomain(): string {

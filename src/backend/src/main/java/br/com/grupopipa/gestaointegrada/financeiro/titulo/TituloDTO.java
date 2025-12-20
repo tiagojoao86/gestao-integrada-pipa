@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -46,6 +47,9 @@ public class TituloDTO implements DTO {
     private Integer numeroParcela;
     private Integer totalParcelas;
     private UUID tituloOrigemId;
+
+    // Setores para rateio
+    private List<TituloSetorDTO> setores;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
