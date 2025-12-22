@@ -52,6 +52,9 @@ class TituloServiceTest {
     private SetorRepository setorRepository;
 
     @Mock
+    private br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository tituloCategoriaRepository;
+
+    @Mock
     private Specifications<Titulo> specifications;
 
     @InjectMocks
@@ -61,6 +64,7 @@ class TituloServiceTest {
     private UnidadeNegocio unidadeNegocio;
     private Setor setor;
     private CentroCusto centroCusto;
+    private br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria tituloCategoria;
     private TituloDTO dto;
     private Titulo entity;
 
@@ -95,6 +99,14 @@ class TituloServiceTest {
                 .razaoSocial("Fornecedor LTDA")
                 .build();
 
+        // Setup categoria
+        tituloCategoria = new br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria.Builder()
+                .codigo("001")
+                .nome("Despesas Operacionais")
+                .descricao("Categoria de teste")
+                .tipo(br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum.DESPESA)
+                .build();
+
         // Setup DTO with setores
         TituloSetorDTO setorDTO = TituloSetorDTO.builder()
                 .setorId(setor.getId())
@@ -107,10 +119,12 @@ class TituloServiceTest {
                 .descricao("Pagamento fornecedor")
                 .unidadeNegocioId(unidadeNegocio.getId())
                 .pessoaId(UUID.randomUUID())
+                .tituloCategoriaId(tituloCategoria.getId())
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
                 .setores(List.of(setorDTO))
+                .rateioAutomatico(false)
                 .build();
 
         // Setup Entity
@@ -118,10 +132,12 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Pagamento fornecedor")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
+                .rateioAutomatico(false)
                 .build();
 
         // Add setor to entity
@@ -133,6 +149,7 @@ class TituloServiceTest {
     void deveCriarTituloAPagar() {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
+        when(tituloCategoriaRepository.findById(dto.getTituloCategoriaId())).thenReturn(Optional.of(tituloCategoria));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
         when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
@@ -146,6 +163,7 @@ class TituloServiceTest {
         assertEquals("Pagamento fornecedor", resultado.getDescricao());
         assertEquals(new Money(BigDecimal.valueOf(1000.00)), resultado.getValorOriginal());
         assertEquals(pessoa, resultado.getPessoa());
+        assertEquals(tituloCategoria, resultado.getTituloCategoria());
     }
 
     @Test
@@ -154,6 +172,7 @@ class TituloServiceTest {
         // Given
         dto.setTipo(TipoTitulo.A_RECEBER.name());
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
+        when(tituloCategoriaRepository.findById(dto.getTituloCategoriaId())).thenReturn(Optional.of(tituloCategoria));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
         when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
@@ -164,6 +183,7 @@ class TituloServiceTest {
         assertNotNull(resultado);
         assertEquals(TipoTitulo.A_RECEBER, resultado.getTipo());
         assertEquals(StatusTitulo.ABERTO, resultado.getStatus());
+        assertEquals(tituloCategoria, resultado.getTituloCategoria());
     }
 
     @Test
@@ -174,6 +194,7 @@ class TituloServiceTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Descrição original")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
@@ -218,6 +239,7 @@ class TituloServiceTest {
     void deveSalvarTitulo() {
         // Given
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
+        when(tituloCategoriaRepository.findById(dto.getTituloCategoriaId())).thenReturn(Optional.of(tituloCategoria));
         when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
         when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
         when(repository.save(any(Titulo.class))).thenReturn(entity);

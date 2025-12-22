@@ -5,6 +5,14 @@
 >
   <div body-content>
     <div class="form" [formGroup]="form">
+      <p-iftalabel class="w-25">
+        <input pInputText id="codigo" formControlName="codigo" />
+        <label for="codigo" i18n>Código</label>
+        @if (isControlInvalid('codigo')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
       <p-iftalabel class="w-50">
         <input pInputText id="nomeCategoria" formControlName="nome" />
         <label for="nomeCategoria" i18n>Nome</label>
@@ -13,7 +21,7 @@
         }
       </p-iftalabel>
 
-      <p-iftalabel class="w-50">
+      <p-iftalabel class="w-25">
         <p-select
           inputId="tipo"
           [options]="tiposCategoria"
@@ -24,6 +32,23 @@
           </ng-template>
         </p-select>
         <label for="tipo" i18n>Tipo</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="agrupador"
+          [options]="agrupadores"
+          optionLabel="nome"
+          optionValue="id"
+          formControlName="agrupadorId"
+          [showClear]="true"
+          placeholder="Selecione um agrupador (opcional)"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
+        <label for="agrupador" i18n>Agrupador</label>
       </p-iftalabel>
 
       <p-iftalabel class="w-100">

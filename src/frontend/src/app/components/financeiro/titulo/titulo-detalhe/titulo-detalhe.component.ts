@@ -26,6 +26,8 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MessageModule } from 'primeng/message';
 import { MessageService } from '../../../base/messages/messages.service';
 import { TituloDTO } from '../model/titulo-dto';
 import { AuthService } from '../../../base/auth/auth-service';
@@ -46,6 +48,8 @@ import { TituloSetorRateioComponent, TituloSetorRateio } from '../titulo-setor-r
     TextareaModule,
     IconFieldModule,
     InputIconModule,
+    CheckboxModule,
+    MessageModule,
     TituloSetorRateioComponent,
   ],
   templateUrl: './titulo-detalhe.component.html',
@@ -73,6 +77,9 @@ export class TituloDetalheComponent implements OnInit {
 
   allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
 
+  // Categorias
+  allCategorias: { id: string; codigo: string; nome: string }[] = [];
+
   // Setores para rateio
   setoresSelecionados: TituloSetorRateio[] = [];
 
@@ -96,6 +103,7 @@ export class TituloDetalheComponent implements OnInit {
     this.initForm();
     this.loadPessoas();
     this.loadUnidadesNegocio();
+    this.loadCategorias();
 
     // Listen to unidadeNegocio changes (no planos de contas handling anymore)
     this.form.get('unidadeNegocio')?.valueChanges.subscribe(() => {
@@ -154,6 +162,7 @@ export class TituloDetalheComponent implements OnInit {
     this.form.addControl('status', fb.control(null));
     this.form.addControl('numeroDocumento', fb.control(null));
     this.form.addControl('descricao', fb.control(null));
+    this.form.addControl('tituloCategoria', fb.control(null));
     this.form.addControl('valorOriginal', fb.control(null));
     this.form.addControl('valorDesconto', fb.control(null));
     this.form.addControl('valorJuros', fb.control(null));
@@ -163,6 +172,7 @@ export class TituloDetalheComponent implements OnInit {
     this.form.addControl('dataPagamento', fb.control(null));
     this.form.addControl('observacoes', fb.control(null));
     this.form.addControl('unidadeNegocio', fb.control(''));
+    this.form.addControl('rateioAutomatico', fb.control(false));
   }
 
   fillForm() {
@@ -170,6 +180,7 @@ export class TituloDetalheComponent implements OnInit {
     this.form.get('status')?.setValue(this.titulo.status);
     this.form.get('numeroDocumento')?.setValue(this.titulo.numeroDocumento);
     this.form.get('descricao')?.setValue(this.titulo.descricao);
+    this.form.get('tituloCategoria')?.setValue(this.titulo.tituloCategoriaId || null);
     this.form.get('valorOriginal')?.setValue(this.titulo.valorOriginal);
     this.form.get('valorDesconto')?.setValue(this.titulo.valorDesconto);
     this.form.get('valorJuros')?.setValue(this.titulo.valorJuros);
@@ -193,6 +204,9 @@ export class TituloDetalheComponent implements OnInit {
     this.form
       .get('unidadeNegocio')
       ?.setValue(this.titulo.unidadeNegocioId || '');
+    this.form
+      .get('rateioAutomatico')
+      ?.setValue(this.titulo.rateioAutomatico || false);
 
     // Set autocomplete inputs
     if (this.titulo.pessoaId) {
@@ -244,6 +258,12 @@ export class TituloDetalheComponent implements OnInit {
     });
   }
 
+  loadCategorias() {
+    this.service.listarCategoriasDisponiveis().subscribe((categorias) => {
+      this.allCategorias = categorias;
+    });
+  }
+
   searchPessoas(event: { query: string }) {
     const q = event.query ? String(event.query).toLowerCase() : '';
     this.pessoaSuggestions = this.allPessoas.filter((p) => {
@@ -289,11 +309,15 @@ export class TituloDetalheComponent implements OnInit {
       return;
     }
 
-    // planoContas removed - validation not required
-
     const unidadeNegocioId = this.form.value.unidadeNegocio;
     if (!unidadeNegocioId) {
       this.messages.erro($localize`Unidade de Negócio é obrigatória.`);
+      return;
+    }
+
+    const tituloCategoriaId = this.form.value.tituloCategoria;
+    if (!tituloCategoriaId) {
+      this.messages.erro($localize`Categoria é obrigatória.`);
       return;
     }
 
@@ -306,6 +330,7 @@ export class TituloDetalheComponent implements OnInit {
     }
 
     this.titulo.unidadeNegocioId = unidadeNegocioId;
+    this.titulo.tituloCategoriaId = tituloCategoriaId;
     this.titulo.tipo = this.form.value.tipo;
     this.titulo.status = this.form.value.status;
     this.titulo.numeroDocumento = this.form.value.numeroDocumento;
@@ -318,6 +343,7 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.dataVencimento = this.form.value.dataVencimento;
     this.titulo.dataPagamento = this.form.value.dataPagamento;
     this.titulo.observacoes = this.form.value.observacoes;
+    this.titulo.rateioAutomatico = this.form.value.rateioAutomatico || false;
 
     // Map setores to DTO
     this.titulo.setores = this.setoresSelecionados.map((s) => ({

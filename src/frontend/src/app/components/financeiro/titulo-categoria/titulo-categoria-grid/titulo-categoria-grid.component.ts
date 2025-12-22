@@ -43,6 +43,11 @@ export class TituloCategoriaGridComponent {
 
   columns: ColumnModel<TituloCategoriaGridDTO>[] = [
     {
+      name: 'codigo',
+      label: $localize`Código`,
+      getValue: (element: TituloCategoriaGridDTO) => element.codigo || '-'
+    },
+    {
       name: 'nome',
       label: $localize`Nome`,
       getValue: (element: TituloCategoriaGridDTO) => element.nome || '-'
@@ -51,6 +56,11 @@ export class TituloCategoriaGridComponent {
       name: 'tipo',
       label: $localize`Tipo`,
       getValue: (element: TituloCategoriaGridDTO) => element.tipo.label || '-',
+    },
+    {
+      name: 'agrupadorNome',
+      label: $localize`Agrupador`,
+      getValue: (element: TituloCategoriaGridDTO) => element.agrupadorNome || '-',
     },
     {
       name: 'descricao',
@@ -64,6 +74,11 @@ export class TituloCategoriaGridComponent {
   toolbarActions: ToolbarActionModel[] = [];
 
   filtros: FilterProperty[] = [
+    {
+      property: 'codigo',
+      label: $localize`Código`,
+      filterType: FilterType.TEXT,
+    },
     {
       property: 'nome',
       label: $localize`Nome`,

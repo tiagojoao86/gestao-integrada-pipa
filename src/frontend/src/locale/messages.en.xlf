@@ -1743,6 +1743,22 @@
           <context context-type="linenumber">270</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="5095512744212841276" datatype="html">
+        <source>Rateio automático entre todos os setores ativos</source>
+        <target>Automatic distribution among all active sectors</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-detalhe/titulo-detalhe.component.html</context>
+          <context context-type="linenumber">185,187</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2898087583946284367" datatype="html">
+        <source> Rateio automático ativado: o custo deste título será distribuído automaticamente entre todos os setores ativos durante a apuração de custos. Os setores selecionados abaixo representam apenas a origem do custo para rastreabilidade. </source>
+        <target> Automatic distribution enabled: the cost of this transaction will be automatically distributed among all active sectors during cost allocation. The sectors selected below represent only the cost origin for traceability. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/financeiro/titulo/titulo-detalhe/titulo-detalhe.component.html</context>
+          <context context-type="linenumber">202,207</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

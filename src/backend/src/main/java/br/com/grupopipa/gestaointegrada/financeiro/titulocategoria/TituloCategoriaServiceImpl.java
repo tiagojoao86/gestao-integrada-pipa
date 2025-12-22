@@ -20,16 +20,25 @@ public class TituloCategoriaServiceImpl
 
     @Override
     protected TituloCategoria mergeEntityAndDTO(TituloCategoria entity, TituloCategoriaDTO dto) {
+        // Buscar agrupador se fornecido
+        TituloCategoria agrupador = null;
+        if (dto.getAgrupadorId() != null) {
+            agrupador = repository.findById(dto.getAgrupadorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Agrupador não encontrado"));
+        }
+
         if (entity == null) {
             return new TituloCategoria.Builder()
+                    .codigo(dto.getCodigo())
                     .nome(dto.getNome())
                     .descricao(dto.getDescricao())
                     .tipo(dto.getTipo())
+                    .agrupador(agrupador)
                     .build();
         }
 
         // update existing
-        entity.atualizar(dto.getNome(), dto.getDescricao(), dto.getTipo());
+        entity.atualizar(dto.getCodigo(), dto.getNome(), dto.getDescricao(), dto.getTipo(), agrupador);
         return entity;
     }
 
@@ -37,9 +46,12 @@ public class TituloCategoriaServiceImpl
     protected TituloCategoriaDTO buildDTOFromEntity(TituloCategoria entity) {
         return TituloCategoriaDTO.builder()
                 .id(entity.getId())
+                .codigo(entity.getCodigo())
                 .nome(entity.getNome().getValue())
                 .descricao(entity.getDescricao())
                 .tipo(entity.getTipo())
+                .agrupadorId(entity.getAgrupador() != null ? entity.getAgrupador().getId() : null)
+                .agrupadorNome(entity.getAgrupador() != null ? entity.getAgrupador().getNome().getValue() : null)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
@@ -51,16 +63,17 @@ public class TituloCategoriaServiceImpl
     protected TituloCategoriaGridDTO buildGridDTOFromEntity(TituloCategoria entity) {
         return TituloCategoriaGridDTO.builder()
                 .id(entity.getId())
-                .nome(entity.getNome()
-                        .getValue())
+                .codigo(entity.getCodigo())
+                .nome(entity.getNome().getValue())
                 .descricao(entity.getDescricao())
                 .tipo(entity.getTipo())
+                .agrupadorNome(entity.getAgrupador() != null ? entity.getAgrupador().getNome().getValue() : null)
                 .build();
     }
 
     @Override
     protected List<String> getPropertiesToFilter() {
-        return List.of("nome", "descricao", "tipo");
+        return List.of("codigo", "nome", "descricao", "tipo");
     }
 
     @Override

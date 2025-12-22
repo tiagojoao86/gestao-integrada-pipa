@@ -38,7 +38,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
     private EntityManager entityManager;
 
     private Pessoa pessoa;
-    // PlanoContas removed from Titulo - tests updated accordingly
+    private br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria tituloCategoria;
     private UnidadeNegocio unidadeNegocio;
 
     @BeforeEach
@@ -51,6 +51,15 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .build();
         entityManager.persist(unidadeNegocio);
 
+        // Criar categoria para os testes
+        tituloCategoria = new br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria.Builder()
+                .codigo("001")
+                .nome("Despesas Operacionais")
+                .descricao("Categoria de teste")
+                .tipo(br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum.DESPESA)
+                .build();
+        entityManager.persist(tituloCategoria);
+
         // Criar pessoa para os testes
         pessoa = new Pessoa.Builder()
                 .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
@@ -60,7 +69,6 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .cnpj("11222333000181")
                 .razaoSocial("Fornecedor LTDA")
                 .build();
-        entityManager.persist(pessoa); // Criar plano de contas para os testes
         entityManager.persist(pessoa);
         entityManager.flush();
     }
@@ -73,11 +81,13 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Pagamento fornecedor - NF 12345")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
+                .rateioAutomatico(false)
                 .build();
 
         // When
@@ -118,6 +128,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .valorOriginal(Money.of(BigDecimal.valueOf(2500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(15))
+                .rateioAutomatico(false)
                 .build();
 
         // When
@@ -140,11 +151,13 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Título original")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(500.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(10))
+                .rateioAutomatico(false)
                 .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
@@ -170,11 +183,13 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Título para deletar")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(5))
+                .rateioAutomatico(false)
                 .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
@@ -196,11 +211,13 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .tipo(TipoTitulo.A_PAGAR)
                 .descricao("Busca por ID")
                 .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(750.00)))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(20))
+                .rateioAutomatico(false)
                 .build();
         Titulo tituloSalvo = repository.save(titulo);
         entityManager.flush();
@@ -224,6 +241,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                     .tipo(null) // tipo nulo
                     .descricao("Descrição")
                     .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                     .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
                     .dataEmissao(LocalDate.now())
@@ -241,6 +259,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                     .tipo(TipoTitulo.A_PAGAR)
                     .descricao(null) // descrição nula
                     .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
 
                     .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
                     .dataEmissao(LocalDate.now())
@@ -274,6 +293,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                     .tipo(TipoTitulo.A_PAGAR)
                     .descricao("Descrição")
                     .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
                     .valorOriginal(Money.zero()) // valor zero
                     .dataEmissao(LocalDate.now())
                     .dataVencimento(LocalDate.now().plusDays(30))
@@ -290,6 +310,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                     .tipo(TipoTitulo.A_PAGAR)
                     .descricao("Descrição")
                     .pessoa(pessoa)
+                .tituloCategoria(tituloCategoria)
                     .valorOriginal(Money.of(BigDecimal.valueOf(100.00)))
                     .dataEmissao(LocalDate.now())
                     .dataVencimento(LocalDate.now().minusDays(1)) // vencimento antes da emissão

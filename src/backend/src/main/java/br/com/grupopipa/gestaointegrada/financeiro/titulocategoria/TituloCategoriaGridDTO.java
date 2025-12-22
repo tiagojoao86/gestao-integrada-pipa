@@ -12,7 +12,9 @@ import java.util.UUID;
 @Builder
 public class TituloCategoriaGridDTO implements GridDTO {
     private UUID id;
+    private String codigo;
     private String nome;
     private String descricao;
     private TituloCategoriaTipoEnum tipo;
+    private String agrupadorNome;
 }

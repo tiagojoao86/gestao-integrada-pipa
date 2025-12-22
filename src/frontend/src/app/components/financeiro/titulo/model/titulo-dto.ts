@@ -12,9 +12,14 @@ export class TituloDTO {
   pessoaNome?: string;
   unidadeNegocioId?: string;
   unidadeNegocioNome?: string;
+  tituloCategoriaId?: string;
+  tituloCategoriaNome?: string;
 
   // Setores para rateio
   setores?: TituloSetorDTO[];
+
+  // Rateio automático
+  rateioAutomatico?: boolean;
 
   // Valores
   valorOriginal: number;
@@ -64,6 +69,7 @@ export class TituloDTO {
     numeroParcela?: number,
     totalParcelas?: number,
     tituloOrigemId?: string,
+    rateioAutomatico?: boolean,
     createdAt?: Date,
     updatedAt?: Date,
     createdBy?: string,
@@ -91,6 +97,7 @@ export class TituloDTO {
     this.numeroParcela = numeroParcela;
     this.totalParcelas = totalParcelas;
     this.tituloOrigemId = tituloOrigemId;
+    this.rateioAutomatico = rateioAutomatico;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.createdBy = createdBy;

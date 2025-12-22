@@ -63,10 +63,12 @@ class TituloControllerTest {
                 .descricao("Pagamento fornecedor")
                 .pessoaId(UUID.randomUUID())
                 .pessoaNome("Fornecedor Teste")
-                // planoContas removed; categoriaTitulo will be added later
+                .tituloCategoriaId(UUID.randomUUID())
+                .tituloCategoriaNome("Despesas Operacionais")
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .dataEmissao(LocalDate.now())
                 .dataVencimento(LocalDate.now().plusDays(30))
+                .rateioAutomatico(false)
                 .build();
 
         gridDTO = TituloGridDTO.builder()
@@ -75,6 +77,7 @@ class TituloControllerTest {
                 .status(StatusTitulo.ABERTO.name())
                 .descricao("Pagamento fornecedor")
                 .pessoaNome("Fornecedor Teste")
+                .tituloCategoriaNome("Despesas Operacionais")
                 .valorOriginal(BigDecimal.valueOf(1000.00))
                 .saldo(BigDecimal.valueOf(1000.00))
                 .dataVencimento(LocalDate.now().plusDays(30))
