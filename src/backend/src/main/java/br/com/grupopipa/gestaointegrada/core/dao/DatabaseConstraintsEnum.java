@@ -75,8 +75,10 @@ public enum DatabaseConstraintsEnum {
     FK_TITULO_ORIGEM("titulo.origem.foreignKey"),
 
     // -------- Título Categoria --------
+    UK_TITULO_CATEGORIA_CODIGO("tituloCategoria.codigo.unique"),
     UK_TITULO_CATEGORIA_NOME("tituloCategoria.nome.unique"),
     CHK_TITULO_CATEGORIA_TIPO("tituloCategoria.tipo.invalid"),
+    FK_TITULO_CATEGORIA_AGRUPADOR("tituloCategoria.agrupador.foreignKey"),
 
     // -------- Centro de Custo --------
     UK_CENTRO_CUSTO_NOME("centroCusto.nome.unique"),

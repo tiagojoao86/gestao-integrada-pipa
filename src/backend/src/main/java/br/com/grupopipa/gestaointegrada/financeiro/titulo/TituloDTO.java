@@ -25,6 +25,8 @@ public class TituloDTO implements DTO {
     // Relacionamentos
     private UUID pessoaId;
     private String pessoaNome;
+    private UUID tituloCategoriaId;
+    private String tituloCategoriaNome;
     private UUID unidadeNegocioId;
     private String unidadeNegocioNome;
 
@@ -50,6 +52,9 @@ public class TituloDTO implements DTO {
 
     // Setores para rateio
     private List<TituloSetorDTO> setores;
+
+    // Rateio automático
+    private Boolean rateioAutomatico;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

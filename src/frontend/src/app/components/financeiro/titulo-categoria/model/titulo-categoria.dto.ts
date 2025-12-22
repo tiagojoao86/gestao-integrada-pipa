@@ -14,6 +14,9 @@ export class TituloCategoriaDTO {
   id?: string;
 
   @Expose()
+  codigo: string;
+
+  @Expose()
   nome: string;
 
   @Expose()
@@ -40,15 +43,27 @@ export class TituloCategoriaDTO {
   @Expose()
   tipo: TituloCategoriaTipoEnum;
 
+  @Expose()
+  agrupadorId?: string;
+
+  @Expose()
+  agrupadorNome?: string;
+
   constructor(
+    codigo: string,
     nome: string,
     tipo: TituloCategoriaTipoEnum,
     descricao?: string,
+    agrupadorId?: string,
+    agrupadorNome?: string,
     id?: string
   ) {
+    this.codigo = codigo;
     this.nome = nome;
     this.tipo = tipo;
     this.descricao = descricao;
+    this.agrupadorId = agrupadorId;
+    this.agrupadorNome = agrupadorNome;
     this.id = id;
   }
 

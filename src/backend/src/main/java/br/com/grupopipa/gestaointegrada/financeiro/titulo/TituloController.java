@@ -57,6 +57,12 @@ public class TituloController extends BaseController<TituloDTO, TituloGridDTO, T
         return ok(service.listarPessoasDisponiveis());
     }
 
+    @GetMapping("/categorias-disponiveis")
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_EDITAR')")
+    public Response listarCategoriasDisponiveis() {
+        return ok(service.listarCategoriasDisponiveis());
+    }
+
     @GetMapping("/planos-disponiveis")
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_EDITAR')")
     public Response listarPlanosDisponiveis(@RequestParam("unidadeNegocioId") UUID unidadeNegocioId) {

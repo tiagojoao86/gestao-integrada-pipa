@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
+import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaDTO;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
@@ -13,7 +14,11 @@ import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
+import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +38,10 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     private final UnidadeNegocioRepository unidadeNegocioRepository;
     private final UnidadeNegocioService unidadeNegocioService;
     private final SetorRepository setorRepository;
+    private final br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository tituloCategoriaRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public TituloServiceImpl(TituloRepository repository,
             Specifications<Titulo> specifications,
@@ -40,13 +49,15 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             PlanoContasRepository planoContasRepository,
             UnidadeNegocioRepository unidadeNegocioRepository,
             UnidadeNegocioService unidadeNegocioService,
-            SetorRepository setorRepository) {
+            SetorRepository setorRepository,
+            br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository tituloCategoriaRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
         this.unidadeNegocioRepository = unidadeNegocioRepository;
         this.unidadeNegocioService = unidadeNegocioService;
         this.setorRepository = setorRepository;
+        this.tituloCategoriaRepository = tituloCategoriaRepository;
     }
 
     @Override
@@ -58,6 +69,11 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
 
             TipoTitulo tipo = TipoTitulo.valueOf(dto.getTipo());
 
+            // Categoria (obrigatória)
+            br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria tituloCategoria = tituloCategoriaRepository
+                    .findById(dto.getTituloCategoriaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+
             // Unidade de negócio (obrigatória)
             UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
                     .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
@@ -67,6 +83,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                     .descricao(dto.getDescricao())
                     .numeroDocumento(dto.getNumeroDocumento())
                     .pessoa(pessoa)
+                    .tituloCategoria(tituloCategoria)
                     .unidadeNegocio(unidadeNegocio)
                     .valorOriginal(Money.of(dto.getValorOriginal()))
                     .dataEmissao(dto.getDataEmissao())
@@ -99,6 +116,9 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
 
             // Processar setores
             processarSetores(entity, dto);
+
+            // Definir rateio automático
+            entity.setRateioAutomatico(dto.getRateioAutomatico() != null ? dto.getRateioAutomatico() : false);
 
             // Validar setores antes de salvar
             entity.validarSetores();
@@ -133,6 +153,11 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             entity.validarSetores();
         }
 
+        // Atualizar rateio automático
+        if (dto.getRateioAutomatico() != null) {
+            entity.setRateioAutomatico(dto.getRateioAutomatico());
+        }
+
         return entity;
     }
 
@@ -141,8 +166,15 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             return;
         }
 
-        // Limpar setores existentes
-        entity.limparSetores();
+        // Limpar setores existentes (orphanRemoval fará o delete)
+        if (!entity.getSetores().isEmpty()) {
+            entity.limparSetores();
+            // Force flush to delete orphaned records before inserting new ones
+            // This prevents unique constraint violation on uk_titulo_setor
+            if (entity.getId() != null) {
+                entityManager.flush();
+            }
+        }
 
         // Adicionar novos setores
         for (TituloSetorDTO setorDTO : dto.getSetores()) {
@@ -171,6 +203,9 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .descricao(entity.getDescricao())
                 .pessoaId(entity.getPessoa().getId())
                 .pessoaNome(entity.getPessoa().getNome())
+                .tituloCategoriaId(entity.getTituloCategoria() != null ? entity.getTituloCategoria().getId() : null)
+                .tituloCategoriaNome(
+                        entity.getTituloCategoria() != null ? entity.getTituloCategoria().getNome().getValue() : null)
                 .unidadeNegocioId(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
                 .unidadeNegocioNome(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getNome() : null)
                 .valorOriginal(entity.getValorOriginal().getValue())
@@ -187,6 +222,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .totalParcelas(entity.getTotalParcelas())
                 .tituloOrigemId(entity.getTituloOrigem() != null ? entity.getTituloOrigem().getId() : null)
                 .setores(setoresDTO)
+                .rateioAutomatico(entity.getRateioAutomatico())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
@@ -208,6 +244,8 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .numeroDocumento(entity.getNumeroDocumento())
                 .descricao(entity.getDescricao())
                 .pessoaNome(entity.getPessoa().getNome())
+                .tituloCategoriaNome(
+                        entity.getTituloCategoria() != null ? entity.getTituloCategoria().getNome().getValue() : null)
                 .unidadeNegocioCodigo(entity.getUnidadeNegocio().getCodigo())
                 .valorOriginal(entity.getValorOriginal().getValue())
                 .saldo(entity.calcularSaldo().getValue())
@@ -261,9 +299,9 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     }
 
     @Override
-    public List<br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaDTO> listarPessoasDisponiveis() {
+    public List<PessoaDTO> listarPessoasDisponiveis() {
         return pessoaRepository.findByAtivaTrue().stream()
-                .map(pessoa -> br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaDTO.builder()
+                .map(pessoa -> PessoaDTO.builder()
                         .id(pessoa.getId())
                         .nome(pessoa.getNome())
                         .tipoPessoa(pessoa.getTipoPessoa().name())
@@ -274,10 +312,22 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     }
 
     @Override
-    public List<br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO> listarPlanosDisponiveis(
+    public List<TituloCategoriaDTO> listarCategoriasDisponiveis() {
+        return tituloCategoriaRepository.findAll().stream()
+                .map(categoria -> TituloCategoriaDTO
+                        .builder()
+                        .id(categoria.getId())
+                        .codigo(categoria.getCodigo())
+                        .nome(categoria.getNome().getValue())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<PlanoContasDTO> listarPlanosDisponiveis(
             java.util.UUID unidadeNegocioId) {
         return planoContasRepository.findByAtivoTrueAndUnidadeNegocioId(unidadeNegocioId).stream()
-                .map(plano -> br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO.builder()
+                .map(plano -> PlanoContasDTO.builder()
                         .id(plano.getId())
                         .codigo(plano.getCodigo())
                         .descricao(plano.getDescricao())

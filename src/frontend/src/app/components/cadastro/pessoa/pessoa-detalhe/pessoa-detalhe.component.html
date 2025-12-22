@@ -55,7 +55,12 @@
         </p-iftalabel>
 
         <p-iftalabel class="w-33">
-          <input pInputText id="telefonePessoa" formControlName="telefone" />
+          <p-inputMask
+            id="telefonePessoa"
+            formControlName="telefone"
+            mask="(99) 99999-9999"
+            [autoClear]="false"
+          />
           <label for="telefonePessoa" i18n>Telefone</label>
           @if (isControlInvalid('telefone')) {
           <small i18n>Telefone inválido.</small>

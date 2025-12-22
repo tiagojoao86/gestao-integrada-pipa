@@ -92,6 +92,28 @@
         <label for="pessoa" i18n>Pessoa</label>
       </p-iftalabel>
 
+      <!-- Categoria -->
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="tituloCategoria"
+          [options]="allCategorias"
+          formControlName="tituloCategoria"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigo,nome"
+          [showClear]="false"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.codigo }} - {{ item.nome }}</div>
+          </ng-template>
+        </p-select>
+        <label for="tituloCategoria" i18n>Categoria</label>
+        @if (isControlInvalid('tituloCategoria')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
       <!-- Plano de Contas removed -->
 
       <!-- Valores -->
@@ -175,6 +197,18 @@
         <label for="dataPagamento" i18n>Data Pagamento</label>
       </p-iftalabel>
 
+      <div class="checkbox-container w-33">
+        <p-checkbox
+          inputId="rateioAutomatico"
+          formControlName="rateioAutomatico"
+          [binary]="true"
+          i18n-label
+        ></p-checkbox>
+        <label for="rateioAutomatico" i18n
+          >Rateio automático entre todos os setores ativos</label
+        >
+      </div>
+
       <p-iftalabel class="w-100">
         <textarea
           pInputTextarea
@@ -185,8 +219,19 @@
         <label for="observacoes" i18n>Observações</label>
       </p-iftalabel>
 
-      <!-- Rateio por Setores -->
+      @if (form.value.rateioAutomatico) {
       <div class="w-100">
+        <p-message severity="info" i18n>
+          Rateio automático ativado: o custo deste título será distribuído
+          automaticamente entre todos os setores ativos durante a apuração de
+          custos. Os setores selecionados abaixo representam apenas a origem do
+          custo para rastreabilidade.
+        </p-message>
+      </div>
+      }
+
+      <!-- Rateio por Setores -->
+      <div class="w-100" style="margin-top: 0.5rem">
         <gi-titulo-setor-rateio
           [setoresSelecionados]="setoresSelecionados"
           [valorTitulo]="valorOriginalForRateio"

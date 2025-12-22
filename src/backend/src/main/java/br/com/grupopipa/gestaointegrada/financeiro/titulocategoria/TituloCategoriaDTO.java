@@ -14,9 +14,12 @@ import java.util.UUID;
 public class TituloCategoriaDTO implements DTO {
 
     private UUID id;
+    private String codigo;
     private String nome;
     private String descricao;
     private TituloCategoriaTipoEnum tipo;
+    private UUID agrupadorId;
+    private String agrupadorNome;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

@@ -48,6 +48,7 @@ export class CategoriaTituloDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
   editMode = false;
   categoria: TituloCategoriaDTO = {} as TituloCategoriaDTO;
+  agrupadores: TituloCategoriaDTO[] = [];
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
 
@@ -61,6 +62,7 @@ export class CategoriaTituloDetalheComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadAgrupadores();
 
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA
@@ -106,15 +108,25 @@ export class CategoriaTituloDetalheComponent implements OnInit {
 
   initForm() {
     const fb = new FormBuilder().nonNullable;
+    this.form.addControl('codigo', fb.control(''));
     this.form.addControl('nome', fb.control(''));
     this.form.addControl('descricao', fb.control(''));
     this.form.addControl('tipo', fb.control(''));
+    this.form.addControl('agrupadorId', fb.control(null));
   }
 
   fillForm() {
+    this.form.get('codigo')?.setValue(this.categoria.codigo || '');
     this.form.get('nome')?.setValue(this.categoria.nome || '');
     this.form.get('descricao')?.setValue(this.categoria.descricao || '');
     this.form.get('tipo')?.setValue(this.categoria.tipo || null);
+    this.form.get('agrupadorId')?.setValue(this.categoria.agrupadorId || null);
+  }
+
+  loadAgrupadores() {
+    this.service.listAll().subscribe((response) => {
+      this.agrupadores = response.body || [];
+    });
   }
 
   salvar() {
@@ -123,9 +135,11 @@ export class CategoriaTituloDetalheComponent implements OnInit {
       return;
     }
 
+    this.categoria.codigo = this.form.value.codigo;
     this.categoria.nome = this.form.value.nome;
     this.categoria.descricao = this.form.value.descricao;
     this.categoria.tipo = this.form.value.tipo;
+    this.categoria.agrupadorId = this.form.value.agrupadorId;
 
     this.service.save(this.categoria, {
       onSuccess: (data: TituloCategoriaDTO) => {

@@ -3,16 +3,20 @@
 
 CREATE TABLE IF NOT EXISTS titulo_categoria (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    codigo VARCHAR(20) NOT NULL,
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(400),
     tipo VARCHAR(20) NOT NULL,
+    agrupador_id UUID,
     created_at TIMESTAMP WITHOUT TIME ZONE,
     updated_at TIMESTAMP WITHOUT TIME ZONE,
     created_by VARCHAR(255),
     updated_by VARCHAR(255),
+    CONSTRAINT fk_titulo_categoria_agrupador FOREIGN KEY (agrupador_id) REFERENCES titulo_categoria(id),
     CONSTRAINT chk_titulo_categoria_tipo CHECK (
         tipo IN ('RECEITA', 'DESPESA')
     ),
+    CONSTRAINT uk_titulo_categoria_codigo UNIQUE (codigo),
     CONSTRAINT uk_titulo_categoria_nome UNIQUE (nome)
 );
 

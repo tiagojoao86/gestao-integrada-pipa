@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -34,18 +35,22 @@ class TituloCategoriaServiceTest {
     private TituloCategoriaDTO dto;
     private TituloCategoria entity;
     private UUID categoriaId;
+    private UUID agrupadorId;
 
     @BeforeEach
     void setup() {
         categoriaId = UUID.randomUUID();
+        agrupadorId = UUID.randomUUID();
 
         dto = TituloCategoriaDTO.builder()
+                .codigo("001")
                 .nome("Categoria Teste")
                 .descricao("Descrição categoria")
                 .tipo(TituloCategoriaTipoEnum.RECEITA)
                 .build();
 
         entity = new TituloCategoria.Builder()
+                .codigo("001")
                 .nome("Categoria Teste")
                 .descricao("Descrição categoria")
                 .tipo(TituloCategoriaTipoEnum.RECEITA)
@@ -102,6 +107,91 @@ class TituloCategoriaServiceTest {
         TituloCategoriaGridDTO gridDTO = service.buildGridDTOFromEntity(entity);
 
         assertNotNull(gridDTO);
+        assertEquals("001", gridDTO.getCodigo());
         assertEquals("Categoria Teste", gridDTO.getNome());
+    }
+
+    @Test
+    @DisplayName("Deve criar categoria com agrupador")
+    void deveCriarCategoriaComAgrupador() {
+        // Setup agrupador
+        TituloCategoria agrupador = new TituloCategoria.Builder()
+                .codigo("001")
+                .nome("Despesas Operacionais")
+                .descricao("Agrupador")
+                .tipo(TituloCategoriaTipoEnum.DESPESA)
+                .build();
+        ReflectionTestUtils.setField(agrupador, "id", agrupadorId);
+
+        TituloCategoriaDTO dtoComAgrupador = TituloCategoriaDTO.builder()
+                .codigo("001.001")
+                .nome("Material de Escritório")
+                .descricao("Sub-categoria")
+                .tipo(TituloCategoriaTipoEnum.DESPESA)
+                .agrupadorId(agrupadorId)
+                .build();
+
+        TituloCategoria entityComAgrupador = new TituloCategoria.Builder()
+                .codigo("001.001")
+                .nome("Material de Escritório")
+                .descricao("Sub-categoria")
+                .tipo(TituloCategoriaTipoEnum.DESPESA)
+                .agrupador(agrupador)
+                .build();
+
+        when(repository.findById(agrupadorId)).thenReturn(Optional.of(agrupador));
+        when(repository.save(any(TituloCategoria.class))).thenReturn(entityComAgrupador);
+
+        TituloCategoriaDTO resultado = service.save(dtoComAgrupador);
+
+        assertNotNull(resultado);
+        assertEquals("Material de Escritório", resultado.getNome());
+        assertEquals(agrupadorId, resultado.getAgrupadorId());
+        verify(repository, times(1)).findById(agrupadorId);
+        verify(repository, times(1)).save(any(TituloCategoria.class));
+    }
+
+    @Test
+    @DisplayName("Deve construir DTO com agrupador da entidade")
+    void deveConstruirDTOComAgrupadorDaEntidade() {
+        TituloCategoria agrupador = new TituloCategoria.Builder()
+                .codigo("002")
+                .nome("Receitas de Serviços")
+                .descricao("Agrupador")
+                .tipo(TituloCategoriaTipoEnum.RECEITA)
+                .build();
+        ReflectionTestUtils.setField(agrupador, "id", UUID.randomUUID());
+
+        TituloCategoria categoriaComAgrupador = new TituloCategoria.Builder()
+                .codigo("002.001")
+                .nome("Consultoria")
+                .descricao("Receita de consultoria")
+                .tipo(TituloCategoriaTipoEnum.RECEITA)
+                .agrupador(agrupador)
+                .build();
+
+        TituloCategoriaDTO dto = service.buildDTOFromEntity(categoriaComAgrupador);
+
+        assertNotNull(dto);
+        assertEquals("002.001", dto.getCodigo());
+        assertEquals("Consultoria", dto.getNome());
+        assertNotNull(dto.getAgrupadorId());
+        assertEquals("Receitas de Serviços", dto.getAgrupadorNome());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao buscar agrupador inexistente")
+    void deveLancarExcecaoAoBuscarAgrupadorInexistente() {
+        TituloCategoriaDTO dtoComAgrupadorInvalido = TituloCategoriaDTO.builder()
+                .codigo("003.001")
+                .nome("Categoria Teste")
+                .descricao("Descrição")
+                .tipo(TituloCategoriaTipoEnum.DESPESA)
+                .agrupadorId(UUID.randomUUID())
+                .build();
+
+        when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.save(dtoComAgrupadorInvalido));
     }
 }

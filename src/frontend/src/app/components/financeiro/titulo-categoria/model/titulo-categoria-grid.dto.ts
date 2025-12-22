@@ -13,6 +13,9 @@ export class TituloCategoriaGridDTO {
   id?: string;
 
   @Expose()
+  codigo: string;
+
+  @Expose()
   nome: string;
 
   @Expose()
@@ -34,15 +37,22 @@ export class TituloCategoriaGridDTO {
   @Expose()
   tipo: TituloCategoriaTipoEnum;
 
+  @Expose()
+  agrupadorNome?: string;
+
   constructor(
+    codigo: string,
     nome: string,
     tipo: TituloCategoriaTipoEnum,
     descricao?: string,
+    agrupadorNome?: string,
     id?: string
   ) {
+    this.codigo = codigo;
     this.nome = nome;
     this.tipo = tipo;
     this.descricao = descricao;
+    this.agrupadorNome = agrupadorNome;
     this.id = id;
   }
 }

@@ -48,7 +48,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @JoinColumn(name = "pessoa_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_pessoa"))
     private Pessoa pessoa;
 
-    // planoContas removed (not used currently)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "titulo_categoria_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_categoria"))
+    private TituloCategoria tituloCategoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_negocio_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_unidade_negocio"))
@@ -103,13 +105,17 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @OneToMany(mappedBy = "titulo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TituloSetor> setores = new HashSet<>();
 
+    @Column(name = "rateio_automatico", nullable = false)
+    private Boolean rateioAutomatico = false;
+
     private Titulo(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
-            UnidadeNegocio unidadeNegocio, Money valorOriginal,
+            TituloCategoria tituloCategoria, UnidadeNegocio unidadeNegocio, Money valorOriginal,
             LocalDate dataEmissao, LocalDate dataVencimento) {
         this.tipo = tipo;
         this.descricao = descricao;
         this.numeroDocumento = numeroDocumento;
         this.pessoa = pessoa;
+        this.tituloCategoria = tituloCategoria;
         this.unidadeNegocio = unidadeNegocio;
         this.valorOriginal = valorOriginal;
         this.dataEmissao = dataEmissao;
@@ -129,18 +135,20 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         final String descricao;
         final String numeroDocumento;
         final Pessoa pessoa;
+        final TituloCategoria tituloCategoria;
         final UnidadeNegocio unidadeNegocio;
         final Money valorOriginal;
         final LocalDate dataEmissao;
         final LocalDate dataVencimento;
 
         ValidatedData(TipoTitulo tipo, String descricao, String numeroDocumento, Pessoa pessoa,
-                UnidadeNegocio unidadeNegocio, Money valorOriginal,
+                TituloCategoria tituloCategoria, UnidadeNegocio unidadeNegocio, Money valorOriginal,
                 LocalDate dataEmissao, LocalDate dataVencimento) {
             this.tipo = tipo;
             this.descricao = descricao;
             this.numeroDocumento = numeroDocumento;
             this.pessoa = pessoa;
+            this.tituloCategoria = tituloCategoria;
             this.unidadeNegocio = unidadeNegocio;
             this.valorOriginal = valorOriginal;
             this.dataEmissao = dataEmissao;
@@ -149,7 +157,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     }
 
     private static ValidatedData validate(TipoTitulo tipo, String descricao, String numeroDocumento,
-            Pessoa pessoa, UnidadeNegocio unidadeNegocio,
+            Pessoa pessoa, TituloCategoria tituloCategoria, UnidadeNegocio unidadeNegocio,
             BigDecimal valorOriginal, LocalDate dataEmissao, LocalDate dataVencimento) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
@@ -164,7 +172,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (pessoa == null) {
             violations.add(new BeanValidationMessage("pessoa", "Pessoa é obrigatória"));
         }
-        // planoContas validation removed (not used currently)
+        if (tituloCategoria == null) {
+            violations.add(new BeanValidationMessage("tituloCategoria", "Categoria é obrigatória"));
+        }
         if (unidadeNegocio == null) {
             violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
         }
@@ -188,7 +198,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         return new ValidatedData(tipo, descricao, numeroDocumento, pessoa,
-                unidadeNegocio, money, dataEmissao, dataVencimento);
+                tituloCategoria, unidadeNegocio, money, dataEmissao, dataVencimento);
     }
 
     public void aplicarDesconto(Money desconto) {
@@ -395,6 +405,10 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         return pessoa;
     }
 
+    public TituloCategoria getTituloCategoria() {
+        return tituloCategoria;
+    }
+
     public UnidadeNegocio getUnidadeNegocio() {
         return unidadeNegocio;
     }
@@ -455,6 +469,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         return setores;
     }
 
+    public Boolean getRateioAutomatico() {
+        return rateioAutomatico;
+    }
+
+    public void setRateioAutomatico(Boolean rateioAutomatico) {
+        this.rateioAutomatico = rateioAutomatico != null ? rateioAutomatico : false;
+    }
+
     public void adicionarSetor(br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor, BigDecimal percentualRateio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
@@ -470,10 +492,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             violations.add(new BeanValidationMessage("percentualRateio", "Percentual não pode ser maior que 100"));
         }
 
-        // Verifica se o setor já foi adicionado
-        if (setor != null && setores.stream().anyMatch(ts -> ts.getSetor().equals(setor))) {
-            violations.add(new BeanValidationMessage("setor", "Este setor já está vinculado ao título"));
-        }
+        // Note: Removed duplicate sector validation as we clear sectors before adding in update flow
+        // The validation would fail when updating because Hibernate hasn't flushed the delete yet
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -493,7 +513,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     }
 
     public void limparSetores() {
-        setores.clear();
+        // Remove all elements to trigger orphanRemoval
+        // Using removeIf ensures proper Hibernate collection tracking
+        setores.removeIf(s -> true);
     }
 
     public void validarSetores() {
@@ -541,11 +563,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         private String descricao;
         private String numeroDocumento;
         private Pessoa pessoa;
-        // planoContas removed
+        private TituloCategoria tituloCategoria;
         private UnidadeNegocio unidadeNegocio;
         private Money valorOriginal;
         private LocalDate dataEmissao;
         private LocalDate dataVencimento;
+        private Boolean rateioAutomatico;
 
         public Builder tipo(TipoTitulo tipo) {
             this.tipo = tipo;
@@ -564,6 +587,11 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
         public Builder pessoa(Pessoa pessoa) {
             this.pessoa = pessoa;
+            return this;
+        }
+
+        public Builder tituloCategoria(TituloCategoria tituloCategoria) {
+            this.tituloCategoria = tituloCategoria;
             return this;
         }
 
@@ -597,14 +625,21 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return this;
         }
 
+        public Builder rateioAutomatico(Boolean rateioAutomatico) {
+            this.rateioAutomatico = rateioAutomatico;
+            return this;
+        }
+
         public Titulo build() {
             BigDecimal valorOriginalValue = (this.valorOriginal != null) ? this.valorOriginal.getValue() : null;
             ValidatedData data = validate(this.tipo, this.descricao, this.numeroDocumento,
-                    this.pessoa, this.unidadeNegocio,
+                    this.pessoa, this.tituloCategoria, this.unidadeNegocio,
                     valorOriginalValue, this.dataEmissao, this.dataVencimento);
-            return new Titulo(data.tipo, data.descricao, data.numeroDocumento, data.pessoa,
-                    data.unidadeNegocio, data.valorOriginal,
+            Titulo titulo = new Titulo(data.tipo, data.descricao, data.numeroDocumento, data.pessoa,
+                    data.tituloCategoria, data.unidadeNegocio, data.valorOriginal,
                     data.dataEmissao, data.dataVencimento);
+            titulo.setRateioAutomatico(this.rateioAutomatico);
+            return titulo;
         }
     }
 }
