@@ -1035,6 +1035,214 @@ CREATE TABLE pessoa (
 - **Interfaces de FormGroup**: Extrair para arquivos separados em `model/`
 - **DTOs compartilhados**: Em `src/app/components/base/model/`
 
+### Testes Frontend (Jest)
+
+**Framework**: O projeto usa **Jest** (não Karma/Jasmine) para testes de componentes Angular.
+
+**Configuração**:
+- `jest.config.js`: Configuração principal do Jest
+- `setup-jest.ts`: Polyfills e mocks globais (TextEncoder, window.matchMedia, IntersectionObserver)
+- Preset: `jest-preset-angular`
+
+**Comandos**:
+```bash
+npm test                    # Executar todos os testes
+npm run test:watch          # Modo watch (reexecuta ao salvar)
+npm run test:coverage       # Gerar relatório de cobertura
+npm test -- arquivo.spec.ts # Executar teste específico
+```
+
+**Estrutura de Testes**:
+
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
+import { RouteConstants } from '../../../base/constants/route-constants';
+import { ExecutionCallbacks } from '../../../base/base-service';
+
+describe('MeuComponenteDetalhe', () => {
+  let component: MeuComponenteDetalhe;
+  let fixture: ComponentFixture<MeuComponenteDetalhe>;
+  let service: jest.Mocked<MeuService>;
+  let messageService: jest.Mocked<MessageService>;
+
+  beforeEach(async () => {
+    const serviceMock = {
+      findById: jest.fn(),
+      save: jest.fn(),
+    };
+
+    const messageServiceMock = {
+      sucesso: jest.fn(),
+      erro: jest.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [MeuComponenteDetalhe],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: MessageService, useValue: messageServiceMock },
+      ],
+    })
+    .overrideComponent(MeuComponenteDetalhe, {
+      set: {
+        providers: [{ provide: MeuService, useValue: serviceMock }]
+      }
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(MeuComponenteDetalhe);
+    component = fixture.componentInstance;
+    service = fixture.debugElement.injector.get(MeuService) as jest.Mocked<MeuService>;
+    messageService = TestBed.inject(MessageService) as jest.Mocked<MessageService>;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+});
+```
+
+**O que testar em componentes detalhe**:
+
+1. **Inicialização**:
+   - Componente criado
+   - Formulário inicializado com campos corretos
+   - Toolbar configurada com ações
+
+2. **Carregamento de dados**:
+   - Comboboxes populados corretamente
+   - Autocomplete filtrando corretamente
+   - findById carregando dados na edição
+
+3. **Validações**:
+   - Campos obrigatórios vazios exibem erro
+   - Formulário inválido não permite salvar
+   - Mensagens de erro corretas
+
+4. **Salvamento**:
+   - Sucesso: dados enviados, mensagem exibida, navegação ocorre
+   - Erro: mensagem de erro exibida, não navega
+
+**Padrões importantes**:
+
+✅ **SEMPRE fazer**:
+- Use `.overrideComponent()` para mockar serviços component-level
+- Limpe mocks com `jest.clearAllMocks()` no `afterEach`
+- Verifique chamadas com `toHaveBeenCalled()` e `toHaveBeenCalledWith()`
+- Para strings, use `.toContain()` em vez de matchers complexos
+- Mock ExecutionCallbacks com assinatura correta:
+  ```typescript
+  service.save.mockImplementation(
+    (_data: DTO, callbacks: ExecutionCallbacks<DTO>) => {
+      if (callbacks.onSuccess) {
+        callbacks.onSuccess(mockData);
+      }
+    }
+  );
+  ```
+
+❌ **NUNCA fazer**:
+- Usar matchers do Jasmine (expect.stringContaining, expect.objectContaining)
+- Esquecer de mockar serviços obrigatórios (MessageService, AuthService)
+- Usar valores hardcoded sem verificar o comportamento
+- Testar implementação interna ao invés de comportamento
+
+**Exemplo de teste de validação**:
+```typescript
+describe('Validações ao Salvar', () => {
+  it('NÃO deve salvar se nome está vazio', () => {
+    component.form.patchValue({ nome: '', codigo: '001' });
+    component.salvar();
+
+    expect(messageService.erro).toHaveBeenCalled();
+    const callArgs = messageService.erro.mock.calls[0][0];
+    expect(callArgs).toContain('nome');
+    expect(service.save).not.toHaveBeenCalled();
+  });
+});
+```
+
+**Exemplo de teste de sucesso**:
+```typescript
+describe('Salvamento com Sucesso', () => {
+  it('deve salvar e exibir mensagem', () => {
+    component.form.patchValue({ nome: 'Test', codigo: '001' });
+
+    service.save.mockImplementation(
+      (_data: DTO, callbacks: ExecutionCallbacks<DTO>) => {
+        if (callbacks.onSuccess) {
+          callbacks.onSuccess({ id: 'test-id' } as DTO);
+        }
+      }
+    );
+
+    const backEventSpy = jest.fn();
+    component.backEvent.subscribe(backEventSpy);
+
+    component.salvar();
+
+    expect(service.save).toHaveBeenCalled();
+    expect(messageService.sucesso).toHaveBeenCalled();
+    expect(backEventSpy).toHaveBeenCalled();
+  });
+});
+```
+
+**Priorização de testes** (ordem de importância):
+
+1. 🔴 **ALTA - Componentes de Detalhe** (OBRIGATÓRIO)
+   - Testes de validação (campos obrigatórios, regras de negócio)
+   - Testes de salvamento (sucesso e erro)
+   - Testes de mensagens do backend
+   - **Por quê**: Contém lógica crítica de validação e integração com backend
+
+2. 🟡 **MÉDIA - Serviços**
+   - Conversão de DTOs com `plainToInstance`
+   - Métodos customizados (não herdados de BaseService)
+   - **Por quê**: Garante transformações corretas de dados
+
+3. 🟢 **BAIXA - Componentes de Grid** (OPCIONAL - apenas se houver lógica customizada)
+   - Inicialização do componente
+   - Configuração de colunas
+   - **Apenas testar se**: Grid tem lógica customizada complexa, filtros especiais, ou cálculos
+   - **Não testar**: Renderização, estilos, formatação (usar testes manuais)
+   - **Por quê**: Grid é principalmente apresentação, delegada a componentes reutilizáveis já testados
+
+4. ⚪ **MUITO BAIXA - Componente Principal** (SKIP)
+   - Componente orquestrador que alterna entre Grid/Detalhe
+   - **Por quê**: Lógica trivial, melhor coberta por testes E2E
+
+**Exemplo de teste minimalista para Grid** (se necessário):
+```typescript
+describe('TituloGridComponent', () => {
+  // Setup básico...
+
+  it('deve criar o componente', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('deve inicializar colunas corretas', () => {
+    component.ngOnInit();
+    expect(component.columns.length).toBeGreaterThan(0);
+    expect(component.columns.some(c => c.field === 'descricao')).toBe(true);
+  });
+
+  it('deve atualizar página ao paginar', () => {
+    service.list.mockReturnValue(of({ body: { content: [], totalElements: 0 } } as any));
+    component.onPageChange({ page: 1, rows: 10 });
+    expect(component.pageRequest.page).toBe(1);
+  });
+
+  // Apenas isso é suficiente para Grid!
+}
+```
+
+**Decisão rápida**: Componente tem validações ou salva dados? **Teste!** Apenas exibe dados? **Opcional.**
+
 ## 📋 DOMAIN-DRIVEN DESIGN (DDD)
 
 ### Princípios:
@@ -1091,7 +1299,9 @@ CREATE TABLE pessoa (
 ```bash
 npm install                 # Instalar dependências
 ng serve                    # Executar aplicação
-ng test                     # Rodar testes
+npm test                    # Rodar testes (Jest)
+npm run test:watch          # Rodar testes em modo watch
+npm run test:coverage       # Rodar testes com cobertura
 ng lint                     # Verificar código
 ng lint -- --fix            # Corrigir erros automaticamente
 ng build                    # Build de produção

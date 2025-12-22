@@ -238,7 +238,9 @@ this.service.save(dto, {
 - Adicione `trans-unit` em `src/frontend/src/app/locale/messages.xlf` (pt-BR) e `messages.en.xlf` (en-US)
 - Inclua chaves de validação do backend (ex.: `{{entity}}.{{field}}.notBlank`)
 
-### Testes (Backend)
+### Testes
+
+#### Backend (Java)
 
 - **NÃO use valores determinísticos** para campos `codigo`
 - Use geração runtime: `"test-" + System.nanoTime()` ou `UUID.randomUUID().toString().substring(0, 12)`
@@ -246,6 +248,123 @@ this.service.save(dto, {
 - **Testes unitários**: use `UUID` concreto para IDs, mocqueie `findById()` para entidades referenciadas
 - Estenda `AbstractIntegrationTest` quando disponível
 - Use AssertJ (`assertThat(...)`) para asserções
+
+#### Frontend (Jest)
+
+**Configuração**:
+- Framework: Jest com `jest-preset-angular`
+- Arquivo de setup: `setup-jest.ts` (polyfills e mocks globais)
+- Comando: `npm test` ou `npm run test:watch`
+
+**Estrutura de Testes**:
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
+
+describe('{{Entity}}DetalheComponent', () => {
+  let component: {{Entity}}DetalheComponent;
+  let fixture: ComponentFixture<{{Entity}}DetalheComponent>;
+  let service: jest.Mocked<{{Entity}}Service>;
+  let messageService: jest.Mocked<MessageService>;
+
+  beforeEach(async () => {
+    const serviceMock = {
+      findById: jest.fn(),
+      save: jest.fn(),
+      // outros métodos mockados
+    };
+
+    const messageServiceMock = {
+      sucesso: jest.fn(),
+      erro: jest.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [{{Entity}}DetalheComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: MessageService, useValue: messageServiceMock },
+      ],
+    })
+    .overrideComponent({{Entity}}DetalheComponent, {
+      set: {
+        providers: [{ provide: {{Entity}}Service, useValue: serviceMock }]
+      }
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent({{Entity}}DetalheComponent);
+    component = fixture.componentInstance;
+    service = fixture.debugElement.injector.get({{Entity}}Service) as jest.Mocked<{{Entity}}Service>;
+    messageService = TestBed.inject(MessageService) as jest.Mocked<MessageService>;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+});
+```
+
+**O que testar**:
+
+1. **Inicialização**: Criação do componente, formulário, toolbar
+2. **Carregamento de dados**: Comboboxes, autocomplete, findById
+3. **Validações**: Mensagens de erro quando campos obrigatórios vazios
+4. **Salvamento**:
+   - Sucesso: verificar dados enviados, mensagem de sucesso, navegação
+   - Erro: verificar mensagens de validação exibidas
+5. **Interações**: Filtros, seleção de itens, mudanças de valores
+
+**Exemplo de testes de validação**:
+```typescript
+describe('Validações ao Salvar', () => {
+  it('NÃO deve salvar se campo obrigatório está vazio', () => {
+    component.form.patchValue({ nome: '' });
+    component.salvar();
+
+    expect(messageService.erro).toHaveBeenCalled();
+    const callArgs = messageService.erro.mock.calls[0][0];
+    expect(callArgs).toContain('obrigatório');
+    expect(service.save).not.toHaveBeenCalled();
+  });
+});
+```
+
+**Exemplo de teste de sucesso**:
+```typescript
+describe('Salvamento com Sucesso', () => {
+  it('deve salvar e exibir mensagem', () => {
+    component.form.patchValue({ nome: 'Test', codigo: '001' });
+
+    service.save.mockImplementation(
+      (_data: {{Entity}}DTO, callbacks: ExecutionCallbacks<{{Entity}}DTO>) => {
+        if (callbacks.onSuccess) {
+          callbacks.onSuccess({ id: 'test-id' } as {{Entity}}DTO);
+        }
+      }
+    );
+
+    component.salvar();
+
+    expect(service.save).toHaveBeenCalled();
+    expect(messageService.sucesso).toHaveBeenCalled();
+  });
+});
+```
+
+**Mocking de serviços com component-level providers**:
+- Use `.overrideComponent()` para substituir providers declarados no componente
+- Isso é necessário quando o serviço está em `providers: [...]` do `@Component`
+
+**Boas práticas**:
+- Use `jest.clearAllMocks()` no `afterEach` para evitar interferência entre testes
+- Verifique chamadas de métodos com `toHaveBeenCalled()` e `toHaveBeenCalledWith()`
+- Para verificar conteúdo de strings, use `.toContain()` em vez de matchers complexos
+- Para objetos aninhados, use verificação condicional (`if (obj.prop)`) para evitar erros de undefined
+- Nomeie testes descritivamente: "deve...", "NÃO deve..."
 
 ---
 
@@ -731,9 +850,11 @@ Adicione em `src/frontend/src/app/locale/messages.xlf` e `messages.en.xlf`:
 </trans-unit>
 ```
 
-## 5. TESTES (Backend)
+## 5. TESTES
 
-### Repository Test
+### Backend (Java)
+
+#### Repository Test
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers
@@ -762,7 +883,7 @@ public class {{EntityName}}RepositoryTest extends AbstractIntegrationTest {
 }
 ```
 
-### Service Test
+#### Service Test
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers
@@ -787,6 +908,156 @@ public class {{EntityName}}ServiceTest extends AbstractIntegrationTest {
     }
 }
 ```
+
+### Frontend (Jest)
+
+#### Componente Detalhe Test
+**Arquivo**: `src/frontend/src/app/components/{{domain}}/{{entity}}/{{entity}}-detalhe/{{entity}}-detalhe.component.spec.ts`
+
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { {{Entity}}DetalheComponent } from './{{entity}}-detalhe.component';
+import { {{Entity}}Service } from '../{{entity}}.service';
+import { MessageService } from '../../../base/messages/messages.service';
+import { AuthService } from '../../../base/auth/auth-service';
+import { of } from 'rxjs';
+import { RouteConstants } from '../../../base/constants/route-constants';
+import { {{Entity}}DTO } from '../model/{{entity}}-dto';
+import { ExecutionCallbacks } from '../../../base/base-service';
+
+describe('{{Entity}}DetalheComponent', () => {
+  let component: {{Entity}}DetalheComponent;
+  let fixture: ComponentFixture<{{Entity}}DetalheComponent>;
+  let service: jest.Mocked<{{Entity}}Service>;
+  let messageService: jest.Mocked<MessageService>;
+  let authService: jest.Mocked<AuthService>;
+
+  beforeEach(async () => {
+    const serviceMock = {
+      findById: jest.fn(),
+      save: jest.fn(),
+    };
+
+    const messageServiceMock = {
+      sucesso: jest.fn(),
+      erro: jest.fn(),
+    };
+
+    const authServiceMock = {
+      hasAuthorityEditarToModulo: jest.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [{{Entity}}DetalheComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: MessageService, useValue: messageServiceMock },
+        { provide: AuthService, useValue: authServiceMock },
+      ],
+    })
+    .overrideComponent({{Entity}}DetalheComponent, {
+      set: {
+        providers: [{ provide: {{Entity}}Service, useValue: serviceMock }]
+      }
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent({{Entity}}DetalheComponent);
+    component = fixture.componentInstance;
+    service = fixture.debugElement.injector.get({{Entity}}Service) as jest.Mocked<{{Entity}}Service>;
+    messageService = TestBed.inject(MessageService) as jest.Mocked<MessageService>;
+    authService = TestBed.inject(AuthService) as jest.Mocked<AuthService>;
+
+    authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Inicialização', () => {
+    it('deve criar o componente', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('deve inicializar formulário com campos', () => {
+      component.id = RouteConstants.P_ADD;
+      component.ngOnInit();
+
+      expect(component.form.get('nome')).toBeTruthy();
+      expect(component.form.get('codigo')).toBeTruthy();
+    });
+  });
+
+  describe('Validações ao Salvar', () => {
+    beforeEach(() => {
+      component.id = RouteConstants.P_ADD;
+      component.ngOnInit();
+    });
+
+    it('NÃO deve salvar se nome está vazio', () => {
+      component.form.patchValue({ nome: '', codigo: '001' });
+      component.salvar();
+
+      expect(messageService.erro).toHaveBeenCalled();
+      const callArgs = messageService.erro.mock.calls[0][0];
+      expect(callArgs).toContain('nome');
+      expect(service.save).not.toHaveBeenCalled();
+    });
+
+    it('NÃO deve salvar se codigo está vazio', () => {
+      component.form.patchValue({ nome: 'Test', codigo: '' });
+      component.salvar();
+
+      expect(messageService.erro).toHaveBeenCalled();
+      const callArgs = messageService.erro.mock.calls[0][0];
+      expect(callArgs).toContain('codigo');
+      expect(service.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Salvamento com Sucesso', () => {
+    beforeEach(() => {
+      component.id = RouteConstants.P_ADD;
+      component.ngOnInit();
+    });
+
+    it('deve salvar com sucesso e exibir mensagem', () => {
+      component.form.patchValue({ nome: 'Test Nome', codigo: '001' });
+
+      service.save.mockImplementation(
+        (_data: {{Entity}}DTO, callbacks: ExecutionCallbacks<{{Entity}}DTO>) => {
+          if (callbacks.onSuccess) {
+            callbacks.onSuccess({ id: 'test-id', nome: 'Test Nome', codigo: '001' } as {{Entity}}DTO);
+          }
+        }
+      );
+
+      const backEventSpy = jest.fn();
+      component.backEvent.subscribe(backEventSpy);
+
+      component.salvar();
+
+      expect(service.save).toHaveBeenCalled();
+      const callArgs = service.save.mock.calls[0][0];
+      expect(callArgs.nome).toBe('Test Nome');
+      expect(callArgs.codigo).toBe('001');
+      expect(messageService.sucesso).toHaveBeenCalled();
+      expect(backEventSpy).toHaveBeenCalled();
+    });
+  });
+});
+```
+
+**IMPORTANTE**:
+- Crie arquivo `{{entity}}-detalhe.component.spec.ts` para cada componente detalhe
+- Teste inicialização, validações e salvamento
+- Use `.overrideComponent()` para mockar serviços component-level
+- Verifique mensagens de erro e sucesso
+- Teste navegação de volta após salvar
 
 ## 6. OUTPUT FORMAT
 
@@ -888,10 +1159,20 @@ Antes de usar o código gerado, verifique:
 - [ ] Trans-units de validação em en-US (messages.en.xlf)
 - [ ] **Mensagens de constraints incluídas** (ex: `.unique`, `.foreignKey`)
 
-### Testes
+### Testes Backend
 - [ ] Valores únicos em runtime (não determinísticos)
 - [ ] Repository test implementado
 - [ ] Service test implementado
+
+### Testes Frontend (Jest)
+- [ ] Arquivo `{{entity}}-detalhe.component.spec.ts` criado
+- [ ] Testes de inicialização implementados
+- [ ] Testes de validação (campos obrigatórios) implementados
+- [ ] Testes de salvamento com sucesso implementados
+- [ ] Mocks configurados corretamente (service, messageService, authService)
+- [ ] Usa `.overrideComponent()` para mockar component-level providers
+- [ ] Testes verificam mensagens de erro e sucesso
+- [ ] Testes verificam navegação após salvar
 
 ### Configuração
 - [ ] Pacote entity adicionado a `DataSourceConfig.ENTITY_PACKAGES`
