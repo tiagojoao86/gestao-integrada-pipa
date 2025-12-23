@@ -1654,6 +1654,26 @@
         <source>Nome da categoria é obrigatório.</source>
         <target>Category name is required.</target>
       </trans-unit>
+      <trans-unit id="tituloCategoria.codigo.unique" datatype="html">
+        <source>Este código já está cadastrado.</source>
+        <target>This code is already registered.</target>
+      </trans-unit>
+      <trans-unit id="tituloCategoria.nome.unique" datatype="html">
+        <source>Este nome já está cadastrado.</source>
+        <target>This name is already registered.</target>
+      </trans-unit>
+      <trans-unit id="3678025682538377315" datatype="html">
+        <source>Agrupador</source>
+        <target>Group</target>
+      </trans-unit>
+      <trans-unit id="7900978397543711330" datatype="html">
+        <source>Categoria é obrigatória.</source>
+        <target>Category is required.</target>
+      </trans-unit>
+      <trans-unit id="5923041569817566400" datatype="html">
+        <source>Categoria</source>
+        <target>Category</target>
+      </trans-unit>
       <trans-unit id="centroCusto.nome.notBlank" datatype="html">
         <source>O nome do centro de custo é obrigatório.</source>
         <target>Cost center name is required.</target>
