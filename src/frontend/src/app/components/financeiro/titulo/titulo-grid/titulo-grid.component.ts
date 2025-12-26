@@ -24,6 +24,11 @@ import {
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-titulo-grid',
@@ -32,6 +37,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     TableComponent,
     PaginationComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [TituloService, DatePipe, CurrencyPipe],
   templateUrl: './titulo-grid.component.html',
@@ -46,6 +52,8 @@ export class TituloGridComponent {
   totalElements = 0;
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   titulosList: TituloGridDTO[] = [];
 
@@ -201,6 +209,7 @@ export class TituloGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: TituloGridDTO) =>
           this.openDetailEvent.emit(element.id),
       });
@@ -208,9 +217,23 @@ export class TituloGridComponent {
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: TituloGridDTO) => {
           this.service.delete(element.id).subscribe(() => this.listarTitulos());
         },
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.FINANCEIRO_TITULO
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: TituloGridDTO) => this.loadAuditInfo(element.id),
       });
     }
 
@@ -357,5 +380,21 @@ export class TituloGridComponent {
       de: 'EUR',
     };
     return localeMap[this.locale] || 'USD';
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

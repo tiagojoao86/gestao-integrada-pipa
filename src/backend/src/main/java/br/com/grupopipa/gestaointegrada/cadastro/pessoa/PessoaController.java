@@ -43,4 +43,10 @@ public class PessoaController extends BaseController<PessoaDTO, PessoaGridDTO, P
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

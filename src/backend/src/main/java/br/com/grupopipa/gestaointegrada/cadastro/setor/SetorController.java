@@ -42,4 +42,10 @@ public class SetorController extends BaseController<SetorDTO, SetorGridDTO, Seto
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

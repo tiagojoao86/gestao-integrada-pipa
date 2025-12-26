@@ -15,6 +15,12 @@
   </div>
 
   <div footer-content>
+    @if (showAuditInfo && auditInfoData) {
+    <gi-audit-info
+      [auditData]="auditInfoData"
+      (closeEvent)="closeAuditInfo()"
+    ></gi-audit-info>
+    }
     <gi-pagination-component
       (paginationEvent)="paginate($event)"
       [itemsPerPage]="itensPorPagina"

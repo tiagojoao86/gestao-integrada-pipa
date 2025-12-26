@@ -50,4 +50,10 @@ public class CentroCustoController extends BaseController<CentroCustoDTO, Centro
         return super.delete(id);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
+
 }

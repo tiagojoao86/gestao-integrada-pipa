@@ -51,4 +51,10 @@ public class ContaBancariaController
     public Response listarUnidadesDisponiveis() {
         return ok(service.listarUnidadesDisponiveis());
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CONTA_BANCARIA_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

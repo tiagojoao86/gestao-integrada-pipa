@@ -44,4 +44,10 @@ public class TituloCategoriaController
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_CATEGORIA_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

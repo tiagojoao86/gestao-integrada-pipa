@@ -72,4 +72,10 @@ public class MovimentacaoFinanceiraController extends
         List<TituloDTO> results = tituloService.searchByQuery(q, size);
         return Response.ok(results);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_MOVIMENTACAO_FINANCEIRA_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

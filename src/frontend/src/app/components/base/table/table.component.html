@@ -27,7 +27,7 @@
       <td>
         <div class="actions">
           @for (action of actions; track action) {
-          <p-button (click)="action.action(rowData)">
+          <p-button (click)="action.action(rowData)" title="{{ action.title }}">
             <span
               [class]="
                 (action.iconType || 'material-symbols-outlined') + ' table-icon'

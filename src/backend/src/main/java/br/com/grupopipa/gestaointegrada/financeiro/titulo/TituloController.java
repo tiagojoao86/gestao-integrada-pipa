@@ -68,4 +68,10 @@ public class TituloController extends BaseController<TituloDTO, TituloGridDTO, T
     public Response listarPlanosDisponiveis(@RequestParam("unidadeNegocioId") UUID unidadeNegocioId) {
         return ok(service.listarPlanosDisponiveis(unidadeNegocioId));
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

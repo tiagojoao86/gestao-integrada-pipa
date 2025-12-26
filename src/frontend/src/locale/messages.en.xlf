@@ -1779,6 +1779,86 @@
           <context context-type="linenumber">202,207</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="7515068714621906655" datatype="html">
+        <source>Mostrar excluídos</source>
+        <target>Show deleted</target>
+      </trans-unit>
+      <trans-unit id="4898629835195186485" datatype="html">
+        <source>Ocultar excluídos</source>
+        <target>Hide deleted</target>
+      </trans-unit>
+      <trans-unit id="4553559698915099198" datatype="html">
+        <source>Auditoria</source>
+        <target>Audit</target>
+      </trans-unit>
+      <trans-unit id="1311882655097951876" datatype="html">
+        <source>Fechar informações de auditoria</source>
+        <target>Close audit information</target>
+      </trans-unit>
+      <trans-unit id="1111094686421396910" datatype="html">
+        <source>Informações de Auditoria</source>
+        <target>Audit Information</target>
+      </trans-unit>
+      <trans-unit id="5975818176041622578" datatype="html">
+        <source>Criação</source>
+        <target>Creation</target>
+      </trans-unit>
+      <trans-unit id="6445146164321060891" datatype="html">
+        <source>Criado por:</source>
+        <target>Created by:</target>
+      </trans-unit>
+      <trans-unit id="8093727180977988113" datatype="html">
+        <source>Data de criação:</source>
+        <target>Creation date:</target>
+      </trans-unit>
+      <trans-unit id="1244353593874306133" datatype="html">
+        <source>Última Atualização</source>
+        <target>Last Update</target>
+      </trans-unit>
+      <trans-unit id="6544643847151352250" datatype="html">
+        <source>Atualizado por:</source>
+        <target>Updated by:</target>
+      </trans-unit>
+      <trans-unit id="4590902498859528356" datatype="html">
+        <source>Data de atualização:</source>
+        <target>Update date:</target>
+      </trans-unit>
+      <trans-unit id="6579818952552017712" datatype="html">
+        <source>Exclusão</source>
+        <target>Deletion</target>
+      </trans-unit>
+      <trans-unit id="7301644016260403116" datatype="html">
+        <source>Excluído por:</source>
+        <target>Deleted by:</target>
+      </trans-unit>
+      <trans-unit id="7516916252224225024" datatype="html">
+        <source>Data de exclusão:</source>
+        <target>Deletion date:</target>
+      </trans-unit>
+      <trans-unit id="errors.resourceNotFound" datatype="html">
+        <source>Recurso não encontrado.</source>
+        <target>Resource not found.</target>
+      </trans-unit>
+      <trans-unit id="errors.invalidData" datatype="html">
+        <source>Dados inválidos.</source>
+        <target>Invalid data.</target>
+      </trans-unit>
+      <trans-unit id="errors.internalServerError" datatype="html">
+        <source>Erro interno do servidor.</source>
+        <target>Internal server error.</target>
+      </trans-unit>
+      <trans-unit id="errors.badCredential" datatype="html">
+        <source>Credenciais inválidas.</source>
+        <target>Invalid credentials.</target>
+      </trans-unit>
+      <trans-unit id="errors.notAuthorized" datatype="html">
+        <source>Você não tem permissão para realizar esta ação.</source>
+        <target>You are not authorized to perform this action.</target>
+      </trans-unit>
+      <trans-unit id="errors.deletedEntity" datatype="html">
+        <source>Não é possível alterar um registro que foi excluído.</source>
+        <target>Cannot modify a record that has been deleted.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

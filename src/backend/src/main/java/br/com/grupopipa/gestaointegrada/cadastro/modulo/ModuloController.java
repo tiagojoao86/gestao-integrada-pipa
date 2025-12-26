@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,6 +70,12 @@ public class ModuloController extends BaseController<ModuloDTO, ModuloGridDTO, M
     @PreAuthorize("hasAuthority('CADASTRO_PERFIL_VISUALIZAR')")
     public Response findById(@RequestParam(F_ID) UUID id) {
         return super.findById(id);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_MODULO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
     }
 
 }
