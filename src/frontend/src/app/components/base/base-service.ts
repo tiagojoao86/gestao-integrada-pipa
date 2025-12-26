@@ -17,6 +17,7 @@ import {
 import { HttpConstants } from './constants/http-constants';
 import { MessageService } from './messages/messages.service';
 import { AbstractBackendMessageService } from './services/backend-messsages/abstract-backend-message.service';
+import { AuditInfoData } from './audit-info/audit-info.component';
 
 export interface ExecutionCallbacks<T> {
   onSuccess: (data: T) => void;
@@ -137,6 +138,12 @@ export abstract class BaseService<D, G = D> {
       .delete<ResponseString>(this.getUrl('/' + id), {
         headers: this.getHeaders(),
       })
+      .pipe(take(1));
+  }
+
+  getAuditInfo(id: string): Observable<Response<AuditInfoData>> {
+    return this.httpClient
+      .get<Response<AuditInfoData>>(this.getUrl(`/${id}/audit-info`))
       .pipe(take(1));
   }
 

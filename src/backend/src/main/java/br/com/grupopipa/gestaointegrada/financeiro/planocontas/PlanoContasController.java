@@ -50,4 +50,10 @@ public class PlanoContasController extends BaseController<PlanoContasDTO, PlanoC
     public Response listarUnidadesDisponiveis() {
         return ok(service.listarUnidadesDisponiveis());
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_PLANO_CONTAS_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

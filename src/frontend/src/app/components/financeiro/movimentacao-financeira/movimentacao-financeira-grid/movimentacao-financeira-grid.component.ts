@@ -26,6 +26,11 @@ import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { ActionModel } from '../../../base/table/action.model';
 import { ColumnModel } from '../../../base/table/column.model';
 import { FormsModule } from '@angular/forms';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-movimentacao-financeira-grid',
@@ -37,6 +42,7 @@ import { FormsModule } from '@angular/forms';
     PaginationComponent,
     FilterComponent,
     FormsModule,
+    AuditInfoComponent,
   ],
   providers: [MovimentacaoFinanceiraService, DatePipe, CurrencyPipe],
 })
@@ -49,6 +55,8 @@ export class MovimentacaoFinanceiraGridComponent {
   filtros: FilterProperty[] = [];
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
   totalElements = 0;
   toolbarActions: ToolbarActionModel[] = [];
   tableActions: ActionModel<MovimentacaoFinanceiraGridDTO>[] = [];
@@ -122,6 +130,7 @@ export class MovimentacaoFinanceiraGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: MovimentacaoFinanceiraGridDTO) =>
           this.selecionar.emit(element.id),
       });
@@ -129,10 +138,24 @@ export class MovimentacaoFinanceiraGridComponent {
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: MovimentacaoFinanceiraGridDTO) =>
           this.service
             .delete(element.id)
             .subscribe(() => this.listarMovimentacoes()),
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      'FINANCEIRO_MOVIMENTACAO'
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: MovimentacaoFinanceiraGridDTO) => this.loadAuditInfo(element.id),
       });
     }
 
@@ -261,5 +284,21 @@ export class MovimentacaoFinanceiraGridComponent {
 
   selecionarMovimentacao(id: string) {
     this.selecionar.emit(id);
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

@@ -254,6 +254,118 @@ showError(key: string) {
 // Frontend displays: "Login já cadastrado" (pt-BR) or "Login already exists" (en-US)
 ```
 
+### Audit Trail System
+
+**All entities automatically track creation, modification, and soft deletion metadata through BaseEntity.**
+
+#### Backend Audit Fields (Automatic via CustomAuditingEntityListener)
+
+BaseEntity provides:
+- `createdBy`, `createdAt` - Set on entity creation
+- `updatedBy`, `updatedAt` - Updated on modifications (NOT on soft delete)
+- `deletedBy`, `deletedAt`, `deleted` - Set on soft delete
+
+**IMPORTANT:** Soft delete does NOT update `updatedBy`/`updatedAt` - these preserve the last real modification.
+
+```java
+// CustomAuditingEntityListener handles audit fields
+@PrePersist
+public void touchForCreate(Object target) {
+    // Sets createdBy, createdAt, updatedBy, updatedAt
+}
+
+@PreUpdate
+public void touchForUpdate(Object target) {
+    if (entity.getDeleted() == true) {
+        // SKIP updating updatedBy/updatedAt on soft delete
+        return;
+    }
+    // Update updatedBy/updatedAt only on real modifications
+}
+```
+
+#### Controller Audit Endpoint (MANDATORY for all Controllers)
+
+**ALL Controllers MUST override `getAuditInfo()` with permission check:**
+
+```java
+@RestController
+@RequestMapping("/my-entity")
+public class MyEntityController extends BaseController<MyDTO, MyGridDTO, MyService> {
+
+    @Override
+    @PreAuthorize("hasAuthority('MODULE_ENTITY_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
+}
+```
+
+#### Frontend Audit Component (MANDATORY for all Grid Components)
+
+**ALL Grid components MUST implement audit visualization:**
+
+1. **Imports:**
+```typescript
+import { AuditInfoComponent, AuditInfoData } from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
+```
+
+2. **Add to @Component imports:**
+```typescript
+@Component({
+  imports: [AuditInfoComponent, /* other imports */]
+})
+```
+
+3. **Properties:**
+```typescript
+showAuditInfo = false;
+auditInfoData: AuditInfoData | null = null;
+```
+
+4. **Table action button (conditional on permission):**
+```typescript
+const canAudit = this.authService.hasPermission('MODULE_ENTITY_AUDITAR');
+if (canAudit) {
+  this.tableActions.push({
+    icon: 'eye_tracking',
+    iconType: 'material-symbols-outlined',
+    title: 'Visualizar auditoria',
+    action: (element: MyGridDTO) => this.loadAuditInfo(element.id),
+  });
+}
+```
+
+5. **Methods:**
+```typescript
+loadAuditInfo(id: string) {
+  this.service.getAuditInfo(id).subscribe((response: Response<AuditInfoData>) => {
+    if (response.body) {
+      this.auditInfoData = response.body;
+      this.showAuditInfo = true;
+    }
+  });
+}
+
+closeAuditInfo() {
+  this.showAuditInfo = false;
+  this.auditInfoData = null;
+}
+```
+
+6. **Template (in footer-content, BEFORE pagination):**
+```html
+<div footer-content>
+  @if (showAuditInfo && auditInfoData) {
+    <gi-audit-info [auditData]="auditInfoData" (closeEvent)="closeAuditInfo()"></gi-audit-info>
+  }
+  <gi-pagination-component ...></gi-pagination-component>
+</div>
+```
+
+**NOTE:** `getAuditInfo()` method is already available in `BaseService` - NO need to implement in entity services.
+
 ### Angular Best Practices
 
 - **Componentization:** Extract repeating patterns into reusable components

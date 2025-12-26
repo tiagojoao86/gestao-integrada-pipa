@@ -51,4 +51,10 @@ public class PerfilController extends BaseController<PerfilDTO, PerfilGridDTO, P
         return super.delete(id);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PERFIL_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
+
 }

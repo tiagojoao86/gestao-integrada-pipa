@@ -20,6 +20,11 @@ import {
 import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import { DatePipe } from '@angular/common';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-unidade-negocio-grid',
@@ -28,6 +33,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     PaginationComponent,
     TableComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [UnidadeNegocioService, DatePipe],
   templateUrl: './unidade-negocio-grid.component.html',
@@ -42,6 +48,8 @@ export class UnidadeNegocioGridComponent {
   totalElements = 0;
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   unidadesList: UnidadeNegocioGridDTO[] = [];
 
@@ -135,6 +143,7 @@ export class UnidadeNegocioGridComponent {
           this.openDetail(element.id);
         },
         icon: 'edit_note',
+        title: $localize`Editar`,
       });
     }
 
@@ -154,6 +163,20 @@ export class UnidadeNegocioGridComponent {
           this.excluir(element);
         },
         icon: 'delete',
+        title: $localize`Excluir`,
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: UnidadeNegocioGridDTO) => this.loadAuditInfo(element.id),
       });
     }
 
@@ -262,5 +285,21 @@ export class UnidadeNegocioGridComponent {
 
   refreshList() {
     this.listarUnidades();
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

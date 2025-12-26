@@ -121,12 +121,14 @@ export class UsuarioGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: UsuarioGridDTO) => this.openDetail.emit(element.id),
       });
     }
     if (canAudit) {
       this.tableActions.push({
         icon: 'eye_tracking',
+        title: $localize`Auditoria`,
         iconType: 'material-symbols-outlined',
         action: (element: UsuarioGridDTO) => this.loadAuditInfo(element.id),
       });
@@ -134,6 +136,7 @@ export class UsuarioGridComponent {
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: UsuarioGridDTO) => {
           this.service
             .delete(element.id)

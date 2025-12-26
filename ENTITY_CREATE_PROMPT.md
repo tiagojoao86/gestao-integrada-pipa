@@ -598,6 +598,12 @@ public class {{EntityName}}Controller extends
     public ResponseEntity<ResponseString> delete(@PathVariable UUID id) {
         return super.delete(id);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('{{MODULE}}_{{ENTITY_UPPER}}_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }
 ```
 
@@ -651,6 +657,7 @@ SELECT gen_random_uuid(), '{{MODULE}}_{{ENTITY_UPPER}}', '{{EntityDescription}}'
 WHERE NOT EXISTS (SELECT 1 FROM modulo WHERE chave = '{{MODULE}}_{{ENTITY_UPPER}}');
 
 -- Vincular ao perfil Administrador Geral (idempotente)
+-- IMPORTANTE: pode_auditar = TRUE permite visualizar informações de auditoria
 INSERT INTO perfil_modulo (
     id, perfil_id, modulo_id,
     pode_listar, pode_visualizar, pode_editar, pode_deletar, pode_auditar,
@@ -660,7 +667,7 @@ SELECT
     gen_random_uuid(),
     p.id,
     m.id,
-    TRUE, TRUE, TRUE, TRUE, TRUE, -- pode_auditar = TRUE para admin
+    TRUE, TRUE, TRUE, TRUE, TRUE, -- pode_auditar = TRUE para Administrador Geral
     CURRENT_TIMESTAMP,
     'migration'
 FROM perfil p
@@ -849,6 +856,91 @@ Siga o padrão dos componentes existentes:
 - Grid: `gi-app-base`, `gi-filter-component`, `gi-table-component`, `gi-pagination-component`
 - Detalhe: `gi-app-base` com `[actions]`, ReactiveForm
 - Principal: ViewMode (GRID/DETAIL), orquestra grid e detalhe
+
+#### Funcionalidade de Auditoria (OBRIGATÓRIA em Grid)
+
+Todos os componentes `-grid.component` DEVEM implementar visualização de auditoria:
+
+**1. Imports no TypeScript:**
+```typescript
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
+```
+
+**2. Adicionar no array imports do @Component:**
+```typescript
+@Component({
+  imports: [
+    // ... outros imports
+    AuditInfoComponent,
+  ],
+})
+```
+
+**3. Propriedades da classe:**
+```typescript
+showAuditInfo = false;
+auditInfoData: AuditInfoData | null = null;
+```
+
+**4. Botão de auditoria no tableActions (dentro do ngOnInit ou método de configuração):**
+```typescript
+const canAudit = this.authService.hasPermission('{{MODULE}}_{{ENTITY_UPPER}}_AUDITAR');
+
+if (canAudit) {
+  this.tableActions.push({
+    icon: 'eye_tracking',
+    iconType: 'material-symbols-outlined',
+    title: 'Visualizar auditoria',
+    action: (element: {{Entity}}GridDTO) => this.loadAuditInfo(element.id),
+  });
+}
+```
+
+**5. Métodos de auditoria:**
+```typescript
+loadAuditInfo(id: string) {
+  this.service
+    .getAuditInfo(id)
+    .subscribe((response: Response<AuditInfoData>) => {
+      if (response.body) {
+        this.auditInfoData = response.body;
+        this.showAuditInfo = true;
+      }
+    });
+}
+
+closeAuditInfo() {
+  this.showAuditInfo = false;
+  this.auditInfoData = null;
+}
+```
+
+**6. Template HTML (dentro do <div footer-content>, ANTES da paginação):**
+```html
+<div footer-content>
+  @if (showAuditInfo && auditInfoData) {
+  <gi-audit-info
+    [auditData]="auditInfoData"
+    (closeEvent)="closeAuditInfo()"
+  ></gi-audit-info>
+  }
+
+  <gi-pagination-component
+    [itemsPerPage]="itemsPerPage"
+    [totalElements]="totalElements"
+    (paginationEvent)="onPaginate($event)"
+  ></gi-pagination-component>
+</div>
+```
+
+**IMPORTANTE**:
+- O método `getAuditInfo` já está disponível no `BaseService` - NÃO é necessário implementá-lo
+- A permissão `AUDITAR` deve ser criada na migration junto com as outras permissões
+- O componente `gi-audit-info` exibe informações de criação, atualização e exclusão em 3 colunas
 
 ## 4. i18n
 
@@ -1152,12 +1244,14 @@ Antes de usar o código gerado, verifique:
 - [ ] DTOs com Lombok @Builder/@Data
 - [ ] Service estende CrudServiceImpl corretamente
 - [ ] Controller com @PreAuthorize correto
+- [ ] **Método getAuditInfo implementado no Controller com @PreAuthorize('...AUDITAR')**
 
 ### Migrations
 - [ ] Idempotente (IF NOT EXISTS ou DO$$)
 - [ ] Constraints nomeadas (uk_, fk_, ck_)
 - [ ] Módulo inserido na tabela `modulo`
 - [ ] Perfil vinculado em `perfil_modulo`
+- [ ] **pode_auditar = TRUE para Administrador Geral**
 
 ### DatabaseConstraintsEnum ⚠️ CRÍTICO
 - [ ] **TODAS as constraints registradas no enum**
@@ -1171,6 +1265,11 @@ Antes de usar o código gerado, verifique:
 - [ ] Enum com getByKey() para conversão
 - [ ] Backend message service implementado
 - [ ] Mensagens de constraints incluídas no BackendMessageService
+- [ ] **Grid component: imports AuditInfoComponent e AuditInfoData**
+- [ ] **Grid component: propriedades showAuditInfo e auditInfoData**
+- [ ] **Grid component: botão de auditoria no tableActions (condicional)**
+- [ ] **Grid component: métodos loadAuditInfo() e closeAuditInfo()**
+- [ ] **Grid template: gi-audit-info no footer-content**
 
 ### i18n
 - [ ] Trans-units de validação em pt-BR (messages.xlf)

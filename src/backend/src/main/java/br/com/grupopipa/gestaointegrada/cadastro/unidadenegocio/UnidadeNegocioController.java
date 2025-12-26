@@ -44,4 +44,10 @@ public class UnidadeNegocioController
     public Response delete(@PathVariable(F_ID) UUID id) {
         return super.delete(id);
     }
+
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

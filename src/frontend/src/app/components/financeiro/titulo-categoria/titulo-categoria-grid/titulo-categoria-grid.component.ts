@@ -17,6 +17,11 @@ import {
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-titulo-categoria-grid',
@@ -25,6 +30,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     TableComponent,
     PaginationComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [TituloCategoriaService],
   templateUrl: './titulo-categoria-grid.component.html',
@@ -39,6 +45,8 @@ export class TituloCategoriaGridComponent {
   totalElements = 0;
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   lista: TituloCategoriaGridDTO[] = [];
 
@@ -117,6 +125,7 @@ export class TituloCategoriaGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: TituloCategoriaGridDTO) =>
           this.openDetail.emit(element.id!),
       });
@@ -125,9 +134,23 @@ export class TituloCategoriaGridComponent {
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: TituloCategoriaGridDTO) => {
           this.service.delete(element.id!).subscribe(() => this.listar());
         },
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: TituloCategoriaGridDTO) => this.loadAuditInfo(element.id!),
       });
     }
 
@@ -248,5 +271,21 @@ export class TituloCategoriaGridComponent {
 
   refreshList() {
     this.listar();
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

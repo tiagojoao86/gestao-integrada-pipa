@@ -18,6 +18,11 @@ import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-perfil-grid',
@@ -27,6 +32,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     TableComponent,
     PaginationComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [PerfilService, DatePipe],
   templateUrl: './perfil-grid.component.html',
@@ -41,6 +47,8 @@ export class PerfilGridComponent {
   totalElements = 0;
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   perfisList: PerfilGridDTO[] = [];
 
@@ -100,15 +108,30 @@ export class PerfilGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: PerfilGridDTO) => this.openDetail.emit(element.id),
       });
     }
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: PerfilGridDTO) => {
           this.service.delete(element.id).subscribe(() => this.listPerfis());
         },
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.CADASTRO_PERFIL
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: PerfilGridDTO) => this.loadAuditInfo(element.id),
       });
     }
 
@@ -228,5 +251,21 @@ export class PerfilGridComponent {
 
   refreshList() {
     this.listPerfis();
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

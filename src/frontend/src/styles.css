@@ -237,6 +237,33 @@ button.secundario {
   padding-inline: 0.3rem !important;
 }
 
+.p-button-inverted {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+  border-color: var(--secondary-color) !important;
+  font-size: var(--text-size) !important;
+
+  .material-symbols-outlined {
+    color: var(--inverted-text-color) !important;
+  }
+}
+
+.p-button-inverted:hover {
+  color: var(--secondary-color) !important;
+  background-color: var(--background-color) !important;
+  border-color: var(--background-color) !important;
+  border-radius: var(--border-radius);
+
+  .p-button:hover {
+    background-color: var(--background-color) !important;
+    color: var(--secondary-color) !important;
+  }
+
+  .material-symbols-outlined {
+    color: var(--secondary-color) !important;
+  }
+}
+
 .p-button:hover {
   background-color: var(--secondary-color) !important;
   color: var(--inverted-text-color) !important;
@@ -304,8 +331,12 @@ button.secundario {
   background-color: var(--transparent) !important;
 }
 
-.p-datatable-tbody > tr:nth-child(odd) {
+.p-datatable-tbody > tr:nth-child(odd):not(.deleted-row) {
   background-color: var(--item-transparency) !important;
+}
+
+.p-datatable-tbody > tr.deleted-row {
+  background-color: rgba(255, 0, 0, 0.1) !important;
 }
 
 .p-select {
@@ -527,4 +558,12 @@ calendaricon path {
 p-datepicker {
   width: 100%;
   display: inline-grid;
+}
+
+.p-card {
+  background-color: var(--secondary-color) !important;
+}
+
+.p-card-body {
+  padding: 1rem !important;
 }

@@ -1,12 +1,10 @@
-.audit-info-container {
-  padding: 1rem;
-}
-
 .audit-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  font-size: var(--font-size);
+  color: var(--inverted-text-color);
 }
 
 .audit-info-header h3 {
@@ -19,6 +17,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  padding-bottom: 0.5rem;
 }
 
 .audit-column {
@@ -43,14 +42,15 @@
 }
 
 .audit-field label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--font-size);
+  font-weight: normal;
   color: var(--text-color-secondary);
 }
 
 .audit-field span {
-  font-size: 0.95rem;
-  color: var(--text-color);
+  font-size: var(--font-size);
+  color: var(--text-color-secondary);
+  font-weight: normal;
 }
 
 @media (max-width: 768px) {

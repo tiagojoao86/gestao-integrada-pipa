@@ -17,6 +17,11 @@ import {
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-setor-grid',
@@ -25,6 +30,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     TableComponent,
     PaginationComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [SetorService],
   templateUrl: './setor-grid.component.html',
@@ -39,6 +45,8 @@ export class SetorGridComponent {
   totalElements = 0;
   hideFilters = true;
   showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   rows: SetorGridDTO[] = [];
 
@@ -96,6 +104,7 @@ export class SetorGridComponent {
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
+        title: $localize`Editar`,
         action: (element: SetorGridDTO) => this.openDetail.emit(element.id),
       });
     }
@@ -103,9 +112,23 @@ export class SetorGridComponent {
     if (canDelete) {
       this.tableActions.push({
         icon: 'delete',
+        title: $localize`Excluir`,
         action: (element: SetorGridDTO) => {
           this.service.delete(element.id).subscribe(() => this.listarSetores());
         },
+      });
+    }
+
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.CADASTRO_SETOR
+    );
+
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        title: 'Visualizar auditoria',
+        action: (element: SetorGridDTO) => this.loadAuditInfo(element.id),
       });
     }
 
@@ -222,5 +245,21 @@ export class SetorGridComponent {
 
   refreshList() {
     this.listarSetores();
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }
