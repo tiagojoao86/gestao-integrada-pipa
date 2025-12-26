@@ -6,5 +6,6 @@ public final class ErrorKeys {
     public static final String INTERNAL_SERVER_ERROR = "errors.internalServerError";
     public static final String BAD_CREDENTIAL = "errors.badCredential";
     public static final String NOT_AUTHORIZED = "errors.notAuthorized";
+    public static final String DELETED_ENTITY = "errors.deletedEntity";
 
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import br.com.grupopipa.gestaointegrada.core.dto.AuditInfoDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
@@ -61,5 +62,18 @@ public abstract class BaseController<D extends DTO, G extends GridDTO, S extends
     @DeleteMapping(PV_ID)
     public Response delete(@PathVariable(F_ID) UUID id) {
         return ok(service.delete(id));
+    }
+
+    /**
+     * Busca informações de auditoria de uma entidade.
+     * Este método deve ser sobrescrito nos controllers filhos para adicionar verificação de permissão.
+     *
+     * @param id ID da entidade
+     * @return Response com AuditInfoDTO
+     */
+    @GetMapping("/{id}/audit-info")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        AuditInfoDTO auditInfo = service.getAuditInfo(id);
+        return ok(auditInfo);
     }
 }

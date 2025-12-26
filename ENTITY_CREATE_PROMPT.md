@@ -382,11 +382,12 @@ repositório e o valor é o conteúdo (string). NÃO execute comandos no sistema
 
 ### Entidade
 - Pacote: `br.com.grupopipa.gestaointegrada.{domain}.{entityPackage}.entity`
-- Estender `BaseEntity` (fornece UUID id, createdAt, updatedAt, createdBy, updatedBy)
+- Estender `BaseEntity` (fornece UUID id, createdAt, updatedAt, createdBy, updatedBy, deleted, deletedAt, deletedBy)
 - Usar Builder pattern com validação centralizada
 - Método `validate()` privado retornando `ValidatedData`
 - Lançar `BeanValidationException` com `BeanValidationMessage` em violações
 - Value Objects: usar método fábrica `Nome.of(...)`, não `new Nome(...)`
+- **Soft Delete**: BaseEntity já implementa soft delete - NÃO adicionar campos manualmente
 
 ```java
 @Entity
@@ -494,13 +495,16 @@ public class {{EntityName}}DTO {
 
 @Data
 @Builder
-public class {{EntityName}}GridDTO {
+public class {{EntityName}}GridDTO implements GridDTO {
     private UUID id;
     private String nome;
     private String codigo;
+    private Boolean deleted; // OBRIGATÓRIO para soft delete visual
     // Campos para exibição em grid (pode ser subset do DTO)
 }
 ```
+
+**IMPORTANTE**: GridDTO DEVE implementar interface `GridDTO` e incluir campo `deleted` para destaque visual de registros excluídos.
 
 ### Repository
 ```java
@@ -552,7 +556,13 @@ public class {{EntityName}}ServiceImpl extends
             .id(entity.getId())
             .nome(entity.getNome())
             .codigo(entity.getCodigo())
+            .deleted(entity.getDeleted()) // OBRIGATÓRIO para soft delete
             .build();
+    }
+
+    @Override
+    protected List<String> getPropertiesToFilter() {
+        return List.of("nome", "codigo"); // Adicionar campos filtráveis
     }
 }
 ```
@@ -612,12 +622,20 @@ BEGIN
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP,
             created_by VARCHAR(255),
-            updated_by VARCHAR(255)
+            updated_by VARCHAR(255),
+
+            -- Campos de soft delete (BaseEntity) - OBRIGATÓRIOS
+            deleted BOOLEAN NOT NULL DEFAULT FALSE,
+            deleted_at TIMESTAMP,
+            deleted_by VARCHAR(255)
         );
 
         -- Constraints nomeadas
         ALTER TABLE {{table_name}}
             ADD CONSTRAINT uk_{{table_name}}_codigo UNIQUE (codigo);
+
+        -- Índice para soft delete (melhora performance de queries com filtro deleted)
+        CREATE INDEX idx_{{table_name}}_deleted ON {{table_name}} (deleted);
 
         -- Se tiver FK
         -- ALTER TABLE {{table_name}}
@@ -635,14 +653,14 @@ WHERE NOT EXISTS (SELECT 1 FROM modulo WHERE chave = '{{MODULE}}_{{ENTITY_UPPER}
 -- Vincular ao perfil Administrador Geral (idempotente)
 INSERT INTO perfil_modulo (
     id, perfil_id, modulo_id,
-    pode_listar, pode_visualizar, pode_editar, pode_deletar,
+    pode_listar, pode_visualizar, pode_editar, pode_deletar, pode_auditar,
     created_at, created_by
 )
 SELECT
     gen_random_uuid(),
     p.id,
     m.id,
-    TRUE, TRUE, TRUE, TRUE,
+    TRUE, TRUE, TRUE, TRUE, TRUE, -- pode_auditar = TRUE para admin
     CURRENT_TIMESTAMP,
     'migration'
 FROM perfil p

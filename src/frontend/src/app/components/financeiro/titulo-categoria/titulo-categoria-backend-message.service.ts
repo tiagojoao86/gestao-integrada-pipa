@@ -3,7 +3,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
 
 @Injectable({ providedIn: 'root' })
 export class TituloCategoriaBackendMessageService extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'tituloCategoria.nome.notBlank': $localize`:@@tituloCategoria.nome.notBlank:Nome da categoria é obrigatório.`,
       'tituloCategoria.codigo.unique': $localize`:@@tituloCategoria.codigo.unique:Este código já está cadastrado.`,

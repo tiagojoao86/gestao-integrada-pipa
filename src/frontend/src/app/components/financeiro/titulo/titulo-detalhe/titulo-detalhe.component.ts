@@ -31,7 +31,11 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from '../../../base/messages/messages.service';
 import { TituloDTO } from '../model/titulo-dto';
 import { AuthService } from '../../../base/auth/auth-service';
-import { TituloSetorRateioComponent, TituloSetorRateio } from '../titulo-setor-rateio/titulo-setor-rateio.component';
+import {
+  TituloSetorRateioComponent,
+  TituloSetorRateio,
+} from '../titulo-setor-rateio/titulo-setor-rateio.component';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-titulo-detalhe',
@@ -110,7 +114,9 @@ export class TituloDetalheComponent implements OnInit {
       // Intentionally left blank: plano de contas was removed from the UI/model
     });
 
-    const canEdit = this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO');
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.FINANCEIRO_TITULO
+    );
     this.toolbarActions = [
       {
         action: () => {
@@ -180,7 +186,9 @@ export class TituloDetalheComponent implements OnInit {
     this.form.get('status')?.setValue(this.titulo.status);
     this.form.get('numeroDocumento')?.setValue(this.titulo.numeroDocumento);
     this.form.get('descricao')?.setValue(this.titulo.descricao);
-    this.form.get('tituloCategoria')?.setValue(this.titulo.tituloCategoriaId || null);
+    this.form
+      .get('tituloCategoria')
+      ?.setValue(this.titulo.tituloCategoriaId || null);
     this.form.get('valorOriginal')?.setValue(this.titulo.valorOriginal);
     this.form.get('valorDesconto')?.setValue(this.titulo.valorDesconto);
     this.form.get('valorJuros')?.setValue(this.titulo.valorJuros);

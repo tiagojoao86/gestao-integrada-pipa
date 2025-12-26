@@ -3,7 +3,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
 
 @Injectable({ providedIn: 'root' })
 export class CentroCustoBackendMessageService extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'centroCusto.nome.notBlank': $localize`:@@centroCusto.nome.notBlank:O nome do centro de custo é obrigatório.`,
       'centroCusto.nome.maxLength': $localize`:@@centroCusto.nome.maxLength:O nome deve ter no máximo 200 caracteres.`,

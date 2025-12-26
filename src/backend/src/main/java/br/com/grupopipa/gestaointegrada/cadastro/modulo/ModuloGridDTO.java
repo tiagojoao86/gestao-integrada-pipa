@@ -13,4 +13,5 @@ import lombok.Setter;
 public class ModuloGridDTO implements GridDTO {
     private UUID id;
     private String nome;
+    private Boolean deleted;
 }

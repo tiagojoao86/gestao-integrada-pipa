@@ -33,6 +33,7 @@ import { PerfilParaVinculoDTO } from '../../perfil/model/perfil-para-vinculo-dto
 import { UnidadeNegocioDTO } from '../../unidade-negocio/model/unidade-negocio-dto';
 import { UsuarioUnidadeNegocioDTO } from '../model/usuario-unidade-negocio-dto';
 import { AuthService } from '../../../base/auth/auth-service';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-usuario-detalhe',
@@ -83,7 +84,9 @@ export class UsuarioDetalheComponent implements OnInit {
     this.initForm();
 
     // configure actions based on permission
-    const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_USUARIO');
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_USUARIO
+    );
     this.toolbarActions = [
       {
         action: () => {

@@ -20,4 +20,5 @@ public class PlanoContasGridDTO implements GridDTO {
     private String unidadeNegocioCodigo;
     private Boolean ativo;
     private Boolean analitico;
+    private Boolean deleted;
 }

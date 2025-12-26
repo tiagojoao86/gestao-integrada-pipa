@@ -1,40 +1,49 @@
 <div class="component-base">
   @if (!hideToolbar) {
-    <p-toolbar class="toolbar-base">
-      <ng-template #start>
-        <p-button (click)="goBack()">
-          <span class="material-icons">chevron_left</span>
-        </p-button>
-        <div class="titulo">
-          <span>{{ title }}</span>
+  <p-toolbar class="toolbar-base">
+    <ng-template #start>
+      <p-button (click)="goBack()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </p-button>
+      <div class="titulo">
+        <span>{{ title }}</span>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      @for (action of actions; track action) {
+      <div aria-label="Botão ações do usuário">
+        <div
+          class="badge"
+          (click)="action.action()"
+          (keyup.enter)="action.action()"
+          [title]="action.title"
+          tabindex="0"
+        >
+          @if (action.value) {
+          <i pBadge [value]="action.value">
+            <span [class]="action.iconType || 'material-symbols-outlined'">{{
+              action.icon
+            }}</span>
+          </i>
+          } @if (!action.value) {
+          <i>
+            <span [class]="action.iconType || 'material-symbols-outlined'">{{
+              action.icon
+            }}</span>
+          </i>
+          }
         </div>
-      </ng-template>
-      <ng-template #end>
-        @for (action of actions; track action) {
-          <div aria-label="Botão ações do usuário">
-            <div class="badge" (click)="action.action()" (keyup.enter)="action.action()" [title]="action.title" tabindex="0">
-              @if (action.value) {
-                <i pBadge [value]="action.value">
-                  <span class="material-icons">{{ action.icon }}</span>
-                </i>
-              }
-              @if (!action.value) {
-                <i>
-                  <span class="material-icons" >{{ action.icon }}</span>
-                </i>
-              }
-            </div>
-          </div>
-        }
-      </ng-template>
-    </p-toolbar>
+      </div>
+      }
+    </ng-template>
+  </p-toolbar>
   }
   <div class="body-base">
     <ng-content select="[body-content]"></ng-content>
   </div>
   @if (!hideFooter) {
-    <div class="footer-base">
-      <ng-content select="[footer-content]"></ng-content>
-    </div>
+  <div class="footer-base">
+    <ng-content select="[footer-content]"></ng-content>
+  </div>
   }
 </div>

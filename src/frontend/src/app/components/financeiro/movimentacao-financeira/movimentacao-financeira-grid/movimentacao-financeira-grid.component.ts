@@ -25,7 +25,7 @@ import { PaginationEvent } from '../../../base/pagination/pagination-event.model
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { ActionModel } from '../../../base/table/action.model';
 import { ColumnModel } from '../../../base/table/column.model';
-import { FormsModule } from "@angular/forms";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'gi-movimentacao-financeira-grid',
@@ -36,8 +36,8 @@ import { FormsModule } from "@angular/forms";
     TableComponent,
     PaginationComponent,
     FilterComponent,
-    FormsModule
-],
+    FormsModule,
+  ],
   providers: [MovimentacaoFinanceiraService, DatePipe, CurrencyPipe],
 })
 export class MovimentacaoFinanceiraGridComponent {
@@ -48,6 +48,7 @@ export class MovimentacaoFinanceiraGridComponent {
 
   filtros: FilterProperty[] = [];
   hideFilters = true;
+  showDeleted = false;
   totalElements = 0;
   toolbarActions: ToolbarActionModel[] = [];
   tableActions: ActionModel<MovimentacaoFinanceiraGridDTO>[] = [];
@@ -161,6 +162,17 @@ export class MovimentacaoFinanceiraGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (this.auth.hasAuthorityAuditarToModulo('FINANCEIRO_MOVIMENTACAO')) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     // definir filtros básicos
     this.filtros = [
       {
@@ -200,6 +212,7 @@ export class MovimentacaoFinanceiraGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarMovimentacoes();
     this.updateFilterBadge(filter);
   }
@@ -221,6 +234,25 @@ export class MovimentacaoFinanceiraGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarMovimentacoes();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

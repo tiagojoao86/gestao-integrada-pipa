@@ -17,5 +17,6 @@ public class PerfilModuloDTO {
     private boolean podeVisualizar;
     private boolean podeEditar;
     private boolean podeDeletar;
+    private boolean podeAuditar;
 
 }

@@ -16,4 +16,5 @@ public class UnidadeNegocioGridDTO implements GridDTO {
     private String nome;
     private String cnpj;
     private Boolean ativa;
+    private Boolean deleted;
 }

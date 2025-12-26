@@ -19,6 +19,7 @@ import {
 } from '../../../base/filter/filter.component';
 import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import { DatePipe } from '@angular/common';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-unidade-negocio-grid',
@@ -40,6 +41,7 @@ export class UnidadeNegocioGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   unidadesList: UnidadeNegocioGridDTO[] = [];
 
@@ -118,13 +120,13 @@ export class UnidadeNegocioGridComponent {
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
-      'CADASTRO_UNIDADE_NEGOCIO'
+      SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
     );
     const canDelete = this.auth.hasAuthorityDeletarToModulo(
-      'CADASTRO_UNIDADE_NEGOCIO'
+      SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
     );
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'CADASTRO_UNIDADE_NEGOCIO'
+      SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
     );
 
     if (canView) {
@@ -165,6 +167,21 @@ export class UnidadeNegocioGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (
+      this.auth.hasAuthorityAuditarToModulo(
+        SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
+      )
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     this.listarUnidades();
   }
 
@@ -190,6 +207,7 @@ export class UnidadeNegocioGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarUnidades();
     this.updateFilterBadge(filter);
   }
@@ -211,6 +229,25 @@ export class UnidadeNegocioGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarUnidades();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   openDetail(id: string) {

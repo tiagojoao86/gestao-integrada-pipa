@@ -68,6 +68,7 @@ public class TituloCategoriaServiceImpl
                 .descricao(entity.getDescricao())
                 .tipo(entity.getTipo())
                 .agrupadorNome(entity.getAgrupador() != null ? entity.getAgrupador().getNome().getValue() : null)
+                .deleted(entity.getDeleted())
                 .build();
     }
 

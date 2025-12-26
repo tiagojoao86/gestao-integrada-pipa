@@ -17,6 +17,12 @@ import {
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import {
+  AuditInfoComponent,
+  AuditInfoData,
+} from '../../../base/audit-info/audit-info.component';
+import { Response } from '../../../base/model/response';
 
 @Component({
   selector: 'gi-usuario-grid',
@@ -25,6 +31,7 @@ import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
     TableComponent,
     PaginationComponent,
     FilterComponent,
+    AuditInfoComponent,
   ],
   providers: [UsuarioService, DatePipe],
   templateUrl: './usuario-grid.component.html',
@@ -38,6 +45,9 @@ export class UsuarioGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
+  showAuditInfo = false;
+  auditInfoData: AuditInfoData | null = null;
 
   usuariosList: UsuarioGridDTO[] = [];
 
@@ -98,14 +108,27 @@ export class UsuarioGridComponent {
   private auth: AuthService = inject(AuthService);
 
   constructor() {
-    const canView =
-      this.auth.hasAuthorityVisualizarToModulo('CADASTRO_USUARIO');
-    const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_USUARIO');
+    const canView = this.auth.hasAuthorityVisualizarToModulo(
+      SystemModuleKey.CADASTRO_USUARIO
+    );
+    const canDelete = this.auth.hasAuthorityDeletarToModulo(
+      SystemModuleKey.CADASTRO_USUARIO
+    );
+    const canAudit = this.auth.hasAuthorityAuditarToModulo(
+      SystemModuleKey.CADASTRO_USUARIO
+    );
 
     if (canView) {
       this.tableActions.push({
         icon: 'edit_note',
         action: (element: UsuarioGridDTO) => this.openDetail.emit(element.id),
+      });
+    }
+    if (canAudit) {
+      this.tableActions.push({
+        icon: 'eye_tracking',
+        iconType: 'material-symbols-outlined',
+        action: (element: UsuarioGridDTO) => this.loadAuditInfo(element.id),
       });
     }
     if (canDelete) {
@@ -130,7 +153,9 @@ export class UsuarioGridComponent {
       },
     ];
 
-    if (this.auth.hasAuthorityEditarToModulo('CADASTRO_USUARIO')) {
+    if (
+      this.auth.hasAuthorityEditarToModulo(SystemModuleKey.CADASTRO_USUARIO)
+    ) {
       this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
@@ -150,6 +175,19 @@ export class UsuarioGridComponent {
       value: '0',
       shortcut: 'alt.p',
     });
+
+    if (
+      this.auth.hasAuthorityAuditarToModulo(SystemModuleKey.CADASTRO_USUARIO)
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
 
     this.listarUsuarios();
   }
@@ -177,6 +215,7 @@ export class UsuarioGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarUsuarios();
     this.updateFilterBadge(filter);
   }
@@ -200,7 +239,42 @@ export class UsuarioGridComponent {
     this.hideFilters = !this.hideFilters;
   }
 
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarUsuarios();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
+  }
+
   refreshList() {
     this.listarUsuarios();
+  }
+
+  loadAuditInfo(id: string) {
+    this.service
+      .getAuditInfo(id)
+      .subscribe((response: Response<AuditInfoData>) => {
+        if (response.body) {
+          this.auditInfoData = response.body;
+          this.showAuditInfo = true;
+        }
+      });
+  }
+
+  closeAuditInfo() {
+    this.showAuditInfo = false;
+    this.auditInfoData = null;
   }
 }

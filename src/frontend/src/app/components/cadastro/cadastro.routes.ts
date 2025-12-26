@@ -11,7 +11,7 @@ export const routes: Routes = [
       import('./cadastro.component').then((app) => app.CadastroComponent),
     canActivate: [authGuard, groupAuthorityGuard],
     data: {
-      group: SystemModuleKey.CADASTRO,
+      group: SystemModuleKey.CADASTROS,
     },
   },
   {

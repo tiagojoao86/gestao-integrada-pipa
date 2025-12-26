@@ -23,6 +23,7 @@ import {
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-titulo-grid',
@@ -44,6 +45,7 @@ export class TituloGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   titulosList: TituloGridDTO[] = [];
 
@@ -189,10 +191,12 @@ export class TituloGridComponent {
   private locale: string = inject(LOCALE_ID);
 
   constructor() {
-    const canView =
-      this.auth.hasAuthorityVisualizarToModulo('FINANCEIRO_TITULO');
-    const canDelete =
-      this.auth.hasAuthorityDeletarToModulo('FINANCEIRO_TITULO');
+    const canView = this.auth.hasAuthorityVisualizarToModulo(
+      SystemModuleKey.FINANCEIRO_TITULO
+    );
+    const canDelete = this.auth.hasAuthorityDeletarToModulo(
+      SystemModuleKey.FINANCEIRO_TITULO
+    );
 
     if (canView) {
       this.tableActions.push({
@@ -221,7 +225,9 @@ export class TituloGridComponent {
       },
     ];
 
-    if (this.auth.hasAuthorityEditarToModulo('FINANCEIRO_TITULO')) {
+    if (
+      this.auth.hasAuthorityEditarToModulo(SystemModuleKey.FINANCEIRO_TITULO)
+    ) {
       this.toolbarActions.push({
         action: () => {
           this.openDetailEvent.emit('add');
@@ -241,6 +247,19 @@ export class TituloGridComponent {
       value: '0',
       shortcut: 'alt.p',
     });
+
+    if (
+      this.auth.hasAuthorityAuditarToModulo(SystemModuleKey.FINANCEIRO_TITULO)
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
 
     this.listarTitulos();
   }
@@ -279,6 +298,7 @@ export class TituloGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarTitulos();
     this.updateFilterBadge(filter);
   }
@@ -300,6 +320,25 @@ export class TituloGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarTitulos();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

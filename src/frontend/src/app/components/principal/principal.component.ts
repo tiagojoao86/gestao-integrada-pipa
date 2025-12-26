@@ -1,9 +1,7 @@
 import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
-import {
-  MainMenuItemComponent,
-} from '../base/menu/main-menu-item/main-menu-item.component';
+import { MainMenuItemComponent } from '../base/menu/main-menu-item/main-menu-item.component';
 import {
   animate,
   state,
@@ -16,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessagesComponent } from '../base/messages/messages.component';
 import { AuthService } from '../base/auth/auth-service';
 import { GroupMenu } from '../base/menu/main-menu-item/group-menu';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-principal-component',
@@ -67,7 +66,7 @@ export class PrincipalComponent implements OnInit {
   }
 
   buildMenu() {
-    if (this.authService.hasAuthorityToGrupo('CADASTROS')) {
+    if (this.authService.hasAuthorityToGrupo(SystemModuleKey.CADASTROS)) {
       this.menu.push({
         name: $localize`Cadastros`,
         icon: 'widgets',
@@ -75,7 +74,7 @@ export class PrincipalComponent implements OnInit {
       });
     }
 
-    if (this.authService.hasAuthorityToGrupo('FINANCEIRO')) {
+    if (this.authService.hasAuthorityToGrupo(SystemModuleKey.FINANCEIRO)) {
       this.menu.push({
         name: $localize`Financeiro`,
         icon: 'attach_money',

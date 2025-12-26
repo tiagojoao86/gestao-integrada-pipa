@@ -80,6 +80,8 @@ public class UsuarioServiceImpl
                     listaPermissoes.add("EDITAR");
                 if (permissao.isPodeDeletar() && !listaPermissoes.contains("DELETAR"))
                     listaPermissoes.add("DELETAR");
+                if (permissao.isPodeAuditar() && !listaPermissoes.contains("AUDITAR"))
+                    listaPermissoes.add("AUDITAR");
             }
         }
 
@@ -237,6 +239,7 @@ public class UsuarioServiceImpl
                 .login(entity.getLogin())
                 .nome(entity.getNome())
                 .createdAt(entity.getCreatedAt())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

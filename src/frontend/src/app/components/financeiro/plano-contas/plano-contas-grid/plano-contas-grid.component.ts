@@ -39,6 +39,7 @@ export class PlanoContasGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   planoContasList: PlanoContasGridDTO[] = [];
 
@@ -217,6 +218,17 @@ export class PlanoContasGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (this.authService.hasAuthorityAuditarToModulo('CADASTRO_PLANO_CONTAS')) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     this.listarPlanoContas();
   }
 
@@ -243,6 +255,7 @@ export class PlanoContasGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarPlanoContas();
     this.updateFilterBadge(filter);
   }
@@ -264,6 +277,25 @@ export class PlanoContasGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarPlanoContas();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

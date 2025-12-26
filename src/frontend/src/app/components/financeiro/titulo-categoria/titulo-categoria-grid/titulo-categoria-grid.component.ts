@@ -38,6 +38,7 @@ export class TituloCategoriaGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   lista: TituloCategoriaGridDTO[] = [];
 
@@ -45,12 +46,12 @@ export class TituloCategoriaGridComponent {
     {
       name: 'codigo',
       label: $localize`Código`,
-      getValue: (element: TituloCategoriaGridDTO) => element.codigo || '-'
+      getValue: (element: TituloCategoriaGridDTO) => element.codigo || '-',
     },
     {
       name: 'nome',
       label: $localize`Nome`,
-      getValue: (element: TituloCategoriaGridDTO) => element.nome || '-'
+      getValue: (element: TituloCategoriaGridDTO) => element.nome || '-',
     },
     {
       name: 'tipo',
@@ -60,7 +61,8 @@ export class TituloCategoriaGridComponent {
     {
       name: 'agrupadorNome',
       label: $localize`Agrupador`,
-      getValue: (element: TituloCategoriaGridDTO) => element.agrupadorNome || '-',
+      getValue: (element: TituloCategoriaGridDTO) =>
+        element.agrupadorNome || '-',
     },
     {
       name: 'descricao',
@@ -161,6 +163,21 @@ export class TituloCategoriaGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (
+      this.auth.hasAuthorityAuditarToModulo(
+        SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA
+      )
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     this.listar();
   }
 
@@ -186,6 +203,7 @@ export class TituloCategoriaGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listar();
     this.updateFilterBadge(filter);
   }
@@ -207,6 +225,25 @@ export class TituloCategoriaGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listar();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

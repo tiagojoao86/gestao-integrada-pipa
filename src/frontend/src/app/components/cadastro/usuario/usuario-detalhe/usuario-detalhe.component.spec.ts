@@ -3,7 +3,7 @@ import { UsuarioDetalheComponent } from './usuario-detalhe.component';
 import { UsuarioService } from '../usuario.service';
 import { MessageService } from '../../../base/messages/messages.service';
 import { AuthService } from '../../../base/auth/auth-service';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { UsuarioDTO } from '../model/usuario-dto';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { ExecutionCallbacks } from '../../../base/base-service';

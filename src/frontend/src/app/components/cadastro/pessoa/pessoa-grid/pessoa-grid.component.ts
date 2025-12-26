@@ -18,6 +18,7 @@ import { TipoPessoa } from '../model/pessoa-dto';
 import { PaginationEvent } from '../../../base/pagination/pagination-event.model';
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-pessoa-grid',
@@ -39,6 +40,7 @@ export class PessoaGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   pessoasList: PessoaGridDTO[] = [];
 
@@ -138,8 +140,12 @@ export class PessoaGridComponent {
   private auth: AuthService = inject(AuthService);
 
   constructor() {
-    const canView = this.auth.hasAuthorityVisualizarToModulo('CADASTRO_PESSOA');
-    const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_PESSOA');
+    const canView = this.auth.hasAuthorityVisualizarToModulo(
+      SystemModuleKey.CADASTRO_PESSOA
+    );
+    const canDelete = this.auth.hasAuthorityDeletarToModulo(
+      SystemModuleKey.CADASTRO_PESSOA
+    );
 
     if (canView) {
       this.tableActions.push({
@@ -167,7 +173,7 @@ export class PessoaGridComponent {
       },
     ];
 
-    if (this.auth.hasAuthorityEditarToModulo('CADASTRO_PESSOA')) {
+    if (this.auth.hasAuthorityEditarToModulo(SystemModuleKey.CADASTRO_PESSOA)) {
       this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
@@ -187,6 +193,19 @@ export class PessoaGridComponent {
       value: '0',
       shortcut: 'alt.p',
     });
+
+    if (
+      this.auth.hasAuthorityAuditarToModulo(SystemModuleKey.CADASTRO_PESSOA)
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
 
     this.listPessoas();
   }
@@ -214,6 +233,7 @@ export class PessoaGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listPessoas();
     this.updateFilterBadge(filter);
   }
@@ -235,6 +255,25 @@ export class PessoaGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listPessoas();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

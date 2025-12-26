@@ -10,6 +10,7 @@ export class TituloGridDTO {
   saldo: number;
   dataVencimento: Date;
   parcelamento?: string; // "3/12" se for parcelado
+  deleted?: boolean;
 
   constructor(
     id: string,
@@ -22,7 +23,8 @@ export class TituloGridDTO {
     valorOriginal: number,
     saldo: number,
     dataVencimento: Date,
-    parcelamento?: string
+    parcelamento?: string,
+    deleted?: boolean
   ) {
     this.id = id;
     this.tipo = tipo;
@@ -35,5 +37,6 @@ export class TituloGridDTO {
     this.saldo = saldo;
     this.dataVencimento = dataVencimento;
     this.parcelamento = parcelamento;
+    this.deleted = deleted;
   }
 }

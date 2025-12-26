@@ -7,6 +7,7 @@ export class MovimentacaoFinanceiraGridDTO {
   unidadeNegocioNome: string;
   contaBancaria?: string;
   contaBancariaNome?: string;
+  deleted?: boolean;
 
   constructor(
     id: string,
@@ -16,7 +17,8 @@ export class MovimentacaoFinanceiraGridDTO {
     unidadeNegocioId: string,
     unidadeNegocioNome: string,
     contaBancaria?: string,
-    contaBancariaNome?: string
+    contaBancariaNome?: string,
+    deleted?: boolean
   ) {
     this.id = id;
     this.data = data;
@@ -26,5 +28,6 @@ export class MovimentacaoFinanceiraGridDTO {
     this.unidadeNegocioNome = unidadeNegocioNome;
     this.contaBancaria = contaBancaria;
     this.contaBancariaNome = contaBancariaNome;
+    this.deleted = deleted;
   }
 }

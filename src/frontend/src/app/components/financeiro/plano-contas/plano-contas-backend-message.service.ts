@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
   providedIn: 'root',
 })
 export class PlanoContasBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'planoContas.codigo.notBlank': $localize`:@@planoContas.codigo.notBlank:O código não pode ser em branco.`,
       'planoContas.codigo.maxLength': $localize`:@@planoContas.codigo.maxLength:O código deve ter no máximo 20 caracteres.`,

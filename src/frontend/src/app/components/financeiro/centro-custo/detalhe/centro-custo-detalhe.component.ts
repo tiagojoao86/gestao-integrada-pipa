@@ -25,6 +25,7 @@ import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { Response } from '../../../base/model/response';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-centro-custo-detalhe',
@@ -60,7 +61,7 @@ export class CentroCustoDetalheComponent implements OnInit {
 
     // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'FINANCEIRO_CENTRO_CUSTO'
+      SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
     );
     this.toolbarActions = [
       {

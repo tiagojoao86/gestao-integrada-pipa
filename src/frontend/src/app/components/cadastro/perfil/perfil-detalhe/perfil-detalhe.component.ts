@@ -31,6 +31,7 @@ import { CheckboxChangeEvent } from 'primeng/checkbox';
 import { AuthService } from '../../../base/auth/auth-service';
 import { PermissaoFormGroupValue } from './permissao-form-group-value';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-perfil-detalhe',
@@ -73,7 +74,9 @@ export class PerfilDetalheComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     // configure actions based on permission
-    const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_PERFIL');
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_PERFIL
+    );
     this.toolbarActions = [
       {
         action: () => this.goBackFn(),
@@ -151,6 +154,7 @@ export class PerfilDetalheComponent implements OnInit {
       podeVisualizar: [permissao?.podeVisualizar || false],
       podeEditar: [permissao?.podeEditar || false],
       podeDeletar: [permissao?.podeDeletar || false],
+      podeAuditar: [permissao?.podeAuditar || false],
     });
   }
 
@@ -174,7 +178,11 @@ export class PerfilDetalheComponent implements OnInit {
     const payloadPermissoes: PerfilModuloDTO[] = this.permissoes.value
       .filter(
         (p: PermissaoFormGroupValue) =>
-          p.podeListar || p.podeVisualizar || p.podeEditar || p.podeDeletar
+          p.podeListar ||
+          p.podeVisualizar ||
+          p.podeEditar ||
+          p.podeDeletar ||
+          p.podeAuditar
       )
       .map((p: PermissaoFormGroupValue): PerfilModuloDTO => {
         return {
@@ -186,6 +194,7 @@ export class PerfilDetalheComponent implements OnInit {
           podeVisualizar: p.podeVisualizar,
           podeEditar: p.podeEditar,
           podeDeletar: p.podeDeletar,
+          podeAuditar: p.podeAuditar,
         };
       });
 
@@ -233,11 +242,13 @@ export class PerfilDetalheComponent implements OnInit {
       permissaoGroup.get('podeVisualizar')?.setValue(false);
       permissaoGroup.get('podeEditar')?.setValue(false);
       permissaoGroup.get('podeDeletar')?.setValue(false);
+      permissaoGroup.get('podeAuditar')?.setValue(false);
     } else {
       permissaoGroup.get('podeListar')?.setValue(true);
       permissaoGroup.get('podeVisualizar')?.setValue(true);
       permissaoGroup.get('podeEditar')?.setValue(true);
       permissaoGroup.get('podeDeletar')?.setValue(true);
+      permissaoGroup.get('podeAuditar')?.setValue(true);
     }
   }
 }

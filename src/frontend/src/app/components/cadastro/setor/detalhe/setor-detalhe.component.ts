@@ -26,6 +26,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 import { Response } from '../../../base/model/response';
 import { CentroCustoService } from '../../../financeiro/centro-custo/centro-custo.service';
 import { CentroCustoGridDTO } from '../../../financeiro/centro-custo/model/centro-custo-grid-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-setor-detalhe',
@@ -61,7 +62,9 @@ export class SetorDetalheComponent implements OnInit {
     this.initForm();
 
     // configure actions based on permission
-    const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_SETOR');
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_SETOR
+    );
     this.toolbarActions = [
       {
         action: () => this.goBackFn(),

@@ -16,6 +16,7 @@ import {
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-centro-custo-grid',
@@ -37,6 +38,7 @@ export class CentroCustoGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   rows: CentroCustoGridDTO[] = [];
 
@@ -83,13 +85,13 @@ export class CentroCustoGridComponent {
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
-      'FINANCEIRO_CENTRO_CUSTO'
+      SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
     );
     const canDelete = this.auth.hasAuthorityDeletarToModulo(
-      'FINANCEIRO_CENTRO_CUSTO'
+      SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
     );
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'FINANCEIRO_CENTRO_CUSTO'
+      SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
     );
 
     if (canView) {
@@ -141,6 +143,21 @@ export class CentroCustoGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (
+      this.auth.hasAuthorityAuditarToModulo(
+        SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
+      )
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     this.listarCentros();
   }
 
@@ -166,6 +183,7 @@ export class CentroCustoGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarCentros();
     this.updateFilterBadge(filter);
   }
@@ -187,6 +205,25 @@ export class CentroCustoGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarCentros();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

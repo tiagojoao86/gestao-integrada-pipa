@@ -10,4 +10,5 @@ export interface PermissaoFormGroupValue {
   podeVisualizar: boolean;
   podeEditar: boolean;
   podeDeletar: boolean;
+  podeAuditar: boolean;
 }

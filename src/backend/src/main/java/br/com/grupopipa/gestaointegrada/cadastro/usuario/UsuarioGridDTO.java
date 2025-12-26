@@ -16,4 +16,5 @@ public class UsuarioGridDTO implements GridDTO {
     private String nome;
     private String login;
     private LocalDateTime createdAt;
+    private Boolean deleted;
 }

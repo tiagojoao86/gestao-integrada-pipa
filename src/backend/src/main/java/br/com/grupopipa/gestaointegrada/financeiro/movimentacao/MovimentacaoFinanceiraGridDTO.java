@@ -22,4 +22,5 @@ public class MovimentacaoFinanceiraGridDTO implements GridDTO {
     private LocalDate data;
     private java.util.UUID unidadeNegocioId;
     private String unidadeNegocioNome;
+    private Boolean deleted;
 }

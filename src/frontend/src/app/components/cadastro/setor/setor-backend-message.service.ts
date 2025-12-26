@@ -3,7 +3,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
 
 @Injectable({ providedIn: 'root' })
 export class SetorBackendMessageService extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'setor.nome.notBlank': $localize`:@@setor.nome.notBlank:O nome do setor é obrigatório.`,
       'setor.nome.maxLength': $localize`:@@setor.nome.maxLength:O nome deve ter no máximo 200 caracteres.`,

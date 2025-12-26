@@ -40,13 +40,17 @@ export class TituloCategoriaGridDTO {
   @Expose()
   agrupadorNome?: string;
 
+  @Expose()
+  deleted?: boolean;
+
   constructor(
     codigo: string,
     nome: string,
     tipo: TituloCategoriaTipoEnum,
     descricao?: string,
     agrupadorNome?: string,
-    id?: string
+    id?: string,
+    deleted?: boolean
   ) {
     this.codigo = codigo;
     this.nome = nome;
@@ -54,5 +58,6 @@ export class TituloCategoriaGridDTO {
     this.descricao = descricao;
     this.agrupadorNome = agrupadorNome;
     this.id = id;
+    this.deleted = deleted;
   }
 }

@@ -5,6 +5,7 @@ import { SystemModuleGroupComponent } from '../base/menu/system-module-group/sys
 import { AuthService } from '../base/auth/auth-service';
 import { SystemModuleGroup } from '../base/menu/system-module-group/system-module-group';
 import { SystemModule } from '../base/menu/system-module/system-module';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-cadastro',
@@ -21,7 +22,11 @@ export class CadastroComponent implements OnInit {
 
   ngOnInit(): void {
     const systemModulesCadastros: SystemModule[] = [];
-    if (this.authService.hasAuthorityListarToModulo('CADASTRO_PESSOA')) {
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.CADASTRO_PESSOA
+      )
+    ) {
       systemModulesCadastros.push({
         name: $localize`Pessoas`,
         icon: 'groups',
@@ -30,7 +35,9 @@ export class CadastroComponent implements OnInit {
     }
 
     if (
-      this.authService.hasAuthorityListarToModulo('CADASTRO_UNIDADE_NEGOCIO')
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
+      )
     ) {
       systemModulesCadastros.push({
         name: $localize`Unidades de Negócio`,
@@ -39,7 +46,11 @@ export class CadastroComponent implements OnInit {
       });
     }
 
-    if (this.authService.hasAuthorityListarToModulo('CADASTRO_SETOR')) {
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.CADASTRO_SETOR
+      )
+    ) {
       systemModulesCadastros.push({
         name: $localize`Setores`,
         icon: 'business',
@@ -54,7 +65,11 @@ export class CadastroComponent implements OnInit {
       });
     }
     const systemModulesGeral: SystemModule[] = [];
-    if (this.authService.hasAuthorityListarToModulo('CADASTRO_USUARIO')) {
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.CADASTRO_USUARIO
+      )
+    ) {
       systemModulesGeral.push({
         name: $localize`Usuários`,
         icon: 'person',
@@ -62,7 +77,11 @@ export class CadastroComponent implements OnInit {
       });
     }
 
-    if (this.authService.hasAuthorityListarToModulo('CADASTRO_PERFIL')) {
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.CADASTRO_PERFIL
+      )
+    ) {
       systemModulesGeral.push({
         name: $localize`Perfis`,
         icon: 'badge',

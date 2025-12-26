@@ -114,6 +114,7 @@ public class MovimentacaoFinanceiraServiceImpl extends
                 .formaPagamento(entity.getFormaPagamento().name())
                 .valor(entity.getValor().getValue())
                 .data(entity.getData())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

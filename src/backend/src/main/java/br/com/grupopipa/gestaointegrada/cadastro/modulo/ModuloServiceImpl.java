@@ -44,6 +44,7 @@ public class ModuloServiceImpl extends CrudServiceImpl<ModuloDTO, ModuloGridDTO,
                 .builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

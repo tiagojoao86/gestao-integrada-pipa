@@ -10,13 +10,13 @@ import { of } from 'rxjs';
 import { SetorDTO } from '../model/setor-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { CentroCustoGridDTO } from '../../../financeiro/centro-custo/model/centro-custo-grid-dto';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('SetorDetalheComponent', () => {
   let component: SetorDetalheComponent;
   let fixture: ComponentFixture<SetorDetalheComponent>;
   let setorService: jest.Mocked<SetorService>;
   let centroCustoService: jest.Mocked<CentroCustoService>;
-  let messageService: jest.Mocked<MessageService>;
   let authService: jest.Mocked<AuthService>;
 
   beforeEach(async () => {
@@ -65,14 +65,11 @@ describe('SetorDetalheComponent', () => {
     centroCustoService = fixture.debugElement.injector.get(
       CentroCustoService
     ) as jest.Mocked<CentroCustoService>;
-    messageService = TestBed.inject(
-      MessageService
-    ) as jest.Mocked<MessageService>;
     authService = TestBed.inject(AuthService) as jest.Mocked<AuthService>;
 
     // Mock padrão para listAll de centros de custo
     centroCustoService.listAll.mockReturnValue(
-      of({ body: [] } as any)
+      of({ body: [], statusCode: 200, erroMessage: null })
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -123,7 +120,7 @@ describe('SetorDetalheComponent', () => {
       ];
 
       centroCustoService.listAll.mockReturnValue(
-        of({ body: mockCentrosCusto } as any)
+        of({ body: mockCentrosCusto, statusCode: 200, erroMessage: null })
       );
 
       component.ngOnInit();
@@ -142,7 +139,7 @@ describe('SetorDetalheComponent', () => {
       };
 
       setorService.findById.mockReturnValue(
-        of({ body: mockSetor } as any)
+        of({ body: mockSetor, statusCode: 200, erroMessage: null })
       );
 
       component.detailId = 'setor-1';
@@ -393,15 +390,15 @@ describe('SetorDetalheComponent', () => {
         centroCustoId: 'cc-1',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 400,
         error: { message: 'setor.nome.unique' },
-      };
+      });
 
       setorService.save.mockImplementation(
         (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -418,15 +415,15 @@ describe('SetorDetalheComponent', () => {
         centroCustoId: 'cc-1',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 500,
         error: { message: 'Erro interno do servidor' },
-      };
+      });
 
       setorService.save.mockImplementation(
         (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -446,18 +443,18 @@ describe('SetorDetalheComponent', () => {
         centroCustoId: 'cc-1',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 409,
         error: {
           message: 'setor.nome.unique',
           constraintName: 'UK_SETOR_NOME'
         },
-      };
+      });
 
       setorService.save.mockImplementation(
         (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -474,18 +471,18 @@ describe('SetorDetalheComponent', () => {
         centroCustoId: 'cc-inexistente',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 400,
         error: {
           message: 'setor.centroCusto.foreignKey',
           constraintName: 'FK_SETOR_CENTRO_CUSTO'
         },
-      };
+      });
 
       setorService.save.mockImplementation(
         (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -494,6 +491,78 @@ describe('SetorDetalheComponent', () => {
 
       expect(setorService.save).toHaveBeenCalled();
       // BaseService/BackendMessageService deve processar FK e exibir mensagem amigável
+    });
+  });
+
+  describe('Soft Delete - Tentativa de Edição de Registro Excluído', () => {
+    beforeEach(() => {
+      component.ngOnInit();
+    });
+
+    it('deve exibir erro ao tentar salvar registro excluído', () => {
+      component.detailId = 'setor-excluido';
+      component.form.patchValue({
+        nome: 'Setor Excluído',
+        centroCustoId: 'cc-1',
+      });
+
+      const mockError = new HttpErrorResponse({
+        status: 400,
+        error: {
+          userMessageKey: ['errors.deletedEntity'],
+          detail: ['Não é possível alterar a entidade \'Setor\' com o id \'setor-excluido\' pois ela foi excluída']
+        },
+      });
+
+      setorService.save.mockImplementation(
+        (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
+          if (callbacks.onError) {
+            callbacks.onError(mockError);
+          }
+        }
+      );
+
+      const closeDetailSpy = jest.fn();
+      component.closeDetail.subscribe(closeDetailSpy);
+
+      component.save();
+
+      expect(setorService.save).toHaveBeenCalled();
+      expect(closeDetailSpy).not.toHaveBeenCalled();
+      // BaseService/BackendMessageService deve processar e exibir mensagem:
+      // "Não é possível alterar um registro que foi excluído."
+    });
+
+    it('deve processar userMessageKey errors.deletedEntity corretamente', () => {
+      component.form.patchValue({
+        nome: 'Tentando Editar',
+        centroCustoId: 'cc-1',
+      });
+
+      const mockError = new HttpErrorResponse({
+        status: 400,
+        statusText: 'Bad Request',
+        error: {
+          status: 400,
+          title: 'Invalid Data',
+          userMessageKey: ['errors.deletedEntity'],
+          detail: ['Entity was deleted']
+        },
+      });
+
+      setorService.save.mockImplementation(
+        (_data: SetorDTO, callbacks: ExecutionCallbacks<SetorDTO>) => {
+          if (callbacks.onError) {
+            callbacks.onError(mockError);
+          }
+        }
+      );
+
+      component.save();
+
+      expect(setorService.save).toHaveBeenCalled();
+      // BackendMessageService deve traduzir 'errors.deletedEntity' para
+      // "Não é possível alterar um registro que foi excluído."
     });
   });
 });

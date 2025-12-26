@@ -13,4 +13,5 @@ public class SetorGridDTO implements GridDTO {
     private String nome;
     private String descricao;
     private String centroCustoNome;
+    private Boolean deleted;
 }

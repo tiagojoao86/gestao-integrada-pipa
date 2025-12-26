@@ -39,18 +39,22 @@ public class PerfilModuloEntity extends BaseEntity {
 
     @Column(name = "pode_deletar", nullable = false)
     private boolean podeDeletar = false;
-    
+
+    @Column(name = "pode_auditar", nullable = false)
+    private boolean podeAuditar = false;
+
     protected PerfilModuloEntity() {
     }
 
     private PerfilModuloEntity(PerfilEntity perfil, ModuloEntity modulo, boolean podeListar, boolean podeVisualizar,
-            boolean podeEditar, boolean podeDeletar) {
+            boolean podeEditar, boolean podeDeletar, boolean podeAuditar) {
         this.perfil = perfil;
         this.modulo = modulo;
         this.podeListar = podeListar;
         this.podeVisualizar = podeVisualizar;
         this.podeEditar = podeEditar;
         this.podeDeletar = podeDeletar;
+        this.podeAuditar = podeAuditar;
     }
 
     public static class Builder {
@@ -60,6 +64,7 @@ public class PerfilModuloEntity extends BaseEntity {
         private boolean podeVisualizar;
         private boolean podeEditar;
         private boolean podeDeletar;
+        private boolean podeAuditar;
 
         public Builder perfil(PerfilEntity perfil) {
             this.perfil = perfil;
@@ -91,8 +96,13 @@ public class PerfilModuloEntity extends BaseEntity {
             return this;
         }
 
+        public Builder podeAuditar(boolean podeAuditar) {
+            this.podeAuditar = podeAuditar;
+            return this;
+        }
+
         public PerfilModuloEntity build() {
-            return new PerfilModuloEntity(perfil, modulo, podeListar, podeVisualizar, podeEditar, podeDeletar);
+            return new PerfilModuloEntity(perfil, modulo, podeListar, podeVisualizar, podeEditar, podeDeletar, podeAuditar);
         }
     }
 

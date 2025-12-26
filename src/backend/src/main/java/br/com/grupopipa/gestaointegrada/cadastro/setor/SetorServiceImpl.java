@@ -71,6 +71,7 @@ public class SetorServiceImpl extends CrudServiceImpl<SetorDTO, SetorGridDTO, Se
                 .nome(entity.getNome())
                 .descricao(entity.getDescricao())
                 .centroCustoNome(centroCusto != null ? centroCusto.getNome() : null)
+                .deleted(entity.getDeleted())
                 .build();
     }
 
