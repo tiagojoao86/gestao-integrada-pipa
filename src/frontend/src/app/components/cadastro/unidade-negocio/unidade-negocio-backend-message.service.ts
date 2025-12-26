@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
   providedIn: 'root',
 })
 export class UnidadeNegocioBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'unidadeNegocio.codigo.notBlank': $localize`:@@unidadeNegocio.codigo.notBlank:O código não pode ser em branco.`,
       'unidadeNegocio.codigo.maxLength': $localize`:@@unidadeNegocio.codigo.maxLength:O código deve ter no máximo 20 caracteres.`,

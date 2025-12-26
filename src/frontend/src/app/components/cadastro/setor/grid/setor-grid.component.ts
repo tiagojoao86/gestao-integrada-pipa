@@ -16,6 +16,7 @@ import {
   FilterType,
 } from '../../../base/filter/filter.component';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-setor-grid',
@@ -37,6 +38,7 @@ export class SetorGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   rows: SetorGridDTO[] = [];
 
@@ -81,9 +83,15 @@ export class SetorGridComponent {
   private auth: AuthService = inject(AuthService);
 
   constructor() {
-    const canView = this.auth.hasAuthorityVisualizarToModulo('CADASTRO_SETOR');
-    const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_SETOR');
-    const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_SETOR');
+    const canView = this.auth.hasAuthorityVisualizarToModulo(
+      SystemModuleKey.CADASTRO_SETOR
+    );
+    const canDelete = this.auth.hasAuthorityDeletarToModulo(
+      SystemModuleKey.CADASTRO_SETOR
+    );
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_SETOR
+    );
 
     if (canView) {
       this.tableActions.push({
@@ -133,6 +141,17 @@ export class SetorGridComponent {
       shortcut: 'alt.p',
     });
 
+    if (this.auth.hasAuthorityAuditarToModulo(SystemModuleKey.CADASTRO_SETOR)) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
+
     this.listarSetores();
   }
 
@@ -158,6 +177,7 @@ export class SetorGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listarSetores();
     this.updateFilterBadge(filter);
   }
@@ -179,6 +199,25 @@ export class SetorGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listarSetores();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

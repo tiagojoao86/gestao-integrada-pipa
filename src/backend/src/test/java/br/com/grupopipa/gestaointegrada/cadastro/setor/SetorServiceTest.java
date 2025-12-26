@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.cadastro.setor;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.exception.DeletedEntityException;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.financeiro.centrocusto.CentroCustoRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
@@ -144,14 +145,16 @@ class SetorServiceTest {
     }
 
     @Test
-    @DisplayName("Deve deletar setor")
+    @DisplayName("Deve deletar setor (deprecated - usar soft delete)")
     void deveDeletarSetor() {
-        doNothing().when(repository).deleteById(setorId);
+        when(repository.findById(setorId)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(Setor.class))).thenReturn(entidadeValida);
 
         UUID resultado = service.delete(setorId);
 
         assertEquals(setorId, resultado);
-        verify(repository, times(1)).deleteById(setorId);
+        verify(repository, times(1)).findById(setorId);
+        verify(repository, times(1)).save(any(Setor.class));
     }
 
     @Test
@@ -202,5 +205,70 @@ class SetorServiceTest {
         verify(repository, times(1)).findById(setorId);
         verify(repository, times(1)).save(any(Setor.class));
         verify(centroCustoRepository, times(1)).findById(centroCustoId);
+    }
+
+    @Test
+    @DisplayName("Deve realizar soft delete do setor")
+    void deveRealizarSoftDeleteDoSetor() {
+        when(repository.findById(setorId)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(Setor.class))).thenReturn(entidadeValida);
+
+        UUID resultado = service.delete(setorId);
+
+        assertEquals(setorId, resultado);
+        verify(repository, times(1)).findById(setorId);
+        verify(repository, times(1)).save(any(Setor.class));
+        // Verifica que markAsDeleted foi chamado na entidade
+        assertTrue(entidadeValida.getDeleted());
+        assertNotNull(entidadeValida.getDeletedAt());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao tentar editar setor excluído")
+    void deveLancarExcecaoAoTentarEditarSetorExcluido() {
+        Setor setorExcluido = new Setor.Builder()
+                .nome("Setor Excluído")
+                .descricao("Descrição")
+                .centroCusto(centroCusto)
+                .build();
+
+        // Marcar como excluído
+        setorExcluido.markAsDeleted("admin");
+
+        // Usar reflexão para setar o ID na entidade
+        try {
+            java.lang.reflect.Field idField = Setor.class.getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(setorExcluido, setorId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        when(repository.findById(setorId)).thenReturn(Optional.of(setorExcluido));
+
+        SetorDTO dtoAtualizado = SetorDTO.builder()
+                .id(setorId)
+                .nome("Tentando Atualizar")
+                .centroCustoId(centroCustoId)
+                .build();
+
+        assertThrows(DeletedEntityException.class, () -> service.save(dtoAtualizado));
+        verify(repository, times(1)).findById(setorId);
+        verify(repository, never()).save(any(Setor.class));
+    }
+
+    @Test
+    @DisplayName("Deve incluir campo deleted no GridDTO")
+    void deveIncluirCampoDeletedNoGridDTO() {
+        // Entidade não excluída
+        SetorGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
+        assertNotNull(gridDTO);
+        assertFalse(gridDTO.getDeleted());
+
+        // Entidade excluída
+        entidadeValida.markAsDeleted("admin");
+        SetorGridDTO gridDTOExcluido = service.buildGridDTOFromEntity(entidadeValida);
+        assertNotNull(gridDTOExcluido);
+        assertTrue(gridDTOExcluido.getDeleted());
     }
 }

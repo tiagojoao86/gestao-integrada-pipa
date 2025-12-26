@@ -79,4 +79,10 @@ public class UsuarioController extends BaseController<UsuarioDTO, UsuarioGridDTO
         return super.delete(id);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_USUARIO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
+
 }

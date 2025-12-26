@@ -1,6 +1,7 @@
 package br.com.grupopipa.gestaointegrada.core.controller;
 
 import br.com.grupopipa.gestaointegrada.core.dao.DatabaseConstraintsEnum;
+import br.com.grupopipa.gestaointegrada.core.exception.DeletedEntityException;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,25 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .timestamp(OffsetDateTime.now())
                 .title(title)
                 .userMessageKey(List.of(ErrorKeys.RESOURCE_NOT_FOUND))
+                .detail(List.of(detail))
+                .build();
+
+        log.error(title + ": " + detail);
+
+        return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(DeletedEntityException.class)
+    public ResponseEntity<Object> handleDeletedEntityException(DeletedEntityException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String title = INVALID_DATA;
+        String detail = ex.getMessage();
+
+        ApiError apiError = ApiError.builder()
+                .status(status.value())
+                .timestamp(OffsetDateTime.now())
+                .title(title)
+                .userMessageKey(List.of(ErrorKeys.DELETED_ENTITY))
                 .detail(List.of(detail))
                 .build();
 

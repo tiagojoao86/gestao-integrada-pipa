@@ -6,6 +6,7 @@ export class ContaBancariaGridDTO {
   saldoInicial?: number;
   unidadeNegocioCodigo?: string;
   ativa: boolean;
+  deleted?: boolean;
 
   constructor(
     id: string,
@@ -14,7 +15,8 @@ export class ContaBancariaGridDTO {
     tipo: string,
     saldoInicial: number | undefined,
     unidadeNegocioCodigo: string | undefined,
-    ativa: boolean
+    ativa: boolean,
+    deleted?: boolean
   ) {
     this.id = id;
     this.nome = nome;
@@ -23,5 +25,6 @@ export class ContaBancariaGridDTO {
     this.saldoInicial = saldoInicial;
     this.unidadeNegocioCodigo = unidadeNegocioCodigo;
     this.ativa = ativa;
+    this.deleted = deleted;
   }
 }

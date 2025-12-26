@@ -51,6 +51,9 @@ public class UserAuthenticated implements UserDetails {
           if (permissao.isPodeDeletar()) {
             authorities.add(new SimpleGrantedAuthority(moduloChave + "_DELETAR"));
           }
+          if (permissao.isPodeAuditar()) {
+            authorities.add(new SimpleGrantedAuthority(moduloChave + "_AUDITAR"));
+          }
         }
       }
     }

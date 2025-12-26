@@ -251,6 +251,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                 .saldo(entity.calcularSaldo().getValue())
                 .dataVencimento(entity.getDataVencimento())
                 .parcelamento(parcelamento)
+                .deleted(entity.getDeleted())
                 .build();
     }
 

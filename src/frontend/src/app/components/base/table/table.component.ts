@@ -5,10 +5,11 @@ import { ButtonModule } from 'primeng/button';
 import { SortMeta } from 'primeng/api';
 import { ColumnModel } from './column.model';
 import { ActionModel } from './action.model';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'gi-table-component',
-  imports: [TableModule, ButtonModule],
+  imports: [TableModule, ButtonModule, NgClass],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   providers: [],
@@ -19,7 +20,7 @@ export class TableComponent<T> {
   @Input() actions: ActionModel<T>[] = [];
 
   @Output() sortingEvent = new EventEmitter<Order[]>();
-  
+
   sortChange(multisortmeta: SortMeta[]) {
     const ordem: Order[] = [];
 
@@ -31,5 +32,10 @@ export class TableComponent<T> {
     });
 
     this.sortingEvent.emit(ordem);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  isDeletedRow(rowData: any): boolean {
+    return rowData.deleted === true;
   }
 }

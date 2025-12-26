@@ -1,15 +1,13 @@
 package br.com.grupopipa.gestaointegrada.config.security;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+/**
+ * Configuração de auditoria JPA.
+ * A auditoria agora é feita manualmente através do CustomAuditingEntityListener,
+ * que tem controle total sobre quando atualizar os campos de auditoria.
+ */
 @Configuration
-@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class JpaAuditingConfiguration {
-    @Bean
-    public AuditorAware<String> auditorAware() {
-        return new AuditorAwareImpl();
-    }
+    // JPA Auditing desabilitado - usando CustomAuditingEntityListener
 }

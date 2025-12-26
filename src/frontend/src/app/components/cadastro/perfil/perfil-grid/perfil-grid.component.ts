@@ -1,7 +1,5 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import {
-  BaseComponent,
-} from '../../../base/base.component';
+import { BaseComponent } from '../../../base/base.component';
 import { PerfilService } from '../perfil.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { PerfilGridDTO } from '../model/perfil-grid-dto';
@@ -19,6 +17,7 @@ import { PaginationEvent } from '../../../base/pagination/pagination-event.model
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-perfil-grid',
@@ -41,6 +40,7 @@ export class PerfilGridComponent {
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
   hideFilters = true;
+  showDeleted = false;
 
   perfisList: PerfilGridDTO[] = [];
 
@@ -90,8 +90,12 @@ export class PerfilGridComponent {
   private auth: AuthService = inject(AuthService);
 
   constructor() {
-    const canView = this.auth.hasAuthorityVisualizarToModulo('CADASTRO_PERFIL');
-    const canDelete = this.auth.hasAuthorityDeletarToModulo('CADASTRO_PERFIL');
+    const canView = this.auth.hasAuthorityVisualizarToModulo(
+      SystemModuleKey.CADASTRO_PERFIL
+    );
+    const canDelete = this.auth.hasAuthorityDeletarToModulo(
+      SystemModuleKey.CADASTRO_PERFIL
+    );
 
     if (canView) {
       this.tableActions.push({
@@ -119,7 +123,7 @@ export class PerfilGridComponent {
       },
     ];
 
-    if (this.auth.hasAuthorityEditarToModulo('CADASTRO_PERFIL')) {
+    if (this.auth.hasAuthorityEditarToModulo(SystemModuleKey.CADASTRO_PERFIL)) {
       this.toolbarActions.push({
         action: () => {
           this.openDetail.emit('add');
@@ -139,6 +143,19 @@ export class PerfilGridComponent {
       value: '0',
       shortcut: 'alt.p',
     });
+
+    if (
+      this.auth.hasAuthorityAuditarToModulo(SystemModuleKey.CADASTRO_PERFIL)
+    ) {
+      this.toolbarActions.unshift({
+        action: () => {
+          this.toggleShowDeleted();
+        },
+        icon: 'visibility',
+        title: $localize`Mostrar excluídos` + ' (alt + d)',
+        shortcut: 'alt.d',
+      });
+    }
 
     this.listPerfis();
   }
@@ -166,6 +183,7 @@ export class PerfilGridComponent {
 
   filter(filter: FilterDTO) {
     this.request.filter = filter;
+    this.request.filter.showDeleted = this.showDeleted;
     this.listPerfis();
     this.updateFilterBadge(filter);
   }
@@ -187,6 +205,25 @@ export class PerfilGridComponent {
 
   toggleShowFilters() {
     this.hideFilters = !this.hideFilters;
+  }
+
+  toggleShowDeleted() {
+    this.showDeleted = !this.showDeleted;
+    this.request.filter.showDeleted = this.showDeleted;
+    this.updateShowDeletedIcon();
+    this.listPerfis();
+  }
+
+  updateShowDeletedIcon() {
+    const acao = this.toolbarActions.filter(
+      (it) => it.icon === 'visibility' || it.icon === 'visibility_off'
+    );
+    if (acao.length > 0) {
+      acao[0].icon = this.showDeleted ? 'visibility_off' : 'visibility';
+      acao[0].title = this.showDeleted
+        ? $localize`Ocultar excluídos` + ' (alt + d)'
+        : $localize`Mostrar excluídos` + ' (alt + d)';
+    }
   }
 
   refreshList() {

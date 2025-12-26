@@ -14,3 +14,9 @@
     flex-grow: 1;
     flex-shrink: 1;
 }
+
+.deleted-row {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+    opacity: 0.6;
+    text-decoration: line-through;
+}

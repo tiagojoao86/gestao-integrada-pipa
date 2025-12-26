@@ -1,6 +1,7 @@
 export interface FilterDTO {
   filterLogicOperator: string;
   items: FilterItem[];
+  showDeleted?: boolean;
 }
 
 export interface FilterItem {

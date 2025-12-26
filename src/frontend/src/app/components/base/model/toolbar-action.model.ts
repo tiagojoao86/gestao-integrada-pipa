@@ -4,4 +4,5 @@ export interface ToolbarActionModel {
   title: string;
   shortcut?: string;
   value?: string;
+  iconType?: 'material-icons' | 'material-symbols-outlined';
 }

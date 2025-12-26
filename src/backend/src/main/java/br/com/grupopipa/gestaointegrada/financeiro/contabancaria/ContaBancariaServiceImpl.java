@@ -101,6 +101,7 @@ public class ContaBancariaServiceImpl
                 .unidadeNegocioCodigo(
                         entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getCodigo() : null)
                 .ativa(entity.getAtiva())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

@@ -5,6 +5,7 @@ export class PessoaGridDTO {
   tipoPessoa: 'FISICA' | 'JURIDICA';
   ativa: boolean;
   createdAt: Date;
+  deleted?: boolean;
 
   constructor(
     id: string,
@@ -12,7 +13,8 @@ export class PessoaGridDTO {
     documento: string,
     tipoPessoa: 'FISICA' | 'JURIDICA',
     ativa: boolean,
-    createdAt: Date
+    createdAt: Date,
+    deleted?: boolean
   ) {
     this.id = id;
     this.nome = nome;
@@ -20,5 +22,6 @@ export class PessoaGridDTO {
     this.tipoPessoa = tipoPessoa;
     this.ativa = ativa;
     this.createdAt = createdAt;
+    this.deleted = deleted;
   }
 }

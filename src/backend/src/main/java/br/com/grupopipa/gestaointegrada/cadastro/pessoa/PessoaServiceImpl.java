@@ -103,6 +103,7 @@ public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO,
                 .tipoPessoa(entity.getTipoPessoa().name())
                 .ativa(entity.getAtiva())
                 .createdAt(entity.getCreatedAt())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

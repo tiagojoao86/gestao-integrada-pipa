@@ -15,4 +15,5 @@ public class PerfilGridDTO implements GridDTO {
     private UUID id;
     private String nome;
     private LocalDateTime createdAt;
+    private Boolean deleted;
 }

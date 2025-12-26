@@ -196,6 +196,17 @@ export class AuthService {
     return false;
   }
 
+  hasAuthorityAuditarToModulo(moduleKey: string): boolean {
+    const authorities = this.getUserAuthorities();
+    const list = authorities.filter((auth) => auth.chave === moduleKey);
+
+    if (list.length > 0) {
+      return list[0].permissoes?.includes('AUDITAR') || false;
+    }
+
+    return false;
+  }
+
   // Unidades de Negócio Management
   setUnidadesNegocio(
     unidades: {

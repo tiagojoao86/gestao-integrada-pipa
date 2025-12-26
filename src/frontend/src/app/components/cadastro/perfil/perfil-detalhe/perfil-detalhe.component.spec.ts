@@ -10,6 +10,11 @@ import { of } from 'rxjs';
 import { PerfilDTO } from '../model/perfil-dto';
 import { ModuloDTO } from '../model/modulo-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { Response } from '../../../base/model/response';
+import type { CheckboxChangeEvent } from 'primeng/checkbox';
+import { HttpErrorResponse } from '@angular/common/http';
+import { GrupoModuloEnum } from '../model/grupo-modulo.enum';
 
 describe('PerfilDetalheComponent', () => {
   let component: PerfilDetalheComponent;
@@ -20,12 +25,27 @@ describe('PerfilDetalheComponent', () => {
   let authService: jest.Mocked<AuthService>;
 
   const mockModulosAgrupados = {
-    'CADASTRO': [
-      { id: 'm-1', nome: 'Pessoa', chave: 'CADASTRO_PESSOA', grupoEnum: 'CADASTRO' } as ModuloDTO,
-      { id: 'm-2', nome: 'Perfil', chave: 'CADASTRO_PERFIL', grupoEnum: 'CADASTRO' } as ModuloDTO,
+    CADASTROS: [
+      {
+        id: 'm-1',
+        nome: 'Pessoa',
+        chave: SystemModuleKey.CADASTRO_PESSOA,
+        grupoEnum: GrupoModuloEnum.CADASTROS,
+      } as ModuloDTO,
+      {
+        id: 'm-2',
+        nome: 'Perfil',
+        chave: SystemModuleKey.CADASTRO_PERFIL,
+        grupoEnum: GrupoModuloEnum.CADASTROS,
+      } as ModuloDTO,
     ],
-    'FINANCEIRO': [
-      { id: 'm-3', nome: 'Título', chave: 'FINANCEIRO_TITULO', grupoEnum: 'FINANCEIRO' } as ModuloDTO,
+    FINANCEIRO: [
+      {
+        id: 'm-3',
+        nome: 'Título',
+        chave: SystemModuleKey.FINANCEIRO_TITULO,
+        grupoEnum: GrupoModuloEnum.FINANCEIRO,
+      } as ModuloDTO,
     ],
   };
 
@@ -82,11 +102,19 @@ describe('PerfilDetalheComponent', () => {
 
     // Mocks padrão
     moduloServiceMock.getGroupedModules.mockReturnValue(
-      of({ body: mockModulosAgrupados } as any)
+      of({
+        body: mockModulosAgrupados,
+        statusCode: 200,
+        erroMessage: null,
+      } as Response<Record<string, ModuloDTO[]>>)
     );
 
     perfilServiceMock.findById.mockReturnValue(
-      of({ body: { id: '', nome: '', permissoes: [] } } as any)
+      of({
+        body: { id: '', nome: '', permissoes: [] },
+        statusCode: 200,
+        erroMessage: null,
+      } as Response<PerfilDTO>)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -146,9 +174,7 @@ describe('PerfilDetalheComponent', () => {
         permissoes: [],
       };
 
-      perfilService.findById.mockReturnValue(
-        of({ body: mockPerfil } as any)
-      );
+      perfilService.findById.mockReturnValue(of({ body: mockPerfil } as Response<PerfilDTO>));
 
       component.detailId = 'perf-1';
       component.ngOnInit();
@@ -172,9 +198,7 @@ describe('PerfilDetalheComponent', () => {
         permissoes: [],
       };
 
-      perfilService.findById.mockReturnValue(
-        of({ body: mockPerfil } as any)
-      );
+      perfilService.findById.mockReturnValue(of({ body: mockPerfil } as Response<PerfilDTO>));
 
       component.detailId = 'perf-2';
       component.ngOnInit();
@@ -204,13 +228,12 @@ describe('PerfilDetalheComponent', () => {
             podeVisualizar: true,
             podeEditar: true,
             podeDeletar: false,
+            podeAuditar: false,
           },
         ],
       };
 
-      perfilService.findById.mockReturnValue(
-        of({ body: mockPerfil } as any)
-      );
+      perfilService.findById.mockReturnValue(of({ body: mockPerfil } as Response<PerfilDTO>));
 
       component.detailId = 'perf-3';
       component.ngOnInit();
@@ -348,12 +371,12 @@ describe('PerfilDetalheComponent', () => {
       const grupos = component.getGrupos();
 
       expect(grupos.length).toBe(2);
-      expect(grupos).toContain('CADASTRO');
+      expect(grupos).toContain('CADASTROS');
       expect(grupos).toContain('FINANCEIRO');
     });
 
     it('getPermissoesDoGrupo deve filtrar permissões por grupo', () => {
-      const permissoesCadastro = component.getPermissoesDoGrupo('CADASTRO');
+      const permissoesCadastro = component.getPermissoesDoGrupo('CADASTROS');
       const permissoesFinanceiro = component.getPermissoesDoGrupo('FINANCEIRO');
 
       expect(permissoesCadastro.length).toBe(2); // Pessoa e Perfil
@@ -363,7 +386,7 @@ describe('PerfilDetalheComponent', () => {
     it('onSelectModuloChange deve marcar todas permissões ao selecionar módulo', () => {
       const permissao = component.permissoes.at(0);
 
-      component.onSelectModuloChange(permissao, { checked: true } as any);
+      component.onSelectModuloChange(permissao, { checked: true } as CheckboxChangeEvent);
 
       expect(permissao.get('podeListar')?.value).toBe(true);
       expect(permissao.get('podeVisualizar')?.value).toBe(true);
@@ -383,7 +406,7 @@ describe('PerfilDetalheComponent', () => {
       });
 
       // Desmarca
-      component.onSelectModuloChange(permissao, { checked: false } as any);
+      component.onSelectModuloChange(permissao, { checked: false } as CheckboxChangeEvent);
 
       expect(permissao.get('podeListar')?.value).toBe(false);
       expect(permissao.get('podeVisualizar')?.value).toBe(false);
@@ -444,15 +467,15 @@ describe('PerfilDetalheComponent', () => {
         nome: 'Perfil Duplicado',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 400,
         error: { message: 'perfil.nome.unique' },
-      };
+      });
 
       perfilService.save.mockImplementation(
         (_data: PerfilDTO, callbacks: ExecutionCallbacks<PerfilDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -468,15 +491,15 @@ describe('PerfilDetalheComponent', () => {
         nome: 'Perfil Erro',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 500,
         error: { message: 'Erro interno do servidor' },
-      };
+      });
 
       perfilService.save.mockImplementation(
         (_data: PerfilDTO, callbacks: ExecutionCallbacks<PerfilDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -495,18 +518,18 @@ describe('PerfilDetalheComponent', () => {
         nome: 'Perfil Existente',
       });
 
-      const mockError = {
+      const mockError = new HttpErrorResponse({
         status: 409,
         error: {
           message: 'perfil.nome.unique',
-          constraintName: 'UK_PERFIL_NOME'
+          constraintName: 'UK_PERFIL_NOME',
         },
-      };
+      });
 
       perfilService.save.mockImplementation(
         (_data: PerfilDTO, callbacks: ExecutionCallbacks<PerfilDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError);
           }
         }
       );
@@ -515,6 +538,77 @@ describe('PerfilDetalheComponent', () => {
 
       expect(perfilService.save).toHaveBeenCalled();
       // BaseService/BackendMessageService deve processar constraint e exibir mensagem amigável
+    });
+  });
+
+  describe('Soft Delete - Tentativa de Edição de Registro Excluído', () => {
+    beforeEach(() => {
+      component.detailId = 'add';
+      component.ngOnInit();
+    });
+
+    it('deve exibir erro ao tentar salvar perfil excluído', () => {
+      component.detailId = 'perfil-excluido';
+      component.form.patchValue({
+        nome: 'Perfil Excluído',
+      });
+
+      const mockError = new HttpErrorResponse({
+        status: 400,
+        error: {
+          userMessageKey: ['errors.deletedEntity'],
+          detail: ['Não é possível alterar a entidade \'PerfilEntity\' com o id \'perfil-excluido\' pois ela foi excluída']
+        },
+      });
+
+      perfilService.save.mockImplementation(
+        (_data: PerfilDTO, callbacks: ExecutionCallbacks<PerfilDTO>) => {
+          if (callbacks.onError) {
+            callbacks.onError(mockError);
+          }
+        }
+      );
+
+      const closeDetailSpy = jest.fn();
+      component.closeDetail.subscribe(closeDetailSpy);
+
+      component.savePerfil();
+
+      expect(perfilService.save).toHaveBeenCalled();
+      expect(closeDetailSpy).not.toHaveBeenCalled();
+      // BaseService/BackendMessageService deve processar e exibir mensagem:
+      // "Não é possível alterar um registro que foi excluído."
+    });
+
+    it('deve processar userMessageKey errors.deletedEntity corretamente', () => {
+      component.form.patchValue({
+        nome: 'Tentando Editar Perfil Excluído',
+      });
+
+      const mockError = new HttpErrorResponse({
+        status: 400,
+        statusText: 'Bad Request',
+        error: {
+          status: 400,
+          title: 'Invalid Data',
+          userMessageKey: ['errors.deletedEntity'],
+          detail: ['Entity was deleted']
+        },
+      });
+
+      perfilService.save.mockImplementation(
+        (_data: PerfilDTO, callbacks: ExecutionCallbacks<PerfilDTO>) => {
+          if (callbacks.onError) {
+            callbacks.onError(mockError);
+          }
+        }
+      );
+
+      component.savePerfil();
+
+      expect(perfilService.save).toHaveBeenCalled();
+      // BackendMessageService deve traduzir 'errors.deletedEntity' para
+      // "Não é possível alterar um registro que foi excluído."
     });
   });
 });

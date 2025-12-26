@@ -15,4 +15,5 @@ public class CentroCustoGridDTO implements GridDTO {
     private String nome;
     private String unidadeNegocioCodigo;
     private Boolean centroResultado;
+    private Boolean deleted;
 }

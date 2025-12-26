@@ -18,4 +18,5 @@ public class PessoaGridDTO implements GridDTO {
     private String tipoPessoa;
     private Boolean ativa;
     private LocalDateTime createdAt;
+    private Boolean deleted;
 }

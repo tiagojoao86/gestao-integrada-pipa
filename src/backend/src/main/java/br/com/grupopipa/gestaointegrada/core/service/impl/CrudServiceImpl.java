@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import br.com.grupopipa.gestaointegrada.core.Session;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.dao.UnidadeNegocioSpecification;
+import br.com.grupopipa.gestaointegrada.core.dto.AuditInfoDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
@@ -24,6 +25,7 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.enums.FilterLogicOperator;
+import br.com.grupopipa.gestaointegrada.core.exception.DeletedEntityException;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.core.service.CrudService;
 import jakarta.transaction.Transactional;
@@ -47,6 +49,11 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
             T entity = this.findEntityById(dto.getId());
 
             if (Objects.nonNull(entity)) {
+                // Validar se a entidade não está excluída
+                if (Boolean.TRUE.equals(entity.getDeleted())) {
+                    throw new DeletedEntityException(getEntityClass().getSimpleName(), entity.getId());
+                }
+
                 T mergedEntity = this.mergeEntityAndDTO(entity, dto);
                 T newEntity = repository.save(mergedEntity);
                 D newDTO = this.buildDTOFromEntity(newEntity);
@@ -56,8 +63,17 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         return this.buildDTOFromEntity(repository.save(this.mergeEntityAndDTO(null, dto)));
     }
 
+    @Transactional
     public UUID delete(UUID id) {
-        repository.deleteById(id);
+        T entity = this.findEntityById(id);
+
+        // Realizar soft delete
+        String username = Session.getUsuarioUsername();
+        entity.markAsDeleted(username);
+
+        // Salvar a entidade
+        // O CustomAuditingEntityListener verifica se deleted=true e preserva updatedBy/updatedAt
+        repository.save(entity);
 
         return id;
     }
@@ -68,8 +84,11 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     public PageDTO<G> list(FilterDTO filter, Pageable pageable) {
         Specification<T> specification = this.buildSpecification(filter);
 
+        // Adicionar filtro de soft delete
+        specification = addSoftDeleteFilter(specification, filter);
+
         // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
-        addUnidadeNegocioFilterIfApplicable(specification);
+        specification = addUnidadeNegocioFilterIfApplicable(specification);
 
         if (this.repository instanceof JpaSpecificationExecutor) {
             Page<T> page = ((JpaSpecificationExecutor<T>) this.repository).findAll(specification, pageable);
@@ -89,8 +108,11 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     public List<G> list(FilterDTO filter) {
         Specification<T> specification = this.buildSpecification(filter);
 
+        // Adicionar filtro de soft delete
+        specification = addSoftDeleteFilter(specification, filter);
+
         // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
-        addUnidadeNegocioFilterIfApplicable(specification);
+        specification = addUnidadeNegocioFilterIfApplicable(specification);
 
         if (this.repository instanceof JpaSpecificationExecutor) {
             return ((JpaSpecificationExecutor<T>) this.repository).findAll(specification).stream()
@@ -102,13 +124,36 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
 
     }
 
+    /**
+     * Adiciona filtro de soft delete baseado no flag showDeleted.
+     * Se showDeleted for false (padrão), filtra registros não excluídos (deleted = false).
+     * Se showDeleted for true, mostra todos os registros (inclusive excluídos).
+     *
+     * @param specification Specification existente
+     * @param filter FilterDTO contendo o flag showDeleted
+     * @return Specification com filtro de soft delete aplicado
+     */
+    private Specification<T> addSoftDeleteFilter(Specification<T> specification, FilterDTO filter) {
+        // Se showDeleted não estiver setado ou for false, filtrar apenas não excluídos
+        if (filter == null || !filter.isShowDeleted()) {
+            Specification<T> notDeletedSpec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.isFalse(root.get("deleted"));
+
+            specification = specification != null ? specification.and(notDeletedSpec) : notDeletedSpec;
+        }
+        // Se showDeleted for true, não adiciona filtro (mostra todos os registros)
+
+        return specification;
+    }
+
     @SuppressWarnings("unchecked")
-    private void addUnidadeNegocioFilterIfApplicable(Specification<T> specification) {
+    private Specification<T> addUnidadeNegocioFilterIfApplicable(Specification<T> specification) {
         if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
             Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
             Specification<T> unidadeSpec = (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
             specification = specification != null ? specification.and(unidadeSpec) : unidadeSpec;
         }
+        return specification;
     }
 
     @Override
@@ -178,7 +223,7 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     /**
      * Método auxiliar para obter filtro de UnidadeNegocio.
      * Usado em métodos como listarParaVinculo() que retornam List.
-     * 
+     *
      * @return Specification de UnidadeNegocio ou null se não aplicável
      */
     @SuppressWarnings("unchecked")
@@ -188,6 +233,20 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
             return (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);
         }
         return null;
+    }
+
+    @Override
+    public AuditInfoDTO getAuditInfo(UUID id) {
+        T entity = this.findEntityById(id);
+
+        return AuditInfoDTO.builder()
+                .createdBy(entity.getCreatedBy())
+                .createdAt(entity.getCreatedAt())
+                .updatedBy(entity.getUpdatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .deletedBy(entity.getDeletedBy())
+                .deletedAt(entity.getDeletedAt())
+                .build();
     }
 
 }

@@ -7,4 +7,5 @@ export interface PerfilModuloDTO {
   podeVisualizar: boolean;
   podeEditar: boolean;
   podeDeletar: boolean;
+  podeAuditar: boolean;
 }

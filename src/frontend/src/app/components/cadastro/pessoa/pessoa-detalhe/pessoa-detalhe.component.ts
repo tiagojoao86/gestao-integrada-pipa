@@ -28,6 +28,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { InputMaskModule } from 'primeng/inputmask';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-pessoa-detalhe',
@@ -68,7 +69,9 @@ export class PessoaDetalheComponent implements OnInit {
     this.initForm();
 
     // configure actions based on permission
-    const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_PESSOA');
+    const canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_PESSOA
+    );
     this.toolbarActions = [
       {
         action: () => {

@@ -25,4 +25,5 @@ public class TituloGridDTO implements GridDTO {
     private BigDecimal saldo;
     private LocalDate dataVencimento;
     private String parcelamento; // "3/12" se for parcelado
+    private Boolean deleted;
 }

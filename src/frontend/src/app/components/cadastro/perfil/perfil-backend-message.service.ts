@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from "../../base/services/backend-messs
   providedIn: 'root',
 })
 export class PerfilBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'perfil.nome.notBlank': $localize`:@@perfil.nome.notBlank:O nome do perfil não pode ser em branco.`,
     };

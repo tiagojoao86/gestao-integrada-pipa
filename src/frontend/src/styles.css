@@ -1,5 +1,6 @@
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
+@import "material-symbols/outlined.css";
 
 :root {
   --background-color: rgba(250, 250, 250, 1);

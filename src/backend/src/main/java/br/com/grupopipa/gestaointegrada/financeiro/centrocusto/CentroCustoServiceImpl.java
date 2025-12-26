@@ -72,6 +72,7 @@ public class CentroCustoServiceImpl
                 .nome(entity.getNome())
                 .centroResultado(entity.getCentroResultado())
                 .unidadeNegocioCodigo(unidadeNegocio != null ? unidadeNegocio.getCodigo() : null)
+                .deleted(entity.getDeleted())
                 .build();
     }
 

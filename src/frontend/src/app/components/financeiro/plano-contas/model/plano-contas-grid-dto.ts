@@ -8,6 +8,7 @@ export class PlanoContasGridDTO {
   unidadeNegocioCodigo?: string;
   ativo: boolean;
   analitico: boolean;
+  deleted?: boolean;
 
   constructor(
     id: string,
@@ -18,7 +19,8 @@ export class PlanoContasGridDTO {
     planoPaiDescricao: string | undefined,
     unidadeNegocioCodigo: string | undefined,
     ativo: boolean,
-    analitico: boolean
+    analitico: boolean,
+    deleted?: boolean
   ) {
     this.id = id;
     this.codigo = codigo;
@@ -29,5 +31,6 @@ export class PlanoContasGridDTO {
     this.unidadeNegocioCodigo = unidadeNegocioCodigo;
     this.ativo = ativo;
     this.analitico = analitico;
+    this.deleted = deleted;
   }
 }

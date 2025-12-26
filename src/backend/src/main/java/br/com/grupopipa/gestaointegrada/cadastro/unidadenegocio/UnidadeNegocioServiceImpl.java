@@ -70,6 +70,7 @@ public class UnidadeNegocioServiceImpl
                 .nome(entity.getNome())
                 .cnpj(entity.getCnpj())
                 .ativa(entity.getAtiva())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

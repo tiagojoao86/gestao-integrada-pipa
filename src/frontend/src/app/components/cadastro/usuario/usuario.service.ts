@@ -10,6 +10,8 @@ import { UsuarioBackendMessages } from './usuario-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { UsuarioGridDTO } from './model/usuario-grid-dto';
 import { plainToInstance } from 'class-transformer';
+import { AuditInfoData } from '../../base/audit-info/audit-info.component';
+import { Response } from '../../base/model/response';
 
 @Injectable()
 export class UsuarioService extends BaseService<UsuarioDTO, UsuarioGridDTO> {
@@ -43,6 +45,12 @@ export class UsuarioService extends BaseService<UsuarioDTO, UsuarioGridDTO> {
         map((response) => response.body),
         take(1)
       );
+  }
+
+  getAuditInfo(id: string): Observable<Response<AuditInfoData>> {
+    return this.httpClient
+      .get<Response<AuditInfoData>>(this.getUrl(`/${id}/audit-info`))
+      .pipe(take(1));
   }
 
   protected override convertToDto(body: unknown): UsuarioDTO {

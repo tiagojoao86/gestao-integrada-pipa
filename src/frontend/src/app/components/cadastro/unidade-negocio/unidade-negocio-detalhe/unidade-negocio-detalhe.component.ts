@@ -26,6 +26,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { InputMaskModule } from 'primeng/inputmask';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-unidade-negocio-detalhe',
@@ -64,7 +65,7 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
     this.initForm();
 
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'CADASTRO_UNIDADE_NEGOCIO'
+      SystemModuleKey.CADASTRO_UNIDADE_NEGOCIO
     );
 
     this.toolbarActions = [
@@ -99,8 +100,8 @@ export class UnidadeNegocioDetalheComponent implements OnInit {
     } else {
       this.editMode = true;
       this.service.findById(String(this.id!)).subscribe((response) => {
-          this.unidadeNegocio = response.body!;
-          this.titulo += this.unidadeNegocio.nome;
+        this.unidadeNegocio = response.body!;
+        this.titulo += this.unidadeNegocio.nome;
         this.fillForm();
         // Desabilita o campo código em modo edição
         this.form.get('codigo')?.disable();

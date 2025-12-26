@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
   providedIn: 'root',
 })
 export class MovimentacaoFinanceiraBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'movimentacaoFinanceira.titulos': $localize`:@@movimentacaoFinanceira.titulos:Pelo menos um título é obrigatório`,
       'movimentacaoFinanceira.contaBancaria': $localize`:@@movimentacaoFinanceira.contaBancaria:Conta bancária é obrigatória`,

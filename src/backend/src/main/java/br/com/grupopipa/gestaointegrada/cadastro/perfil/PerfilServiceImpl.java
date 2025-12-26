@@ -97,6 +97,7 @@ public class PerfilServiceImpl
                 .id(entity.getId())
                 .nome(entity.getNome())
                 .createdAt(entity.getCreatedAt())
+                .deleted(entity.getDeleted())
                 .build();
     }
 

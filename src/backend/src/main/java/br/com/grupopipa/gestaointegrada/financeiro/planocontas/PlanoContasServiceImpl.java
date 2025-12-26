@@ -112,6 +112,7 @@ public class PlanoContasServiceImpl
                 .unidadeNegocioCodigo(entity.getUnidadeNegocio().getCodigo())
                 .ativo(entity.getAtivo())
                 .analitico(analitico)
+                .deleted(entity.getDeleted())
                 .build();
     }
 

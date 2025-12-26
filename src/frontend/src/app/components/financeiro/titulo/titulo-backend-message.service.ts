@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
   providedIn: 'root',
 })
 export class TituloBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'titulo.tipo.notBlank': $localize`:@@titulo.tipo.notBlank:O tipo é obrigatório.`,
       'titulo.descricao.notBlank': $localize`:@@titulo.descricao.notBlank:A descrição é obrigatória.`,

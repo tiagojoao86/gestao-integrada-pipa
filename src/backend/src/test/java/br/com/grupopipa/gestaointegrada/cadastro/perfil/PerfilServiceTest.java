@@ -4,6 +4,7 @@ import br.com.grupopipa.gestaointegrada.cadastro.modulo.ModuloRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.modulo.entity.ModuloEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilEntity;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.exception.DeletedEntityException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -135,18 +136,20 @@ class PerfilServiceTest {
     }
 
     @Test
-    @DisplayName("Deve deletar perfil")
+    @DisplayName("Deve deletar perfil (deprecated - usar soft delete)")
     void deveDeletarPerfil() {
         // Given
         UUID id = UUID.randomUUID();
-        doNothing().when(repository).deleteById(id);
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(PerfilEntity.class))).thenReturn(entidadeValida);
 
         // When
         UUID resultadoId = service.delete(id);
 
         // Then
         assertEquals(id, resultadoId);
-        verify(repository, times(1)).deleteById(id);
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(any(PerfilEntity.class));
     }
 
     @Test
@@ -207,5 +210,74 @@ class PerfilServiceTest {
         assertNotNull(resultado);
         assertEquals("Administrador", resultado.getNome());
         assertEquals(1, resultado.getPermissoes().size());
+    }
+
+    @Test
+    @DisplayName("Deve realizar soft delete do perfil")
+    void deveRealizarSoftDeleteDoPerfil() {
+        // Given
+        UUID id = UUID.randomUUID();
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(PerfilEntity.class))).thenReturn(entidadeValida);
+
+        // When
+        UUID resultado = service.delete(id);
+
+        // Then
+        assertEquals(id, resultado);
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(any(PerfilEntity.class));
+        // Verifica que markAsDeleted foi chamado na entidade
+        assertTrue(entidadeValida.getDeleted());
+        assertNotNull(entidadeValida.getDeletedAt());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao tentar editar perfil excluído")
+    void deveLancarExcecaoAoTentarEditarPerfilExcluido() {
+        // Given
+        UUID id = UUID.randomUUID();
+        PerfilEntity perfilExcluido = new PerfilEntity.Builder()
+                .nome("Perfil Excluído")
+                .build();
+
+        // Marcar como excluído
+        perfilExcluido.markAsDeleted("admin");
+
+        // Usar reflexão para setar o ID na entidade
+        try {
+            java.lang.reflect.Field idField = PerfilEntity.class.getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(perfilExcluido, id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        when(repository.findById(id)).thenReturn(Optional.of(perfilExcluido));
+
+        PerfilDTO dtoAtualizado = PerfilDTO.builder()
+                .id(id)
+                .nome("Tentando Atualizar")
+                .build();
+
+        // When/Then
+        assertThrows(DeletedEntityException.class, () -> service.save(dtoAtualizado));
+        verify(repository, times(1)).findById(id);
+        verify(repository, never()).save(any(PerfilEntity.class));
+    }
+
+    @Test
+    @DisplayName("Deve incluir campo deleted no GridDTO")
+    void deveIncluirCampoDeletedNoGridDTO() {
+        // Entidade não excluída
+        PerfilGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
+        assertNotNull(gridDTO);
+        assertFalse(gridDTO.getDeleted());
+
+        // Entidade excluída
+        entidadeValida.markAsDeleted("admin");
+        PerfilGridDTO gridDTOExcluido = service.buildGridDTOFromEntity(entidadeValida);
+        assertNotNull(gridDTOExcluido);
+        assertTrue(gridDTOExcluido.getDeleted());
     }
 }

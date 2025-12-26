@@ -1,0 +1,53 @@
+<p-card>
+  <div class="audit-info-container">
+    <div class="audit-info-header">
+      <h3 i18n>Informações de Auditoria</h3>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        class="p-button-text p-button-rounded"
+        (click)="onClose()"
+        [aria-label]="getCloseLabel()"
+      ></button>
+    </div>
+
+    <div class="audit-info-content">
+      <div class="audit-column">
+        <h4 i18n>Criação</h4>
+        <div class="audit-field">
+          <label for="createdBy" i18n>Criado por:</label>
+          <span id="createdBy">{{ auditData?.createdBy || "-" }}</span>
+        </div>
+        <div class="audit-field">
+          <label for="createdAt" i18n>Data de criação:</label>
+          <span id="createdAt">{{ formatDate(auditData?.createdAt) }}</span>
+        </div>
+      </div>
+
+      <div class="audit-column">
+        <h4 i18n>Última Atualização</h4>
+        <div class="audit-field">
+          <label for="updatedBy" i18n>Atualizado por:</label>
+          <span id="updatedBy">{{ auditData?.updatedBy || "-" }}</span>
+        </div>
+        <div class="audit-field">
+          <label for="updatedAt" i18n>Data de atualização:</label>
+          <span id="updatedAt">{{ formatDate(auditData?.updatedAt) }}</span>
+        </div>
+      </div>
+
+      <div class="audit-column">
+        <h4 i18n>Exclusão</h4>
+        <div class="audit-field">
+          <label for="deletedBy" i18n>Excluído por:</label>
+          <span id="deletedBy">{{ auditData?.deletedBy || "-" }}</span>
+        </div>
+        <div class="audit-field">
+          <label for="deletedAt" i18n>Data de exclusão:</label>
+          <span id="deletedAt">{{ formatDate(auditData?.deletedAt) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-card>

@@ -5,7 +5,7 @@ import { AbstractBackendMessageService } from '../../base/services/backend-messs
   providedIn: 'root',
 })
 export class PessoaBackendMessages extends AbstractBackendMessageService {
-  messages(): Record<string, string> {
+  protected entityMessages(): Record<string, string> {
     return {
       'pessoa.nome.notBlank': $localize`:@@pessoa.nome.notBlank:O nome da pessoa não pode ser em branco.`,
       'pessoa.email.invalid': $localize`:@@pessoa.email.invalid:Email inválido.`,

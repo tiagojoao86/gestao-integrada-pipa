@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../base/auth/auth-guard';
+import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 export const routes: Routes = [
   {
@@ -17,7 +18,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'financeiro',
+    path: SystemModuleKey.FINANCEIRO,
     loadChildren: () =>
       import('../financeiro/financeiro.routes').then(
         (financeiroRoutes) => financeiroRoutes.routes
