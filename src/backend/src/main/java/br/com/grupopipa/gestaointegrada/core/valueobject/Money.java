@@ -25,7 +25,7 @@ public class Money implements Serializable {
         this.value = BigDecimal.ZERO;
     }
 
-    public Money(BigDecimal value) {
+    private Money(BigDecimal value) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (value == null) {
@@ -36,11 +36,11 @@ public class Money implements Serializable {
         this.value = value.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public Money(String value) {
+    private Money(String value) {
         this(new BigDecimal(value));
     }
 
-    public Money(double value) {
+    private Money(double value) {
         this(BigDecimal.valueOf(value));
     }
 
@@ -49,6 +49,55 @@ public class Money implements Serializable {
     }
 
     public static Money of(BigDecimal value) {
+        return new Money(value);
+    }
+
+    public static Money of(String value) {
+        return new Money(value);
+    }
+
+    public static Money of(double value) {
+        return new Money(value);
+    }
+
+    /**
+     * Cria um Money garantindo que o valor seja >= 0
+     * Usado para valores que não podem ser negativos: desconto, juros, multa,
+     * valores originais
+     */
+    public static Money positiveOrZero(BigDecimal value) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (value == null) {
+            violations.add(new BeanValidationMessage("valor", "Valor monetário não pode ser nulo"));
+            throw new BeanValidationException(violations);
+        }
+
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            violations.add(new BeanValidationMessage("valor", "Valor não pode ser negativo"));
+            throw new BeanValidationException(violations);
+        }
+
+        return new Money(value);
+    }
+
+    /**
+     * Cria um Money garantindo que o valor seja > 0
+     * Usado para valores que devem ser estritamente positivos
+     */
+    public static Money positive(BigDecimal value) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (value == null) {
+            violations.add(new BeanValidationMessage("valor", "Valor monetário não pode ser nulo"));
+            throw new BeanValidationException(violations);
+        }
+
+        if (value.compareTo(BigDecimal.ZERO) <= 0) {
+            violations.add(new BeanValidationMessage("valor", "Valor deve ser maior que zero"));
+            throw new BeanValidationException(violations);
+        }
+
         return new Money(value);
     }
 

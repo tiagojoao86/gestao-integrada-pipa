@@ -7,14 +7,14 @@ import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValida
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceira;
-import br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
-import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,25 +67,28 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .cnpj("11222333000181")
                                 .razaoSocial("Fornecedor LTDA")
                                 .build();
-                entityManager.persist(pessoa); // Criar plano de contas
-                PlanoContas planoContas = new PlanoContas.Builder()
-                                .codigo("4.1.001")
-                                .descricao("Fornecedores")
-                                .tipo(TipoPlanoContas.DESPESA)
-                                .unidadeNegocio(unidadeNegocio)
+                entityManager.persist(pessoa);
+
+                // Criar categoria de título
+                TituloCategoria tituloCategoria = new TituloCategoria.Builder()
+                                .codigo("001")
+                                .nome("Fornecedores")
+                                .descricao("Despesas com fornecedores")
+                                .tipo(TituloCategoriaTipoEnum.DESPESA)
                                 .build();
-                entityManager.persist(planoContas);
+                entityManager.persist(tituloCategoria);
 
                 // Criar título
                 titulo = new Titulo.Builder()
                                 .tipo(TipoTitulo.A_PAGAR)
                                 .descricao("Pagamento fornecedor")
                                 .pessoa(pessoa)
-                                .planoContas(planoContas)
+                                .tituloCategoria(tituloCategoria)
                                 .unidadeNegocio(unidadeNegocio)
                                 .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
                                 .dataEmissao(LocalDate.now())
                                 .dataVencimento(LocalDate.now().plusDays(30))
+                                .rateioAutomatico(false)
                                 .build();
                 entityManager.persist(titulo);
 
@@ -127,7 +130,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 assertNotNull(recuperada.getId());
                 assertEquals(TipoMovimentacao.PAGAMENTO, recuperada.getTipo());
                 assertEquals(FormaPagamento.PIX, recuperada.getFormaPagamento());
-                assertEquals(new Money(BigDecimal.valueOf(500.00)), recuperada.getValor());
+                assertEquals(Money.of(BigDecimal.valueOf(500.00)), recuperada.getValor());
                 assertNotNull(recuperada.getCreatedAt());
                 assertTrue(recuperada.isPagamento());
         }
@@ -147,23 +150,24 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                                 .build();
                 entityManager.persist(cliente);
 
-                PlanoContas planoReceita = new PlanoContas.Builder()
-                                .codigo("3.1.001")
-                                .descricao("Vendas")
-                                .tipo(TipoPlanoContas.RECEITA)
-                                .unidadeNegocio(unidadeNegocio)
+                TituloCategoria categoriaReceita = new TituloCategoria.Builder()
+                                .codigo("002")
+                                .nome("Vendas")
+                                .descricao("Receitas de vendas")
+                                .tipo(TituloCategoriaTipoEnum.RECEITA)
                                 .build();
-                entityManager.persist(planoReceita);
+                entityManager.persist(categoriaReceita);
 
                 Titulo tituloReceber = new Titulo.Builder()
                                 .tipo(TipoTitulo.A_RECEBER)
                                 .descricao("Venda de produtos")
                                 .pessoa(cliente)
-                                .planoContas(planoReceita)
+                                .tituloCategoria(categoriaReceita)
                                 .unidadeNegocio(unidadeNegocio)
                                 .valorOriginal(Money.of(BigDecimal.valueOf(2000.00)))
                                 .dataEmissao(LocalDate.now())
                                 .dataVencimento(LocalDate.now().plusDays(15))
+                                .rateioAutomatico(false)
                                 .build();
                 entityManager.persist(tituloReceber);
                 entityManager.flush();
@@ -235,8 +239,8 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
 
                 // Then
                 assertEquals(StatusTitulo.PARCIAL, titulo.getStatus());
-                assertEquals(new Money(BigDecimal.valueOf(400.00)), titulo.getValorPago());
-                assertEquals(new Money(BigDecimal.valueOf(600.00)), titulo.calcularSaldo());
+                assertEquals(Money.of(BigDecimal.valueOf(400.00)), titulo.getValorPago());
+                assertEquals(Money.of(BigDecimal.valueOf(600.00)), titulo.calcularSaldo());
         }
 
         @Test
@@ -259,7 +263,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
 
                 // Then
                 assertEquals(StatusTitulo.PAGO, titulo.getStatus());
-                assertEquals(new Money(BigDecimal.valueOf(1000.00)), titulo.getValorPago());
+                assertEquals(Money.of(BigDecimal.valueOf(1000.00)), titulo.getValorPago());
                 assertTrue(titulo.calcularSaldo().isZero());
                 assertNotNull(titulo.getDataPagamento());
         }
@@ -310,7 +314,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 // Then
                 assertTrue(resultado.isPresent());
                 assertEquals(movimentacaoSalva.getId(), resultado.get().getId());
-                assertEquals(new Money(BigDecimal.valueOf(150.00)), resultado.get().getValor());
+                assertEquals(Money.of(BigDecimal.valueOf(150.00)), resultado.get().getValor());
         }
 
         @Test

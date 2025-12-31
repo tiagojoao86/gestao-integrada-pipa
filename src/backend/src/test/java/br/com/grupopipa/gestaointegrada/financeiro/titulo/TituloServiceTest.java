@@ -161,7 +161,7 @@ class TituloServiceTest {
         assertEquals(TipoTitulo.A_PAGAR, resultado.getTipo());
         assertEquals(StatusTitulo.ABERTO, resultado.getStatus());
         assertEquals("Pagamento fornecedor", resultado.getDescricao());
-        assertEquals(new Money(BigDecimal.valueOf(1000.00)), resultado.getValorOriginal());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), resultado.getValorOriginal());
         assertEquals(pessoa, resultado.getPessoa());
         assertEquals(tituloCategoria, resultado.getTituloCategoria());
     }
@@ -257,13 +257,16 @@ class TituloServiceTest {
     void deveDeletarTitulo() {
         // Given
         UUID id = UUID.randomUUID();
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+        when(repository.save(any(Titulo.class))).thenReturn(entity);
 
         // When
         UUID resultado = service.delete(id);
 
         // Then
         assertEquals(id, resultado);
-        verify(repository, times(1)).deleteById(id);
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(any(Titulo.class));
     }
 
     @Test

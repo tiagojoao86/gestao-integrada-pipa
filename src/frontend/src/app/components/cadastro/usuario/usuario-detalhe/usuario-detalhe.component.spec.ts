@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { UsuarioDetalheComponent } from './usuario-detalhe.component';
 import { UsuarioService } from '../usuario.service';
 import { MessageService } from '../../../base/messages/messages.service';
@@ -11,15 +12,21 @@ import { PerfilParaVinculoDTO } from '../../perfil/model/perfil-para-vinculo-dto
 import { UnidadeNegocioDTO } from '../../unidade-negocio/model/unidade-negocio-dto';
 import { UsuarioUnidadeNegocioDTO } from '../model/usuario-unidade-negocio-dto';
 import { PerfilDTO } from '../../perfil/model/perfil-dto';
+import { Response } from '../../../base/model/response';
 
 describe('UsuarioDetalheComponent', () => {
   let component: UsuarioDetalheComponent;
   let fixture: ComponentFixture<UsuarioDetalheComponent>;
-  let usuarioService: any;
-  let messageService: any;
 
   const authServiceMock = {
     hasAuthorityEditarToModulo: jest.fn().mockReturnValue(true),
+  };
+
+  const usuarioServiceMock = {
+    findById: jest.fn(),
+    save: jest.fn(),
+    listarPerfisDisponiveis: jest.fn(),
+    listarUnidadesDisponiveis: jest.fn(),
   };
 
   const messageServiceMock = {
@@ -39,12 +46,8 @@ describe('UsuarioDetalheComponent', () => {
     { id: '3', nome: 'Unidade 3', codigo: 'UN03' } as UnidadeNegocioDTO,
   ];
 
-  const usuarioServiceMock = {
-    findById: jest.fn(),
-    save: jest.fn(),
-    listarPerfisDisponiveis: jest.fn(),
-    listarUnidadesDisponiveis: jest.fn(),
-  };
+  let usuarioService: typeof usuarioServiceMock;
+  let messageService: typeof messageServiceMock;
 
   beforeEach(async () => {
     usuarioServiceMock.listarPerfisDisponiveis.mockReturnValue(of(mockPerfis));
@@ -141,7 +144,7 @@ describe('UsuarioDetalheComponent', () => {
         unidadesNegocio: [],
       };
       usuarioService.findById.mockReturnValue(
-        of({ body: mockUsuario } as any)
+        of({ body: mockUsuario } as Response<UsuarioDTO>)
       );
 
       component.detailId = '1';
@@ -169,7 +172,7 @@ describe('UsuarioDetalheComponent', () => {
         unidadesNegocio: [],
       };
       usuarioService.findById.mockReturnValue(
-        of({ body: mockUsuario } as any)
+        of({ body: mockUsuario } as Response<UsuarioDTO>)
       );
 
       component.detailId = '1';
@@ -189,7 +192,7 @@ describe('UsuarioDetalheComponent', () => {
         unidadesNegocio: [],
       };
       usuarioService.findById.mockReturnValue(
-        of({ body: mockUsuario } as any)
+        of({ body: mockUsuario } as Response<UsuarioDTO>)
       );
 
       component.detailId = '1';
@@ -217,7 +220,7 @@ describe('UsuarioDetalheComponent', () => {
         unidadesNegocio: mockUnidadesNegocio,
       };
       usuarioService.findById.mockReturnValue(
-        of({ body: mockUsuario } as any)
+        of({ body: mockUsuario } as Response<UsuarioDTO>)
       );
 
       component.detailId = '1';
@@ -445,11 +448,11 @@ describe('UsuarioDetalheComponent', () => {
       const callArgs = usuarioService.save.mock.calls[0][0];
       expect(callArgs.unidadesNegocio?.length).toBe(2);
       expect(
-        callArgs.unidadesNegocio?.find((u) => u.unidadeNegocioId === '1')
+        callArgs.unidadesNegocio?.find((u: UsuarioUnidadeNegocioDTO) => u.unidadeNegocioId === '1')
           ?.isDefault
       ).toBe(false);
       expect(
-        callArgs.unidadesNegocio?.find((u) => u.unidadeNegocioId === '2')
+        callArgs.unidadesNegocio?.find((u: UsuarioUnidadeNegocioDTO) => u.unidadeNegocioId === '2')
           ?.isDefault
       ).toBe(true);
     });
@@ -486,7 +489,7 @@ describe('UsuarioDetalheComponent', () => {
         unidadesNegocio: [],
       };
       usuarioService.findById.mockReturnValue(
-        of({ body: mockUsuario } as any)
+        of({ body: mockUsuario } as Response<UsuarioDTO>)
       );
 
       component.detailId = '123';
@@ -577,7 +580,7 @@ describe('UsuarioDetalheComponent', () => {
               error: {
                 message: 'ERRO_LOGIN_DUPLICADO',
               },
-            } as any);
+            } as unknown as HttpErrorResponse);
           }
         }
       );
@@ -602,7 +605,7 @@ describe('UsuarioDetalheComponent', () => {
               error: {
                 message: 'ERRO_LOGIN_DUPLICADO',
               },
-            } as any);
+            } as unknown as HttpErrorResponse);
           }
         }
       );
@@ -629,7 +632,7 @@ describe('UsuarioDetalheComponent', () => {
                 message:
                   'could not execute statement [ERROR: duplicate key value violates unique constraint "usuario_login_key"',
               },
-            } as any);
+            } as unknown as HttpErrorResponse);
           }
         }
       );

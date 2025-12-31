@@ -483,7 +483,7 @@ describe('TituloDetalheComponent', () => {
       expect(callArgs.unidadeNegocioId).toBe('un-1');
       expect(callArgs.tituloCategoriaId).toBe('cat-1');
       expect(callArgs.tipo).toBe('A_PAGAR');
-      expect(callArgs.status).toBe('ABERTO');
+      // Status NÃO é enviado - será calculado pelo backend
       expect(callArgs.numeroDocumento).toBe('NF-001');
       expect(callArgs.descricao).toBe('Título Teste');
       expect(callArgs.valorOriginal).toBe(1000);

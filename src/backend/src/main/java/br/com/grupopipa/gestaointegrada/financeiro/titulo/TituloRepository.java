@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface TituloRepository extends JpaRepository<Titulo, UUID>, JpaSpecificationExecutor<Titulo> {
+public interface TituloRepository extends JpaRepository<Titulo, UUID>, JpaSpecificationExecutor<Titulo>, TituloRepositoryCustom {
 }

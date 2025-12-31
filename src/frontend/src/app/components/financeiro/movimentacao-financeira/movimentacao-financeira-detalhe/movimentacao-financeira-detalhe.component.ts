@@ -47,6 +47,7 @@ import {
 } from '../model/movimentacao-financeira.dto';
 import { TituloDTO } from '../../titulo/model/titulo-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-movimentacao-financeira-detalhe',
@@ -144,7 +145,7 @@ export class MovimentacaoFinanceiraDetalheComponent
 
     // Configure action toolbar (Cancelar / Salvar) based on permissions
     const canEdit = this.auth.hasAuthorityEditarToModulo(
-      'FINANCEIRO_MOVIMENTACAO'
+      SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
     );
     this.toolbarActions = [
       {

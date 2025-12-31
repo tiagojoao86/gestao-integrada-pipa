@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ContaBancariaDetalheComponent } from './conta-bancaria-detalhe.component';
 import { ContaBancariaService } from '../conta-bancaria.service';
@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { ContaBancariaDTO } from '../model/conta-bancaria-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import { Response } from '../../../base/model/response';
 
 describe('ContaBancariaDetalheComponent', () => {
   let component: ContaBancariaDetalheComponent;
@@ -69,11 +70,11 @@ describe('ContaBancariaDetalheComponent', () => {
 
     // Mocks padrão
     contaBancariaServiceMock.findById.mockReturnValue(
-      of({ body: new ContaBancariaDTO() } as any)
+      of({ body: new ContaBancariaDTO() } as Response<ContaBancariaDTO>)
     );
 
     contaBancariaServiceMock.listarUnidadesDisponiveis.mockReturnValue(
-      of(mockUnidadesNegocio as any)
+      of(mockUnidadesNegocio)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -166,7 +167,7 @@ describe('ContaBancariaDetalheComponent', () => {
       );
 
       contaBancariaService.findById.mockReturnValue(
-        of({ body: mockConta } as any)
+        of({ body: mockConta } as Response<ContaBancariaDTO>)
       );
 
       component.detailId = 'cb-1';
@@ -200,7 +201,7 @@ describe('ContaBancariaDetalheComponent', () => {
       );
 
       contaBancariaService.findById.mockReturnValue(
-        of({ body: mockConta } as any)
+        of({ body: mockConta } as Response<ContaBancariaDTO>)
       );
 
       component.detailId = 'cb-2';
@@ -478,7 +479,7 @@ describe('ContaBancariaDetalheComponent', () => {
       contaBancariaService.save.mockImplementation(
         (_data: ContaBancariaDTO, callbacks: ExecutionCallbacks<ContaBancariaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -504,7 +505,7 @@ describe('ContaBancariaDetalheComponent', () => {
       contaBancariaService.save.mockImplementation(
         (_data: ContaBancariaDTO, callbacks: ExecutionCallbacks<ContaBancariaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -536,7 +537,7 @@ describe('ContaBancariaDetalheComponent', () => {
       contaBancariaService.save.mockImplementation(
         (_data: ContaBancariaDTO, callbacks: ExecutionCallbacks<ContaBancariaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -565,7 +566,7 @@ describe('ContaBancariaDetalheComponent', () => {
       contaBancariaService.save.mockImplementation(
         (_data: ContaBancariaDTO, callbacks: ExecutionCallbacks<ContaBancariaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );

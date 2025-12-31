@@ -72,7 +72,8 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         entity.markAsDeleted(username);
 
         // Salvar a entidade
-        // O CustomAuditingEntityListener verifica se deleted=true e preserva updatedBy/updatedAt
+        // O CustomAuditingEntityListener verifica se deleted=true e preserva
+        // updatedBy/updatedAt
         repository.save(entity);
 
         return id;
@@ -126,18 +127,19 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
 
     /**
      * Adiciona filtro de soft delete baseado no flag showDeleted.
-     * Se showDeleted for false (padrão), filtra registros não excluídos (deleted = false).
+     * Se showDeleted for false (padrão), filtra registros não excluídos (deleted =
+     * false).
      * Se showDeleted for true, mostra todos os registros (inclusive excluídos).
      *
      * @param specification Specification existente
-     * @param filter FilterDTO contendo o flag showDeleted
+     * @param filter        FilterDTO contendo o flag showDeleted
      * @return Specification com filtro de soft delete aplicado
      */
-    private Specification<T> addSoftDeleteFilter(Specification<T> specification, FilterDTO filter) {
+    protected Specification<T> addSoftDeleteFilter(Specification<T> specification, FilterDTO filter) {
         // Se showDeleted não estiver setado ou for false, filtrar apenas não excluídos
         if (filter == null || !filter.isShowDeleted()) {
-            Specification<T> notDeletedSpec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.isFalse(root.get("deleted"));
+            Specification<T> notDeletedSpec = (root, query, criteriaBuilder) -> criteriaBuilder
+                    .isFalse(root.get("deleted"));
 
             specification = specification != null ? specification.and(notDeletedSpec) : notDeletedSpec;
         }
@@ -147,7 +149,7 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
     }
 
     @SuppressWarnings("unchecked")
-    private Specification<T> addUnidadeNegocioFilterIfApplicable(Specification<T> specification) {
+    protected Specification<T> addUnidadeNegocioFilterIfApplicable(Specification<T> specification) {
         if (UnidadeNegocioFiltravel.class.isAssignableFrom(getEntityClass())) {
             Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
             Specification<T> unidadeSpec = (Specification<T>) UnidadeNegocioSpecification.create(unidadesPermitidas);

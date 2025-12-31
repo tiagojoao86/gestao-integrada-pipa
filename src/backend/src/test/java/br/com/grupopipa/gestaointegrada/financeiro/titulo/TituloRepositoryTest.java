@@ -6,6 +6,7 @@ import br.com.grupopipa.gestaointegrada.config.AbstractIntegrationTest;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import jakarta.persistence.EntityManager;
@@ -101,7 +102,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
         assertEquals(TipoTitulo.A_PAGAR, tituloRecuperado.getTipo());
         assertEquals(StatusTitulo.ABERTO, tituloRecuperado.getStatus());
         assertEquals("Pagamento fornecedor - NF 12345", tituloRecuperado.getDescricao());
-        assertEquals(new Money(BigDecimal.valueOf(1000.00)), tituloRecuperado.getValorOriginal());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), tituloRecuperado.getValorOriginal());
         assertNotNull(tituloRecuperado.getCreatedAt());
     }
 
@@ -119,11 +120,19 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
                 .build();
         entityManager.persist(cliente);
 
+        TituloCategoria categoriaReceita = new TituloCategoria.Builder()
+                .codigo("002")
+                .nome("Vendas")
+                .descricao("Receitas de vendas")
+                .tipo(br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum.RECEITA)
+                .build();
+        entityManager.persist(categoriaReceita);
+
         Titulo titulo = new Titulo.Builder()
                 .tipo(TipoTitulo.A_RECEBER)
                 .descricao("Venda de produtos - NF 54321")
                 .pessoa(cliente)
-
+                .tituloCategoria(categoriaReceita)
                 .unidadeNegocio(unidadeNegocio)
                 .valorOriginal(Money.of(BigDecimal.valueOf(2500.00)))
                 .dataEmissao(LocalDate.now())
@@ -140,7 +149,7 @@ class TituloRepositoryTest extends AbstractIntegrationTest {
         assertTrue(resultado.isPresent());
         assertEquals(TipoTitulo.A_RECEBER, resultado.get().getTipo());
         assertEquals(StatusTitulo.ABERTO, resultado.get().getStatus());
-        assertEquals(new Money(BigDecimal.valueOf(2500.00)), resultado.get().getValorOriginal());
+        assertEquals(Money.of(BigDecimal.valueOf(2500.00)), resultado.get().getValorOriginal());
     }
 
     @Test

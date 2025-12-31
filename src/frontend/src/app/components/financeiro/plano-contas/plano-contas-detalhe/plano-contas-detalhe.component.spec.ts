@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { PlanoContasDetalheComponent } from './plano-contas-detalhe.component';
 import { PlanoContasService } from '../plano-contas.service';
@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { PlanoContasDTO } from '../model/plano-contas-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import { Response } from '../../../base/model/response';
 
 describe('PlanoContasDetalheComponent', () => {
   let component: PlanoContasDetalheComponent;
@@ -70,11 +71,11 @@ describe('PlanoContasDetalheComponent', () => {
 
     // Mocks padrão
     planoContasServiceMock.findById.mockReturnValue(
-      of({ body: new PlanoContasDTO() } as any)
+      of({ body: new PlanoContasDTO() } as Response<PlanoContasDTO>)
     );
 
     planoContasServiceMock.listarUnidadesDisponiveis.mockReturnValue(
-      of(mockUnidadesNegocio as any)
+      of(mockUnidadesNegocio)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -161,7 +162,7 @@ describe('PlanoContasDetalheComponent', () => {
       );
 
       planoContasService.findById.mockReturnValue(
-        of({ body: mockPlano } as any)
+        of({ body: mockPlano } as Response<PlanoContasDTO>)
       );
 
       component.detailId = 'pc-1';
@@ -194,7 +195,7 @@ describe('PlanoContasDetalheComponent', () => {
       );
 
       planoContasService.findById.mockReturnValue(
-        of({ body: mockPlano } as any)
+        of({ body: mockPlano } as Response<PlanoContasDTO>)
       );
 
       component.detailId = 'pc-2';
@@ -227,12 +228,12 @@ describe('PlanoContasDetalheComponent', () => {
 
       planoContasService.findById.mockImplementation((id: string) => {
         if (id === 'pc-filho') {
-          return of({ body: mockPlano } as any);
+          return of({ body: mockPlano } as Response<PlanoContasDTO>);
         }
         if (id === 'pc-pai') {
-          return of({ body: mockPlanoPai } as any);
+          return of({ body: mockPlanoPai } as Response<PlanoContasDTO>);
         }
-        return of({ body: null } as any);
+        return of({ body: null });
       });
 
       component.detailId = 'pc-filho';
@@ -454,7 +455,7 @@ describe('PlanoContasDetalheComponent', () => {
         },
       };
 
-      planoContasService.list.mockReturnValue(of(mockResponse as any));
+      planoContasService.list.mockReturnValue(of(mockResponse));
 
       component.searchPlanoPai({ query: 'Ativo' });
 
@@ -475,7 +476,7 @@ describe('PlanoContasDetalheComponent', () => {
         },
       };
 
-      planoContasService.list.mockReturnValue(of(mockResponse as any));
+      planoContasService.list.mockReturnValue(of(mockResponse));
 
       component.searchPlanoPai({ query: '' });
 
@@ -540,7 +541,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -568,7 +569,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -602,7 +603,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -635,7 +636,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );

@@ -144,7 +144,7 @@ export class TituloDetalheComponent implements OnInit {
       this.tituloTela += $localize`Novo`;
       this.titulo = {} as TituloDTO;
       this.form.get('tipo')?.setValue('A_PAGAR');
-      this.form.get('status')?.setValue('ABERTO');
+      // Status não é mais definido pelo usuário - será calculado pelo backend
       this.form.get('dataEmissao')?.setValue(new Date());
       // Load unidades and set default after loading
       this.loadUnidadesNegocio(true);
@@ -340,7 +340,7 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.unidadeNegocioId = unidadeNegocioId;
     this.titulo.tituloCategoriaId = tituloCategoriaId;
     this.titulo.tipo = this.form.value.tipo;
-    this.titulo.status = this.form.value.status;
+    // Status NÃO é enviado - será calculado pelo backend
     this.titulo.numeroDocumento = this.form.value.numeroDocumento;
     this.titulo.descricao = this.form.value.descricao;
     this.titulo.valorOriginal = this.form.value.valorOriginal;

@@ -115,6 +115,18 @@ export class TituloGridComponent {
       },
     },
     {
+      name: 'valorPago',
+      label: $localize`Pago`,
+      getValue: (element: TituloGridDTO) => {
+        const currency = this.getCurrencyForLocale();
+        return this.currencyPipe.transform(
+          element.valorPago,
+          currency,
+          'symbol'
+        );
+      },
+    },
+    {
       name: 'saldo',
       label: $localize`Saldo`,
       getValue: (element: TituloGridDTO) => {

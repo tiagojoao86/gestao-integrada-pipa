@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CentroCustoDetalheComponent } from './centro-custo-detalhe.component';
 import { CentroCustoService } from '../centro-custo.service';
@@ -9,17 +9,17 @@ import { of } from 'rxjs';
 import { CentroCustoDTO } from '../model/centro-custo-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import { Response } from '../../../base/model/response';
 
 describe('CentroCustoDetalheComponent', () => {
   let component: CentroCustoDetalheComponent;
   let fixture: ComponentFixture<CentroCustoDetalheComponent>;
   let centroCustoService: jest.Mocked<CentroCustoService>;
-  let messageService: jest.Mocked<MessageService>;
   let authService: jest.Mocked<AuthService>;
 
   const mockUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [
-    { id: 'un-1', nome: 'Matriz' } as UsuarioUnidadeNegocioDTO,
-    { id: 'un-2', nome: 'Filial' } as UsuarioUnidadeNegocioDTO,
+    { unidadeNegocioId: 'un-1', unidadeNegocioNome: 'Matriz', unidadeNegocioCodigo: 'UN01', isDefault: true },
+    { unidadeNegocioId: 'un-2', unidadeNegocioNome: 'Filial', unidadeNegocioCodigo: 'UN02', isDefault: false },
   ];
 
   beforeEach(async () => {
@@ -62,9 +62,6 @@ describe('CentroCustoDetalheComponent', () => {
     centroCustoService = fixture.debugElement.injector.get(
       CentroCustoService
     ) as jest.Mocked<CentroCustoService>;
-    messageService = TestBed.inject(
-      MessageService
-    ) as jest.Mocked<MessageService>;
     authService = TestBed.inject(AuthService) as jest.Mocked<AuthService>;
 
     // Mocks padrão
@@ -123,7 +120,7 @@ describe('CentroCustoDetalheComponent', () => {
 
       expect(authService.getUnidadesNegocio).toHaveBeenCalled();
       expect(component.unidadesNegocioOptions.length).toBe(2);
-      expect(component.unidadesNegocioOptions[0].nome).toBe('Matriz');
+      expect(component.unidadesNegocioOptions[0].unidadeNegocioNome).toBe('Matriz');
     });
   });
 
@@ -137,7 +134,7 @@ describe('CentroCustoDetalheComponent', () => {
       };
 
       centroCustoService.findById.mockReturnValue(
-        of({ body: mockCentroCusto } as any)
+        of({ body: mockCentroCusto } as Response<CentroCustoDTO>)
       );
 
       component.detailId = 'cc-1';
@@ -409,7 +406,7 @@ describe('CentroCustoDetalheComponent', () => {
       centroCustoService.save.mockImplementation(
         (_data: CentroCustoDTO, callbacks: ExecutionCallbacks<CentroCustoDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -434,7 +431,7 @@ describe('CentroCustoDetalheComponent', () => {
       centroCustoService.save.mockImplementation(
         (_data: CentroCustoDTO, callbacks: ExecutionCallbacks<CentroCustoDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -465,7 +462,7 @@ describe('CentroCustoDetalheComponent', () => {
       centroCustoService.save.mockImplementation(
         (_data: CentroCustoDTO, callbacks: ExecutionCallbacks<CentroCustoDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -493,7 +490,7 @@ describe('CentroCustoDetalheComponent', () => {
       centroCustoService.save.mockImplementation(
         (_data: CentroCustoDTO, callbacks: ExecutionCallbacks<CentroCustoDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
