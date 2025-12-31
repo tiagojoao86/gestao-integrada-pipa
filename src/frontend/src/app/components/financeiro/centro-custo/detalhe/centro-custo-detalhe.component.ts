@@ -97,7 +97,7 @@ export class CentroCustoDetalheComponent implements OnInit {
   setDefaultUnidadeNegocio(): void {
     const defaultUnidade = this.auth.getDefaultUnidadeNegocio();
     if (defaultUnidade) {
-      this.form.patchValue({ unidadeNegocioId: defaultUnidade.id });
+      this.form.patchValue({ unidadeNegocioId: defaultUnidade.unidadeNegocioId });
     }
   }
 

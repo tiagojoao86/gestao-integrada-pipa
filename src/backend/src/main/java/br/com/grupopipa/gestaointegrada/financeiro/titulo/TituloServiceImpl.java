@@ -10,6 +10,8 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRe
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioService;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
+import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
@@ -17,11 +19,14 @@ import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaDTO;
+import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Service;
@@ -38,7 +43,7 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     private final UnidadeNegocioRepository unidadeNegocioRepository;
     private final UnidadeNegocioService unidadeNegocioService;
     private final SetorRepository setorRepository;
-    private final br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository tituloCategoriaRepository;
+    private final TituloCategoriaRepository tituloCategoriaRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -85,20 +90,21 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
                     .pessoa(pessoa)
                     .tituloCategoria(tituloCategoria)
                     .unidadeNegocio(unidadeNegocio)
-                    .valorOriginal(Money.of(dto.getValorOriginal()))
+                    .valorOriginal(Money.positive(dto.getValorOriginal())) // Usa positive() - valida > 0
                     .dataEmissao(dto.getDataEmissao())
                     .dataVencimento(dto.getDataVencimento())
+                    .dataPagamento(dto.getDataPagamento()) // Valida >= dataEmissao
                     .build();
 
-            // Aplicar descontos, juros, multa se fornecidos
+            // Aplicar descontos, juros, multa se fornecidos (usa positiveOrZero - valida >= 0)
             if (dto.getValorDesconto() != null && dto.getValorDesconto().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarDesconto(Money.of(dto.getValorDesconto()));
+                entity.aplicarDesconto(Money.positiveOrZero(dto.getValorDesconto()));
             }
             if (dto.getValorJuros() != null && dto.getValorJuros().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarJuros(Money.of(dto.getValorJuros()));
+                entity.aplicarJuros(Money.positiveOrZero(dto.getValorJuros()));
             }
             if (dto.getValorMulta() != null && dto.getValorMulta().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarMulta(Money.of(dto.getValorMulta()));
+                entity.aplicarMulta(Money.positiveOrZero(dto.getValorMulta()));
             }
 
             // Parcelamento
@@ -126,25 +132,26 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
             return entity;
         }
 
-        // Atualizar título existente
-        entity.atualizar(dto.getDescricao(), dto.getDataVencimento());
+        // Atualizar título existente - Preparar Money objects (usa positiveOrZero - valida >= 0)
+        Money valorDesconto = dto.getValorDesconto() != null ? Money.positiveOrZero(dto.getValorDesconto()) : null;
+        Money valorJuros = dto.getValorJuros() != null ? Money.positiveOrZero(dto.getValorJuros()) : null;
+        Money valorMulta = dto.getValorMulta() != null ? Money.positiveOrZero(dto.getValorMulta()) : null;
+
+        // Atualizar através do método único da entidade (contém todas as validações)
+        entity.atualizar(
+                dto.getDescricao(),
+                dto.getDataVencimento(),
+                valorDesconto,
+                valorJuros,
+                valorMulta,
+                dto.getDataPagamento(),
+                dto.getObservacoes());
 
         // Atualizar unidade de negócio se fornecida
         if (dto.getUnidadeNegocioId() != null) {
             UnidadeNegocio unidadeNegocio = unidadeNegocioRepository.findById(dto.getUnidadeNegocioId())
                     .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
             entity.atualizarUnidadeNegocio(unidadeNegocio);
-        }
-
-        // Atualizar valores adicionais se fornecidos
-        if (dto.getValorDesconto() != null) {
-            entity.aplicarDesconto(Money.of(dto.getValorDesconto()));
-        }
-        if (dto.getValorJuros() != null) {
-            entity.aplicarJuros(Money.of(dto.getValorJuros()));
-        }
-        if (dto.getValorMulta() != null) {
-            entity.aplicarMulta(Money.of(dto.getValorMulta()));
         }
 
         // Processar setores na atualização
@@ -263,6 +270,73 @@ public class TituloServiceImpl extends CrudServiceImpl<TituloDTO, TituloGridDTO,
     @Override
     protected Class<Titulo> getEntityClass() {
         return Titulo.class;
+    }
+
+    /**
+     * Override do método list para usar projeção otimizada com cálculo de valorPago
+     * Evita N+1 queries ao buscar títulos com movimentações
+     */
+    @Override
+    @Transactional
+    public PageDTO<TituloGridDTO> list(
+            FilterDTO filter,
+            Pageable pageable) {
+
+        org.springframework.data.jpa.domain.Specification<Titulo> specification = this.buildSpecification(filter);
+
+        // Adicionar filtro de soft delete
+        specification = addSoftDeleteFilter(specification, filter);
+
+        // Adicionar automaticamente filtro de UnidadeNegocio se aplicável
+        specification = addUnidadeNegocioFilterIfApplicable(specification);
+
+        // Usar projeção otimizada
+        Page<TituloProjection> page = repository.findAllProjected(specification, pageable);
+
+        // Converter projeção para GridDTO
+        List<TituloGridDTO> gridDTOs = page.getContent().stream()
+                .map(this::buildGridDTOFromProjection)
+                .toList();
+
+        return new br.com.grupopipa.gestaointegrada.core.dto.PageDTO<>(
+                gridDTOs,
+                page.getPageable(),
+                page.getTotalElements());
+    }
+
+    /**
+     * Constrói TituloGridDTO a partir da projeção otimizada
+     */
+    private TituloGridDTO buildGridDTOFromProjection(TituloProjection projection) {
+        String parcelamento = null;
+        if (projection.getNumeroParcela() != null && projection.getTotalParcelas() != null
+                && projection.getTotalParcelas() > 1) {
+            parcelamento = projection.getNumeroParcela() + "/" + projection.getTotalParcelas();
+        }
+
+        // Calcular saldo: valorOriginal + juros + multa - desconto - valorPago
+        java.math.BigDecimal saldo = projection.getValorOriginal()
+                .add(projection.getValorJuros())
+                .add(projection.getValorMulta())
+                .subtract(projection.getValorDesconto())
+                .subtract(projection.getValorPago());
+
+        return TituloGridDTO.builder()
+                .id(projection.getId())
+                .tipo(projection.getTipo().name())
+                .status(projection.getStatus().name())
+                .numeroDocumento(projection.getNumeroDocumento())
+                .descricao(projection.getDescricao())
+                .pessoaNome(projection.getPessoaNome())
+                .tituloCategoriaNome(projection.getTituloCategoriaNome())
+                .unidadeNegocioCodigo(projection.getUnidadeNegocioCodigo())
+                .valorOriginal(projection.getValorOriginal())
+                .valorPago(projection.getValorPago())
+                .saldo(saldo)
+                .dataVencimento(projection.getDataVencimento())
+                .parcelamento(parcelamento)
+                .deleted(projection.getDeleted())
+                .build();
     }
 
     @Override

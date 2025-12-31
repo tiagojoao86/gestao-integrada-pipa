@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { UnidadeNegocioDetalheComponent } from './unidade-negocio-detalhe.component';
 import { UnidadeNegocioService } from '../unidade-negocio.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 import { of } from 'rxjs';
 import { UnidadeNegocioDTO } from '../model/unidade-negocio-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
+import { Response } from '../../../base/model/response';
 
 describe('UnidadeNegocioDetalheComponent', () => {
   let component: UnidadeNegocioDetalheComponent;
@@ -61,7 +62,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
 
     // Mock padrão para findById
     unidadeNegocioServiceMock.findById.mockReturnValue(
-      of({ body: new UnidadeNegocioDTO('', '', '', undefined, undefined, true) } as any)
+      of({ body: new UnidadeNegocioDTO('', '', '', undefined, undefined, true) } as Response<UnidadeNegocioDTO>)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -142,7 +143,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       );
 
       unidadeNegocioService.findById.mockReturnValue(
-        of({ body: mockUnidade } as any)
+        of({ body: mockUnidade } as Response<UnidadeNegocioDTO>)
       );
 
       component.id = 'un-1';
@@ -172,7 +173,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       );
 
       unidadeNegocioService.findById.mockReturnValue(
-        of({ body: mockUnidade } as any)
+        of({ body: mockUnidade } as Response<UnidadeNegocioDTO>)
       );
 
       component.id = 'un-2';
@@ -196,7 +197,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       );
 
       unidadeNegocioService.findById.mockReturnValue(
-        of({ body: mockUnidade } as any)
+        of({ body: mockUnidade } as Response<UnidadeNegocioDTO>)
       );
 
       component.id = 'un-3';
@@ -457,7 +458,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       unidadeNegocioService.save.mockImplementation(
         (_data: UnidadeNegocioDTO, callbacks: ExecutionCallbacks<UnidadeNegocioDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -483,7 +484,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       unidadeNegocioService.save.mockImplementation(
         (_data: UnidadeNegocioDTO, callbacks: ExecutionCallbacks<UnidadeNegocioDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -515,7 +516,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       unidadeNegocioService.save.mockImplementation(
         (_data: UnidadeNegocioDTO, callbacks: ExecutionCallbacks<UnidadeNegocioDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -544,7 +545,7 @@ describe('UnidadeNegocioDetalheComponent', () => {
       unidadeNegocioService.save.mockImplementation(
         (_data: UnidadeNegocioDTO, callbacks: ExecutionCallbacks<UnidadeNegocioDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );

@@ -7,6 +7,7 @@ export class TituloGridDTO {
   pessoaNome: string;
   unidadeNegocioCodigo?: string;
   valorOriginal: number;
+  valorPago: number;
   saldo: number;
   dataVencimento: Date;
   parcelamento?: string; // "3/12" se for parcelado
@@ -21,6 +22,7 @@ export class TituloGridDTO {
     pessoaNome: string,
     unidadeNegocioCodigo: string | undefined,
     valorOriginal: number,
+    valorPago: number,
     saldo: number,
     dataVencimento: Date,
     parcelamento?: string,
@@ -34,6 +36,7 @@ export class TituloGridDTO {
     this.pessoaNome = pessoaNome;
     this.unidadeNegocioCodigo = unidadeNegocioCodigo;
     this.valorOriginal = valorOriginal;
+    this.valorPago = valorPago;
     this.saldo = saldo;
     this.dataVencimento = dataVencimento;
     this.parcelamento = parcelamento;

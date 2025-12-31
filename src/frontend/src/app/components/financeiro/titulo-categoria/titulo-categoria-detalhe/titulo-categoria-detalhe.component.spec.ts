@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CategoriaTituloDetalheComponent } from './titulo-categoria-detalhe.component';
 import { TituloCategoriaService } from '../titulo-categoria.service';
@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { TituloCategoriaDTO } from '../model/titulo-categoria.dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { TituloCategoriaTipoEnum } from '../model/titulo-categoria-tipo.enum';
+import { Response } from '../../../base/model/response';
 
 describe('CategoriaTituloDetalheComponent', () => {
   let component: CategoriaTituloDetalheComponent;
@@ -63,12 +64,12 @@ describe('CategoriaTituloDetalheComponent', () => {
 
     // Mock padrão para listAll de agrupadores
     tituloCategoriaServiceMock.listAll.mockReturnValue(
-      of({ body: [] } as any)
+      of({ body: [] })
     );
 
     // Mock padrão para findById
     tituloCategoriaServiceMock.findById.mockReturnValue(
-      of({ body: new TituloCategoriaDTO('', '', TituloCategoriaTipoEnum.DESPESA) } as any)
+      of({ body: new TituloCategoriaDTO('', '', TituloCategoriaTipoEnum.DESPESA) } as Response<TituloCategoriaDTO>)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -147,7 +148,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       ];
 
       tituloCategoriaService.listAll.mockReturnValue(
-        of({ body: mockAgrupadores } as any)
+        of({ body: mockAgrupadores })
       );
 
       component.detailId = 'add';
@@ -170,7 +171,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       );
 
       tituloCategoriaService.findById.mockReturnValue(
-        of({ body: mockCategoria } as any)
+        of({ body: mockCategoria } as Response<TituloCategoriaDTO>)
       );
 
       component.detailId = 'cat-1';
@@ -202,7 +203,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       );
 
       tituloCategoriaService.findById.mockReturnValue(
-        of({ body: mockCategoria } as any)
+        of({ body: mockCategoria } as Response<TituloCategoriaDTO>)
       );
 
       component.detailId = 'cat-2';
@@ -459,7 +460,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       tituloCategoriaService.save.mockImplementation(
         (_data: TituloCategoriaDTO, callbacks: ExecutionCallbacks<TituloCategoriaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -485,7 +486,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       tituloCategoriaService.save.mockImplementation(
         (_data: TituloCategoriaDTO, callbacks: ExecutionCallbacks<TituloCategoriaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -517,7 +518,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       tituloCategoriaService.save.mockImplementation(
         (_data: TituloCategoriaDTO, callbacks: ExecutionCallbacks<TituloCategoriaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );
@@ -547,7 +548,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       tituloCategoriaService.save.mockImplementation(
         (_data: TituloCategoriaDTO, callbacks: ExecutionCallbacks<TituloCategoriaDTO>) => {
           if (callbacks.onError) {
-            callbacks.onError(mockError as any);
+            callbacks.onError(mockError as unknown as HttpErrorResponse);
           }
         }
       );

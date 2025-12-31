@@ -66,9 +66,13 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         this.valor = valor;
         this.data = data;
         this.unidadeNegocio = unidadeNegocio;
-        // Registra o pagamento em todos os títulos
+        // Sincronizar relacionamento bidirecional: adicionar esta movimentação ao Set de movimentações de cada título
+        // Isso garante que getValorPago() em Titulo consiga calcular corretamente
         if (titulos != null) {
-            titulos.forEach(t -> t.registrarPagamento(valor));
+            titulos.forEach(t -> {
+                t.getMovimentacoes().add(this);
+                t.registrarPagamento(valor); // Atualiza o status do título
+            });
         }
     }
 
@@ -125,19 +129,37 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
 
         // Validar regras de negócio para cada título
-        if (titulos != null) {
+        if (titulos != null && money != null) {
             for (Titulo titulo : titulos) {
                 if (!titulo.getStatus().permiteMovimentacao()) {
                     violations.add(new BeanValidationMessage("titulo.status",
                             "Não é possível criar movimentação para título " + titulo.getStatus().getDescricao()));
                 }
-                if (money != null) {
-                    Money saldoTitulo = titulo.calcularSaldo();
-                    if (money.isGreaterThan(saldoTitulo)) {
-                        violations.add(new BeanValidationMessage("valor.valorMovimentoMaiorTitulo",
-                                "Valor da movimentação (" + money + ") excede o saldo do título (" + saldoTitulo
-                                        + ")"));
-                    }
+
+                // Calcular o valor total que o título pode receber (valor original + juros + multa - desconto)
+                Money valorTotal = titulo.getValorOriginal()
+                        .add(titulo.getValorJuros())
+                        .add(titulo.getValorMulta())
+                        .subtract(titulo.getValorDesconto());
+
+                // Calcular o valor que será pago após esta movimentação
+                Money valorPagoAtual = titulo.getValorPago();
+                Money valorPagoAposMovimentacao = valorPagoAtual.add(money);
+
+                // Verificar se o valor pago ultrapassaria o valor total do título
+                if (valorPagoAposMovimentacao.isGreaterThan(valorTotal)) {
+                    violations.add(new BeanValidationMessage("valor.valorPagoUltrapassaTotal",
+                            "Valor pago após a movimentação (" + valorPagoAposMovimentacao
+                            + ") ultrapassaria o valor total do título (" + valorTotal
+                            + "). Valor já pago: " + valorPagoAtual
+                            + ", valor da movimentação: " + money));
+                }
+
+                // Também manter a verificação de saldo para melhor UX
+                Money saldoTitulo = titulo.calcularSaldo();
+                if (money.isGreaterThan(saldoTitulo)) {
+                    violations.add(new BeanValidationMessage("valor.valorMovimentoMaiorSaldo",
+                            "Valor da movimentação (" + money + ") excede o saldo do título (" + saldoTitulo + ")"));
                 }
             }
         }

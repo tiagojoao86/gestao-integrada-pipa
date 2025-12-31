@@ -22,6 +22,7 @@ public class TituloGridDTO implements GridDTO {
     private String tituloCategoriaNome;
     private String unidadeNegocioCodigo;
     private BigDecimal valorOriginal;
+    private BigDecimal valorPago;
     private BigDecimal saldo;
     private LocalDate dataVencimento;
     private String parcelamento; // "3/12" se for parcelado

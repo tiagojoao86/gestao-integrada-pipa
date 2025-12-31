@@ -61,10 +61,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     private Money valorOriginal;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "valor_pago", nullable = false, precision = 15, scale = 2))
-    private Money valorPago;
-
-    @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "valor_desconto", nullable = false, precision = 15, scale = 2))
     private Money valorDesconto;
 
@@ -121,7 +117,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         this.dataEmissao = dataEmissao;
         this.dataVencimento = dataVencimento;
         this.status = StatusTitulo.ABERTO;
-        this.valorPago = Money.zero();
         this.valorDesconto = Money.zero();
         this.valorJuros = Money.zero();
         this.valorMulta = Money.zero();
@@ -158,7 +153,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     private static ValidatedData validate(TipoTitulo tipo, String descricao, String numeroDocumento,
             Pessoa pessoa, TituloCategoria tituloCategoria, UnidadeNegocio unidadeNegocio,
-            BigDecimal valorOriginal, LocalDate dataEmissao, LocalDate dataVencimento) {
+            BigDecimal valorOriginal, LocalDate dataEmissao, LocalDate dataVencimento, LocalDate dataPagamento) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (tipo == null) {
@@ -178,9 +173,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (unidadeNegocio == null) {
             violations.add(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
         }
-        if (valorOriginal == null || valorOriginal.compareTo(BigDecimal.ZERO) <= 0) {
-            violations.add(new BeanValidationMessage("valorOriginal", "Valor original deve ser maior que zero"));
-        }
         if (dataEmissao == null) {
             violations.add(new BeanValidationMessage("dataEmissao", "Data de emissão é obrigatória"));
         }
@@ -191,7 +183,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                     "Data de vencimento não pode ser anterior à data de emissão"));
         }
 
-        Money money = ValidationUtils.validateAndGet(() -> Money.of(valorOriginal), violations);
+        // Validar dataPagamento se fornecida
+        if (dataPagamento != null && dataEmissao != null && dataPagamento.isBefore(dataEmissao)) {
+            violations.add(new BeanValidationMessage("dataPagamento",
+                    "Data de pagamento não pode ser anterior à data de emissão"));
+        }
+
+        // Usar Money.positive() para valorOriginal - garante > 0 automaticamente
+        Money money = ValidationUtils.validateAndGet(() -> Money.positive(valorOriginal), violations);
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -204,8 +203,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     public void aplicarDesconto(Money desconto) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (desconto == null || desconto.isNegative()) {
-            violations.add(new BeanValidationMessage("valorDesconto", "Desconto deve ser positivo"));
+        // Money.positiveOrZero() já garante >= 0
+        if (desconto == null) {
+            violations.add(new BeanValidationMessage("valorDesconto", "Desconto não pode ser nulo"));
         } else if (desconto.isGreaterThan(valorOriginal)) {
             violations.add(
                     new BeanValidationMessage("valorDesconto", "Desconto não pode ser maior que o valor original"));
@@ -216,13 +216,15 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorDesconto = desconto;
+        atualizarStatus(); // Recalcular status após alterar desconto
     }
 
     public void aplicarJuros(Money juros) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (juros == null || juros.isNegative()) {
-            violations.add(new BeanValidationMessage("valorJuros", "Juros deve ser positivo"));
+        // Money.positiveOrZero() já garante >= 0
+        if (juros == null) {
+            violations.add(new BeanValidationMessage("valorJuros", "Juros não pode ser nulo"));
         }
 
         if (!violations.isEmpty()) {
@@ -230,13 +232,15 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorJuros = juros;
+        atualizarStatus(); // Recalcular status após alterar juros
     }
 
     public void aplicarMulta(Money multa) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (multa == null || multa.isNegative()) {
-            violations.add(new BeanValidationMessage("valorMulta", "Multa deve ser positiva"));
+        // Money.positiveOrZero() já garante >= 0
+        if (multa == null) {
+            violations.add(new BeanValidationMessage("valorMulta", "Multa não pode ser nula"));
         }
 
         if (!violations.isEmpty()) {
@@ -244,6 +248,22 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorMulta = multa;
+        atualizarStatus(); // Recalcular status após alterar multa
+    }
+
+    /**
+     * Calcula o valor pago a partir do somatório das movimentações financeiras não deletadas
+     * Campo transiente - não é armazenado no banco de dados
+     */
+    @Transient
+    public Money getValorPago() {
+        if (movimentacoes == null || movimentacoes.isEmpty()) {
+            return Money.zero();
+        }
+        return movimentacoes.stream()
+                .filter(m -> m.getDeleted() == null || !m.getDeleted()) // Filtrar apenas movimentações não deletadas
+                .map(MovimentacaoFinanceira::getValor)
+                .reduce(Money.zero(), Money::add);
     }
 
     public Money calcularSaldo() {
@@ -251,7 +271,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                 .add(valorJuros)
                 .add(valorMulta)
                 .subtract(valorDesconto)
-                .subtract(valorPago);
+                .subtract(getValorPago());
     }
 
     public boolean isQuitado() {
@@ -289,12 +309,20 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         this.tituloOrigem = tituloOrigem;
     }
 
-    public void atualizar(String descricao, LocalDate dataVencimento) {
+    public void atualizar(String descricao, LocalDate dataVencimento, Money valorDesconto, Money valorJuros,
+            Money valorMulta, LocalDate dataPagamento, String observacoes) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (status == StatusTitulo.PAGO || status == StatusTitulo.CANCELADO) {
-            violations
-                    .add(new BeanValidationMessage("status", "Não é possível alterar título " + status.getDescricao()));
+        // Títulos com movimentações financeiras não podem ter campos principais alterados
+        if (!movimentacoes.isEmpty()) {
+            violations.add(new BeanValidationMessage("movimentacoes",
+                    "Não é possível alterar título com movimentações financeiras"));
+        }
+
+        // Títulos cancelados não podem ser alterados
+        if (status == StatusTitulo.CANCELADO) {
+            violations.add(new BeanValidationMessage("status",
+                    "Não é possível alterar título " + status.getDescricao()));
         }
 
         if (descricao != null && !descricao.isBlank() && descricao.length() > 500) {
@@ -306,24 +334,54 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                     "Data de vencimento não pode ser anterior à data de emissão"));
         }
 
+        if (dataPagamento != null && dataPagamento.isBefore(dataEmissao)) {
+            violations.add(new BeanValidationMessage("dataPagamento",
+                    "Data de pagamento não pode ser anterior à data de emissão"));
+        }
+
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
         }
 
+        // Atualizar campos se fornecidos
         if (descricao != null && !descricao.isBlank()) {
             this.descricao = descricao;
         }
         if (dataVencimento != null) {
             this.dataVencimento = dataVencimento;
         }
+        if (dataPagamento != null) {
+            this.dataPagamento = dataPagamento;
+        }
+        if (observacoes != null && !observacoes.isBlank()) {
+            this.observacoes = observacoes;
+        }
+
+        // Aplicar valores monetários (já validados como positiveOrZero)
+        if (valorDesconto != null) {
+            aplicarDesconto(valorDesconto);
+        }
+        if (valorJuros != null) {
+            aplicarJuros(valorJuros);
+        }
+        if (valorMulta != null) {
+            aplicarMulta(valorMulta);
+        }
     }
 
     public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (status == StatusTitulo.PAGO || status == StatusTitulo.CANCELADO) {
-            violations
-                    .add(new BeanValidationMessage("status", "Não é possível alterar título " + status.getDescricao()));
+        // Títulos com movimentações financeiras não podem ter unidade de negócio alterada
+        if (!movimentacoes.isEmpty()) {
+            violations.add(new BeanValidationMessage("movimentacoes",
+                    "Não é possível alterar unidade de negócio de título com movimentações financeiras"));
+        }
+
+        // Títulos cancelados não podem ser alterados
+        if (status == StatusTitulo.CANCELADO) {
+            violations.add(new BeanValidationMessage("status",
+                    "Não é possível alterar título " + status.getDescricao()));
         }
 
         if (unidadeNegocio == null) {
@@ -363,14 +421,17 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
     }
 
-    // Método interno usado por MovimentacaoFinanceira
+    /**
+     * Método interno usado por MovimentacaoFinanceira para atualizar status após pagamento
+     * Como valorPago agora é calculado a partir das movimentações, apenas atualiza o status
+     */
     void registrarPagamento(Money valor) {
-        this.valorPago = this.valorPago.add(valor);
         atualizarStatus();
     }
 
     private void atualizarStatus() {
         Money saldo = calcularSaldo();
+        Money valorPago = getValorPago();
 
         if (saldo.isZero()) {
             this.status = StatusTitulo.PAGO;
@@ -415,10 +476,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     public Money getValorOriginal() {
         return valorOriginal;
-    }
-
-    public Money getValorPago() {
-        return valorPago;
     }
 
     public Money getValorDesconto() {
@@ -568,6 +625,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         private Money valorOriginal;
         private LocalDate dataEmissao;
         private LocalDate dataVencimento;
+        private LocalDate dataPagamento;
         private Boolean rateioAutomatico;
 
         public Builder tipo(TipoTitulo tipo) {
@@ -625,6 +683,11 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return this;
         }
 
+        public Builder dataPagamento(LocalDate dataPagamento) {
+            this.dataPagamento = dataPagamento;
+            return this;
+        }
+
         public Builder rateioAutomatico(Boolean rateioAutomatico) {
             this.rateioAutomatico = rateioAutomatico;
             return this;
@@ -634,10 +697,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             BigDecimal valorOriginalValue = (this.valorOriginal != null) ? this.valorOriginal.getValue() : null;
             ValidatedData data = validate(this.tipo, this.descricao, this.numeroDocumento,
                     this.pessoa, this.tituloCategoria, this.unidadeNegocio,
-                    valorOriginalValue, this.dataEmissao, this.dataVencimento);
+                    valorOriginalValue, this.dataEmissao, this.dataVencimento, this.dataPagamento);
             Titulo titulo = new Titulo(data.tipo, data.descricao, data.numeroDocumento, data.pessoa,
                     data.tituloCategoria, data.unidadeNegocio, data.valorOriginal,
                     data.dataEmissao, data.dataVencimento);
+            // Definir dataPagamento se fornecida (já foi validada)
+            if (this.dataPagamento != null) {
+                titulo.dataPagamento = this.dataPagamento;
+            }
             titulo.setRateioAutomatico(this.rateioAutomatico);
             return titulo;
         }

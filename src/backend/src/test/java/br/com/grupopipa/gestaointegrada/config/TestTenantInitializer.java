@@ -48,14 +48,15 @@ public class TestTenantInitializer {
             
             flywayPublic.migrate();
 
-            // 2. Criar schema do tenant
+            // 2. Limpar e recriar schema do tenant (para garantir estado limpo em testes)
             try (var connection = dataSource.getConnection();
                  var statement = connection.createStatement()) {
-                statement.execute("CREATE SCHEMA IF NOT EXISTS " + TEST_TENANT_SCHEMA);
+                // Drop cascade para remover todas as dependências
+                statement.execute("DROP SCHEMA IF EXISTS " + TEST_TENANT_SCHEMA + " CASCADE");
+                statement.execute("CREATE SCHEMA " + TEST_TENANT_SCHEMA);
             }
 
             // 3. Executar migrations do tenant
-            // Flyway é idempotente - não vai re-executar migrations já aplicadas
             Flyway flywayTenant = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/tenant-migrations")

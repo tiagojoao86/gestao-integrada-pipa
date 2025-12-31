@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MovimentacaoFinanceiraDetalheComponent } from './movimentacao-financeira-detalhe.component';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
 import { TituloService } from '../../titulo/titulo.service';
@@ -10,14 +11,15 @@ import { MovimentacaoFinanceiraDTO } from '../model/movimentacao-financeira.dto'
 import { TituloDTO } from '../../titulo/model/titulo-dto';
 import { ContaBancariaDTO } from '../../conta-bancaria/model/conta-bancaria-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
+import { Response } from '../../../base/model/response';
 
 describe('MovimentacaoFinanceiraDetalheComponent', () => {
   let component: MovimentacaoFinanceiraDetalheComponent;
   let fixture: ComponentFixture<MovimentacaoFinanceiraDetalheComponent>;
-  let movimentacaoService: any;
-  let tituloService: any;
-  let contaService: any;
-  let messageService: any;
+  let movimentacaoService: jest.Mocked<MovimentacaoFinanceiraService>;
+  let tituloService: jest.Mocked<TituloService>;
+  let contaService: jest.Mocked<ContaBancariaService>;
+  let messageService: jest.Mocked<MessageService>;
 
   const authServiceMock = {
     hasAuthorityEditarToModulo: jest.fn().mockReturnValue(true),
@@ -74,7 +76,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
       of(mockUnidades)
     );
     contaServiceMock.list.mockReturnValue(
-      of({ body: { content: mockContas } } as any)
+      of({ body: { content: mockContas } })
     );
 
     await TestBed.configureTestingModule({
@@ -189,10 +191,10 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
         observacoes: 'Teste',
       };
       movimentacaoService.findById.mockReturnValue(
-        of({ body: mockMovimentacao } as any)
+        of({ body: mockMovimentacao } as Response<MovimentacaoFinanceiraDTO>)
       );
       tituloService.findById.mockReturnValue(
-        of({ body: mockTitulos[0] } as any)
+        of({ body: mockTitulos[0] } as Response<TituloDTO>)
       );
 
       component.id = '1';
@@ -223,7 +225,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
         observacoes: 'Teste',
       };
       movimentacaoService.findById.mockReturnValue(
-        of({ body: mockMovimentacao } as any)
+        of({ body: mockMovimentacao } as Response<MovimentacaoFinanceiraDTO>)
       );
 
       component.id = '1';
@@ -282,7 +284,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
     it('onTitulosChange deve adicionar título único quando não existe', () => {
       component.selectedTitulos = [];
 
-      component.onTitulosChange(mockTitulos[0] as any);
+      component.onTitulosChange(mockTitulos[0]);
 
       expect(component.selectedTitulos.length).toBe(1);
       expect(component.selectedTitulos[0].id).toBe('1');
@@ -291,7 +293,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
     it('onTitulosChange NÃO deve adicionar título duplicado', () => {
       component.selectedTitulos = [mockTitulos[0]];
 
-      component.onTitulosChange(mockTitulos[0] as any);
+      component.onTitulosChange(mockTitulos[0]);
 
       expect(component.selectedTitulos.length).toBe(1);
     });
@@ -322,7 +324,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
         { id: '3', nome: 'Conta Sem Número' } as ContaBancariaDTO,
       ];
       contaService.list.mockReturnValue(
-        of({ body: { content: contaSemNumero } } as any)
+        of({ body: { content: contaSemNumero } })
       );
 
       component.loadContasDisponiveis();
@@ -545,7 +547,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
         unidadeNegocio: '1',
       };
       movimentacaoService.findById.mockReturnValue(
-        of({ body: mockMovimentacao } as any)
+        of({ body: mockMovimentacao } as Response<MovimentacaoFinanceiraDTO>)
       );
 
       component.id = '123';
@@ -651,7 +653,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
               error: {
                 message: 'ERRO_CONTA_INVALIDA',
               },
-            } as any);
+            } as unknown as HttpErrorResponse);
           }
         }
       );
@@ -682,7 +684,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
               error: {
                 message: 'ERRO_CONTA_INVALIDA',
               },
-            } as any);
+            } as unknown as HttpErrorResponse);
           }
         }
       );

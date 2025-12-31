@@ -31,6 +31,7 @@ import {
   AuditInfoData,
 } from '../../../base/audit-info/audit-info.component';
 import { Response } from '../../../base/model/response';
+import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 
 @Component({
   selector: 'gi-movimentacao-financeira-grid',
@@ -121,10 +122,10 @@ export class MovimentacaoFinanceiraGridComponent {
   constructor() {
     // configurar ações da tabela/toolbar
     const canView = this.auth.hasAuthorityVisualizarToModulo(
-      'FINANCEIRO_MOVIMENTACAO'
+      SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
     );
     const canDelete = this.auth.hasAuthorityDeletarToModulo(
-      'FINANCEIRO_MOVIMENTACAO'
+      SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
     );
 
     if (canView) {
@@ -155,7 +156,8 @@ export class MovimentacaoFinanceiraGridComponent {
         icon: 'eye_tracking',
         iconType: 'material-symbols-outlined',
         title: 'Visualizar auditoria',
-        action: (element: MovimentacaoFinanceiraGridDTO) => this.loadAuditInfo(element.id),
+        action: (element: MovimentacaoFinanceiraGridDTO) =>
+          this.loadAuditInfo(element.id),
       });
     }
 
@@ -168,7 +170,11 @@ export class MovimentacaoFinanceiraGridComponent {
       },
     ];
 
-    if (this.auth.hasAuthorityEditarToModulo('FINANCEIRO_MOVIMENTACAO')) {
+    if (
+      this.auth.hasAuthorityEditarToModulo(
+        SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
+      )
+    ) {
       this.toolbarActions.push({
         action: () => this.selecionar.emit('add'),
         icon: 'add',
