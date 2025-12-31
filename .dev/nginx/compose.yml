@@ -1,5 +1,6 @@
 services:
   nginx:
+    container_name: gestao_integrada_nginx
     image: nginx:alpine
     ports:
       - "80:80"

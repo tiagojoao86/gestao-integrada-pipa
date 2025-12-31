@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: gestao_integrada_postgres
+    restart: always
+    environment:
+      # Nome do banco de dados
+      - POSTGRES_DB=gestao_integrada_db
+      # Usuário
+      - POSTGRES_USER=gestao_integrada
+      # Senha (com caracteres especiais, é bom manter entre aspas)
+      - POSTGRES_PASSWORD=Gintegrada#4590@
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

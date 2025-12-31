@@ -17,18 +17,17 @@ import jakarta.persistence.Table;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CPF;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 
 /**
- * Entidade Pessoa - modelo flat (sem herança). Contém campos para Pessoa Física
- * e Jurídica,
+ * Entidade Pessoa - modelo flat (sem herança). Contém campos para Pessoa Física e Jurídica,
  * validados por tipo.
  */
 @Entity
@@ -39,8 +38,7 @@ public class Pessoa extends BaseEntity {
   @Column(name = "tipo_pessoa", nullable = false, length = 20)
   private TipoPessoa tipoPessoa;
 
-  @Embedded
-  private Nome nome;
+  @Embedded private Nome nome;
 
   @Embedded
   @AttributeOverride(name = "value", column = @Column(name = "email"))
@@ -51,15 +49,13 @@ public class Pessoa extends BaseEntity {
   private PhoneNumber telefone;
 
   // Campos específicos de Pessoa Física
-  @Embedded
-  private CPF cpf;
+  @Embedded private CPF cpf;
 
   @Column(name = "data_nascimento")
   private LocalDate dataNascimento;
 
   // Campos específicos de Pessoa Jurídica
-  @Embedded
-  private CNPJ cnpj;
+  @Embedded private CNPJ cnpj;
 
   @Column(name = "razao_social", length = 200)
   private String razaoSocial;
@@ -73,8 +69,7 @@ public class Pessoa extends BaseEntity {
   @Column(name = "ativa", nullable = false)
   private Boolean ativa = true;
 
-  protected Pessoa() {
-  }
+  protected Pessoa() {}
 
   private Pessoa(Builder builder) {
     this.tipoPessoa = builder.tipoPessoa;
@@ -152,7 +147,8 @@ public class Pessoa extends BaseEntity {
     // Validar e criar ValueObjects
     Nome nomeValidado = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
     Email emailValidado = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-    PhoneNumber telefoneValidado = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+    PhoneNumber telefoneValidado =
+        ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
 
     if (!violations.isEmpty()) {
       throw new BeanValidationException("Pessoa", violations);
@@ -251,12 +247,9 @@ public class Pessoa extends BaseEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof Pessoa))
-      return false;
-    if (!super.equals(o))
-      return false;
+    if (this == o) return true;
+    if (!(o instanceof Pessoa)) return false;
+    if (!super.equals(o)) return false;
     Pessoa pessoa = (Pessoa) o;
     return Objects.equals(getNome(), pessoa.getNome())
         && Objects.equals(getCpf(), pessoa.getCpf())
@@ -307,7 +300,8 @@ public class Pessoa extends BaseEntity {
 
     public Builder telefone(String telefoneStr) {
       Set<BeanValidationMessage> violations = new HashSet<>();
-      this.telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+      this.telefone =
+          ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
       if (!violations.isEmpty()) {
         throw new BeanValidationException("Pessoa", violations);
       }
