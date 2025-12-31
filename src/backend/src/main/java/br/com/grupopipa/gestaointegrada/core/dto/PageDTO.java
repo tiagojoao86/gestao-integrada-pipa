@@ -14,17 +14,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageDTO<T> {
-    private List<T> content;
-    private int pageNumber;
-    private int pageSize;
-    private long totalElements;
-    private int totalPages;
+  private List<T> content;
+  private int pageNumber;
+  private int pageSize;
+  private long totalElements;
+  private int totalPages;
 
-    public PageDTO(List<T> content, org.springframework.data.domain.Pageable pageable, long totalElements) {
-        this.content = content;
-        this.pageNumber = pageable.getPageNumber();
-        this.pageSize = pageable.getPageSize();
-        this.totalElements = totalElements;
-        this.totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
-    }
+  public PageDTO(
+      List<T> content, org.springframework.data.domain.Pageable pageable, long totalElements) {
+    this.content = content;
+    this.pageNumber = pageable.getPageNumber();
+    this.pageSize = pageable.getPageSize();
+    this.totalElements = totalElements;
+    this.totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+  }
 }

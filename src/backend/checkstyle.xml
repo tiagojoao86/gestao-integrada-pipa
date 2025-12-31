@@ -1,0 +1,189 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Configuração Checkstyle para Gestão Integrada Pipa
+    Baseada no Google Java Style Guide com customizações
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Suprime avisos com anotação @SuppressWarnings -->
+    <module name="SuppressWarningsFilter"/>
+
+    <!-- Verifica que arquivos terminam com newline -->
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
+
+    <!-- Verifica tamanho máximo de arquivo (15000 linhas) -->
+    <module name="FileLength">
+        <property name="max" value="15000"/>
+    </module>
+
+    <!-- Proíbe tabs (apenas espaços) -->
+    <module name="FileTabCharacter"/>
+
+    <!-- Linha máxima: 120 caracteres -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Permite usar @SuppressWarnings para ignorar regras -->
+        <module name="SuppressWarningsHolder"/>
+
+        <!-- === IMPORTS === -->
+
+        <!-- Proíbe imports com wildcard (import java.util.*) -->
+        <module name="AvoidStarImport"/>
+
+        <!-- Detecta imports não utilizados -->
+        <module name="UnusedImports"/>
+
+        <!-- Proíbe imports redundantes (mesmo pacote ou java.lang) -->
+        <module name="RedundantImport"/>
+
+        <!-- Ordem de imports gerenciada pelo Spotless -->
+        <!-- CustomImportOrder removido para evitar conflito com Spotless -->
+
+        <!-- === NOMENCLATURA === -->
+
+        <!-- Nome de pacotes: minúsculas -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+
+        <!-- Nome de classes: PascalCase -->
+        <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Nome de métodos: camelCase -->
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Nome de constantes: UPPER_CASE -->
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+        </module>
+
+        <!-- Nome de variáveis locais: camelCase -->
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Nome de parâmetros: camelCase -->
+        <module name="ParameterName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- === TAMANHO === -->
+
+        <!-- Método máximo: 150 linhas -->
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
+
+        <!-- Parâmetros máximos: 25 para métodos e construtores -->
+        <!-- Valores ajustados para acomodar Builders e métodos complexos de repositórios -->
+        <module name="ParameterNumber">
+            <property name="max" value="25"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
+        </module>
+
+        <!-- === ESPAÇOS EM BRANCO === -->
+
+        <!-- Espaço após vírgula, ponto-e-vírgula -->
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI"/>
+        </module>
+
+        <!-- Espaço ao redor de operadores -->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyLoops" value="true"/>
+        </module>
+
+        <!-- Sem trailing whitespace -->
+        <module name="Regexp">
+            <property name="format" value="[ \t]+$"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="Trailing whitespace"/>
+        </module>
+
+        <!-- === MODIFICADORES === -->
+
+        <!-- Ordem correta: public protected private abstract static final transient volatile synchronized native strictfp -->
+        <module name="ModifierOrder"/>
+
+        <!-- Remove modificadores redundantes -->
+        <module name="RedundantModifier"/>
+
+        <!-- === BLOCOS DE CÓDIGO === -->
+
+        <!-- Sempre use chaves {} mesmo para blocos de 1 linha -->
+        <!-- Permite blocos de uma linha para IFs simples (guard clauses) -->
+        <module name="NeedBraces">
+            <property name="allowSingleLineStatement" value="true"/>
+        </module>
+
+        <!-- Posição das chaves: final da linha (estilo K&R) -->
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- === BOAS PRÁTICAS === -->
+
+        <!-- Evita variáveis locais não utilizadas -->
+        <module name="UnusedLocalVariable"/>
+
+        <!-- Evita atribuição em sub-expressões -->
+        <module name="InnerAssignment"/>
+
+        <!-- Simplifica expressões booleanas -->
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+
+        <!-- Evita equals() com string literal no lado esquerdo -->
+        <module name="EqualsAvoidNull"/>
+
+        <!-- Garante que classes com equals() sobrescrevem hashCode() -->
+        <module name="EqualsHashCode"/>
+
+        <!-- Evita magic numbers (use constantes) -->
+        <module name="MagicNumber">
+            <property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 20, 24, 60, 100, 200, 255, 400, 500, 60000"/>
+            <property name="ignoreHashCodeMethod" value="true"/>
+            <property name="ignoreAnnotation" value="true"/>
+            <property name="ignoreFieldDeclaration" value="true"/>
+        </module>
+
+        <!-- Evita catch vazio -->
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignore"/>
+        </module>
+
+        <!-- === ANOTAÇÕES === -->
+
+        <!-- @Override obrigatório -->
+        <module name="MissingOverride"/>
+
+        <!-- === COMENTÁRIOS === -->
+
+        <!-- TODO deve ter descrição -->
+        <module name="TodoComment">
+            <property name="format" value="TODO"/>
+            <property name="severity" value="info"/>
+        </module>
+
+    </module>
+</module>
