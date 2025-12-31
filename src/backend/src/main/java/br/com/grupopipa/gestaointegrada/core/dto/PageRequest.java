@@ -10,8 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PageRequest {
-    private FilterDTO filter;
-    private Integer page;
-    private Integer size;
-    private List<OrderDTO> order;
+  private FilterDTO filter;
+  private Integer page;
+  private Integer size;
+  private List<OrderDTO> order;
 }

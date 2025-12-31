@@ -1,57 +1,71 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
-import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
-import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 
 /**
  * Projeção para consultas otimizadas de Titulo com cálculo de valorPago via SUM de movimentações
  * Evita N+1 queries ao buscar lista de títulos
  */
 public interface TituloProjection {
-    UUID getId();
-    TipoTitulo getTipo();
-    StatusTitulo getStatus();
-    String getNumeroDocumento();
-    String getDescricao();
+  UUID getId();
 
-    // Pessoa
-    UUID getPessoaId();
-    String getPessoaNome();
+  TipoTitulo getTipo();
 
-    // Categoria
-    UUID getTituloCategoriaId();
-    String getTituloCategoriaNome();
+  StatusTitulo getStatus();
 
-    // Unidade Negócio
-    UUID getUnidadeNegocioId();
-    String getUnidadeNegocioCodigo();
-    String getUnidadeNegocioNome();
+  String getNumeroDocumento();
 
-    // Valores monetários
-    BigDecimal getValorOriginal();
-    BigDecimal getValorDesconto();
-    BigDecimal getValorJuros();
-    BigDecimal getValorMulta();
+  String getDescricao();
 
-    /**
-     * Valor pago calculado via SUM das movimentações financeiras
-     * Retorna 0 se não houver movimentações
-     */
-    BigDecimal getValorPago();
+  // Pessoa
+  UUID getPessoaId();
 
-    // Datas
-    LocalDate getDataEmissao();
-    LocalDate getDataVencimento();
-    LocalDate getDataPagamento();
+  String getPessoaNome();
 
-    // Parcelamento
-    Integer getNumeroParcela();
-    Integer getTotalParcelas();
+  // Categoria
+  UUID getTituloCategoriaId();
 
-    // Auditoria
-    Boolean getDeleted();
+  String getTituloCategoriaNome();
+
+  // Unidade Negócio
+  UUID getUnidadeNegocioId();
+
+  String getUnidadeNegocioCodigo();
+
+  String getUnidadeNegocioNome();
+
+  // Valores monetários
+  BigDecimal getValorOriginal();
+
+  BigDecimal getValorDesconto();
+
+  BigDecimal getValorJuros();
+
+  BigDecimal getValorMulta();
+
+  /**
+   * Valor pago calculado via SUM das movimentações financeiras Retorna 0 se não houver
+   * movimentações
+   */
+  BigDecimal getValorPago();
+
+  // Datas
+  LocalDate getDataEmissao();
+
+  LocalDate getDataVencimento();
+
+  LocalDate getDataPagamento();
+
+  // Parcelamento
+  Integer getNumeroParcela();
+
+  Integer getTotalParcelas();
+
+  // Auditoria
+  Boolean getDeleted();
 }

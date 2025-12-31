@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 public enum OrdemDirecao {
-    ASC(Direction.ASC),
-    DESC(Direction.DESC);
+  ASC(Direction.ASC),
+  DESC(Direction.DESC);
 
-    Direction direcao;
+  Direction direcao;
 
-    OrdemDirecao(Direction direcao) {
-        this.direcao = direcao;
-    }
+  OrdemDirecao(Direction direcao) {
+    this.direcao = direcao;
+  }
 }

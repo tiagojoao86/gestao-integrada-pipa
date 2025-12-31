@@ -12,8 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Configuração de segurança simplificada para testes
- * Desabilita autenticação mas mantém estrutura do Spring Security
+ * Configuração de segurança simplificada para testes Desabilita autenticação mas mantém estrutura
+ * do Spring Security
  */
 @TestConfiguration
 @Profile("test")
@@ -21,14 +21,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class TestSecurityConfig {
 
-    @Bean
-    @Primary
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-        
-        return http.build();
-    }
+  @Bean
+  @Primary
+  public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+    return http.build();
+  }
 }

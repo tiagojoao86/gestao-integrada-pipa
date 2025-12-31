@@ -9,14 +9,13 @@ import lombok.Setter;
 @Setter
 public class PerfilModuloDTO {
 
-    private UUID id;
-    private UUID perfilId;
-    private UUID moduloId;
-    private String moduloNome;
-    private boolean podeListar;
-    private boolean podeVisualizar;
-    private boolean podeEditar;
-    private boolean podeDeletar;
-    private boolean podeAuditar;
-
+  private UUID id;
+  private UUID perfilId;
+  private UUID moduloId;
+  private String moduloNome;
+  private boolean podeListar;
+  private boolean podeVisualizar;
+  private boolean podeEditar;
+  private boolean podeDeletar;
+  private boolean podeAuditar;
 }

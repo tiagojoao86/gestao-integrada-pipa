@@ -25,55 +25,57 @@ import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.OrderDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 import br.com.grupopipa.gestaointegrada.core.service.CrudService;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class BaseController<D extends DTO, G extends GridDTO, S extends CrudService<D, G>> {
+public abstract class BaseController<
+    D extends DTO, G extends GridDTO, S extends CrudService<D, G>> {
 
-    protected S service;
+  protected S service;
 
-    public BaseController(S service) {
-        this.service = service;
-    }
+  public BaseController(S service) {
+    this.service = service;
+  }
 
-    @PostMapping(R_QUERY)
-    public Response list(@RequestBody PageRequest request) {
-        Sort sort = Sort.by(request.getOrder().stream().map(OrderDTO::getOrder).toList());
-        Pageable pageable = org.springframework.data.domain.PageRequest.of(request.getPage(), request.getSize(),
-                sort);
-        return ok(service.list(request.getFilter(), pageable));
-    }
+  @PostMapping(R_QUERY)
+  public Response list(@RequestBody PageRequest request) {
+    Sort sort = Sort.by(request.getOrder().stream().map(OrderDTO::getOrder).toList());
+    Pageable pageable =
+        org.springframework.data.domain.PageRequest.of(request.getPage(), request.getSize(), sort);
+    return ok(service.list(request.getFilter(), pageable));
+  }
 
-    @GetMapping(R_LIST)
-    public Response listAll() {
-        return ok(service.list(new FilterDTO()));
-    }
+  @GetMapping(R_LIST)
+  public Response listAll() {
+    return ok(service.list(new FilterDTO()));
+  }
 
-    @PostMapping
-    public Response save(@RequestBody D body) {
-        return ok(service.save(body));
-    }
+  @PostMapping
+  public Response save(@RequestBody D body) {
+    return ok(service.save(body));
+  }
 
-    @GetMapping(R_FIND_BY_ID)
-    public Response findById(@RequestParam(F_ID) UUID id) {
-        return ok(service.findById(id));
-    }
+  @GetMapping(R_FIND_BY_ID)
+  public Response findById(@RequestParam(F_ID) UUID id) {
+    return ok(service.findById(id));
+  }
 
-    @DeleteMapping(PV_ID)
-    public Response delete(@PathVariable(F_ID) UUID id) {
-        return ok(service.delete(id));
-    }
+  @DeleteMapping(PV_ID)
+  public Response delete(@PathVariable(F_ID) UUID id) {
+    return ok(service.delete(id));
+  }
 
-    /**
-     * Busca informações de auditoria de uma entidade.
-     * Este método deve ser sobrescrito nos controllers filhos para adicionar verificação de permissão.
-     *
-     * @param id ID da entidade
-     * @return Response com AuditInfoDTO
-     */
-    @GetMapping("/{id}/audit-info")
-    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-        AuditInfoDTO auditInfo = service.getAuditInfo(id);
-        return ok(auditInfo);
-    }
+  /**
+   * Busca informações de auditoria de uma entidade. Este método deve ser sobrescrito nos
+   * controllers filhos para adicionar verificação de permissão.
+   *
+   * @param id ID da entidade
+   * @return Response com AuditInfoDTO
+   */
+  @GetMapping("/{id}/audit-info")
+  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+    AuditInfoDTO auditInfo = service.getAuditInfo(id);
+    return ok(auditInfo);
+  }
 }

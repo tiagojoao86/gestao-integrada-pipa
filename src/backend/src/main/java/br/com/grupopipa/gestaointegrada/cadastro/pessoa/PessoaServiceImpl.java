@@ -1,132 +1,137 @@
 package br.com.grupopipa.gestaointegrada.cadastro.pessoa;
 
-import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
-import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
-import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.stereotype.Service;
+
+import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
+import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
+
 @Service
-public class PessoaServiceImpl extends CrudServiceImpl<PessoaDTO, PessoaGridDTO, Pessoa, PessoaRepository>
-        implements PessoaService {
+public class PessoaServiceImpl
+    extends CrudServiceImpl<PessoaDTO, PessoaGridDTO, Pessoa, PessoaRepository>
+    implements PessoaService {
 
-    public PessoaServiceImpl(PessoaRepository repository, Specifications<Pessoa> specifications) {
-        super(repository, specifications);
+  public PessoaServiceImpl(PessoaRepository repository, Specifications<Pessoa> specifications) {
+    super(repository, specifications);
+  }
+
+  @Override
+  protected Pessoa mergeEntityAndDTO(Pessoa entity, PessoaDTO dto) {
+    if (Objects.isNull(entity)) {
+      // Criar nova pessoa usando Builder
+      TipoPessoa tipo = TipoPessoa.valueOf(dto.getTipoPessoa());
+
+      Pessoa.Builder builder =
+          new Pessoa.Builder()
+              .tipoPessoa(tipo)
+              .nome(dto.getNome())
+              .email(dto.getEmail())
+              .telefone(dto.getTelefone());
+
+      if (tipo == TipoPessoa.FISICA) {
+        builder.cpf(dto.getCpf()).dataNascimento(dto.getDataNascimento());
+      } else if (tipo == TipoPessoa.JURIDICA) {
+        builder
+            .cnpj(dto.getCnpj())
+            .razaoSocial(dto.getRazaoSocial())
+            .inscricaoEstadual(dto.getInscricaoEstadual());
+      }
+
+      if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
+        builder.observacoes(dto.getObservacoes());
+      }
+
+      if (dto.getAtiva() != null) {
+        builder.ativa(dto.getAtiva());
+      }
+
+      return builder.build();
     }
 
-    @Override
-    protected Pessoa mergeEntityAndDTO(Pessoa entity, PessoaDTO dto) {
-        if (Objects.isNull(entity)) {
-            // Criar nova pessoa usando Builder
-            TipoPessoa tipo = TipoPessoa.valueOf(dto.getTipoPessoa());
+    // Atualizar pessoa existente
+    entity.atualizar(
+        dto.getNome(),
+        dto.getEmail(),
+        dto.getTelefone(),
+        dto.getCpf(),
+        dto.getDataNascimento(),
+        dto.getCnpj(),
+        dto.getRazaoSocial(),
+        dto.getInscricaoEstadual());
 
-            Pessoa.Builder builder = new Pessoa.Builder()
-                    .tipoPessoa(tipo)
-                    .nome(dto.getNome())
-                    .email(dto.getEmail())
-                    .telefone(dto.getTelefone());
-
-            if (tipo == TipoPessoa.FISICA) {
-                builder.cpf(dto.getCpf())
-                        .dataNascimento(dto.getDataNascimento());
-            } else if (tipo == TipoPessoa.JURIDICA) {
-                builder.cnpj(dto.getCnpj())
-                        .razaoSocial(dto.getRazaoSocial())
-                        .inscricaoEstadual(dto.getInscricaoEstadual());
-            }
-
-            if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
-                builder.observacoes(dto.getObservacoes());
-            }
-
-            if (dto.getAtiva() != null) {
-                builder.ativa(dto.getAtiva());
-            }
-
-            return builder.build();
-        }
-
-        // Atualizar pessoa existente
-        entity.atualizar(
-                dto.getNome(),
-                dto.getEmail(),
-                dto.getTelefone(),
-                dto.getCpf(),
-                dto.getDataNascimento(),
-                dto.getCnpj(),
-                dto.getRazaoSocial(),
-                dto.getInscricaoEstadual());
-
-        if (dto.getAtiva() != null) {
-            if (dto.getAtiva()) {
-                entity.ativar();
-            } else {
-                entity.inativar();
-            }
-        }
-
-        return entity;
+    if (dto.getAtiva() != null) {
+      if (dto.getAtiva()) {
+        entity.ativar();
+      } else {
+        entity.inativar();
+      }
     }
 
-    @Override
-    protected PessoaDTO buildDTOFromEntity(Pessoa entity) {
-        return PessoaDTO.builder()
-                .id(entity.getId())
-                .tipoPessoa(entity.getTipoPessoa().name())
-                .nome(entity.getNome())
-                .email(entity.getEmail())
-                .telefone(entity.getTelefone())
-                .cpf(entity.getCpf())
-                .dataNascimento(entity.getDataNascimento())
-                .cnpj(entity.getCnpj())
-                .razaoSocial(entity.getRazaoSocial())
-                .inscricaoEstadual(entity.getInscricaoEstadual())
-                .observacoes(entity.getObservacoes())
-                .ativa(entity.getAtiva())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .createdBy(entity.getCreatedBy())
-                .updatedBy(entity.getUpdatedBy())
-                .build();
-    }
+    return entity;
+  }
 
-    @Override
-    protected PessoaGridDTO buildGridDTOFromEntity(Pessoa entity) {
-        String documento = entity.isPessoaFisica() ? entity.getCpf() : entity.getCnpj();
+  @Override
+  protected PessoaDTO buildDTOFromEntity(Pessoa entity) {
+    return PessoaDTO.builder()
+        .id(entity.getId())
+        .tipoPessoa(entity.getTipoPessoa().name())
+        .nome(entity.getNome())
+        .email(entity.getEmail())
+        .telefone(entity.getTelefone())
+        .cpf(entity.getCpf())
+        .dataNascimento(entity.getDataNascimento())
+        .cnpj(entity.getCnpj())
+        .razaoSocial(entity.getRazaoSocial())
+        .inscricaoEstadual(entity.getInscricaoEstadual())
+        .observacoes(entity.getObservacoes())
+        .ativa(entity.getAtiva())
+        .createdAt(entity.getCreatedAt())
+        .updatedAt(entity.getUpdatedAt())
+        .createdBy(entity.getCreatedBy())
+        .updatedBy(entity.getUpdatedBy())
+        .build();
+  }
 
-        return PessoaGridDTO.builder()
-                .id(entity.getId())
-                .nome(entity.getNome())
-                .documento(documento)
-                .tipoPessoa(entity.getTipoPessoa().name())
-                .ativa(entity.getAtiva())
-                .createdAt(entity.getCreatedAt())
-                .deleted(entity.getDeleted())
-                .build();
-    }
+  @Override
+  protected PessoaGridDTO buildGridDTOFromEntity(Pessoa entity) {
+    String documento = entity.isPessoaFisica() ? entity.getCpf() : entity.getCnpj();
 
-    @Override
-    protected List<String> getPropertiesToFilter() {
-        return List.of("nome", "ativa", "createdAt", "tipoPessoa", "cpf", "cnpj");
-    }
+    return PessoaGridDTO.builder()
+        .id(entity.getId())
+        .nome(entity.getNome())
+        .documento(documento)
+        .tipoPessoa(entity.getTipoPessoa().name())
+        .ativa(entity.getAtiva())
+        .createdAt(entity.getCreatedAt())
+        .deleted(entity.getDeleted())
+        .build();
+  }
 
-    @Override
-    protected Class<Pessoa> getEntityClass() {
-        return Pessoa.class;
-    }
+  @Override
+  protected List<String> getPropertiesToFilter() {
+    return List.of("nome", "ativa", "createdAt", "tipoPessoa", "cpf", "cnpj");
+  }
 
-    @Override
-    public List<PessoaDTO> listarParaVinculo() {
-        return repository.findByAtivaTrue().stream()
-                .map(pessoa -> PessoaDTO.builder()
-                        .id(pessoa.getId())
-                        .nome(pessoa.getNome())
-                        .tipoPessoa(pessoa.getTipoPessoa().name())
-                        .cpf(pessoa.getCpf())
-                        .cnpj(pessoa.getCnpj())
-                        .build())
-                .toList();
-    }
+  @Override
+  protected Class<Pessoa> getEntityClass() {
+    return Pessoa.class;
+  }
+
+  @Override
+  public List<PessoaDTO> listarParaVinculo() {
+    return repository.findByAtivaTrue().stream()
+        .map(
+            pessoa ->
+                PessoaDTO.builder()
+                    .id(pessoa.getId())
+                    .nome(pessoa.getNome())
+                    .tipoPessoa(pessoa.getTipoPessoa().name())
+                    .cpf(pessoa.getCpf())
+                    .cnpj(pessoa.getCnpj())
+                    .build())
+        .toList();
+  }
 }

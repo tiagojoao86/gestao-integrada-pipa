@@ -1,19 +1,27 @@
 package br.com.grupopipa.gestaointegrada.tenant.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+
+import br.com.grupopipa.gestaointegrada.tenant.enums.TenantPlano;
+import br.com.grupopipa.gestaointegrada.tenant.enums.TenantStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-import br.com.grupopipa.gestaointegrada.tenant.enums.TenantPlano;
-import br.com.grupopipa.gestaointegrada.tenant.enums.TenantStatus;
-
 /**
- * Entidade Tenant armazenada no schema public
- * Representa uma empresa/organização que usa o sistema
+ * Entidade Tenant armazenada no schema public Representa uma empresa/organização que usa o sistema
  */
 @Entity
 @Table(name = "tenant", schema = "public")
@@ -23,80 +31,58 @@ import br.com.grupopipa.gestaointegrada.tenant.enums.TenantStatus;
 @AllArgsConstructor
 public class Tenant {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    /**
-     * Identificador único do tenant (usado no schema name)
-     * Exemplo: "empresa_abc", "solar_xyz"
-     */
-    @Column(name = "tenant_id", nullable = false, unique = true, length = 63)
-    private String tenantId;
+  /** Identificador único do tenant (usado no schema name) Exemplo: "empresa_abc", "solar_xyz" */
+  @Column(name = "tenant_id", nullable = false, unique = true, length = 63)
+  private String tenantId;
 
-    /**
-     * Nome da empresa/organização
-     */
-    @Column(nullable = false)
-    private String nome;
+  /** Nome da empresa/organização */
+  @Column(nullable = false)
+  private String nome;
 
-    /**
-     * CNPJ da empresa
-     */
-    @Column(name = "numero_documento", length = 30)
-    private String numeroDocumento;
+  /** CNPJ da empresa */
+  @Column(name = "numero_documento", length = 30)
+  private String numeroDocumento;
 
-    /**
-     * Nome do schema no PostgreSQL
-     * Gerado automaticamente: "tenant_" + tenantId
-     */
-    @Column(name = "schema_name", nullable = false, unique = true, length = 63)
-    private String schemaName;
+  /** Nome do schema no PostgreSQL Gerado automaticamente: "tenant_" + tenantId */
+  @Column(name = "schema_name", nullable = false, unique = true, length = 63)
+  private String schemaName;
 
-    /**
-     * Status do tenant
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TenantStatus status = TenantStatus.ACTIVE;
+  /** Status do tenant */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private TenantStatus status = TenantStatus.ACTIVE;
 
-    /**
-     * Data de criação
-     */
-    @Column(name = "data_criacao", nullable = false)
-    private LocalDateTime dataCriacao = LocalDateTime.now();
+  /** Data de criação */
+  @Column(name = "data_criacao", nullable = false)
+  private LocalDateTime dataCriacao = LocalDateTime.now();
 
-    /**
-     * Data de expiração da assinatura
-     */
-    @Column(name = "data_expiracao")
-    private LocalDateTime dataExpiracao;
+  /** Data de expiração da assinatura */
+  @Column(name = "data_expiracao")
+  private LocalDateTime dataExpiracao;
 
-    /**
-     * Plano contratado
-     */
-    @Enumerated(EnumType.STRING)
-    private TenantPlano plano = TenantPlano.BASIC;
+  /** Plano contratado */
+  @Enumerated(EnumType.STRING)
+  private TenantPlano plano = TenantPlano.BASIC;
 
-    /**
-     * Número máximo de usuários permitidos
-     */
-    @Column(name = "max_usuarios", nullable = false)
-    private Integer maxUsuarios = 5;
+  /** Número máximo de usuários permitidos */
+  @Column(name = "max_usuarios", nullable = false)
+  private Integer maxUsuarios = 5;
 
-    /**
-     * Observações
-     */
-    @Column(columnDefinition = "TEXT")
-    private String observacoes;
+  /** Observações */
+  @Column(columnDefinition = "TEXT")
+  private String observacoes;
 
-    @PrePersist
-    public void prePersist() {
-        if (schemaName == null) {
-            schemaName = "tenant_" + tenantId.toLowerCase().replaceAll("[^a-z0-9_]", "_");
-        }
-        if (dataCriacao == null) {
-            dataCriacao = LocalDateTime.now();
-        }
+  @PrePersist
+  public void prePersist() {
+    if (schemaName == null) {
+      schemaName = "tenant_" + tenantId.toLowerCase().replaceAll("[^a-z0-9_]", "_");
     }
+    if (dataCriacao == null) {
+      dataCriacao = LocalDateTime.now();
+    }
+  }
 }

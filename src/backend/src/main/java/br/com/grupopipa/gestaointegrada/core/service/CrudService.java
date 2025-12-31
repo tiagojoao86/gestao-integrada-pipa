@@ -7,22 +7,21 @@ import org.springframework.data.domain.Pageable;
 
 import br.com.grupopipa.gestaointegrada.core.dto.AuditInfoDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
-import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
+import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 
 public interface CrudService<D extends DTO, G extends GridDTO> {
 
-    public D save(D dto);
+  D save(D dto);
 
-    public UUID delete(UUID id);
+  UUID delete(UUID id);
 
-    public PageDTO<G> list(FilterDTO filter, Pageable pageable);
+  PageDTO<G> list(FilterDTO filter, Pageable pageable);
 
-    public List<G> list(FilterDTO filter);
+  List<G> list(FilterDTO filter);
 
-    public D findById(UUID id);
+  D findById(UUID id);
 
-    public AuditInfoDTO getAuditInfo(UUID id);
-
+  AuditInfoDTO getAuditInfo(UUID id);
 }

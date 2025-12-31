@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import br.com.grupopipa.gestaointegrada.cadastro.modulo.entity.ModuloEntity;
 
-public interface ModuloRepository extends JpaRepository<ModuloEntity, UUID>, JpaSpecificationExecutor<ModuloEntity> {
-}
+public interface ModuloRepository
+    extends JpaRepository<ModuloEntity, UUID>, JpaSpecificationExecutor<ModuloEntity> {}

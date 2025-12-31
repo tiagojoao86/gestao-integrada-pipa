@@ -79,5 +79,4 @@ public class UserAuthenticated implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
-
 }
