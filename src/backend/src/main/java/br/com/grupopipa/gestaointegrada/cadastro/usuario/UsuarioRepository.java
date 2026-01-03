@@ -11,7 +11,7 @@ import br.com.grupopipa.gestaointegrada.cadastro.usuario.entity.UsuarioEntity;
 
 @Repository
 public interface UsuarioRepository
-    extends JpaRepository<UsuarioEntity, UUID>, JpaSpecificationExecutor<UsuarioEntity> {
+        extends JpaRepository<UsuarioEntity, UUID>, JpaSpecificationExecutor<UsuarioEntity> {
 
-  Optional<UsuarioEntity> findUsuarioByLoginValue(String login);
+    Optional<UsuarioEntity> findUsuarioByLoginValue(String login);
 }

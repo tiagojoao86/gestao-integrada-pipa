@@ -6,61 +6,64 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 /** Value Object para Email com validação de formato */
 @Embeddable
 public class Email implements Serializable {
 
-  private static final Pattern EMAIL_PATTERN =
-      Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
-  @Column(name = "email", length = 255)
-  private String value;
+    @Column(name = "email", length = 255)
+    private String value;
 
-  protected Email() {}
-
-  public Email(String value) {
-    Set<BeanValidationMessage> violations = new HashSet<>();
-
-    if (value == null || value.isBlank()) {
-      violations.add(new BeanValidationMessage("email", "Email não pode ser vazio"));
-      throw new BeanValidationException(violations);
+    protected Email() {
     }
 
-    String emailTrimmed = value.trim().toLowerCase();
+    public Email(String value) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
 
-    if (!EMAIL_PATTERN.matcher(emailTrimmed).matches()) {
-      violations.add(new BeanValidationMessage("email", "Email inválido: " + value));
-      throw new BeanValidationException(violations);
+        if (value == null || value.isBlank()) {
+            violations.add(new BeanValidationMessage("email", "Email não pode ser vazio"));
+            throw new BeanValidationException(violations);
+        }
+
+        String emailTrimmed = value.trim().toLowerCase();
+
+        if (!EMAIL_PATTERN.matcher(emailTrimmed).matches()) {
+            violations.add(new BeanValidationMessage("email", "Email inválido: " + value));
+            throw new BeanValidationException(violations);
+        }
+
+        this.value = emailTrimmed;
     }
 
-    this.value = emailTrimmed;
-  }
+    public String getValue() {
+        return value;
+    }
 
-  public String getValue() {
-    return value;
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Email)) {
+            return false;
+        }
+        Email email = (Email) o;
+        return Objects.equals(value, email.value);
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Email)) return false;
-    Email email = (Email) o;
-    return Objects.equals(value, email.value);
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(value);
-  }
-
-  @Override
-  public String toString() {
-    return value;
-  }
+    @Override
+    public String toString() {
+        return value;
+    }
 }

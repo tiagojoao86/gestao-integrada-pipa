@@ -34,13 +34,13 @@
           inputId="contaBancaria"
           formControlName="contaBancaria"
           [options]="contasOptions"
-          optionLabel="label"
-          optionValue="value"
+          optionLabel="nome"
+          optionValue="id"
           [filter]="true"
           filterBy="label"
         >
           <ng-template let-item pTemplate="item">
-            <div>{{ item.label }}</div>
+            <div>{{ item.nome }}</div>
           </ng-template>
         </p-select>
         <label for="contaBancaria" i18n>Conta Bancária</label>
@@ -103,14 +103,17 @@
           inputId="unidadeNegocio"
           [options]="allUnidadesNegocio"
           formControlName="unidadeNegocio"
-          optionLabel="codigo"
-          optionValue="id"
+          optionLabel="unidadeNegocioCodigo"
+          optionValue="unidadeNegocioId"
           [filter]="true"
-          filterBy="codigo,nome"
+          filterBy="unidadeNegocioCodigo,unidadeNegocioNome"
           [showClear]="false"
+          (onChange)="changeUnidadeNegocio()"
         >
           <ng-template let-item pTemplate="item">
-            <div>{{ item.codigo }} - {{ item.nome }}</div>
+            <div>
+              {{ item.unidadeNegocioCodigo }} - {{ item.unidadeNegocioNome }}
+            </div>
           </ng-template>
         </p-select>
         <label for="unidadeNegocio" i18n>Unidade de Negócio</label>

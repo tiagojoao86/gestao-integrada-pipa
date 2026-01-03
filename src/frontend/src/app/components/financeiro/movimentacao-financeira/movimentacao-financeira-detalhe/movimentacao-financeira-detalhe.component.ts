@@ -22,8 +22,7 @@ import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.servic
 import { TituloService } from '../../titulo/titulo.service';
 import { ContaBancariaService } from '../../conta-bancaria/conta-bancaria.service';
 import { ContaBancariaDTO } from '../../conta-bancaria/model/conta-bancaria-dto';
-import { PageRequest } from '../../../base/model/page-request';
-import { FilterDTO, FilterItem } from '../../../base/model/filter-dto';
+import { Direction, PageRequest } from '../../../base/model/page-request';
 import { AuthService } from '../../../base/auth/auth-service';
 import {
   FormBuilder,
@@ -48,6 +47,12 @@ import {
 import { TituloDTO } from '../../titulo/model/titulo-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import {
+  FilterDTO,
+  FilterLogicOperator,
+  FilterOperator,
+} from '../../../base/model/filter-dto';
 
 @Component({
   selector: 'gi-movimentacao-financeira-detalhe',
@@ -88,8 +93,6 @@ export class MovimentacaoFinanceiraDetalheComponent
   );
   private messages: MessageService = inject(MessageService);
 
-  // Autocomplete / seleção de títulos
-  allTitulos: TituloDTO[] = [];
   tituloSuggestions: TituloDTO[] = [];
   selectedTitulos: TituloDTO[] = [];
 
@@ -115,19 +118,30 @@ export class MovimentacaoFinanceiraDetalheComponent
 
   toolbarActions: ToolbarActionModel[] = [];
 
-  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+  allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
 
   private tituloService: TituloService = inject(TituloService);
-  private auth: AuthService = inject(AuthService);
-  private searchSubject = new Subject<string>();
+  private authService: AuthService = inject(AuthService);
+  private searchSubjectTitulos = new Subject<string>();
   private destroy$ = new Subject<void>();
   private contaService: ContaBancariaService = inject(ContaBancariaService);
-  contasOptions: { label: string; value: string }[] = [];
+  contasOptions: ContaBancariaDTO[] = [];
 
   ngOnInit(): void {
     this.initForm();
-    // Setup debounced remote search for títulos
-    this.searchSubject
+    this.createSearchSubjectTitulos();
+    this.loadUnidadesNegocio();
+    this.createToolbarActions();
+
+    if (this.id === 'add') {
+      this.prepareForNew();
+    } else if (this.id) {
+      this.prepareForEdit();
+    }
+  }
+
+  createSearchSubjectTitulos(): void {
+    this.searchSubjectTitulos
       .pipe(
         debounceTime(500),
         distinctUntilChanged(),
@@ -141,10 +155,15 @@ export class MovimentacaoFinanceiraDetalheComponent
       .subscribe((results) => {
         this.tituloSuggestions = results as TituloDTO[];
       });
-    this.loadUnidadesNegocio();
+  }
 
+  loadUnidadesNegocio(): void {
+    this.allUnidadesNegocio = this.authService.getUnidadesNegocio();
+  }
+
+  createToolbarActions(): void {
     // Configure action toolbar (Cancelar / Salvar) based on permissions
-    const canEdit = this.auth.hasAuthorityEditarToModulo(
+    const canEdit = this.authService.hasAuthorityEditarToModulo(
       SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
     );
     this.toolbarActions = [
@@ -168,128 +187,76 @@ export class MovimentacaoFinanceiraDetalheComponent
         shortcut: 'enter',
       });
     }
+  }
 
-    if (this.id === 'add') {
-      this.editMode = false;
-      this.movimentacao = {} as MovimentacaoFinanceiraDTO;
-      this.form.get('data')?.setValue(new Date());
-      // When creating, set default unidade after loading unidades
-      this.loadUnidadesNegocio(true);
-    } else if (this.id) {
-      this.editMode = true;
-      this.service.findById(String(this.id)).subscribe((response) => {
-        this.movimentacao = response.body!;
-        this.fillForm();
-        // If there are existing títulos, extract ids and fetch them to populate selection
-        if (
-          this.movimentacao &&
-          this.movimentacao.titulos &&
-          this.movimentacao.titulos.length > 0
-        ) {
-          const ids = this.movimentacao.titulos
-            .map((t: string | MovimentacaoTituloDTO) =>
-              typeof t === 'string' ? t : t.id
-            )
-            .filter((id) => !!id);
-          const calls = ids.map((id) =>
-            this.tituloService.findById(id as string).pipe(map((r) => r.body))
-          );
-          if (calls.length > 0) {
-            forkJoin(calls)
-              .pipe(take(1))
-              .subscribe((arr) => {
-                this.selectedTitulos = arr as TituloDTO[];
-                this.form.get('titulos')?.setValue(this.selectedTitulos);
-              });
-          }
+  prepareForNew(): void {
+    this.editMode = false;
+    this.movimentacao = {} as MovimentacaoFinanceiraDTO;
+    this.form.get('data')?.setValue(new Date());
+    const defaultUnidadeNegocio = this.authService.getDefaultUnidadeNegocio();
+    if (defaultUnidadeNegocio) {
+      this.form
+        .get('unidadeNegocio')
+        ?.setValue(defaultUnidadeNegocio.unidadeNegocioId);
+      this.changeUnidadeNegocio();
+    }
+  }
+
+  prepareForEdit(): void {
+    this.editMode = true;
+    this.service.findById(String(this.id)).subscribe((response) => {
+      this.movimentacao = response.body!;
+      this.fillForm();
+      // If there are existing títulos, extract ids and fetch them to populate selection
+      if (
+        this.movimentacao &&
+        this.movimentacao.titulos &&
+        this.movimentacao.titulos.length > 0
+      ) {
+        const ids = this.movimentacao.titulos
+          .map((t: string | MovimentacaoTituloDTO) =>
+            typeof t === 'string' ? t : t.id
+          )
+          .filter((id) => !!id);
+        const calls = ids.map((id) =>
+          this.tituloService.findById(id as string).pipe(map((r) => r.body))
+        );
+        if (calls.length > 0) {
+          forkJoin(calls)
+            .pipe(take(1))
+            .subscribe((arr) => {
+              this.selectedTitulos = arr as TituloDTO[];
+              this.form.get('titulos')?.setValue(this.selectedTitulos);
+            });
         }
+      }
+    });
+  }
+
+  changeUnidadeNegocio() {
+    this.contasOptions = [];
+    const unidadeNegocioId = this.form.get('unidadeNegocio')?.value;
+
+    if (unidadeNegocioId) {
+      const filterItem = {
+        property: 'unidadeNegocio',
+        values: [unidadeNegocioId],
+        operator: FilterOperator.EQ.key,
+      };
+      const filter = new FilterDTO(
+        FilterLogicOperator.AND.getKey(),
+        [filterItem],
+        false
+      );
+      const order = {
+        direction: Direction.ASC,
+        property: 'nome',
+      };
+      const request = new PageRequest(filter, 0, 0, [order]);
+      this.contaService.listAll(request).subscribe((response) => {
+        this.contasOptions = response.body;
       });
     }
-  }
-
-  loadUnidadesNegocio(setDefault = false) {
-    const defaultUnidade = this.auth.getDefaultUnidadeNegocio?.();
-    if (defaultUnidade) {
-      this.allUnidadesNegocio = [defaultUnidade];
-      if (setDefault && defaultUnidade.id) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
-      }
-    }
-
-    this.tituloService.listarUnidadesDisponiveis().subscribe((unidades) => {
-      this.allUnidadesNegocio = unidades;
-      if (
-        setDefault &&
-        defaultUnidade &&
-        !this.form.get('unidadeNegocio')?.value
-      ) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
-      }
-      // Depois de carregar unidades, carrega contas disponíveis dessas unidades
-      this.loadContasDisponiveis();
-    });
-  }
-
-  loadContasDisponiveis(): void {
-    const unidades = this.allUnidadesNegocio?.map((u) => u.id) || [];
-
-    if (unidades.length === 0) {
-      const authUnidades = this.auth.getUnidadesNegocio();
-      if (authUnidades && authUnidades.length > 0) {
-        unidades.push(...authUnidades.map((u) => u.unidadeNegocioId));
-      }
-    }
-
-    if (unidades.length === 0) {
-      this.contasOptions = [];
-      return;
-    }
-
-    const filters: FilterItem[] = [
-      {
-        property: 'unidadeNegocioId',
-        operator: 'IN',
-        values: unidades,
-      },
-    ];
-
-    const filterDto: FilterDTO = { filterLogicOperator: 'AND', items: filters };
-    const pageRequest = new PageRequest(filterDto, 100, 0, []);
-
-    this.contaService.list(pageRequest).subscribe({
-      next: (response) => {
-        const content = response.body?.content || [];
-        this.contasOptions = (content as ContaBancariaDTO[]).map((c) => ({
-          label: `${c.numeroConta ? c.numeroConta + ' - ' : ''}${c.nome}`,
-          value: c.id || '',
-        }));
-
-        // If current form has a contaBancaria id, ensure it's present in options
-        const current = this.form.get('contaBancaria')?.value;
-        if (current && !this.contasOptions.some((o) => o.value === current)) {
-          // Try to fetch single conta to include in options
-          this.contaService.findById(current).subscribe({
-            next: (resp) => {
-              const c = resp.body as ContaBancariaDTO;
-              if (c && c.id) {
-                this.contasOptions = [
-                  {
-                    label: `${c.numeroConta ? c.numeroConta + ' - ' : ''}${
-                      c.nome
-                    }`,
-                    value: c.id,
-                  },
-                  ...this.contasOptions,
-                ];
-              }
-            },
-          });
-        }
-      },
-      error: () => {
-        this.contasOptions = [];
-      },
-    });
   }
 
   isControlInvalid(campo: string) {
@@ -314,17 +281,6 @@ export class MovimentacaoFinanceiraDetalheComponent
 
   fillForm() {
     this.selectedTitulos = [];
-    if (this.movimentacao.titulos) {
-      // Map ids to objects when possible (dto.titulos can be objects or ids)
-      const tituloIds = this.movimentacao.titulos
-        .map((t: string | MovimentacaoTituloDTO) =>
-          typeof t === 'string' ? t : t.id
-        )
-        .filter((id) => !!id);
-      this.selectedTitulos = this.allTitulos.filter((t) =>
-        tituloIds.includes(t.id || '')
-      );
-    }
 
     this.form.get('titulos')?.setValue(this.selectedTitulos);
     this.form
@@ -346,14 +302,14 @@ export class MovimentacaoFinanceiraDetalheComponent
       );
     this.form
       .get('unidadeNegocio')
-      ?.setValue(this.movimentacao.unidadeNegocio || '');
+      ?.setValue(this.movimentacao.unidadeNegocioId || '');
     this.form.get('observacoes')?.setValue(this.movimentacao.observacoes || '');
+    this.changeUnidadeNegocio();
   }
 
-  // No longer loads all titles at once to avoid large queries. Search is debounced and remote.
   searchTitulos(event: { query: string }) {
     const q = event && event.query ? String(event.query) : '';
-    this.searchSubject.next(q);
+    this.searchSubjectTitulos.next(q);
   }
 
   // PrimeNG AutoComplete onChange emits either an array of items or an object like { originalEvent, value }
@@ -441,7 +397,8 @@ export class MovimentacaoFinanceiraDetalheComponent
     this.movimentacao.formaPagamento = this.form.value.formaPagamento;
     this.movimentacao.valor = this.form.value.valor;
     this.movimentacao.data = this.form.value.data;
-    this.movimentacao.unidadeNegocio = this.form.value.unidadeNegocio;
+    this.movimentacao.unidadeNegocioId =
+      this.form.value.unidadeNegocio.unidadeNegocioId;
     this.movimentacao.observacoes = this.form.value.observacoes;
 
     this.service.save(this.movimentacao, {

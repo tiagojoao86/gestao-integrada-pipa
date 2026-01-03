@@ -8,64 +8,66 @@ import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 
 /**
- * Projeção para consultas otimizadas de Titulo com cálculo de valorPago via SUM de movimentações
+ * Projeção para consultas otimizadas de Titulo com cálculo de valorPago via SUM
+ * de movimentações
  * Evita N+1 queries ao buscar lista de títulos
  */
 public interface TituloProjection {
-  UUID getId();
+    UUID getId();
 
-  TipoTitulo getTipo();
+    TipoTitulo getTipo();
 
-  StatusTitulo getStatus();
+    StatusTitulo getStatus();
 
-  String getNumeroDocumento();
+    String getNumeroDocumento();
 
-  String getDescricao();
+    String getDescricao();
 
-  // Pessoa
-  UUID getPessoaId();
+    // Pessoa
+    UUID getPessoaId();
 
-  String getPessoaNome();
+    String getPessoaNome();
 
-  // Categoria
-  UUID getTituloCategoriaId();
+    // Categoria
+    UUID getTituloCategoriaId();
 
-  String getTituloCategoriaNome();
+    String getTituloCategoriaNome();
 
-  // Unidade Negócio
-  UUID getUnidadeNegocioId();
+    // Unidade Negócio
+    UUID getUnidadeNegocioId();
 
-  String getUnidadeNegocioCodigo();
+    String getUnidadeNegocioCodigo();
 
-  String getUnidadeNegocioNome();
+    String getUnidadeNegocioNome();
 
-  // Valores monetários
-  BigDecimal getValorOriginal();
+    // Valores monetários
+    BigDecimal getValorOriginal();
 
-  BigDecimal getValorDesconto();
+    BigDecimal getValorDesconto();
 
-  BigDecimal getValorJuros();
+    BigDecimal getValorJuros();
 
-  BigDecimal getValorMulta();
+    BigDecimal getValorMulta();
 
-  /**
-   * Valor pago calculado via SUM das movimentações financeiras Retorna 0 se não houver
-   * movimentações
-   */
-  BigDecimal getValorPago();
+    /**
+     * Valor pago calculado via SUM das movimentações financeiras Retorna 0 se não
+     * houver
+     * movimentações
+     */
+    BigDecimal getValorPago();
 
-  // Datas
-  LocalDate getDataEmissao();
+    // Datas
+    LocalDate getDataEmissao();
 
-  LocalDate getDataVencimento();
+    LocalDate getDataVencimento();
 
-  LocalDate getDataPagamento();
+    LocalDate getDataPagamento();
 
-  // Parcelamento
-  Integer getNumeroParcela();
+    // Parcelamento
+    Integer getNumeroParcela();
 
-  Integer getTotalParcelas();
+    Integer getTotalParcelas();
 
-  // Auditoria
-  Boolean getDeleted();
+    // Auditoria
+    Boolean getDeleted();
 }

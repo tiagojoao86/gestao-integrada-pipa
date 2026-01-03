@@ -6,5 +6,5 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDT
 import br.com.grupopipa.gestaointegrada.core.service.CrudService;
 
 public interface ContaBancariaService extends CrudService<ContaBancariaDTO, ContaBancariaGridDTO> {
-  List<UnidadeNegocioDTO> listarUnidadesDisponiveis();
+    List<UnidadeNegocioDTO> listarUnidadesDisponiveis();
 }

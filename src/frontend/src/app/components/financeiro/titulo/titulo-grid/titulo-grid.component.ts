@@ -345,7 +345,7 @@ export class TituloGridComponent {
   updateFilterBadge(filter: FilterDTO) {
     const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
-      if (filter) {
+      if (filter && filter.items) {
         acao[0].value = filter.items.length + '';
         return;
       }

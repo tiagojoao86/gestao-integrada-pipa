@@ -2,10 +2,15 @@ package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,136 +36,135 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 
 /**
- * Testes unitários para ContaBancariaController. Usa MockMvc para testar os endpoints REST sem
+ * Testes unitários para ContaBancariaController. Usa MockMvc para testar os
+ * endpoints REST sem
  * subir o servidor.
  */
 @DisplayName("ContaBancariaController - Testes Unitários")
-@WebMvcTest(
-    value = ContaBancariaController.class,
-    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
+@WebMvcTest(value = ContaBancariaController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*TenantFilter"))
 @AutoConfigureMockMvc(addFilters = false)
 class ContaBancariaControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @MockitoBean private ContaBancariaService service;
+    @MockitoBean
+    private ContaBancariaService service;
 
-  private ContaBancariaDTO dtoValido;
-  private ContaBancariaGridDTO gridDTO;
-  private UUID contaId;
+    private ContaBancariaDTO dtoValido;
+    private ContaBancariaGridDTO gridDTO;
+    private UUID contaId;
 
-  @BeforeEach
-  void setup() {
-    contaId = UUID.randomUUID();
+    @BeforeEach
+    void setup() {
+        contaId = UUID.randomUUID();
 
-    dtoValido =
-        ContaBancariaDTO.builder()
-            .id(contaId)
-            .nome("Conta Corrente Principal")
-            .banco("Banco do Brasil")
-            .agencia("1234")
-            .numeroConta("12345-6")
-            .tipo(TipoConta.CORRENTE.name())
-            .saldoInicial(BigDecimal.valueOf(1000.00))
-            .build();
+        dtoValido = ContaBancariaDTO.builder()
+                .id(contaId)
+                .nome("Conta Corrente Principal")
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
+                .tipo(TipoConta.CORRENTE.name())
+                .saldoInicial(BigDecimal.valueOf(1000.00))
+                .build();
 
-    gridDTO =
-        ContaBancariaGridDTO.builder()
-            .id(contaId)
-            .nome("Conta Corrente Principal")
-            .banco("Banco do Brasil")
-            .tipo(TipoConta.CORRENTE.name())
-            .saldoInicial(BigDecimal.valueOf(1000.00))
-            .ativa(true)
-            .build();
-  }
+        gridDTO = ContaBancariaGridDTO.builder()
+                .id(contaId)
+                .nome("Conta Corrente Principal")
+                .banco("Banco do Brasil")
+                .tipo(TipoConta.CORRENTE.name())
+                .saldoInicial(BigDecimal.valueOf(1000.00))
+                .ativa(true)
+                .build();
+    }
 
-  @Test
-  @DisplayName("Deve listar contas bancárias paginadas com permissão")
-  @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_LISTAR")
-  void deveListarContasBancariasPaginadas() throws Exception {
-    // Given
-    br.com.grupopipa.gestaointegrada.core.dto.PageRequest request =
-        br.com.grupopipa.gestaointegrada.core.dto.PageRequest.builder()
-            .page(0)
-            .size(10)
-            .order(List.of())
-            .build();
+    @Test
+    @DisplayName("Deve listar contas bancárias paginadas com permissão")
+    @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_LISTAR")
+    void deveListarContasBancariasPaginadas() throws Exception {
+        // Given
+        br.com.grupopipa.gestaointegrada.core.dto.PageRequest request = br.com.grupopipa.gestaointegrada.core.dto.PageRequest
+                .builder()
+                .page(0)
+                .size(10)
+                .order(List.of())
+                .build();
 
-    PageDTO<ContaBancariaGridDTO> pageDTO =
-        new PageDTO<>(List.of(gridDTO), PageRequest.of(0, 10), 1L);
+        PageDTO<ContaBancariaGridDTO> pageDTO = new PageDTO<>(List.of(gridDTO), PageRequest.of(0, 10), 1L);
 
-    when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
-        .thenReturn(pageDTO);
+        when(service.list(any(), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(pageDTO);
 
-    // When & Then
-    mockMvc
-        .perform(
-            post("/conta-bancaria/query")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value(200))
-        .andExpect(jsonPath("$.body.content[0].nome", is("Conta Corrente Principal")));
+        // When & Then
+        mockMvc
+                .perform(
+                        post("/conta-bancaria/query")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.body.content[0].nome", is("Conta Corrente Principal")));
 
-    verify(service, times(1)).list(any(), any(org.springframework.data.domain.Pageable.class));
-  }
+        verify(service, times(1)).list(any(), any(org.springframework.data.domain.Pageable.class));
+    }
 
-  @Test
-  @DisplayName("Deve criar nova conta bancária com permissão")
-  @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_EDITAR")
-  void deveCriarNovaContaBancaria() throws Exception {
-    // Given
-    when(service.save(any(ContaBancariaDTO.class))).thenReturn(dtoValido);
+    @Test
+    @DisplayName("Deve criar nova conta bancária com permissão")
+    @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_EDITAR")
+    void deveCriarNovaContaBancaria() throws Exception {
+        // Given
+        when(service.save(any(ContaBancariaDTO.class))).thenReturn(dtoValido);
 
-    // When & Then
-    mockMvc
-        .perform(
-            post("/conta-bancaria")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dtoValido)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value(200))
-        .andExpect(jsonPath("$.body.nome", is("Conta Corrente Principal")));
+        // When & Then
+        mockMvc
+                .perform(
+                        post("/conta-bancaria")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dtoValido)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.body.nome", is("Conta Corrente Principal")));
 
-    verify(service, times(1)).save(any(ContaBancariaDTO.class));
-  }
+        verify(service, times(1)).save(any(ContaBancariaDTO.class));
+    }
 
-  @Test
-  @DisplayName("Deve buscar conta bancária por ID com permissão")
-  @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_VISUALIZAR")
-  void deveBuscarContaBancariaPorId() throws Exception {
-    // Given
-    when(service.findById(contaId)).thenReturn(dtoValido);
+    @Test
+    @DisplayName("Deve buscar conta bancária por ID com permissão")
+    @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_VISUALIZAR")
+    void deveBuscarContaBancariaPorId() throws Exception {
+        // Given
+        when(service.findById(contaId)).thenReturn(dtoValido);
 
-    // When & Then
-    mockMvc
-        .perform(get("/conta-bancaria/find-by-id").param("id", contaId.toString()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value(200))
-        .andExpect(jsonPath("$.body.nome", is("Conta Corrente Principal")));
+        // When & Then
+        mockMvc
+                .perform(get("/conta-bancaria/find-by-id").param("id", contaId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.body.nome", is("Conta Corrente Principal")));
 
-    verify(service, times(1)).findById(contaId);
-  }
+        verify(service, times(1)).findById(contaId);
+    }
 
-  @Test
-  @DisplayName("Deve deletar conta bancária com permissão")
-  @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_DELETAR")
-  void deveDeletarContaBancaria() throws Exception {
-    // Given
-    when(service.delete(contaId)).thenReturn(contaId);
+    @Test
+    @DisplayName("Deve deletar conta bancária com permissão")
+    @WithMockUser(authorities = "FINANCEIRO_CONTA_BANCARIA_DELETAR")
+    void deveDeletarContaBancaria() throws Exception {
+        // Given
+        when(service.delete(contaId)).thenReturn(contaId);
 
-    // When & Then
-    mockMvc
-        .perform(delete("/conta-bancaria/{id}", contaId).with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statusCode").value(200))
-        .andExpect(jsonPath("$.body").value(contaId.toString()));
+        // When & Then
+        mockMvc
+                .perform(delete("/conta-bancaria/{id}", contaId).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.body").value(contaId.toString()));
 
-    verify(service, times(1)).delete(contaId);
-  }
+        verify(service, times(1)).delete(contaId);
+    }
 }

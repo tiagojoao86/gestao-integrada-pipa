@@ -10,4 +10,5 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 
 @Repository
 public interface ContaBancariaRepository
-    extends JpaRepository<ContaBancaria, UUID>, JpaSpecificationExecutor<ContaBancaria> {}
+        extends JpaRepository<ContaBancaria, UUID>, JpaSpecificationExecutor<ContaBancaria> {
+}

@@ -208,14 +208,7 @@ export class AuthService {
   }
 
   // Unidades de Negócio Management
-  setUnidadesNegocio(
-    unidades: {
-      unidadeNegocioId: string;
-      unidadeNegocioCodigo: string;
-      unidadeNegocioNome: string;
-      isDefault: boolean;
-    }[]
-  ) {
+  setUnidadesNegocio(unidades: UsuarioUnidadeNegocioDTO[]) {
     sessionStorage.setItem('unidadesNegocio', JSON.stringify(unidades));
   }
 
@@ -233,19 +226,11 @@ export class AuthService {
     return defaultUnidade?.unidadeNegocioId || null;
   }
 
-  getDefaultUnidadeNegocio(): {
-    id: string;
-    codigo: string;
-    nome: string;
-  } | null {
+  getDefaultUnidadeNegocio(): UsuarioUnidadeNegocioDTO | null {
     const unidades = this.getUnidadesNegocio();
     const defaultUnidade = unidades.find((u) => u.isDefault);
     if (defaultUnidade) {
-      return {
-        id: defaultUnidade.unidadeNegocioId,
-        codigo: defaultUnidade.unidadeNegocioCodigo,
-        nome: defaultUnidade.unidadeNegocioNome,
-      };
+      return defaultUnidade;
     }
     return null;
   }

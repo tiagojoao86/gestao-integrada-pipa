@@ -10,14 +10,14 @@ import lombok.Setter;
 @Setter
 public class OrderDTO {
 
-  private Direction direction;
-  private String property;
+    private Direction direction;
+    private String property;
 
-  public Order getOrder() {
-    if (Direction.ASC.equals(direction)) {
-      return Order.asc(property);
+    public Order getOrder() {
+        if (Direction.ASC.equals(direction)) {
+            return Order.asc(property);
+        }
+
+        return Order.desc(property);
     }
-
-    return Order.desc(property);
-  }
 }

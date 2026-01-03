@@ -10,4 +10,5 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 
 @Repository
 public interface TituloRepository
-    extends JpaRepository<Titulo, UUID>, JpaSpecificationExecutor<Titulo>, TituloRepositoryCustom {}
+        extends JpaRepository<Titulo, UUID>, JpaSpecificationExecutor<Titulo>, TituloRepositoryCustom {
+}

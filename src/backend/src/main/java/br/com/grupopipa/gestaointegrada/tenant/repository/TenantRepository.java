@@ -10,11 +10,11 @@ import br.com.grupopipa.gestaointegrada.tenant.entity.Tenant;
 @Repository
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
 
-  Optional<Tenant> findByTenantId(String tenantId);
+    Optional<Tenant> findByTenantId(String tenantId);
 
-  Optional<Tenant> findBySchemaName(String schemaName);
+    Optional<Tenant> findBySchemaName(String schemaName);
 
-  boolean existsByTenantId(String tenantId);
+    boolean existsByTenantId(String tenantId);
 
-  boolean existsBySchemaName(String schemaName);
+    boolean existsBySchemaName(String schemaName);
 }

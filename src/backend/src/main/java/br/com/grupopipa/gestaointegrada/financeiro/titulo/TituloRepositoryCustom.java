@@ -9,13 +9,14 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 /** Interface customizada para consultas otimizadas de Titulo */
 public interface TituloRepositoryCustom {
 
-  /**
-   * Busca títulos com projeção otimizada, calculando valorPago via SUM de movimentações Suporta
-   * filtros dinâmicos via Specifications
-   *
-   * @param spec Specification para filtros dinâmicos (pode ser null)
-   * @param pageable Paginação
-   * @return Page de TituloProjection com valorPago calculado
-   */
-  Page<TituloProjection> findAllProjected(Specification<Titulo> spec, Pageable pageable);
+    /**
+     * Busca títulos com projeção otimizada, calculando valorPago via SUM de
+     * movimentações Suporta
+     * filtros dinâmicos via Specifications
+     *
+     * @param spec     Specification para filtros dinâmicos (pode ser null)
+     * @param pageable Paginação
+     * @return Page de TituloProjection com valorPago calculado
+     */
+    Page<TituloProjection> findAllProjected(Specification<Titulo> spec, Pageable pageable);
 }

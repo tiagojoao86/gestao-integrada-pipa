@@ -2,16 +2,16 @@ package br.com.grupopipa.gestaointegrada.financeiro.enums;
 
 /** Enum para tipos de título financeiro */
 public enum TipoTitulo {
-  A_PAGAR("A Pagar"),
-  A_RECEBER("A Receber");
+    A_PAGAR("A Pagar"),
+    A_RECEBER("A Receber");
 
-  private final String descricao;
+    private final String descricao;
 
-  TipoTitulo(String descricao) {
-    this.descricao = descricao;
-  }
+    TipoTitulo(String descricao) {
+        this.descricao = descricao;
+    }
 
-  public String getDescricao() {
-    return descricao;
-  }
+    public String getDescricao() {
+        return descricao;
+    }
 }

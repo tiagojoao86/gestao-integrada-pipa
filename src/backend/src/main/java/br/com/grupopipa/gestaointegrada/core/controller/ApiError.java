@@ -13,9 +13,9 @@ import lombok.Getter;
 @Builder
 public class ApiError {
 
-  private Integer status;
-  private OffsetDateTime timestamp;
-  private String title;
-  private List<String> detail;
-  private List<String> userMessageKey;
+    private Integer status;
+    private OffsetDateTime timestamp;
+    private String title;
+    private List<String> detail;
+    private List<String> userMessageKey;
 }

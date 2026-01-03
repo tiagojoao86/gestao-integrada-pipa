@@ -2,7 +2,8 @@ package br.com.grupopipa.gestaointegrada.financeiro.planocontas;
 
 /** Constantes para Plano de Contas */
 public class PlanoContasConstants {
-  public static final String R_PLANO_CONTAS = "/plano-contas";
+    public static final String R_PLANO_CONTAS = "/plano-contas";
 
-  private PlanoContasConstants() {}
+    private PlanoContasConstants() {
+    }
 }

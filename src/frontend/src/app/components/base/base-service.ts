@@ -65,9 +65,9 @@ export abstract class BaseService<D, G = D> {
       );
   }
 
-  listAll(): Observable<ResponseListNoPagination<G>> {
+  listAll(request: PageRequest): Observable<ResponseListNoPagination<G>> {
     return this.httpClient
-      .get<ResponseListNoPagination<G>>(this.getUrl(HttpConstants.R_LIST), {
+      .post<ResponseListNoPagination<G>>(this.getUrl(HttpConstants.R_LIST), request, {
         headers: this.getHeaders(),
       })
       .pipe(

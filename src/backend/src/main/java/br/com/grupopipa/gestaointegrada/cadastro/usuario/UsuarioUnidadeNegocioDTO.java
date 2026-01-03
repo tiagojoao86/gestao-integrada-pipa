@@ -12,8 +12,8 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class UsuarioUnidadeNegocioDTO {
-  private UUID unidadeNegocioId;
-  private String unidadeNegocioCodigo;
-  private String unidadeNegocioNome;
-  private Boolean isDefault;
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioCodigo;
+    private String unidadeNegocioNome;
+    private Boolean isDefault;
 }

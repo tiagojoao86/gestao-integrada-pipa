@@ -10,18 +10,18 @@ import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioRepository;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private UsuarioRepository repository;
+    private UsuarioRepository repository;
 
-  public UserDetailsServiceImpl(UsuarioRepository repository) {
-    this.repository = repository;
-  }
+    public UserDetailsServiceImpl(UsuarioRepository repository) {
+        this.repository = repository;
+    }
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return repository
-        .findUsuarioByLoginValue(username)
-        .map(UserAuthenticated::new)
-        .orElseThrow(
-            () -> new UsernameNotFoundException("User Not Found with username: " + username));
-  }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return repository
+                .findUsuarioByLoginValue(username)
+                .map(UserAuthenticated::new)
+                .orElseThrow(
+                        () -> new UsernameNotFoundException("User Not Found with username: " + username));
+    }
 }

@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 
 public interface TituloCategoriaRepository
-    extends JpaRepository<TituloCategoria, UUID>, JpaSpecificationExecutor<TituloCategoria> {}
+        extends JpaRepository<TituloCategoria, UUID>, JpaSpecificationExecutor<TituloCategoria> {
+}

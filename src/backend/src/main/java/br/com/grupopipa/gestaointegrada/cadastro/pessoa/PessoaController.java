@@ -22,37 +22,37 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 @RequestMapping(R_PESSOA)
 public class PessoaController extends BaseController<PessoaDTO, PessoaGridDTO, PessoaService> {
 
-  public PessoaController(PessoaService service) {
-    super(service);
-  }
+    public PessoaController(PessoaService service) {
+        super(service);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PESSOA_LISTAR')")
-  public Response list(@RequestBody PageRequest request) {
-    return super.list(request);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_LISTAR')")
+    public Response list(@RequestBody PageRequest request) {
+        return super.list(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PESSOA_EDITAR')")
-  public Response save(@RequestBody PessoaDTO body) {
-    return super.save(body);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_EDITAR')")
+    public Response save(@RequestBody PessoaDTO body) {
+        return super.save(body);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PESSOA_VISUALIZAR')")
-  public Response findById(@RequestParam(F_ID) UUID id) {
-    return super.findById(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_VISUALIZAR')")
+    public Response findById(@RequestParam(F_ID) UUID id) {
+        return super.findById(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PESSOA_DELETAR')")
-  public Response delete(@PathVariable(F_ID) UUID id) {
-    return super.delete(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_DELETAR')")
+    public Response delete(@PathVariable(F_ID) UUID id) {
+        return super.delete(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PESSOA_AUDITAR')")
-  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-    return super.getAuditInfo(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PESSOA_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

@@ -11,6 +11,6 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNe
 
 @Repository
 public interface UnidadeNegocioRepository
-    extends JpaRepository<UnidadeNegocio, UUID>, JpaSpecificationExecutor<UnidadeNegocio> {
-  List<UnidadeNegocio> findByAtivaTrue();
+        extends JpaRepository<UnidadeNegocio, UUID>, JpaSpecificationExecutor<UnidadeNegocio> {
+    List<UnidadeNegocio> findByAtivaTrue();
 }

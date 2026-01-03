@@ -5,24 +5,23 @@ import java.util.List;
 import org.springframework.util.ObjectUtils;
 
 import br.com.grupopipa.gestaointegrada.core.enums.FilterLogicOperator;
-
 import lombok.Getter;
 
 @Getter
 public class FilterDTO {
-  private FilterLogicOperator filterLogicOperator;
-  private List<FilterItemDTO> items;
-  private Boolean showDeleted = false;
+    private FilterLogicOperator filterLogicOperator;
+    private List<FilterItemDTO> items;
+    private Boolean showDeleted = false;
 
-  public FilterItemDTO getItemByPropertyName(String property) {
-    if (ObjectUtils.isEmpty(items)) {
-      return null;
+    public FilterItemDTO getItemByPropertyName(String property) {
+        if (ObjectUtils.isEmpty(items)) {
+            return null;
+        }
+
+        return items.stream().filter(it -> it.getProperty().equals(property)).findFirst().orElse(null);
     }
 
-    return items.stream().filter(it -> it.getProperty().equals(property)).findFirst().orElse(null);
-  }
-
-  public boolean isShowDeleted() {
-    return Boolean.TRUE.equals(showDeleted);
-  }
+    public boolean isShowDeleted() {
+        return Boolean.TRUE.equals(showDeleted);
+    }
 }

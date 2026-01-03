@@ -11,6 +11,6 @@ import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 
 @Repository
 public interface PessoaRepository
-    extends JpaRepository<Pessoa, UUID>, JpaSpecificationExecutor<Pessoa> {
-  List<Pessoa> findByAtivaTrue();
+        extends JpaRepository<Pessoa, UUID>, JpaSpecificationExecutor<Pessoa> {
+    List<Pessoa> findByAtivaTrue();
 }

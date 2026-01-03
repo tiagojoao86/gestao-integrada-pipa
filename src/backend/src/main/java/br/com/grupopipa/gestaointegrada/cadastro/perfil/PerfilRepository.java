@@ -10,4 +10,5 @@ import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.PerfilEntity;
 
 @Repository
 public interface PerfilRepository
-    extends JpaRepository<PerfilEntity, UUID>, JpaSpecificationExecutor<PerfilEntity> {}
+        extends JpaRepository<PerfilEntity, UUID>, JpaSpecificationExecutor<PerfilEntity> {
+}

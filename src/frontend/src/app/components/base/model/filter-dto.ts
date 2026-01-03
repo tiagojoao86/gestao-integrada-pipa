@@ -1,7 +1,17 @@
-export interface FilterDTO {
-  filterLogicOperator: string;
-  items: FilterItem[];
+export class FilterDTO {
+  filterLogicOperator?: string;
+  items?: FilterItem[];
   showDeleted?: boolean;
+
+  constructor(filterLogicOperator: string, items: FilterItem[], showDeleted: boolean) {
+    this.filterLogicOperator = filterLogicOperator;
+    this.items = items;
+    this.showDeleted = showDeleted;
+  }
+
+  static empty(): FilterDTO {
+    return new FilterDTO(FilterLogicOperator.AND.getKey(), [], false);
+  }
 }
 
 export interface FilterItem {
