@@ -21,39 +21,39 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 @RestController
 @RequestMapping(R_UNIDADE_NEGOCIO)
 public class UnidadeNegocioController
-    extends BaseController<UnidadeNegocioDTO, UnidadeNegocioGridDTO, UnidadeNegocioService> {
+        extends BaseController<UnidadeNegocioDTO, UnidadeNegocioGridDTO, UnidadeNegocioService> {
 
-  public UnidadeNegocioController(UnidadeNegocioService service) {
-    super(service);
-  }
+    public UnidadeNegocioController(UnidadeNegocioService service) {
+        super(service);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_LISTAR')")
-  public Response list(@RequestBody PageRequest request) {
-    return super.list(request);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_LISTAR')")
+    public Response list(@RequestBody PageRequest request) {
+        return super.list(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_EDITAR')")
-  public Response save(@RequestBody UnidadeNegocioDTO body) {
-    return super.save(body);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_EDITAR')")
+    public Response save(@RequestBody UnidadeNegocioDTO body) {
+        return super.save(body);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_VISUALIZAR')")
-  public Response findById(@RequestParam(F_ID) UUID id) {
-    return super.findById(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_VISUALIZAR')")
+    public Response findById(@RequestParam(F_ID) UUID id) {
+        return super.findById(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_DELETAR')")
-  public Response delete(@PathVariable(F_ID) UUID id) {
-    return super.delete(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_DELETAR')")
+    public Response delete(@PathVariable(F_ID) UUID id) {
+        return super.delete(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_AUDITAR')")
-  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-    return super.getAuditInfo(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

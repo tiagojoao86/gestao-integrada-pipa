@@ -27,6 +27,7 @@ import { TituloCategoriaDTO } from '../model/titulo-categoria.dto';
 import { AuthService } from '../../../base/auth/auth-service';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { TituloCategoriaTipoEnum } from '../model/titulo-categoria-tipo.enum';
+import { PageRequest } from '../../../base/model/page-request';
 
 @Component({
   selector: 'gi-titulo-categoria-detalhe',
@@ -124,7 +125,7 @@ export class CategoriaTituloDetalheComponent implements OnInit {
   }
 
   loadAgrupadores() {
-    this.service.listAll().subscribe((response) => {
+    this.service.listAll(PageRequest.empty()).subscribe((response) => {
       this.agrupadores = response.body || [];
     });
   }

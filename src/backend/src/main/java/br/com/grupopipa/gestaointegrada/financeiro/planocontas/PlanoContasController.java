@@ -23,45 +23,45 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 @RestController
 @RequestMapping(R_PLANO_CONTAS)
 public class PlanoContasController
-    extends BaseController<PlanoContasDTO, PlanoContasGridDTO, PlanoContasService> {
+        extends BaseController<PlanoContasDTO, PlanoContasGridDTO, PlanoContasService> {
 
-  public PlanoContasController(PlanoContasService service) {
-    super(service);
-  }
+    public PlanoContasController(PlanoContasService service) {
+        super(service);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_LISTAR')")
-  public Response list(@RequestBody PageRequest request) {
-    return super.list(request);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_LISTAR')")
+    public Response list(@RequestBody PageRequest request) {
+        return super.list(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_EDITAR')")
-  public Response save(@RequestBody PlanoContasDTO body) {
-    return super.save(body);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_EDITAR')")
+    public Response save(@RequestBody PlanoContasDTO body) {
+        return super.save(body);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_VISUALIZAR')")
-  public Response findById(@RequestParam(F_ID) UUID id) {
-    return super.findById(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_VISUALIZAR')")
+    public Response findById(@RequestParam(F_ID) UUID id) {
+        return super.findById(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_DELETAR')")
-  public Response delete(@PathVariable(F_ID) UUID id) {
-    return super.delete(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_DELETAR')")
+    public Response delete(@PathVariable(F_ID) UUID id) {
+        return super.delete(id);
+    }
 
-  @GetMapping("/unidades-disponiveis")
-  @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_EDITAR')")
-  public Response listarUnidadesDisponiveis() {
-    return ok(service.listarUnidadesDisponiveis());
-  }
+    @GetMapping("/unidades-disponiveis")
+    @PreAuthorize("hasAuthority('CADASTRO_PLANO_CONTAS_EDITAR')")
+    public Response listarUnidadesDisponiveis() {
+        return ok(service.listarUnidadesDisponiveis());
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_PLANO_CONTAS_AUDITAR')")
-  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-    return super.getAuditInfo(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_PLANO_CONTAS_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

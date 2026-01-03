@@ -8,7 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO para informações de auditoria de uma entidade. Contém dados de criação, atualização e
+ * DTO para informações de auditoria de uma entidade. Contém dados de criação,
+ * atualização e
  * exclusão (soft delete).
  */
 @Data
@@ -16,10 +17,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditInfoDTO {
-  private String createdBy;
-  private LocalDateTime createdAt;
-  private String updatedBy;
-  private LocalDateTime updatedAt;
-  private String deletedBy;
-  private LocalDateTime deletedAt;
+    private String createdBy;
+    private LocalDateTime createdAt;
+    private String updatedBy;
+    private LocalDateTime updatedAt;
+    private String deletedBy;
+    private LocalDateTime deletedAt;
 }

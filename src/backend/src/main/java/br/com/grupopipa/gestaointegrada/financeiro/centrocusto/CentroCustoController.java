@@ -21,45 +21,45 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 @RestController
 @RequestMapping(R_CENTRO_CUSTO)
 public class CentroCustoController
-    extends BaseController<CentroCustoDTO, CentroCustoGridDTO, CentroCustoService> {
+        extends BaseController<CentroCustoDTO, CentroCustoGridDTO, CentroCustoService> {
 
-  public CentroCustoController(CentroCustoService service) {
-    super(service);
-  }
+    public CentroCustoController(CentroCustoService service) {
+        super(service);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_LISTAR')")
-  public Response list(@RequestBody PageRequest request) {
-    return super.list(request);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_LISTAR')")
+    public Response list(@RequestBody PageRequest request) {
+        return super.list(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAnyAuthority('CADASTRO_SETOR_EDITAR')")
-  public Response listAll() {
-    return super.listAll();
-  }
+    @Override
+    @PreAuthorize("hasAnyAuthority('CADASTRO_SETOR_EDITAR')")
+    public Response listAll(@RequestBody PageRequest request) {
+        return super.listAll(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_EDITAR')")
-  public Response save(@RequestBody CentroCustoDTO body) {
-    return super.save(body);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_EDITAR')")
+    public Response save(@RequestBody CentroCustoDTO body) {
+        return super.save(body);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_VISUALIZAR')")
-  public Response findById(@RequestParam(F_ID) UUID id) {
-    return super.findById(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_VISUALIZAR')")
+    public Response findById(@RequestParam(F_ID) UUID id) {
+        return super.findById(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_DELETAR')")
-  public Response delete(@PathVariable(F_ID) UUID id) {
-    return super.delete(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_DELETAR')")
+    public Response delete(@PathVariable(F_ID) UUID id) {
+        return super.delete(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_AUDITAR')")
-  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-    return super.getAuditInfo(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('FINANCEIRO_CENTRO_CUSTO_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

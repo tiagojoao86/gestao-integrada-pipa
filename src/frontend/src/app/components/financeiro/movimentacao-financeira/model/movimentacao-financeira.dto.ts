@@ -18,7 +18,7 @@ export class MovimentacaoFinanceiraDTO {
   formaPagamento: string;
   valor: number;
   data: string;
-  unidadeNegocio: string;
+  unidadeNegocioId: string;
   observacoes?: string;
 
   constructor(
@@ -30,7 +30,7 @@ export class MovimentacaoFinanceiraDTO {
     formaPagamento = '',
     valor = 0,
     data = '',
-    unidadeNegocio = '',
+    unidadeNegocioId = '',
     observacoes?: string
   ) {
     this.id = id;
@@ -41,7 +41,7 @@ export class MovimentacaoFinanceiraDTO {
     this.formaPagamento = formaPagamento;
     this.valor = valor;
     this.data = data;
-    this.unidadeNegocio = unidadeNegocio;
+    this.unidadeNegocioId = unidadeNegocioId;
     this.observacoes = observacoes;
   }
 }

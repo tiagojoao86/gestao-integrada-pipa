@@ -36,6 +36,7 @@ import {
   TituloSetorRateio,
 } from '../titulo-setor-rateio/titulo-setor-rateio.component';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
 
 @Component({
   selector: 'gi-titulo-detalhe',
@@ -79,7 +80,7 @@ export class TituloDetalheComponent implements OnInit {
 
   // planoContas removed
 
-  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+  allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
 
   // Categorias
   allCategorias: { id: string; codigo: string; nome: string }[] = [];
@@ -154,10 +155,6 @@ export class TituloDetalheComponent implements OnInit {
         this.titulo = response.body!;
         this.tituloTela += this.titulo.descricao;
         this.fillForm();
-        // Load planos de contas after filling form with unidadeNegocioId
-        if (this.titulo.unidadeNegocioId) {
-          // planos de contas removed - no action
-        }
       });
     }
   }
@@ -247,23 +244,26 @@ export class TituloDetalheComponent implements OnInit {
     if (defaultUnidade) {
       this.allUnidadesNegocio = [defaultUnidade];
       // Set default immediately if needed
-      if (setDefault && defaultUnidade.id) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      if (setDefault && defaultUnidade.unidadeNegocioId) {
+        this.form
+          .get('unidadeNegocio')
+          ?.setValue(defaultUnidade.unidadeNegocioId);
       }
     }
 
     // Then load all available unidades from backend
-    this.service.listarUnidadesDisponiveis().subscribe((unidades) => {
-      this.allUnidadesNegocio = unidades;
-      // Set default after backend load if needed and not already set
-      if (
-        setDefault &&
-        defaultUnidade &&
-        !this.form.get('unidadeNegocio')?.value
-      ) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
-      }
-    });
+
+    this.allUnidadesNegocio = this.auth.getUnidadesNegocio();
+    // Set default after backend load if needed and not already set
+    if (
+      setDefault &&
+      defaultUnidade &&
+      !this.form.get('unidadeNegocio')?.value
+    ) {
+      this.form
+        .get('unidadeNegocio')
+        ?.setValue(defaultUnidade.unidadeNegocioId);
+    }
   }
 
   loadCategorias() {

@@ -10,5 +10,6 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceira
 
 @Repository
 public interface MovimentacaoFinanceiraRepository
-    extends JpaRepository<MovimentacaoFinanceira, UUID>,
-        JpaSpecificationExecutor<MovimentacaoFinanceira> {}
+        extends JpaRepository<MovimentacaoFinanceira, UUID>,
+        JpaSpecificationExecutor<MovimentacaoFinanceira> {
+}

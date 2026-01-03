@@ -15,78 +15,77 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 
 @Service
 public class CentroCustoServiceImpl
-    extends CrudServiceImpl<CentroCustoDTO, CentroCustoGridDTO, CentroCusto, CentroCustoRepository>
-    implements CentroCustoService {
+        extends CrudServiceImpl<CentroCustoDTO, CentroCustoGridDTO, CentroCusto, CentroCustoRepository>
+        implements CentroCustoService {
 
-  private final UnidadeNegocioRepository unidadeNegocioRepository;
+    private final UnidadeNegocioRepository unidadeNegocioRepository;
 
-  public CentroCustoServiceImpl(
-      CentroCustoRepository repository,
-      Specifications<CentroCusto> specifications,
-      UnidadeNegocioRepository unidadeNegocioRepository) {
-    super(repository, specifications);
-    this.unidadeNegocioRepository = unidadeNegocioRepository;
-  }
-
-  @Override
-  protected CentroCusto mergeEntityAndDTO(CentroCusto entity, CentroCustoDTO dto) {
-    UUID unidadeId = dto.getUnidadeNegocioId();
-    UnidadeNegocio unidadeNegocio =
-        unidadeNegocioRepository
-            .findById(unidadeId)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Unidade de Negócio não encontrada", unidadeId));
-
-    if (Objects.isNull(entity)) {
-      return new CentroCusto.Builder()
-          .nome(dto.getNome())
-          .centroResultado(dto.getCentroResultado())
-          .unidadeNegocio(unidadeNegocio)
-          .build();
+    public CentroCustoServiceImpl(
+            CentroCustoRepository repository,
+            Specifications<CentroCusto> specifications,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
+        super(repository, specifications);
+        this.unidadeNegocioRepository = unidadeNegocioRepository;
     }
 
-    entity.atualizar(dto.getNome(), dto.getCentroResultado(), unidadeNegocio);
-    return entity;
-  }
+    @Override
+    protected CentroCusto mergeEntityAndDTO(CentroCusto entity, CentroCustoDTO dto) {
+        UUID unidadeId = dto.getUnidadeNegocioId();
+        UnidadeNegocio unidadeNegocio = unidadeNegocioRepository
+                .findById(unidadeId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Unidade de Negócio não encontrada", unidadeId));
 
-  @Override
-  protected CentroCustoDTO buildDTOFromEntity(CentroCusto entity) {
-    UnidadeNegocio unidadeNegocio = entity.getUnidadeNegocio();
+        if (Objects.isNull(entity)) {
+            return new CentroCusto.Builder()
+                    .nome(dto.getNome())
+                    .centroResultado(dto.getCentroResultado())
+                    .unidadeNegocio(unidadeNegocio)
+                    .build();
+        }
 
-    return CentroCustoDTO.builder()
-        .id(entity.getId())
-        .nome(entity.getNome())
-        .centroResultado(entity.getCentroResultado())
-        .unidadeNegocioId(unidadeNegocio != null ? unidadeNegocio.getId() : null)
-        .unidadeNegocioNome(unidadeNegocio != null ? unidadeNegocio.getNome() : null)
-        .unidadeNegocioCodigo(unidadeNegocio != null ? unidadeNegocio.getCodigo() : null)
-        .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
-        .createdBy(entity.getCreatedBy())
-        .updatedBy(entity.getUpdatedBy())
-        .build();
-  }
+        entity.atualizar(dto.getNome(), dto.getCentroResultado(), unidadeNegocio);
+        return entity;
+    }
 
-  @Override
-  protected CentroCustoGridDTO buildGridDTOFromEntity(CentroCusto entity) {
-    UnidadeNegocio unidadeNegocio = entity.getUnidadeNegocio();
+    @Override
+    protected CentroCustoDTO buildDTOFromEntity(CentroCusto entity) {
+        UnidadeNegocio unidadeNegocio = entity.getUnidadeNegocio();
 
-    return CentroCustoGridDTO.builder()
-        .id(entity.getId())
-        .nome(entity.getNome())
-        .centroResultado(entity.getCentroResultado())
-        .unidadeNegocioCodigo(unidadeNegocio != null ? unidadeNegocio.getCodigo() : null)
-        .deleted(entity.getDeleted())
-        .build();
-  }
+        return CentroCustoDTO.builder()
+                .id(entity.getId())
+                .nome(entity.getNome())
+                .centroResultado(entity.getCentroResultado())
+                .unidadeNegocioId(unidadeNegocio != null ? unidadeNegocio.getId() : null)
+                .unidadeNegocioNome(unidadeNegocio != null ? unidadeNegocio.getNome() : null)
+                .unidadeNegocioCodigo(unidadeNegocio != null ? unidadeNegocio.getCodigo() : null)
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedBy(entity.getUpdatedBy())
+                .build();
+    }
 
-  @Override
-  protected List<String> getPropertiesToFilter() {
-    return List.of("nome");
-  }
+    @Override
+    protected CentroCustoGridDTO buildGridDTOFromEntity(CentroCusto entity) {
+        UnidadeNegocio unidadeNegocio = entity.getUnidadeNegocio();
 
-  @Override
-  protected Class<CentroCusto> getEntityClass() {
-    return CentroCusto.class;
-  }
+        return CentroCustoGridDTO.builder()
+                .id(entity.getId())
+                .nome(entity.getNome())
+                .centroResultado(entity.getCentroResultado())
+                .unidadeNegocioCodigo(unidadeNegocio != null ? unidadeNegocio.getCodigo() : null)
+                .deleted(entity.getDeleted())
+                .build();
+    }
+
+    @Override
+    protected List<String> getPropertiesToFilter() {
+        return List.of("nome", "unidadeNegocio");
+    }
+
+    @Override
+    protected Class<CentroCusto> getEntityClass() {
+        return CentroCusto.class;
+    }
 }

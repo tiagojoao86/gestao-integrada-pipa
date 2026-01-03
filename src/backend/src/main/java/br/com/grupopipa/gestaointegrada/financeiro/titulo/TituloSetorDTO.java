@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TituloSetorDTO {
-  private UUID setorId;
-  private String setorNome;
-  private BigDecimal percentualRateio;
+    private UUID setorId;
+    private String setorNome;
+    private BigDecimal percentualRateio;
 }

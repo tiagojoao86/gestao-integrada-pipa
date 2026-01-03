@@ -10,4 +10,5 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 
 @Repository
 public interface CentroCustoRepository
-    extends JpaRepository<CentroCusto, UUID>, JpaSpecificationExecutor<CentroCusto> {}
+        extends JpaRepository<CentroCusto, UUID>, JpaSpecificationExecutor<CentroCusto> {
+}

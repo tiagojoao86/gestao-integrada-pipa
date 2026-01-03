@@ -27,6 +27,7 @@ import { Response } from '../../../base/model/response';
 import { CentroCustoService } from '../../../financeiro/centro-custo/centro-custo.service';
 import { CentroCustoGridDTO } from '../../../financeiro/centro-custo/model/centro-custo-grid-dto';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { PageRequest } from '../../../base/model/page-request';
 
 @Component({
   selector: 'gi-setor-detalhe',
@@ -95,7 +96,7 @@ export class SetorDetalheComponent implements OnInit {
   }
 
   loadCentrosCusto(): void {
-    this.centroCustoService.listAll().subscribe((response) => {
+    this.centroCustoService.listAll(PageRequest.empty()).subscribe((response) => {
       this.centrosCustoOptions = response.body ?? [];
     });
   }

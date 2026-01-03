@@ -1,8 +1,15 @@
 package br.com.grupopipa.gestaointegrada.financeiro.centrocusto;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,166 +32,164 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 @ExtendWith(MockitoExtension.class)
 class CentroCustoServiceTest {
 
-  @Mock private CentroCustoRepository repository;
+    @Mock
+    private CentroCustoRepository repository;
 
-  @Mock private UnidadeNegocioRepository unidadeNegocioRepository;
+    @Mock
+    private UnidadeNegocioRepository unidadeNegocioRepository;
 
-  @Mock private Specifications<CentroCusto> specifications;
+    @Mock
+    private Specifications<CentroCusto> specifications;
 
-  @InjectMocks private CentroCustoServiceImpl service;
+    @InjectMocks
+    private CentroCustoServiceImpl service;
 
-  private CentroCustoDTO dtoValido;
-  private CentroCusto entidadeValida;
-  private UnidadeNegocio unidadeNegocio;
-  private UUID centroId;
-  private UUID unidadeId;
+    private CentroCustoDTO dtoValido;
+    private CentroCusto entidadeValida;
+    private UnidadeNegocio unidadeNegocio;
+    private UUID centroId;
+    private UUID unidadeId;
 
-  @BeforeEach
-  void setup() {
-    centroId = UUID.randomUUID();
-    unidadeId = UUID.randomUUID();
+    @BeforeEach
+    void setup() {
+        centroId = UUID.randomUUID();
+        unidadeId = UUID.randomUUID();
 
-    // Criar UnidadeNegocio mock
-    unidadeNegocio =
-        new UnidadeNegocio.Builder()
-            .codigo("UN_TEST")
-            .nome("Unidade Teste")
-            .cnpj("11222333000181")
-            .build();
-    // Usar reflexão para setar o ID na entidade
-    try {
-      java.lang.reflect.Field idField = UnidadeNegocio.class.getSuperclass().getDeclaredField("id");
-      idField.setAccessible(true);
-      idField.set(unidadeNegocio, unidadeId);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+        // Criar UnidadeNegocio mock
+        unidadeNegocio = new UnidadeNegocio.Builder()
+                .codigo("UN_TEST")
+                .nome("Unidade Teste")
+                .cnpj("11222333000181")
+                .build();
+        // Usar reflexão para setar o ID na entidade
+        try {
+            java.lang.reflect.Field idField = UnidadeNegocio.class.getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(unidadeNegocio, unidadeId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // DTO válido
+        dtoValido = CentroCustoDTO.builder()
+                .nome("Centro Teste")
+                .centroResultado(Boolean.FALSE)
+                .unidadeNegocioId(unidadeId)
+                .build();
+
+        // Entidade válida
+        entidadeValida = new CentroCusto.Builder()
+                .nome("Centro Teste")
+                .centroResultado(Boolean.FALSE)
+                .unidadeNegocio(unidadeNegocio)
+                .build();
     }
 
-    // DTO válido
-    dtoValido =
-        CentroCustoDTO.builder()
-            .nome("Centro Teste")
-            .centroResultado(Boolean.FALSE)
-            .unidadeNegocioId(unidadeId)
-            .build();
+    @Test
+    @DisplayName("Deve criar novo centro de custo")
+    void deveCriarNovoCentroCusto() {
+        when(unidadeNegocioRepository.findById(unidadeId)).thenReturn(Optional.of(unidadeNegocio));
+        when(repository.save(any(CentroCusto.class))).thenReturn(entidadeValida);
 
-    // Entidade válida
-    entidadeValida =
-        new CentroCusto.Builder()
-            .nome("Centro Teste")
-            .centroResultado(Boolean.FALSE)
-            .unidadeNegocio(unidadeNegocio)
-            .build();
-  }
+        CentroCustoDTO resultado = service.save(dtoValido);
 
-  @Test
-  @DisplayName("Deve criar novo centro de custo")
-  void deveCriarNovoCentroCusto() {
-    when(unidadeNegocioRepository.findById(unidadeId)).thenReturn(Optional.of(unidadeNegocio));
-    when(repository.save(any(CentroCusto.class))).thenReturn(entidadeValida);
+        assertNotNull(resultado);
+        assertEquals("Centro Teste", resultado.getNome());
+        verify(repository, times(1)).save(any(CentroCusto.class));
+        verify(unidadeNegocioRepository, times(1)).findById(unidadeId);
+    }
 
-    CentroCustoDTO resultado = service.save(dtoValido);
+    @Test
+    @DisplayName("Deve lançar exceção quando UnidadeNegocio não existe")
+    void deveLancarExcecaoQuandoUnidadeNaoExiste() {
+        UUID unidadeInexistente = UUID.randomUUID();
+        when(unidadeNegocioRepository.findById(unidadeInexistente)).thenReturn(Optional.empty());
 
-    assertNotNull(resultado);
-    assertEquals("Centro Teste", resultado.getNome());
-    verify(repository, times(1)).save(any(CentroCusto.class));
-    verify(unidadeNegocioRepository, times(1)).findById(unidadeId);
-  }
+        CentroCustoDTO dtoInvalido = CentroCustoDTO.builder()
+                .nome("Centro Teste")
+                .centroResultado(Boolean.FALSE)
+                .unidadeNegocioId(unidadeInexistente)
+                .build();
 
-  @Test
-  @DisplayName("Deve lançar exceção quando UnidadeNegocio não existe")
-  void deveLancarExcecaoQuandoUnidadeNaoExiste() {
-    UUID unidadeInexistente = UUID.randomUUID();
-    when(unidadeNegocioRepository.findById(unidadeInexistente)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> service.save(dtoInvalido));
+        verify(unidadeNegocioRepository, times(1)).findById(unidadeInexistente);
+        verify(repository, never()).save(any());
+    }
 
-    CentroCustoDTO dtoInvalido =
-        CentroCustoDTO.builder()
-            .nome("Centro Teste")
-            .centroResultado(Boolean.FALSE)
-            .unidadeNegocioId(unidadeInexistente)
-            .build();
+    @Test
+    @DisplayName("Deve buscar centro de custo por id")
+    void deveBuscarCentroPorId() {
+        when(repository.findById(centroId)).thenReturn(Optional.of(entidadeValida));
 
-    assertThrows(EntityNotFoundException.class, () -> service.save(dtoInvalido));
-    verify(unidadeNegocioRepository, times(1)).findById(unidadeInexistente);
-    verify(repository, never()).save(any());
-  }
+        CentroCustoDTO resultado = service.findById(centroId);
 
-  @Test
-  @DisplayName("Deve buscar centro de custo por id")
-  void deveBuscarCentroPorId() {
-    when(repository.findById(centroId)).thenReturn(Optional.of(entidadeValida));
+        assertNotNull(resultado);
+        assertEquals("Centro Teste", resultado.getNome());
+        assertEquals(unidadeId, resultado.getUnidadeNegocioId());
+        assertEquals("Unidade Teste", resultado.getUnidadeNegocioNome());
+        assertEquals("UN_TEST", resultado.getUnidadeNegocioCodigo());
+        verify(repository, times(1)).findById(centroId);
+    }
 
-    CentroCustoDTO resultado = service.findById(centroId);
+    @Test
+    @DisplayName("Deve deletar centro de custo")
+    void deveDeletarCentro() {
+        doNothing().when(repository).deleteById(centroId);
 
-    assertNotNull(resultado);
-    assertEquals("Centro Teste", resultado.getNome());
-    assertEquals(unidadeId, resultado.getUnidadeNegocioId());
-    assertEquals("Unidade Teste", resultado.getUnidadeNegocioNome());
-    assertEquals("UN_TEST", resultado.getUnidadeNegocioCodigo());
-    verify(repository, times(1)).findById(centroId);
-  }
+        UUID resultado = service.delete(centroId);
 
-  @Test
-  @DisplayName("Deve deletar centro de custo")
-  void deveDeletarCentro() {
-    doNothing().when(repository).deleteById(centroId);
+        assertEquals(centroId, resultado);
+        verify(repository, times(1)).deleteById(centroId);
+    }
 
-    UUID resultado = service.delete(centroId);
+    @Test
+    @DisplayName("Deve construir DTO corretamente da entidade")
+    void deveConstruirDTOCorretamenteDaEntidade() {
+        CentroCustoDTO dto = service.buildDTOFromEntity(entidadeValida);
 
-    assertEquals(centroId, resultado);
-    verify(repository, times(1)).deleteById(centroId);
-  }
+        assertNotNull(dto);
+        assertEquals("Centro Teste", dto.getNome());
+        assertFalse(dto.getCentroResultado());
+        assertEquals("Unidade Teste", dto.getUnidadeNegocioNome());
+        assertEquals("UN_TEST", dto.getUnidadeNegocioCodigo());
+    }
 
-  @Test
-  @DisplayName("Deve construir DTO corretamente da entidade")
-  void deveConstruirDTOCorretamenteDaEntidade() {
-    CentroCustoDTO dto = service.buildDTOFromEntity(entidadeValida);
+    @Test
+    @DisplayName("Deve construir GridDTO corretamente da entidade")
+    void deveConstruirGridDTOCorretamenteDaEntidade() {
+        CentroCustoGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
 
-    assertNotNull(dto);
-    assertEquals("Centro Teste", dto.getNome());
-    assertFalse(dto.getCentroResultado());
-    assertEquals("Unidade Teste", dto.getUnidadeNegocioNome());
-    assertEquals("UN_TEST", dto.getUnidadeNegocioCodigo());
-  }
+        assertNotNull(gridDTO);
+        assertEquals("Centro Teste", gridDTO.getNome());
+        assertFalse(gridDTO.getCentroResultado());
+        assertEquals("UN_TEST", gridDTO.getUnidadeNegocioCodigo());
+    }
 
-  @Test
-  @DisplayName("Deve construir GridDTO corretamente da entidade")
-  void deveConstruirGridDTOCorretamenteDaEntidade() {
-    CentroCustoGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
+    @Test
+    @DisplayName("Deve atualizar centro de custo existente")
+    void deveAtualizarCentroExistente() {
+        CentroCusto entidadeExistente = new CentroCusto.Builder()
+                .nome("Nome Antigo")
+                .centroResultado(Boolean.TRUE)
+                .unidadeNegocio(unidadeNegocio)
+                .build();
 
-    assertNotNull(gridDTO);
-    assertEquals("Centro Teste", gridDTO.getNome());
-    assertFalse(gridDTO.getCentroResultado());
-    assertEquals("UN_TEST", gridDTO.getUnidadeNegocioCodigo());
-  }
+        when(unidadeNegocioRepository.findById(unidadeId)).thenReturn(Optional.of(unidadeNegocio));
+        when(repository.findById(centroId)).thenReturn(Optional.of(entidadeExistente));
+        when(repository.save(any(CentroCusto.class))).thenReturn(entidadeExistente);
 
-  @Test
-  @DisplayName("Deve atualizar centro de custo existente")
-  void deveAtualizarCentroExistente() {
-    CentroCusto entidadeExistente =
-        new CentroCusto.Builder()
-            .nome("Nome Antigo")
-            .centroResultado(Boolean.TRUE)
-            .unidadeNegocio(unidadeNegocio)
-            .build();
+        CentroCustoDTO dtoAtualizado = CentroCustoDTO.builder()
+                .id(centroId)
+                .nome("Nome Novo")
+                .centroResultado(Boolean.FALSE)
+                .unidadeNegocioId(unidadeId)
+                .build();
 
-    when(unidadeNegocioRepository.findById(unidadeId)).thenReturn(Optional.of(unidadeNegocio));
-    when(repository.findById(centroId)).thenReturn(Optional.of(entidadeExistente));
-    when(repository.save(any(CentroCusto.class))).thenReturn(entidadeExistente);
+        CentroCustoDTO resultado = service.save(dtoAtualizado);
 
-    CentroCustoDTO dtoAtualizado =
-        CentroCustoDTO.builder()
-            .id(centroId)
-            .nome("Nome Novo")
-            .centroResultado(Boolean.FALSE)
-            .unidadeNegocioId(unidadeId)
-            .build();
-
-    CentroCustoDTO resultado = service.save(dtoAtualizado);
-
-    assertNotNull(resultado);
-    verify(repository, times(1)).findById(centroId);
-    verify(repository, times(1)).save(any(CentroCusto.class));
-    verify(unidadeNegocioRepository, times(1)).findById(unidadeId);
-  }
+        assertNotNull(resultado);
+        verify(repository, times(1)).findById(centroId);
+        verify(repository, times(1)).save(any(CentroCusto.class));
+        verify(unidadeNegocioRepository, times(1)).findById(unidadeId);
+    }
 }

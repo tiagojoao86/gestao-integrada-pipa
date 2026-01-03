@@ -10,4 +10,5 @@ import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 
 @Repository
 public interface SetorRepository
-    extends JpaRepository<Setor, UUID>, JpaSpecificationExecutor<Setor> {}
+        extends JpaRepository<Setor, UUID>, JpaSpecificationExecutor<Setor> {
+}

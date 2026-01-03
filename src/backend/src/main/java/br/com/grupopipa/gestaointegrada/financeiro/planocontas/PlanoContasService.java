@@ -7,7 +7,7 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioDT
 import br.com.grupopipa.gestaointegrada.core.service.CrudService;
 
 public interface PlanoContasService extends CrudService<PlanoContasDTO, PlanoContasGridDTO> {
-  List<UnidadeNegocioDTO> listarUnidadesDisponiveis();
+    List<UnidadeNegocioDTO> listarUnidadesDisponiveis();
 
-  List<PlanoContasDTO> listarPlanosParaVinculo(UUID unidadeNegocioId);
+    List<PlanoContasDTO> listarPlanosParaVinculo(UUID unidadeNegocioId);
 }

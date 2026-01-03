@@ -21,37 +21,37 @@ import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 @RequestMapping("/setor")
 public class SetorController extends BaseController<SetorDTO, SetorGridDTO, SetorService> {
 
-  public SetorController(SetorService service) {
-    super(service);
-  }
+    public SetorController(SetorService service) {
+        super(service);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_SETOR_LISTAR')")
-  public Response list(@RequestBody PageRequest request) {
-    return super.list(request);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_LISTAR')")
+    public Response list(@RequestBody PageRequest request) {
+        return super.list(request);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_SETOR_EDITAR')")
-  public Response save(@RequestBody SetorDTO body) {
-    return super.save(body);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_EDITAR')")
+    public Response save(@RequestBody SetorDTO body) {
+        return super.save(body);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_SETOR_VISUALIZAR')")
-  public Response findById(@RequestParam(F_ID) UUID id) {
-    return super.findById(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_VISUALIZAR')")
+    public Response findById(@RequestParam(F_ID) UUID id) {
+        return super.findById(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_SETOR_DELETAR')")
-  public Response delete(@PathVariable(F_ID) UUID id) {
-    return super.delete(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_DELETAR')")
+    public Response delete(@PathVariable(F_ID) UUID id) {
+        return super.delete(id);
+    }
 
-  @Override
-  @PreAuthorize("hasAuthority('CADASTRO_SETOR_AUDITAR')")
-  public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
-    return super.getAuditInfo(id);
-  }
+    @Override
+    @PreAuthorize("hasAuthority('CADASTRO_SETOR_AUDITAR')")
+    public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
+        return super.getAuditInfo(id);
+    }
 }

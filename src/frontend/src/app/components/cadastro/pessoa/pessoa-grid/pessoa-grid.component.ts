@@ -268,7 +268,7 @@ export class PessoaGridComponent {
   updateFilterBadge(filter: FilterDTO) {
     const action = this.toolbarActions.filter((it) => it.icon === 'search');
     if (action.length > 0) {
-      if (filter) {
+      if (filter && filter.items) {
         action[0].value = filter.items.length + '';
         return;
       }

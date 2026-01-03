@@ -12,6 +12,10 @@ export class PageRequest {
     this.size = size;
     this.order = sort;
   }
+
+  static empty() {
+    return new PageRequest(FilterDTO.empty(), 0, 0, []);
+  }
 }
 
 export interface Pageable {

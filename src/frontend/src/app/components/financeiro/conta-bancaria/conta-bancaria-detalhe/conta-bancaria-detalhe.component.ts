@@ -28,6 +28,7 @@ import { AuthService } from '../../../base/auth/auth-service';
 import { TipoConta } from '../model/tipo-conta.enum';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
 
 @Component({
   selector: 'gi-conta-bancaria-detalhe',
@@ -56,7 +57,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
   private service: ContaBancariaService = inject(ContaBancariaService);
   private messages: MessageService = inject(MessageService);
 
-  allUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [];
+  allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
 
   titulo = $localize`Conta Bancária: `;
 
@@ -124,28 +125,24 @@ export class ContaBancariaDetalheComponent implements OnInit {
     if (defaultUnidade) {
       this.allUnidadesNegocio = [defaultUnidade];
       // Set default immediately if needed
-      if (setDefault && defaultUnidade.id) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      if (setDefault && defaultUnidade.unidadeNegocioId) {
+        this.form
+          .get('unidadeNegocio')
+          ?.setValue(defaultUnidade.unidadeNegocioId);
       }
     }
 
-    // Then load all available unidades from backend
-    this.service.listarUnidadesDisponiveis().subscribe({
-      next: (unidades) => {
-        this.allUnidadesNegocio = unidades;
-        // Set default after backend load if needed and not already set
-        if (
-          setDefault &&
-          defaultUnidade &&
-          !this.form.get('unidadeNegocio')?.value
-        ) {
-          this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
-        }
-      },
-      error: (err) => {
-        console.error('Erro ao carregar unidades de negócio', err);
-      },
-    });
+    this.allUnidadesNegocio = this.auth.getUnidadesNegocio();
+    // Set default after backend load if needed and not already set
+    if (
+      setDefault &&
+      defaultUnidade &&
+      !this.form.get('unidadeNegocio')?.value
+    ) {
+      this.form
+        .get('unidadeNegocio')
+        ?.setValue(defaultUnidade.unidadeNegocioId);
+    }
   }
 
   initForm() {

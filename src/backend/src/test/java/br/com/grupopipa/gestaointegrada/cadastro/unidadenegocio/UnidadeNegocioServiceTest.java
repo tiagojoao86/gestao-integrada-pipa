@@ -1,8 +1,14 @@
 package br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,221 +25,223 @@ import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNe
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 
 /**
- * Testes unitários para UnidadeNegocioService. Usa Mockito para simular dependências (repository).
+ * Testes unitários para UnidadeNegocioService. Usa Mockito para simular
+ * dependências (repository).
  */
 @DisplayName("UnidadeNegocioService - Testes Unitários")
 @ExtendWith(MockitoExtension.class)
 class UnidadeNegocioServiceTest {
 
-  @Mock private UnidadeNegocioRepository repository;
+    @Mock
+    private UnidadeNegocioRepository repository;
 
-  @Mock private Specifications<UnidadeNegocio> specifications;
+    @Mock
+    private Specifications<UnidadeNegocio> specifications;
 
-  @InjectMocks private UnidadeNegocioServiceImpl service;
+    @InjectMocks
+    private UnidadeNegocioServiceImpl service;
 
-  private UnidadeNegocioDTO dtoValido;
-  private UnidadeNegocio entidadeValida;
+    private UnidadeNegocioDTO dtoValido;
+    private UnidadeNegocio entidadeValida;
 
-  @BeforeEach
-  void setup() {
-    dtoValido =
-        UnidadeNegocioDTO.builder()
-            .codigo("UN001")
-            .nome("Unidade Teste")
-            .descricao("Descrição da unidade")
-            .ativa(true)
-            .build();
+    @BeforeEach
+    void setup() {
+        dtoValido = UnidadeNegocioDTO.builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .descricao("Descrição da unidade")
+                .ativa(true)
+                .build();
 
-    entidadeValida =
-        new UnidadeNegocio.Builder()
-            .codigo("UN001")
-            .nome("Unidade Teste")
-            .descricao("Descrição da unidade")
-            .build();
-  }
+        entidadeValida = new UnidadeNegocio.Builder()
+                .codigo("UN001")
+                .nome("Unidade Teste")
+                .descricao("Descrição da unidade")
+                .build();
+    }
 
-  @Test
-  @DisplayName("Deve criar nova unidade de negócio")
-  void deveCriarNovaUnidadeNegocio() {
-    // Given
-    when(repository.save(any(UnidadeNegocio.class)))
-        .thenAnswer(
-            invocation -> {
-              UnidadeNegocio entity = invocation.getArgument(0);
-              // Simula o ID gerado pelo banco
-              return entity;
-            });
+    @Test
+    @DisplayName("Deve criar nova unidade de negócio")
+    void deveCriarNovaUnidadeNegocio() {
+        // Given
+        when(repository.save(any(UnidadeNegocio.class)))
+                .thenAnswer(
+                        invocation -> {
+                            UnidadeNegocio entity = invocation.getArgument(0);
+                            // Simula o ID gerado pelo banco
+                            return entity;
+                        });
 
-    // When
-    UnidadeNegocioDTO resultado = service.save(dtoValido);
+        // When
+        UnidadeNegocioDTO resultado = service.save(dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertEquals("UN001", resultado.getCodigo());
-    assertEquals("Unidade Teste", resultado.getNome());
-    assertEquals("Descrição da unidade", resultado.getDescricao());
-    assertTrue(resultado.getAtiva());
+        // Then
+        assertNotNull(resultado);
+        assertEquals("UN001", resultado.getCodigo());
+        assertEquals("Unidade Teste", resultado.getNome());
+        assertEquals("Descrição da unidade", resultado.getDescricao());
+        assertTrue(resultado.getAtiva());
 
-    verify(repository, times(1)).save(any(UnidadeNegocio.class));
-  }
+        verify(repository, times(1)).save(any(UnidadeNegocio.class));
+    }
 
-  @Test
-  @DisplayName("Deve atualizar unidade de negócio existente")
-  void deveAtualizarUnidadeNegocioExistente() {
-    // Given
-    UUID id = UUID.randomUUID();
-    dtoValido.setId(id);
-    dtoValido.setNome("Unidade Atualizada");
-    dtoValido.setDescricao("Nova descrição");
+    @Test
+    @DisplayName("Deve atualizar unidade de negócio existente")
+    void deveAtualizarUnidadeNegocioExistente() {
+        // Given
+        UUID id = UUID.randomUUID();
+        dtoValido.setId(id);
+        dtoValido.setNome("Unidade Atualizada");
+        dtoValido.setDescricao("Nova descrição");
 
-    when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
-    when(repository.save(any(UnidadeNegocio.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(UnidadeNegocio.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // When
-    UnidadeNegocioDTO resultado = service.save(dtoValido);
+        // When
+        UnidadeNegocioDTO resultado = service.save(dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertEquals("Unidade Atualizada", resultado.getNome());
-    assertEquals("Nova descrição", resultado.getDescricao());
+        // Then
+        assertNotNull(resultado);
+        assertEquals("Unidade Atualizada", resultado.getNome());
+        assertEquals("Nova descrição", resultado.getDescricao());
 
-    verify(repository, times(1)).findById(id);
-    verify(repository, times(1)).save(any(UnidadeNegocio.class));
-  }
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(any(UnidadeNegocio.class));
+    }
 
-  @Test
-  @DisplayName("Deve inativar unidade de negócio")
-  void deveInativarUnidadeNegocio() {
-    // Given
-    UUID id = UUID.randomUUID();
-    dtoValido.setId(id);
-    dtoValido.setAtiva(false);
+    @Test
+    @DisplayName("Deve inativar unidade de negócio")
+    void deveInativarUnidadeNegocio() {
+        // Given
+        UUID id = UUID.randomUUID();
+        dtoValido.setId(id);
+        dtoValido.setAtiva(false);
 
-    when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
-    when(repository.save(any(UnidadeNegocio.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(UnidadeNegocio.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // When
-    UnidadeNegocioDTO resultado = service.save(dtoValido);
+        // When
+        UnidadeNegocioDTO resultado = service.save(dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertFalse(resultado.getAtiva());
+        // Then
+        assertNotNull(resultado);
+        assertFalse(resultado.getAtiva());
 
-    verify(repository, times(1)).save(any(UnidadeNegocio.class));
-  }
+        verify(repository, times(1)).save(any(UnidadeNegocio.class));
+    }
 
-  @Test
-  @DisplayName("Deve ativar unidade de negócio")
-  void deveAtivarUnidadeNegocio() {
-    // Given
-    UUID id = UUID.randomUUID();
-    entidadeValida.inativar(); // Começa inativa
-    dtoValido.setId(id);
-    dtoValido.setAtiva(true);
+    @Test
+    @DisplayName("Deve ativar unidade de negócio")
+    void deveAtivarUnidadeNegocio() {
+        // Given
+        UUID id = UUID.randomUUID();
+        entidadeValida.inativar(); // Começa inativa
+        dtoValido.setId(id);
+        dtoValido.setAtiva(true);
 
-    when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
-    when(repository.save(any(UnidadeNegocio.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(UnidadeNegocio.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // When
-    UnidadeNegocioDTO resultado = service.save(dtoValido);
+        // When
+        UnidadeNegocioDTO resultado = service.save(dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertTrue(resultado.getAtiva());
+        // Then
+        assertNotNull(resultado);
+        assertTrue(resultado.getAtiva());
 
-    verify(repository, times(1)).save(any(UnidadeNegocio.class));
-  }
+        verify(repository, times(1)).save(any(UnidadeNegocio.class));
+    }
 
-  @Test
-  @DisplayName("Deve buscar unidade de negócio por ID")
-  void deveBuscarUnidadeNegocioPorId() {
-    // Given
-    UUID id = UUID.randomUUID();
-    when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
+    @Test
+    @DisplayName("Deve buscar unidade de negócio por ID")
+    void deveBuscarUnidadeNegocioPorId() {
+        // Given
+        UUID id = UUID.randomUUID();
+        when(repository.findById(id)).thenReturn(Optional.of(entidadeValida));
 
-    // When
-    UnidadeNegocioDTO resultado = service.findById(id);
+        // When
+        UnidadeNegocioDTO resultado = service.findById(id);
 
-    // Then
-    assertNotNull(resultado);
-    assertEquals("UN001", resultado.getCodigo());
-    assertEquals("Unidade Teste", resultado.getNome());
+        // Then
+        assertNotNull(resultado);
+        assertEquals("UN001", resultado.getCodigo());
+        assertEquals("Unidade Teste", resultado.getNome());
 
-    verify(repository, times(1)).findById(id);
-  }
+        verify(repository, times(1)).findById(id);
+    }
 
-  @Test
-  @DisplayName("Deve deletar unidade de negócio")
-  void deveDeletarUnidadeNegocio() {
-    // Given
-    UUID id = UUID.randomUUID();
-    doNothing().when(repository).deleteById(id);
+    @Test
+    @DisplayName("Deve deletar unidade de negócio")
+    void deveDeletarUnidadeNegocio() {
+        // Given
+        UUID id = UUID.randomUUID();
+        doNothing().when(repository).deleteById(id);
 
-    // When
-    UUID resultadoId = service.delete(id);
+        // When
+        UUID resultadoId = service.delete(id);
 
-    // Then
-    assertEquals(id, resultadoId);
-    verify(repository, times(1)).deleteById(id);
-  }
+        // Then
+        assertEquals(id, resultadoId);
+        verify(repository, times(1)).deleteById(id);
+    }
 
-  @Test
-  @DisplayName("Deve construir DTO corretamente da entidade")
-  void deveConstruirDTOCorretamenteDaEntidade() {
-    // When
-    UnidadeNegocioDTO dto = service.buildDTOFromEntity(entidadeValida);
+    @Test
+    @DisplayName("Deve construir DTO corretamente da entidade")
+    void deveConstruirDTOCorretamenteDaEntidade() {
+        // When
+        UnidadeNegocioDTO dto = service.buildDTOFromEntity(entidadeValida);
 
-    // Then
-    assertNotNull(dto);
-    assertEquals("UN001", dto.getCodigo());
-    assertEquals("Unidade Teste", dto.getNome());
-    assertEquals("Descrição da unidade", dto.getDescricao());
-    assertTrue(dto.getAtiva());
-  }
+        // Then
+        assertNotNull(dto);
+        assertEquals("UN001", dto.getCodigo());
+        assertEquals("Unidade Teste", dto.getNome());
+        assertEquals("Descrição da unidade", dto.getDescricao());
+        assertTrue(dto.getAtiva());
+    }
 
-  @Test
-  @DisplayName("Deve construir GridDTO corretamente da entidade")
-  void deveConstruirGridDTOCorretamenteDaEntidade() {
-    // When
-    UnidadeNegocioGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
+    @Test
+    @DisplayName("Deve construir GridDTO corretamente da entidade")
+    void deveConstruirGridDTOCorretamenteDaEntidade() {
+        // When
+        UnidadeNegocioGridDTO gridDTO = service.buildGridDTOFromEntity(entidadeValida);
 
-    // Then
-    assertNotNull(gridDTO);
-    assertEquals("UN001", gridDTO.getCodigo());
-    assertEquals("Unidade Teste", gridDTO.getNome());
-    assertTrue(gridDTO.getAtiva());
-  }
+        // Then
+        assertNotNull(gridDTO);
+        assertEquals("UN001", gridDTO.getCodigo());
+        assertEquals("Unidade Teste", gridDTO.getNome());
+        assertTrue(gridDTO.getAtiva());
+    }
 
-  @Test
-  @DisplayName("Deve fazer merge de entidade nova com DTO")
-  void deveFazerMergeDeEntidadeNovaComDTO() {
-    // When
-    UnidadeNegocio resultado = service.mergeEntityAndDTO(null, dtoValido);
+    @Test
+    @DisplayName("Deve fazer merge de entidade nova com DTO")
+    void deveFazerMergeDeEntidadeNovaComDTO() {
+        // When
+        UnidadeNegocio resultado = service.mergeEntityAndDTO(null, dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertEquals("UN001", resultado.getCodigo());
-    assertEquals("Unidade Teste", resultado.getNome());
-    assertEquals("Descrição da unidade", resultado.getDescricao());
-  }
+        // Then
+        assertNotNull(resultado);
+        assertEquals("UN001", resultado.getCodigo());
+        assertEquals("Unidade Teste", resultado.getNome());
+        assertEquals("Descrição da unidade", resultado.getDescricao());
+    }
 
-  @Test
-  @DisplayName("Deve fazer merge de entidade existente com DTO")
-  void deveFazerMergeDeEntidadeExistenteComDTO() {
-    // Given
-    dtoValido.setNome("Nome Atualizado");
-    dtoValido.setDescricao("Descrição Atualizada");
+    @Test
+    @DisplayName("Deve fazer merge de entidade existente com DTO")
+    void deveFazerMergeDeEntidadeExistenteComDTO() {
+        // Given
+        dtoValido.setNome("Nome Atualizado");
+        dtoValido.setDescricao("Descrição Atualizada");
 
-    // When
-    UnidadeNegocio resultado = service.mergeEntityAndDTO(entidadeValida, dtoValido);
+        // When
+        UnidadeNegocio resultado = service.mergeEntityAndDTO(entidadeValida, dtoValido);
 
-    // Then
-    assertNotNull(resultado);
-    assertEquals("UN001", resultado.getCodigo()); // Código não muda
-    assertEquals("Nome Atualizado", resultado.getNome());
-    assertEquals("Descrição Atualizada", resultado.getDescricao());
-  }
+        // Then
+        assertNotNull(resultado);
+        assertEquals("UN001", resultado.getCodigo()); // Código não muda
+        assertEquals("Nome Atualizado", resultado.getNome());
+        assertEquals("Descrição Atualizada", resultado.getDescricao());
+    }
 }

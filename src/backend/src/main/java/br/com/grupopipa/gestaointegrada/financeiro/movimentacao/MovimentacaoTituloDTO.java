@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class MovimentacaoTituloDTO {
-  private UUID id;
-  private String descricao;
+    private UUID id;
+    private String descricao;
 }

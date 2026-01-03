@@ -3,8 +3,6 @@ package br.com.grupopipa.gestaointegrada.config.security;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,74 +29,73 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-  @Value("${jwt.public.key}")
-  private RSAPublicKey key;
+    @Value("${jwt.public.key}")
+    private RSAPublicKey key;
 
-  @Value("${jwt.private.key}")
-  private RSAPrivateKey priv;
+    @Value("${jwt.private.key}")
+    private RSAPrivateKey priv;
 
-  private String[] permitRoutes =
-      new String[] {
+    private String[] permitRoutes = new String[] {
         "/authenticate",
         "/authenticate/refresh",
         "/admin/tenants", // Admin endpoints (protegidos por X-Admin-Token)
         "/admin/tenants/**",
         "/health" // Health check endpoint
-      };
+    };
 
-  @Bean
-  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(
-            auth -> auth.requestMatchers(permitRoutes).permitAll().anyRequest().authenticated())
-        .sessionManagement(auth -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .exceptionHandling(
-            auth ->
-                auth.authenticationEntryPoint(
-                    (request, response, authException) -> {
-                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                      response.setContentType("application/json");
-                      response.getWriter().write("{\"error\": \"Login ou senha inválidos\"}");
-                    }))
-        .oauth2ResourceServer(
-            conf -> conf.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
-    return http.build();
-  }
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(
+                        auth -> auth.requestMatchers(permitRoutes).permitAll().anyRequest().authenticated())
+                .sessionManagement(auth -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(
+                        auth -> auth.authenticationEntryPoint(
+                                (request, response, authException) -> {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.setContentType("application/json");
+                                    response.getWriter().write("{\"error\": \"Login ou senha inválidos\"}");
+                                }))
+                .oauth2ResourceServer(
+                        conf -> conf.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        return http.build();
+    }
 
-  private JwtAuthenticationConverter jwtAuthenticationConverter() {
-    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter =
-        new JwtGrantedAuthoritiesConverter();
-    grantedAuthoritiesConverter.setAuthorityPrefix("");
+    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
 
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-    return jwtAuthenticationConverter;
-  }
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
 
-  @Bean
-  PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withPublicKey(this.key).build();
-  }
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(this.key).build();
+    }
 
-  @Bean
-  JwtEncoder jwtEncoder() {
-    JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
-    JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-    return new NimbusJwtEncoder(jwks);
-  }
+    @Bean
+    JwtEncoder jwtEncoder() {
+        JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
+    }
 
-  @Bean
-  AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-      throws Exception {
-    return configuration.getAuthenticationManager();
-  }
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 }

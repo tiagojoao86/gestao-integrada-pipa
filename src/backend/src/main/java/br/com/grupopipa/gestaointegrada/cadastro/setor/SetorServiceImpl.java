@@ -17,77 +17,76 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 @Service
 @Transactional(readOnly = true)
 public class SetorServiceImpl
-    extends CrudServiceImpl<SetorDTO, SetorGridDTO, Setor, SetorRepository>
-    implements SetorService {
+        extends CrudServiceImpl<SetorDTO, SetorGridDTO, Setor, SetorRepository>
+        implements SetorService {
 
-  private final CentroCustoRepository centroCustoRepository;
+    private final CentroCustoRepository centroCustoRepository;
 
-  public SetorServiceImpl(
-      SetorRepository repository,
-      Specifications<Setor> specifications,
-      CentroCustoRepository centroCustoRepository) {
-    super(repository, specifications);
-    this.centroCustoRepository = centroCustoRepository;
-  }
-
-  @Override
-  protected Setor mergeEntityAndDTO(Setor entity, SetorDTO dto) {
-    UUID centroCustoId = dto.getCentroCustoId();
-    CentroCusto centroCusto =
-        centroCustoRepository
-            .findById(centroCustoId)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Centro de Custo não encontrado", centroCustoId));
-
-    if (Objects.isNull(entity)) {
-      return new Setor.Builder()
-          .nome(dto.getNome())
-          .descricao(dto.getDescricao())
-          .centroCusto(centroCusto)
-          .build();
+    public SetorServiceImpl(
+            SetorRepository repository,
+            Specifications<Setor> specifications,
+            CentroCustoRepository centroCustoRepository) {
+        super(repository, specifications);
+        this.centroCustoRepository = centroCustoRepository;
     }
 
-    entity.atualizar(dto.getNome(), dto.getDescricao(), centroCusto);
-    return entity;
-  }
+    @Override
+    protected Setor mergeEntityAndDTO(Setor entity, SetorDTO dto) {
+        UUID centroCustoId = dto.getCentroCustoId();
+        CentroCusto centroCusto = centroCustoRepository
+                .findById(centroCustoId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Centro de Custo não encontrado", centroCustoId));
 
-  @Override
-  protected SetorDTO buildDTOFromEntity(Setor entity) {
-    CentroCusto centroCusto = entity.getCentroCusto();
+        if (Objects.isNull(entity)) {
+            return new Setor.Builder()
+                    .nome(dto.getNome())
+                    .descricao(dto.getDescricao())
+                    .centroCusto(centroCusto)
+                    .build();
+        }
 
-    return SetorDTO.builder()
-        .id(entity.getId())
-        .nome(entity.getNome())
-        .descricao(entity.getDescricao())
-        .centroCustoId(centroCusto != null ? centroCusto.getId() : null)
-        .centroCustoNome(centroCusto != null ? centroCusto.getNome() : null)
-        .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
-        .createdBy(entity.getCreatedBy())
-        .updatedBy(entity.getUpdatedBy())
-        .build();
-  }
+        entity.atualizar(dto.getNome(), dto.getDescricao(), centroCusto);
+        return entity;
+    }
 
-  @Override
-  protected SetorGridDTO buildGridDTOFromEntity(Setor entity) {
-    CentroCusto centroCusto = entity.getCentroCusto();
+    @Override
+    protected SetorDTO buildDTOFromEntity(Setor entity) {
+        CentroCusto centroCusto = entity.getCentroCusto();
 
-    return SetorGridDTO.builder()
-        .id(entity.getId())
-        .nome(entity.getNome())
-        .descricao(entity.getDescricao())
-        .centroCustoNome(centroCusto != null ? centroCusto.getNome() : null)
-        .deleted(entity.getDeleted())
-        .build();
-  }
+        return SetorDTO.builder()
+                .id(entity.getId())
+                .nome(entity.getNome())
+                .descricao(entity.getDescricao())
+                .centroCustoId(centroCusto != null ? centroCusto.getId() : null)
+                .centroCustoNome(centroCusto != null ? centroCusto.getNome() : null)
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedBy(entity.getUpdatedBy())
+                .build();
+    }
 
-  @Override
-  protected List<String> getPropertiesToFilter() {
-    return List.of("nome");
-  }
+    @Override
+    protected SetorGridDTO buildGridDTOFromEntity(Setor entity) {
+        CentroCusto centroCusto = entity.getCentroCusto();
 
-  @Override
-  protected Class<Setor> getEntityClass() {
-    return Setor.class;
-  }
+        return SetorGridDTO.builder()
+                .id(entity.getId())
+                .nome(entity.getNome())
+                .descricao(entity.getDescricao())
+                .centroCustoNome(centroCusto != null ? centroCusto.getNome() : null)
+                .deleted(entity.getDeleted())
+                .build();
+    }
+
+    @Override
+    protected List<String> getPropertiesToFilter() {
+        return List.of("nome");
+    }
+
+    @Override
+    protected Class<Setor> getEntityClass() {
+        return Setor.class;
+    }
 }

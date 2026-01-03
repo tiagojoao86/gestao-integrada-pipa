@@ -8,9 +8,9 @@ import br.com.grupopipa.gestaointegrada.core.service.CrudService;
 
 public interface UsuarioService extends CrudService<UsuarioDTO, UsuarioGridDTO> {
 
-  UsuarioDTO findUsuarioDTOByLogin(String login);
+    UsuarioDTO findUsuarioDTOByLogin(String login);
 
-  List<AuthorityDTO> findAuthoritiesByLogin(String login);
+    List<AuthorityDTO> findAuthoritiesByLogin(String login);
 
-  List<UnidadeNegocioDTO> listarUnidadesParaAssociacao();
+    List<UnidadeNegocioDTO> listarUnidadesParaAssociacao();
 }

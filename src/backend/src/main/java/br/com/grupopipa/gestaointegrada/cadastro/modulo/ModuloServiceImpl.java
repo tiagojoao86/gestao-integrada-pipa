@@ -11,50 +11,50 @@ import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 
 @Service
 public class ModuloServiceImpl
-    extends CrudServiceImpl<ModuloDTO, ModuloGridDTO, ModuloEntity, ModuloRepository>
-    implements ModuloService {
+        extends CrudServiceImpl<ModuloDTO, ModuloGridDTO, ModuloEntity, ModuloRepository>
+        implements ModuloService {
 
-  public ModuloServiceImpl(
-      ModuloRepository repository, Specifications<ModuloEntity> specifications) {
-    super(repository, specifications);
-  }
+    public ModuloServiceImpl(
+            ModuloRepository repository, Specifications<ModuloEntity> specifications) {
+        super(repository, specifications);
+    }
 
-  @Override
-  public List<ModuloDTO> findAllSimple() {
-    return repository.findAll().stream().map(this::buildDTOFromEntity).collect(Collectors.toList());
-  }
+    @Override
+    public List<ModuloDTO> findAllSimple() {
+        return repository.findAll().stream().map(this::buildDTOFromEntity).collect(Collectors.toList());
+    }
 
-  @Override
-  protected ModuloEntity mergeEntityAndDTO(ModuloEntity entity, ModuloDTO dto) {
-    throw new UnsupportedOperationException("Save not supported for Modulo");
-  }
+    @Override
+    protected ModuloEntity mergeEntityAndDTO(ModuloEntity entity, ModuloDTO dto) {
+        throw new UnsupportedOperationException("Save not supported for Modulo");
+    }
 
-  @Override
-  protected ModuloDTO buildDTOFromEntity(ModuloEntity entity) {
-    return ModuloDTO.builder()
-        .id(entity.getId())
-        .chave(entity.getChave())
-        .nome(entity.getNome())
-        .grupoEnum(entity.getGrupo())
-        .build();
-  }
+    @Override
+    protected ModuloDTO buildDTOFromEntity(ModuloEntity entity) {
+        return ModuloDTO.builder()
+                .id(entity.getId())
+                .chave(entity.getChave())
+                .nome(entity.getNome())
+                .grupoEnum(entity.getGrupo())
+                .build();
+    }
 
-  @Override
-  protected ModuloGridDTO buildGridDTOFromEntity(ModuloEntity entity) {
-    return ModuloGridDTO.builder()
-        .id(entity.getId())
-        .nome(entity.getNome())
-        .deleted(entity.getDeleted())
-        .build();
-  }
+    @Override
+    protected ModuloGridDTO buildGridDTOFromEntity(ModuloEntity entity) {
+        return ModuloGridDTO.builder()
+                .id(entity.getId())
+                .nome(entity.getNome())
+                .deleted(entity.getDeleted())
+                .build();
+    }
 
-  @Override
-  protected java.util.List<String> getPropertiesToFilter() {
-    return java.util.List.of("nome", "chave");
-  }
+    @Override
+    protected java.util.List<String> getPropertiesToFilter() {
+        return java.util.List.of("nome", "chave");
+    }
 
-  @Override
-  protected Class<ModuloEntity> getEntityClass() {
-    return ModuloEntity.class;
-  }
+    @Override
+    protected Class<ModuloEntity> getEntityClass() {
+        return ModuloEntity.class;
+    }
 }
