@@ -2,8 +2,10 @@ package br.com.grupopipa.gestaointegrada.financeiro.movimentacao;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
@@ -141,5 +143,30 @@ public class MovimentacaoFinanceiraServiceImpl extends
     @Override
     protected Class<MovimentacaoFinanceira> getEntityClass() {
         return MovimentacaoFinanceira.class;
+    }
+
+    /**
+     * Sobrescreve o método delete para reverter o pagamento dos títulos
+     * após realizar o soft delete da movimentação
+     */
+    @Override
+    @Transactional
+    public UUID delete(UUID id) {
+        // Buscar a movimentação antes de deletar
+        MovimentacaoFinanceira movimentacao = this.findEntityById(id);
+
+        // Chamar o delete da classe pai para fazer o soft delete PRIMEIRO
+        // Isso marca a movimentação como deletada, fazendo com que getValorPago()
+        // não a considere mais
+        UUID result = super.delete(id);
+
+        // Agora reverter o pagamento em todos os títulos associados
+        // Como a movimentação já está deletada, getValorPago() não a contará
+        movimentacao.getTitulos().forEach(titulo -> {
+            titulo.reverterPagamento();
+            tituloRepository.save(titulo);
+        });
+
+        return result;
     }
 }

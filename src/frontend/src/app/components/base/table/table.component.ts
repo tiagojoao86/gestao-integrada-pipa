@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Order, Direction } from '../model/page-request';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -12,12 +18,16 @@ import { NgClass } from '@angular/common';
   imports: [TableModule, ButtonModule, NgClass],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
+  encapsulation: ViewEncapsulation.None,
   providers: [],
 })
 export class TableComponent<T> {
   @Input() data: T[] = [];
   @Input() columns: ColumnModel<T>[] = [];
   @Input() actions: ActionModel<T>[] = [];
+  @Input() sortable = true;
+
+  sortType: 'single' | 'multiple' = 'multiple';
 
   @Output() sortingEvent = new EventEmitter<Order[]>();
 

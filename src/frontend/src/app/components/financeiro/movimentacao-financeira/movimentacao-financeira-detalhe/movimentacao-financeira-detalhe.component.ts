@@ -6,17 +6,10 @@ import {
   OnInit,
   OnDestroy,
   Output,
+  LOCALE_ID,
 } from '@angular/core';
-import { Subject, of, forkJoin } from 'rxjs';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-  takeUntil,
-  catchError,
-  map,
-  take,
-} from 'rxjs/operators';
+import { Subject, forkJoin } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { BaseComponent } from '../../../base/base.component';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
 import { TituloService } from '../../titulo/titulo.service';
@@ -44,7 +37,6 @@ import {
   MovimentacaoFinanceiraDTO,
   MovimentacaoTituloDTO,
 } from '../model/movimentacao-financeira.dto';
-import { TituloDTO } from '../../titulo/model/titulo-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
@@ -53,6 +45,20 @@ import {
   FilterLogicOperator,
   FilterOperator,
 } from '../../../base/model/filter-dto';
+import { TableComponent } from '../../../base/table/table.component';
+import { ColumnModel } from '../../../base/table/column.model';
+import { LocaleUtils } from '../../../base/utils/locale-utils';
+import { CurrencyPipe } from '@angular/common';
+import { ActionModel } from '../../../base/table/action.model';
+import { ButtonModule } from 'primeng/button';
+import {
+  EntitySearchConfig,
+  ResultField,
+  SearchField,
+} from '../../../base/entity-search/entity-search.model';
+import { TituloDTO } from '../../titulo/model/titulo-dto';
+import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
+import { DialogService } from '../../../base/dialog/dialog.service';
 
 @Component({
   selector: 'gi-movimentacao-financeira-detalhe',
@@ -71,65 +77,55 @@ import {
     IftaLabelModule,
     IconFieldModule,
     InputIconModule,
+    TableComponent,
+    ButtonModule,
   ],
   providers: [
     MovimentacaoFinanceiraService,
     TituloService,
     ContaBancariaService,
+    CurrencyPipe,
+    EntitySearchService,
   ],
 })
 export class MovimentacaoFinanceiraDetalheComponent
   implements OnInit, OnDestroy
 {
+  @Input() id: string | null = null;
+  @Output() backEvent = new EventEmitter<void>();
+
+  service: MovimentacaoFinanceiraService = inject(
+    MovimentacaoFinanceiraService
+  );
+  messages: MessageService = inject(MessageService);
+  tituloService: TituloService = inject(TituloService);
+  authService: AuthService = inject(AuthService);
+  currencyPipe: CurrencyPipe = inject(CurrencyPipe);
+  contaService: ContaBancariaService = inject(ContaBancariaService);
+  entitySearchService: EntitySearchService = inject(EntitySearchService);
+  dialogService: DialogService = inject(DialogService);
+  locale: string = inject(LOCALE_ID);
+
   tituloTela = $localize`Movimentação Financeira: `;
   form: FormGroup = new FormGroup({});
   editMode = false;
   movimentacao: MovimentacaoFinanceiraDTO = {} as MovimentacaoFinanceiraDTO;
-  @Input() id: string | null = null;
-  @Output() backEvent = new EventEmitter<void>();
-
-  private service: MovimentacaoFinanceiraService = inject(
-    MovimentacaoFinanceiraService
-  );
-  private messages: MessageService = inject(MessageService);
-
-  tituloSuggestions: TituloDTO[] = [];
-  selectedTitulos: TituloDTO[] = [];
-
-  tiposOptions = [
-    { label: $localize`Pagamento`, value: 'PAGAMENTO' },
-    { label: $localize`Recebimento`, value: 'RECEBIMENTO' },
-    { label: $localize`Estorno`, value: 'ESTORNO' },
-    { label: $localize`Transferência`, value: 'TRANSFERENCIA' },
-  ];
-
-  // Forma de pagamento options (mirror backend enum)
-  formaOptions = [
-    { label: 'PIX', value: 'PIX' },
-    { label: $localize`Dinheiro`, value: 'DINHEIRO' },
-    { label: $localize`Boleto`, value: 'BOLETO' },
-    { label: $localize`Cartão de Crédito`, value: 'CARTAO_CREDITO' },
-    { label: $localize`Cartão de Débito`, value: 'CARTAO_DEBITO' },
-    { label: 'TED', value: 'TED' },
-    { label: 'DOC', value: 'DOC' },
-    { label: $localize`Cheque`, value: 'CHEQUE' },
-    { label: $localize`Depósito`, value: 'DEPOSITO' },
-  ];
-
+  tiposOptions: { label: string; value: string }[] = [];
+  formaOptions: { label: string; value: string }[] = [];
   toolbarActions: ToolbarActionModel[] = [];
-
   allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
-
-  private tituloService: TituloService = inject(TituloService);
-  private authService: AuthService = inject(AuthService);
-  private searchSubjectTitulos = new Subject<string>();
-  private destroy$ = new Subject<void>();
-  private contaService: ContaBancariaService = inject(ContaBancariaService);
   contasOptions: ContaBancariaDTO[] = [];
+  selectedTitulos: MovimentacaoTituloDTO[] = [];
+  tituloColumns: ColumnModel<MovimentacaoTituloDTO>[] = [];
+  tituloActions: ActionModel<MovimentacaoTituloDTO>[] = [];
+  destroy$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.populateTituloColumns();
+    this.populateTituloActions();
+    this.populateTiposTituloOptions();
+    this.populateFormasPagamentoOptions();
     this.initForm();
-    this.createSearchSubjectTitulos();
     this.loadUnidadesNegocio();
     this.createToolbarActions();
 
@@ -140,21 +136,64 @@ export class MovimentacaoFinanceiraDetalheComponent
     }
   }
 
-  createSearchSubjectTitulos(): void {
-    this.searchSubjectTitulos
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        switchMap((q) =>
-          q && q.length > 0
-            ? this.tituloService.search(q, 10).pipe(catchError(() => of([])))
-            : of([])
-        ),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((results) => {
-        this.tituloSuggestions = results as TituloDTO[];
-      });
+  populateTituloActions(): void {
+    this.tituloActions = [
+      {
+        title: $localize`Remover`,
+        icon: 'delete',
+        action: (rowData: MovimentacaoTituloDTO) => {
+          const index = this.selectedTitulos.findIndex(
+            (it) => it.id === rowData.id
+          );
+          if (index != -1) {
+            this.selectedTitulos.splice(index, 1);
+          }
+        },
+      },
+    ];
+  }
+
+  populateTituloColumns(): void {
+    this.tituloColumns = [
+      {
+        name: 'descricao',
+        label: $localize`Descrição`,
+        getValue(rowData: MovimentacaoTituloDTO) {
+          return rowData.descricao;
+        },
+      },
+      {
+        name: 'valor',
+        label: $localize`Valor`,
+        getValue: (rowData: MovimentacaoTituloDTO) => {
+          const currency = LocaleUtils.getCurrencyForLocale(this.locale);
+          return this.currencyPipe.transform(rowData.valor, currency, 'symbol');
+        },
+      },
+    ];
+  }
+
+  populateTiposTituloOptions(): void {
+    this.tiposOptions = [
+      { label: $localize`Pagamento`, value: 'PAGAMENTO' },
+      { label: $localize`Recebimento`, value: 'RECEBIMENTO' },
+      { label: $localize`Estorno`, value: 'ESTORNO' },
+      { label: $localize`Transferência`, value: 'TRANSFERENCIA' },
+    ];
+  }
+
+  populateFormasPagamentoOptions(): void {
+    this.formaOptions = [
+      { label: 'PIX', value: 'PIX' },
+      { label: $localize`Dinheiro`, value: 'DINHEIRO' },
+      { label: $localize`Boleto`, value: 'BOLETO' },
+      { label: $localize`Cartão de Crédito`, value: 'CARTAO_CREDITO' },
+      { label: $localize`Cartão de Débito`, value: 'CARTAO_DEBITO' },
+      { label: 'TED', value: 'TED' },
+      { label: 'DOC', value: 'DOC' },
+      { label: $localize`Cheque`, value: 'CHEQUE' },
+      { label: $localize`Depósito`, value: 'DEPOSITO' },
+    ];
   }
 
   loadUnidadesNegocio(): void {
@@ -162,7 +201,6 @@ export class MovimentacaoFinanceiraDetalheComponent
   }
 
   createToolbarActions(): void {
-    // Configure action toolbar (Cancelar / Salvar) based on permissions
     const canEdit = this.authService.hasAuthorityEditarToModulo(
       SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
     );
@@ -185,6 +223,14 @@ export class MovimentacaoFinanceiraDetalheComponent
         icon: 'save',
         title: $localize`Salvar` + ' (enter)',
         shortcut: 'enter',
+      });
+
+      this.toolbarActions.unshift({
+        action: () => {
+          this.addTitulo();
+        },
+        icon: 'add_notes',
+        title: $localize`Adicionar Título`,
       });
     }
   }
@@ -225,7 +271,14 @@ export class MovimentacaoFinanceiraDetalheComponent
           forkJoin(calls)
             .pipe(take(1))
             .subscribe((arr) => {
-              this.selectedTitulos = arr as TituloDTO[];
+              this.selectedTitulos = arr.map(
+                (it) =>
+                  new MovimentacaoTituloDTO(
+                    it?.id,
+                    it?.descricao,
+                    it?.valorOriginal
+                  )
+              );
               this.form.get('titulos')?.setValue(this.selectedTitulos);
             });
         }
@@ -307,39 +360,25 @@ export class MovimentacaoFinanceiraDetalheComponent
     this.changeUnidadeNegocio();
   }
 
-  searchTitulos(event: { query: string }) {
-    const q = event && event.query ? String(event.query) : '';
-    this.searchSubjectTitulos.next(q);
-  }
-
-  // PrimeNG AutoComplete onChange emits either an array of items or an object like { originalEvent, value }
-  onTitulosChange(evt: TituloDTO[] | { value?: TituloDTO[] }) {
-    // Cases to handle:
-    // - evt is an array (full selection) -> replace selectedTitulos
-    // - evt is an object { value: TituloDTO[] } -> replace selectedTitulos
-    // - evt is a single TituloDTO (onSelect) -> add to selectedTitulos if not present
-    if (Array.isArray(evt)) {
-      this.selectedTitulos = evt;
-    } else if (evt && 'value' in evt && Array.isArray(evt.value)) {
-      this.selectedTitulos = evt.value as TituloDTO[];
-    } else if (evt && typeof evt === 'object' && 'id' in evt) {
-      const item = evt as unknown as TituloDTO;
-      const exists = this.selectedTitulos.some((t) => t.id === item.id);
-      if (!exists) this.selectedTitulos = [...this.selectedTitulos, item];
-    } else {
-      // fallback: do nothing
-      return;
-    }
-
-    this.form.get('titulos')?.setValue(this.selectedTitulos);
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   salvar() {
+    this.validateBeforeSave();
+    this.populateDTOBeforeSend();
+
+    this.service.save(this.movimentacao, {
+      onSuccess: (data: MovimentacaoFinanceiraDTO) => {
+        this.movimentacao = data;
+        this.messages.sucesso($localize`Movimentação salva com sucesso.`);
+        this.goBackFn();
+      },
+    });
+  }
+
+  validateBeforeSave(): void {
     if (!this.form.valid) {
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
@@ -384,12 +423,15 @@ export class MovimentacaoFinanceiraDetalheComponent
       this.messages.erro($localize`Unidade de negócio é obrigatória.`);
       return;
     }
+  }
 
-    // Build DTO - filter out selected titles without id and send títulos as objects (backend expects MovimentacaoTituloDTO[])
-    const titulosToSend = (this.selectedTitulos || [])
+  buildTitulosToSend(): MovimentacaoTituloDTO[] {
+    return (this.selectedTitulos || [])
       .filter((t) => !!t.id)
-      .map((t) => ({ id: t.id, descricao: t.descricao }));
-    this.movimentacao.titulos = titulosToSend;
+      .map((t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valor));
+  }
+
+  populateDTOBeforeSend() {
     // Send contaBancariaId as backend expects; keep legacy field in sync
     this.movimentacao.contaBancariaId = this.form.value.contaBancaria;
     this.movimentacao.contaBancaria = this.form.value.contaBancaria;
@@ -400,17 +442,59 @@ export class MovimentacaoFinanceiraDetalheComponent
     this.movimentacao.unidadeNegocioId =
       this.form.value.unidadeNegocio.unidadeNegocioId;
     this.movimentacao.observacoes = this.form.value.observacoes;
-
-    this.service.save(this.movimentacao, {
-      onSuccess: (data: MovimentacaoFinanceiraDTO) => {
-        this.movimentacao = data;
-        this.messages.sucesso($localize`Movimentação salva com sucesso.`);
-        this.goBackFn();
-      },
-    });
+    // Build DTO - filter out selected titles without id and send títulos as objects (backend expects MovimentacaoTituloDTO[])
+    this.movimentacao.titulos = this.buildTitulosToSend();
   }
 
   goBackFn = () => {
     this.backEvent.emit();
   };
+
+  addTitulo(): void {
+    // Define os campos que podem ser pesquisados
+    const searchFields: SearchField[] = [
+      { key: 'numeroDocumento', label: $localize`Numero do Documento` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ];
+
+    // Define os campos que serão exibidos nos resultados
+    const resultFields: ResultField[] = [
+      { key: 'numeroDocumento', label: $localize`Numero do Documento` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ];
+
+    // Configura a busca
+    const config: EntitySearchConfig<TituloDTO> = {
+      service: this.tituloService,
+      searchFields: searchFields,
+      resultFields: resultFields,
+      title: $localize`Pesquisar títulos`,
+      searchPlaceholder: $localize`Digite o valor para pesquisar...`,
+      pageSize: 10,
+    };
+
+    // Abre a modal e aguarda a seleção
+    this.entitySearchService.search(config).subscribe((result) => {
+      if (!result.cancelled && result.entity) {
+        if (!this.tituloExists(result.entity.id)) {
+          this.selectedTitulos.push({
+            id: result.entity.id,
+            descricao: result.entity.descricao,
+            valor: result.entity.valorOriginal,
+          });
+        } else {
+          this.dialogService
+            .showOk(
+              $localize`Titulo já existe`,
+              $localize`Titulo já está associado a essa movimentação`
+            )
+            .subscribe();
+        }
+      }
+    });
+  }
+
+  tituloExists(id: string | undefined): boolean {
+    return this.selectedTitulos.filter((it) => it.id === id).length > 0;
+  }
 }

@@ -208,19 +208,6 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
                                             + ", valor da movimentação: "
                                             + money));
                 }
-
-                // Também manter a verificação de saldo para melhor UX
-                Money saldoTitulo = titulo.calcularSaldo();
-                if (money.isGreaterThan(saldoTitulo)) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "valor.valorMovimentoMaiorSaldo",
-                                    "Valor da movimentação ("
-                                            + money
-                                            + ") excede o saldo do título ("
-                                            + saldoTitulo
-                                            + ")"));
-                }
             }
         }
 

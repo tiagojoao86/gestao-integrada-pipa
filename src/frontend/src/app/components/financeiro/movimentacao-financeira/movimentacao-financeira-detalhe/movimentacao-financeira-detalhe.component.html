@@ -5,29 +5,16 @@
 >
   <div body-content>
     <div class="form" [formGroup]="form">
-      <!-- Títulos (multi-select via autocomplete) -->
-      <p-iftalabel class="w-100">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <p-autoComplete
-            inputId="titulos"
-            [suggestions]="tituloSuggestions"
-            (completeMethod)="searchTitulos($event)"
-            optionLabel="descricao"
-            (onSelect)="onTitulosChange($event.value)"
-            [(ngModel)]="selectedTitulos"
-            [ngModelOptions]="{ standalone: true }"
-            [forceSelection]="true"
-            [multiple]="true"
-            [minLength]="1"
-          >
-            <ng-template let-item pTemplate="item">
-              <div>{{ `${item.numeroDocumento} - ${item.descricao}` }}</div>
-            </ng-template>
-          </p-autoComplete>
-        </p-iconfield>
-        <label for="titulos" i18n>Títulos</label>
-      </p-iftalabel>
+      <div class="titulos w-100">
+        <div class="title" i18>Títulos</div>
+        <gi-table-component
+          [data]="selectedTitulos"
+          [columns]="tituloColumns"
+          [actions]="tituloActions"
+          [sortable]="false"
+          class="w-100"
+        ></gi-table-component>
+      </div>
 
       <p-iftalabel class="w-33">
         <p-select

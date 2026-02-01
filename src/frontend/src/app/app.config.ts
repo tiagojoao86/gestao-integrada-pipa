@@ -24,6 +24,8 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { MessageService } from './components/base/messages/messages.service';
 import { messageServiceProvider } from './components/base/messages/message.factory';
+import { DialogService } from './components/base/dialog/dialog.service';
+import { dialogServiceProvider } from './components/base/dialog/dialog.factory';
 
 registerLocaleData(localePt);
 
@@ -47,6 +49,7 @@ export const appConfig: ApplicationConfig = {
       ])
     ),
     { provide: MessageService, useFactory: messageServiceProvider },
+    { provide: DialogService, useFactory: dialogServiceProvider },
   ],
 };
 

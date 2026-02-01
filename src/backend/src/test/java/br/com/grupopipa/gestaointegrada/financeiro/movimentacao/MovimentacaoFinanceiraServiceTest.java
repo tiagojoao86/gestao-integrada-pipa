@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.movimentacao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -231,12 +232,13 @@ class MovimentacaoFinanceiraServiceTest {
     }
 
     @Test
-    @DisplayName("Deve deletar movimentação")
+    @DisplayName("Deve deletar movimentação e reverter pagamento dos títulos")
     void deveDeletarMovimentacao() {
         // Given
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.of(entity));
         when(repository.save(any(MovimentacaoFinanceira.class))).thenReturn(entity);
+        when(tituloRepository.save(any(Titulo.class))).thenReturn(titulo);
 
         // When
         UUID resultado = service.delete(id);
@@ -244,6 +246,9 @@ class MovimentacaoFinanceiraServiceTest {
         // Then
         assertEquals(id, resultado);
         verify(repository, times(1)).findById(id);
+        // Verifica que o título foi salvo (para persistir a reversão do pagamento)
+        verify(tituloRepository, times(1)).save(titulo);
+        // Verifica que a movimentação foi salva com deleted=true
         verify(repository, times(1)).save(any(MovimentacaoFinanceira.class));
     }
 
@@ -414,9 +419,7 @@ class MovimentacaoFinanceiraServiceTest {
         // Verificar que a exceção contém informação sobre o erro
         assertTrue(
                 exception.getViolations().stream()
-                        .anyMatch(
-                                v -> v.getKey().contains("valorPagoUltrapassaTotal")
-                                        || v.getKey().contains("valorMovimentoMaiorSaldo")));
+                        .anyMatch(v -> v.getKey().contains("valorPagoUltrapassaTotal")));
     }
 
     @Test
@@ -479,5 +482,58 @@ class MovimentacaoFinanceiraServiceTest {
         assertEquals(Money.of(BigDecimal.valueOf(700.00)), saldo);
         // Status deve ser PARCIAL (pago algo mas não tudo)
         assertEquals(StatusTitulo.PARCIAL, tituloNovo.getStatus());
+    }
+
+    @Test
+    @DisplayName("Deve reverter pagamento e atualizar status ao deletar movimentação")
+    void deveReverterPagamentoEAtualizarStatusAoDeletarMovimentacao() {
+        // Given - criar título com movimentação que pagou totalmente
+        TituloCategoria tituloCategoria = new TituloCategoria.Builder()
+                .codigo("004")
+                .nome("Categoria Teste 4")
+                .tipo(TituloCategoriaTipoEnum.DESPESA)
+                .build();
+
+        Titulo tituloNovo = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Título para teste reversão")
+                .pessoa(titulo.getPessoa())
+                .tituloCategoria(tituloCategoria)
+                .unidadeNegocio(unidadeNegocio)
+                .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .build();
+
+        // Criar movimentação que paga totalmente
+        MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
+                .titulos(java.util.Set.of(tituloNovo))
+                .contaBancaria(contaBancaria)
+                .tipo(TipoMovimentacao.PAGAMENTO)
+                .formaPagamento(FormaPagamento.PIX)
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
+                .data(LocalDate.now())
+                .build();
+
+        // Verificar que título está PAGO
+        assertEquals(StatusTitulo.PAGO, tituloNovo.getStatus());
+        assertNotNull(tituloNovo.getDataPagamento());
+
+        // Configurar mocks
+        UUID movimentacaoId = UUID.randomUUID();
+        when(repository.findById(movimentacaoId)).thenReturn(Optional.of(movimentacao));
+        when(repository.save(any(MovimentacaoFinanceira.class))).thenReturn(movimentacao);
+        when(tituloRepository.save(any(Titulo.class))).thenReturn(tituloNovo);
+
+        // When - deletar movimentação
+        service.delete(movimentacaoId);
+
+        // Then - verificar que o título voltou para ABERTO
+        assertEquals(StatusTitulo.ABERTO, tituloNovo.getStatus());
+        assertNull(tituloNovo.getDataPagamento());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), tituloNovo.calcularSaldo());
+
+        // Verificar que o título foi salvo
+        verify(tituloRepository, times(1)).save(tituloNovo);
     }
 }
