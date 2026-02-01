@@ -78,10 +78,8 @@ export class TituloDetalheComponent implements OnInit {
   pessoaSuggestions: { id: string; nome: string }[] = [];
   pessoaInput: { id: string; nome: string } | null = null;
 
-  // planoContas removed
-
   allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
-
+  
   // Categorias
   allCategorias: { id: string; codigo: string; nome: string }[] = [];
 

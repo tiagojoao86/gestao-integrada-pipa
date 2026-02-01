@@ -1,6 +1,6 @@
 <p-table
   [value]="data"
-  sortMode="multiple"
+  [sortMode]="sortType"
   [resizableColumns]="true"
   (onSort)="sortChange($event.multisortmeta)"
   [lazy]="true"
@@ -8,9 +8,15 @@
   <ng-template #header>
     <tr>
       @for (col of columns; track col) {
-      <th [pSortableColumn]="col.name" pResizableColumn>
-        <span class="header">{{ col.label }}</span
-        ><p-sortIcon [field]="col.name" />
+      <th
+        [pSortableColumn]="col.name"
+        pResizableColumn
+        [pSortableColumnDisabled]="!sortable"
+      >
+        <span class="header">{{ col.label }}</span>
+        @if (sortable) {
+        <p-sortIcon [field]="col.name" />
+        }
       </th>
       } @if (actions) {
       <th i18n>Ações</th>
@@ -21,7 +27,9 @@
     <tr [ngClass]="{ 'deleted-row': isDeletedRow(rowData) }">
       @for (col of columns; track col) {
       <td>
-        {{ col.getValue(rowData) }}
+        <div class="td-content">
+          {{ col.getValue(rowData) }}
+        </div>
       </td>
       } @if (actions) {
       <td>

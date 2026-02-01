@@ -516,6 +516,19 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         atualizarStatus();
     }
 
+    /**
+     * Método público usado ao deletar uma MovimentacaoFinanceira para reverter
+     * o pagamento e atualizar o status do título
+     */
+    public void reverterPagamento() {
+        atualizarStatus();
+
+        // Se o título estava pago e agora não está mais, limpar a data de pagamento
+        if (this.status != StatusTitulo.PAGO && this.dataPagamento != null) {
+            this.dataPagamento = null;
+        }
+    }
+
     private void atualizarStatus() {
         Money saldo = calcularSaldo();
         Money valorPago = getValorPago();

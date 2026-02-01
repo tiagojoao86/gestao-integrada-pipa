@@ -23,23 +23,6 @@
   --success-color: rgba(84, 159, 61, 1);
   --warning-color: rgba(234, 179, 8, 1);
   --error-color: rgba(168, 46, 46, 1);
-
-  /*
-    --background-color: rgba(64, 64, 64, 1.0);
-    --text-color: rgba(220, 220, 220, 1);
-    --inverted-text-color: rgba(0, 0, 0, 1);
-    --transparency: rgba(61, 104, 159, 1.0);
-    --item-transparency: rgba(255, 255, 255, 0.1);
-    --secondary-color: rgba(228, 175, 0, 1);
-    --danger-color: rgba(255, 172, 172, 1.0);
-    --border-color: rgba(89, 89, 89, 1.0);
-    --titulo-size: 18px;
-    --subtitulo-size: 16px;
-    --text-size: 14px;
-    --transparent: rgba(255, 255, 255, 0);
-    --box-shadow: 2px 4px 1px 0px #141414;
-    --border-radius: 6px;
-    */
 }
 
 html,
@@ -291,52 +274,6 @@ button.secundario {
 .p-button-label {
   font-weight: 500;
   font-size: var(--text-size);
-}
-
-.p-datatable-table {
-  border-collapse: separate !important;
-  border-width: 1px !important;
-  border-color: var(--dark-border-color) !important;
-  border-style: solid !important;
-}
-
-.p-datatable-thead > tr > th {
-  background-color: var(--secondary-color) !important;
-  color: var(--inverted-text-color) !important;
-  font-size: var(--text-size) !important;
-  font-weight: 500 !important;
-  border-width: 0px 1px 0px 0px !important;
-  border-color: var(--border-color) !important;
-  padding: 8px 10px !important;
-}
-
-.p-datatable-thead > tr > th:last-child {
-  border: none !important;
-}
-
-.p-datatable-tbody > tr > td {
-  background-color: var(--transparent) !important;
-  font-size: var(--text-size) !important;
-  border-width: 0px 1px 0px 0px !important;
-  border-color: var(--border-color) !important;
-  padding: 0px 10px !important;
-  color: var(--text-color);
-}
-
-.p-datatable-tbody > tr > td:last-child {
-  border: none !important;
-}
-
-.p-datatable-tbody > tr {
-  background-color: var(--transparent) !important;
-}
-
-.p-datatable-tbody > tr:nth-child(odd):not(.deleted-row) {
-  background-color: var(--item-transparency) !important;
-}
-
-.p-datatable-tbody > tr.deleted-row {
-  background-color: rgba(255, 0, 0, 0.1) !important;
 }
 
 .p-select {

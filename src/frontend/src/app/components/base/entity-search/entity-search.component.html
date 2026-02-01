@@ -1,0 +1,102 @@
+@if (isVisible && config) {
+<div
+  class="search-overlay"
+  (click)="onOverlayClick()"
+  role="button"
+  tabindex="0"
+  (keydown.escape)="onCancel()"
+>
+  <div
+    class="search-container"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+  >
+    <!-- Header -->
+    <div class="search-header">
+      <span>{{ config.title || "Pesquisar" }}</span>
+    </div>
+
+    <!-- Search Controls -->
+    <div class="search-controls">
+      <div class="form-group">
+        <p-select
+          id="searchField"
+          [(ngModel)]="selectedSearchField"
+          class="form-control"
+          [disabled]="isSearching"
+          [options]="config.searchFields"
+        >
+          <ng-template let-item pTemplate="item">
+            <div>{{ item.label }}</div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <div class="form-group">
+        <input
+          pInputText
+          type="text"
+          id="searchValue"
+          [(ngModel)]="searchValue"
+          [placeholder]="config.searchPlaceholder || 'Digite para pesquisar...'"
+          class="form-control"
+          [disabled]="isSearching"
+        />
+      </div>
+
+      <div class="form-group">
+        <button
+          pButton
+          type="button"
+          class="primario"
+          (click)="onSearch()"
+          [disabled]="
+            isSearching || !selectedSearchField || !searchValue.trim()
+          "
+        >
+          <span class="material-symbols-outlined">search</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="search-results">
+      @if (isSearching) {
+      <div class="loading">
+        <p i18n>Carregando resultados...</p>
+      </div>
+      } @if (showNoResults) {
+      <div class="no-results">
+        <p i18n>Nenhum resultado encontrado.</p>
+      </div>
+      } @if (hasResults && !isSearching) {
+      <gi-table-component
+        [data]="searchResults"
+        [columns]="tableColumns"
+        [actions]="tableActions"
+      ></gi-table-component>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+      <div class="pagination-container">
+        <gi-pagination-component
+          [pageNumber]="currentPage"
+          [totalElements]="totalElements"
+          [itemsPerPage]="pageSize"
+          (paginationEvent)="onPageChange($event)"
+        >
+        </gi-pagination-component>
+      </div>
+      } }
+    </div>
+
+    <!-- Footer -->
+    <div class="search-footer">
+      <button pButton class="primario" (click)="onCancel()">Cancelar</button>
+    </div>
+  </div>
+</div>
+}

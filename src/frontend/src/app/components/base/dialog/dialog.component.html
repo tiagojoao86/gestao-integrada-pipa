@@ -1,0 +1,44 @@
+<!-- Overlay com máscara transparente -->
+@if (isVisible) {
+<div
+  class="dialog-overlay"
+  (click)="onOverlayClick()"
+  role="button"
+  tabindex="0"
+  (keydown.escape)="onOverlayClick()"
+>
+  <!-- Dialog container -->
+  <div
+    class="dialog-container"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+  >
+    <!-- Header -->
+    <div class="dialog-header">
+      <h3 class="dialog-title">{{ dialogConfig?.title }}</h3>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <p class="dialog-message">{{ dialogConfig?.message }}</p>
+    </div>
+
+    <!-- Footer com botões -->
+    <div class="dialog-footer">
+      @for (button of buttons; track button.result) {
+      <button
+        pButton
+        [class]="button.cssClass"
+        (click)="onButtonClick(button.result)"
+        type="button"
+      >
+        <span pButtonLabel i18n>{{ button.label }}</span>
+      </button>
+      }
+    </div>
+  </div>
+</div>
+}
