@@ -117,7 +117,20 @@
         }
       </p-iftalabel>
 
-      <!-- Plano de Contas removed -->
+      <!-- Condição de Pagamento -->
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="condicaoPagamento"
+          [options]="allCondicoesPagamento"
+          formControlName="condicaoPagamento"
+          optionLabel="condicao"
+          optionValue="id"
+          [filter]="true"
+          filterBy="condicao"
+          [showClear]="true"
+        ></p-select>
+        <label for="condicaoPagamento" i18n>Condição de Pagamento</label>
+      </p-iftalabel>
 
       <!-- Valores -->
       <p-iftalabel class="w-33">

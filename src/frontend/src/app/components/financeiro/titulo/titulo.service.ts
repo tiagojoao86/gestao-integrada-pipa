@@ -64,6 +64,19 @@ export class TituloService extends BaseService<TituloDTO, TituloGridDTO> {
       );
   }
 
+  listarCondicoesPagamentoDisponiveis(): Observable<
+    { id: string; condicao: string }[]
+  > {
+    return this.httpClient
+      .get<{ body: { id: string; condicao: string }[] }>(
+        this.getUrl('/condicoes-pagamento-disponiveis')
+      )
+      .pipe(
+        map((response) => response.body),
+        take(1)
+      );
+  }
+
   listarPlanosDisponiveis(
     unidadeNegocioId: string
   ): Observable<{ id: string; codigo: string; descricao: string }[]> {

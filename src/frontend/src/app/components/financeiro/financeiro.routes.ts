@@ -67,4 +67,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.FINANCEIRO_CENTRO_CUSTO,
     },
   },
+  {
+    path: 'condicao-pagamento',
+    loadComponent: () =>
+      import('./condicao-pagamento/condicao-pagamento.component').then(
+        (app) => app.CondicaoPagamentoComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.FINANCEIRO_CONDICAO_PAGAMENTO,
+    },
+  },
 ];

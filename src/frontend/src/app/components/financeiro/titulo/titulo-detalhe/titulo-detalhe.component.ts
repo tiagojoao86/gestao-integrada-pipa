@@ -83,6 +83,9 @@ export class TituloDetalheComponent implements OnInit {
   // Categorias
   allCategorias: { id: string; codigo: string; nome: string }[] = [];
 
+  // Condições de pagamento
+  allCondicoesPagamento: { id: string; condicao: string }[] = [];
+
   // Setores para rateio
   setoresSelecionados: TituloSetorRateio[] = [];
 
@@ -107,6 +110,7 @@ export class TituloDetalheComponent implements OnInit {
     this.loadPessoas();
     this.loadUnidadesNegocio();
     this.loadCategorias();
+    this.loadCondicoesPagamento();
 
     // Listen to unidadeNegocio changes (no planos de contas handling anymore)
     this.form.get('unidadeNegocio')?.valueChanges.subscribe(() => {
@@ -173,6 +177,7 @@ export class TituloDetalheComponent implements OnInit {
     this.form.addControl('dataPagamento', fb.control(null));
     this.form.addControl('observacoes', fb.control(null));
     this.form.addControl('unidadeNegocio', fb.control(''));
+    this.form.addControl('condicaoPagamento', fb.control(null));
     this.form.addControl('rateioAutomatico', fb.control(false));
   }
 
@@ -210,6 +215,9 @@ export class TituloDetalheComponent implements OnInit {
     this.form
       .get('rateioAutomatico')
       ?.setValue(this.titulo.rateioAutomatico || false);
+    this.form
+      .get('condicaoPagamento')
+      ?.setValue(this.titulo.condicaoPagamentoId || null);
 
     // Set autocomplete inputs
     if (this.titulo.pessoaId) {
@@ -267,6 +275,12 @@ export class TituloDetalheComponent implements OnInit {
   loadCategorias() {
     this.service.listarCategoriasDisponiveis().subscribe((categorias) => {
       this.allCategorias = categorias;
+    });
+  }
+
+  loadCondicoesPagamento() {
+    this.service.listarCondicoesPagamentoDisponiveis().subscribe((condicoes) => {
+      this.allCondicoesPagamento = condicoes;
     });
   }
 
@@ -350,6 +364,8 @@ export class TituloDetalheComponent implements OnInit {
     this.titulo.dataPagamento = this.form.value.dataPagamento;
     this.titulo.observacoes = this.form.value.observacoes;
     this.titulo.rateioAutomatico = this.form.value.rateioAutomatico || false;
+    this.titulo.condicaoPagamentoId =
+      this.form.value.condicaoPagamento || undefined;
 
     // Map setores to DTO
     this.titulo.setores = this.setoresSelecionados.map((s) => ({

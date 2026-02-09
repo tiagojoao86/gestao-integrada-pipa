@@ -1723,6 +1723,19 @@
         <source>Centro de custo não encontrado.</source>
         <target>Cost center not found.</target>
       </trans-unit>
+      <!-- Condição de Pagamento -->
+      <trans-unit id="condicaoPagamento.condicao.notBlank" datatype="html">
+        <source>A condição de pagamento é obrigatória.</source>
+        <target>Payment condition is required.</target>
+      </trans-unit>
+      <trans-unit id="condicaoPagamento.condicao.unique" datatype="html">
+        <source>Esta condição já está cadastrada.</source>
+        <target>This condition is already registered.</target>
+      </trans-unit>
+      <trans-unit id="condicaoPagamento.condicao.invalid" datatype="html">
+        <source>Formato de condição inválido. Use 'Nx' (ex: 3x) ou 'dias/dias/dias' (ex: 10/20/40).</source>
+        <target>Invalid condition format. Use 'Nx' (e.g.: 3x) or 'days/days/days' (e.g.: 10/20/40).</target>
+      </trans-unit>
       <trans-unit id="1841715135505040403" datatype="html">
         <source>Rateio por Setores</source>
         <target>Sector Distribution</target>

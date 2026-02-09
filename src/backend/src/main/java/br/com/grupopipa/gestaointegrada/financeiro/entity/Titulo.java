@@ -2,7 +2,9 @@ package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -116,6 +118,10 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "titulo_origem_id", foreignKey = @ForeignKey(name = "fk_titulo_origem"))
     private Titulo tituloOrigem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "condicao_pagamento_id", foreignKey = @ForeignKey(name = "fk_titulo_condicao_pagamento"))
+    private CondicaoPagamento condicaoPagamento;
 
     @ManyToMany(mappedBy = "titulos")
     private Set<MovimentacaoFinanceira> movimentacoes = new HashSet<>();
@@ -347,6 +353,92 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         return numeroParcela != null && totalParcelas != null && totalParcelas > 1;
     }
 
+    public boolean isOrigemParcelamento() {
+        return totalParcelas != null && totalParcelas > 1
+                && numeroParcela == null;
+    }
+
+    /**
+     * Gera as parcelas filhas a partir da condição de pagamento.
+     * O valor original é dividido igualmente entre as parcelas,
+     * com a última absorvendo o arredondamento.
+     * A data de vencimento de cada parcela é calculada a partir
+     * da data de emissão + dias definidos na condição.
+     * Marca este título como origem de parcelamento (totalParcelas = N).
+     */
+    public List<Titulo> gerarParcelas() {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (condicaoPagamento == null) {
+            violations.add(new BeanValidationMessage(
+                    "condicaoPagamento",
+                    "Condição de pagamento é obrigatória para parcelar"));
+        }
+
+        if (condicaoPagamento != null
+                && condicaoPagamento.getQuantidadeParcelas() <= 1) {
+            violations.add(new BeanValidationMessage(
+                    "condicaoPagamento",
+                    "Condição deve ter mais de uma parcela"));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
+
+        int qtd = condicaoPagamento.getQuantidadeParcelas();
+        List<Integer> diasVencimento =
+                condicaoPagamento.getDiasVencimento();
+
+        Money valorParcela =
+                valorOriginal.divide(BigDecimal.valueOf(qtd));
+        Money somaAnterior = Money.zero();
+
+        List<Titulo> parcelas = new ArrayList<>();
+
+        for (int i = 0; i < qtd; i++) {
+            Money valorDesta;
+            if (i == qtd - 1) {
+                valorDesta = valorOriginal.subtract(somaAnterior);
+            } else {
+                valorDesta = valorParcela;
+                somaAnterior = somaAnterior.add(valorParcela);
+            }
+
+            LocalDate vencimento =
+                    dataEmissao.plusDays(diasVencimento.get(i));
+
+            Titulo parcela = new Titulo.Builder()
+                    .tipo(this.tipo)
+                    .descricao(this.descricao)
+                    .numeroDocumento(this.numeroDocumento)
+                    .pessoa(this.pessoa)
+                    .tituloCategoria(this.tituloCategoria)
+                    .unidadeNegocio(this.unidadeNegocio)
+                    .valorOriginal(valorDesta)
+                    .dataEmissao(this.dataEmissao)
+                    .dataVencimento(vencimento)
+                    .rateioAutomatico(this.rateioAutomatico)
+                    .build();
+
+            parcela.setCondicaoPagamento(this.condicaoPagamento);
+            parcela.definirParcelamento(i + 1, qtd, this);
+
+            for (TituloSetor ts : this.setores) {
+                parcela.adicionarSetor(
+                        ts.getSetor(), ts.getPercentualRateio());
+            }
+            parcela.validarSetores();
+
+            parcelas.add(parcela);
+        }
+
+        // Mark parent as origin of parcelas
+        this.totalParcelas = qtd;
+
+        return parcelas;
+    }
+
     public void definirParcelamento(
             Integer numeroParcela, Integer totalParcelas, Titulo tituloOrigem) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -383,6 +475,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             LocalDate dataPagamento,
             String observacoes) {
         Set<BeanValidationMessage> violations = new HashSet<>();
+
+        // Títulos origem de parcelamento não podem ser alterados
+        if (isOrigemParcelamento()) {
+            violations.add(
+                    new BeanValidationMessage(
+                            "parcelamento",
+                            "Não é possível alterar título origem de parcelamento"));
+        }
 
         // Títulos com movimentações financeiras não podem ter campos principais
         // alterados
@@ -616,6 +716,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     public Titulo getTituloOrigem() {
         return tituloOrigem;
+    }
+
+    public CondicaoPagamento getCondicaoPagamento() {
+        return condicaoPagamento;
+    }
+
+    public void setCondicaoPagamento(CondicaoPagamento condicaoPagamento) {
+        this.condicaoPagamento = condicaoPagamento;
     }
 
     public Set<MovimentacaoFinanceira> getMovimentacoes() {

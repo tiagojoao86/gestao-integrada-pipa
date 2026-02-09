@@ -1,0 +1,42 @@
+<gi-app-base
+  [title]="title"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+      <p-iftalabel class="w-50">
+        <input pInputText id="condicao" formControlName="condicao" />
+        <label for="condicao" i18n>Condição</label>
+        @if (isControlInvalid("condicao")) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+        <small class="helper-text w-50" i18n
+          >Ex: "3x" para 3 parcelas de 30 em 30 dias, ou "10/20/40" para
+          parcelas nos dias 10, 20 e 40.</small
+        >
+      </p-iftalabel>
+
+      <div class="checkbox-wrapper w-25">
+        <p-checkbox
+          inputId="ativo"
+          formControlName="ativo"
+          [binary]="true"
+        ></p-checkbox>
+        <label for="ativo" i18n>Ativo</label>
+      </div>
+
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="descricao"
+          formControlName="descricao"
+          rows="4"
+        ></textarea>
+        <label for="descricao" i18n>Descrição</label>
+      </p-iftalabel>
+    </div>
+  </div>
+
+  <div footer-content></div>
+</gi-app-base>

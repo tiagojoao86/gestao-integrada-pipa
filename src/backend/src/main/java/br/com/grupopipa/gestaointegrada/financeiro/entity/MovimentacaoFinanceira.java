@@ -181,6 +181,15 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
                                             + titulo.getStatus().getDescricao()));
                 }
 
+                if (titulo.isOrigemParcelamento()) {
+                    violations.add(
+                            new BeanValidationMessage(
+                                    "titulo.origemParcelamento",
+                                    "Não é possível criar movimentação para "
+                                            + "título origem de parcelamento. "
+                                            + "Utilize as parcelas."));
+                }
+
                 // Calcular o valor total que o título pode receber (valor original + juros +
                 // multa -
                 // desconto)

@@ -59,6 +59,18 @@ export class FinanceiroComponent implements OnInit {
       });
     }
 
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_CONDICAO_PAGAMENTO
+      )
+    ) {
+      cadastrosModules.push({
+        name: $localize`Condições de Pagamento`,
+        icon: 'schedule',
+        url: '/financeiro/condicao-pagamento',
+      });
+    }
+
     const financeiroModules: SystemModule[] = [];
 
     if (

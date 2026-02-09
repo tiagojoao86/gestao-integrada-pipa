@@ -1,0 +1,10 @@
+@if (viewMode === 'GRID') {
+<gi-condicao-pagamento-grid
+  (openDetail)="openDetail($event)"
+></gi-condicao-pagamento-grid>
+} @if (viewMode === 'DETAIL') {
+<gi-condicao-pagamento-detalhe
+  [detailId]="detailId"
+  (closeDetail)="toggleView()"
+></gi-condicao-pagamento-detalhe>
+}
