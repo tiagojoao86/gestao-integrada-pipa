@@ -76,6 +76,12 @@ public class TituloController extends BaseController<TituloDTO, TituloGridDTO, T
         return ok(service.listarPlanosDisponiveis(unidadeNegocioId));
     }
 
+    @GetMapping("/condicoes-pagamento-disponiveis")
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_EDITAR')")
+    public Response listarCondicoesPagamentoDisponiveis() {
+        return ok(service.listarCondicoesPagamentoDisponiveis());
+    }
+
     @Override
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {

@@ -29,6 +29,8 @@ public class TituloDTO implements DTO {
     private String tituloCategoriaNome;
     private UUID unidadeNegocioId;
     private String unidadeNegocioNome;
+    private UUID condicaoPagamentoId;
+    private String condicaoPagamentoCondicao;
 
     // Valores
     private BigDecimal valorOriginal;

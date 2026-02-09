@@ -14,6 +14,8 @@ export class TituloDTO {
   unidadeNegocioNome?: string;
   tituloCategoriaId?: string;
   tituloCategoriaNome?: string;
+  condicaoPagamentoId?: string;
+  condicaoPagamentoCondicao?: string;
 
   // Setores para rateio
   setores?: TituloSetorDTO[];

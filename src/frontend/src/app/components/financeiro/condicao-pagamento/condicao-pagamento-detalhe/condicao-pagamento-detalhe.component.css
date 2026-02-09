@@ -1,0 +1,18 @@
+/* Styles for condicao-pagamento detalhe */
+.condicao-pagamento-detalhe {
+  padding: 1rem;
+}
+
+.helper-text {
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}

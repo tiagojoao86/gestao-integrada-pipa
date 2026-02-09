@@ -24,6 +24,9 @@ import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
+import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoDTO;
+import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoRepository;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.CondicaoPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
@@ -46,6 +49,7 @@ public class TituloServiceImpl
     private final UnidadeNegocioService unidadeNegocioService;
     private final SetorRepository setorRepository;
     private final TituloCategoriaRepository tituloCategoriaRepository;
+    private final CondicaoPagamentoRepository condicaoPagamentoRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -58,7 +62,8 @@ public class TituloServiceImpl
             UnidadeNegocioRepository unidadeNegocioRepository,
             UnidadeNegocioService unidadeNegocioService,
             SetorRepository setorRepository,
-            TituloCategoriaRepository tituloCategoriaRepository) {
+            TituloCategoriaRepository tituloCategoriaRepository,
+            CondicaoPagamentoRepository condicaoPagamentoRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
@@ -66,6 +71,30 @@ public class TituloServiceImpl
         this.unidadeNegocioService = unidadeNegocioService;
         this.setorRepository = setorRepository;
         this.tituloCategoriaRepository = tituloCategoriaRepository;
+        this.condicaoPagamentoRepository = condicaoPagamentoRepository;
+    }
+
+    @Override
+    @Transactional
+    public TituloDTO save(TituloDTO dto) {
+        boolean isCreation = (dto.getId() == null);
+        TituloDTO savedDTO = super.save(dto);
+
+        if (isCreation && savedDTO.getCondicaoPagamentoId() != null) {
+            Titulo parent = this.findEntityById(savedDTO.getId());
+            CondicaoPagamento condicao = parent.getCondicaoPagamento();
+
+            if (condicao != null
+                    && condicao.getQuantidadeParcelas() > 1) {
+                List<Titulo> parcelas = parent.gerarParcelas();
+                repository.save(parent);
+                for (Titulo parcela : parcelas) {
+                    repository.save(parcela);
+                }
+                return buildDTOFromEntity(parent);
+            }
+        }
+        return savedDTO;
     }
 
     @Override
@@ -129,6 +158,15 @@ public class TituloServiceImpl
                 entity.adicionarObservacao(dto.getObservacoes());
             }
 
+            // Condição de pagamento (opcional)
+            if (dto.getCondicaoPagamentoId() != null) {
+                CondicaoPagamento condicaoPagamento = condicaoPagamentoRepository
+                        .findById(dto.getCondicaoPagamentoId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Condição de pagamento não encontrada"));
+                entity.setCondicaoPagamento(condicaoPagamento);
+            }
+
             // Processar setores
             processarSetores(entity, dto);
 
@@ -175,6 +213,17 @@ public class TituloServiceImpl
         // Atualizar rateio automático
         if (dto.getRateioAutomatico() != null) {
             entity.setRateioAutomatico(dto.getRateioAutomatico());
+        }
+
+        // Atualizar condição de pagamento
+        if (dto.getCondicaoPagamentoId() != null) {
+            CondicaoPagamento condicaoPagamento = condicaoPagamentoRepository
+                    .findById(dto.getCondicaoPagamentoId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Condição de pagamento não encontrada"));
+            entity.setCondicaoPagamento(condicaoPagamento);
+        } else {
+            entity.setCondicaoPagamento(null);
         }
 
         return entity;
@@ -236,6 +285,14 @@ public class TituloServiceImpl
                         entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
                 .unidadeNegocioNome(
                         entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getNome() : null)
+                .condicaoPagamentoId(
+                        entity.getCondicaoPagamento() != null
+                                ? entity.getCondicaoPagamento().getId()
+                                : null)
+                .condicaoPagamentoCondicao(
+                        entity.getCondicaoPagamento() != null
+                                ? entity.getCondicaoPagamento().getCondicao()
+                                : null)
                 .valorOriginal(entity.getValorOriginal().getValue())
                 .valorPago(entity.getValorPago().getValue())
                 .valorDesconto(entity.getValorDesconto().getValue())
@@ -261,8 +318,12 @@ public class TituloServiceImpl
     @Override
     protected TituloGridDTO buildGridDTOFromEntity(Titulo entity) {
         String parcelamento = null;
-        if (entity.isParcelado()) {
-            parcelamento = entity.getNumeroParcela() + "/" + entity.getTotalParcelas();
+        if (entity.isOrigemParcelamento()) {
+            parcelamento = "Parcelado ("
+                    + entity.getTotalParcelas() + "x)";
+        } else if (entity.isParcelado()) {
+            parcelamento = entity.getNumeroParcela()
+                    + "/" + entity.getTotalParcelas();
         }
 
         return TituloGridDTO.builder()
@@ -325,10 +386,15 @@ public class TituloServiceImpl
     /** Constrói TituloGridDTO a partir da projeção otimizada */
     private TituloGridDTO buildGridDTOFromProjection(TituloProjection projection) {
         String parcelamento = null;
-        if (projection.getNumeroParcela() != null
-                && projection.getTotalParcelas() != null
+        if (projection.getTotalParcelas() != null
                 && projection.getTotalParcelas() > 1) {
-            parcelamento = projection.getNumeroParcela() + "/" + projection.getTotalParcelas();
+            if (projection.getNumeroParcela() == null) {
+                parcelamento = "Parcelado ("
+                        + projection.getTotalParcelas() + "x)";
+            } else {
+                parcelamento = projection.getNumeroParcela()
+                        + "/" + projection.getTotalParcelas();
+            }
         }
 
         // Calcular saldo: valorOriginal + juros + multa - desconto - valorPago
@@ -413,6 +479,19 @@ public class TituloServiceImpl
                                 .id(categoria.getId())
                                 .codigo(categoria.getCodigo())
                                 .nome(categoria.getNome().getValue())
+                                .build())
+                .toList();
+    }
+
+    @Override
+    public List<CondicaoPagamentoDTO> listarCondicoesPagamentoDisponiveis() {
+        return condicaoPagamentoRepository.findAll().stream()
+                .filter(cp -> cp.getAtivo() != null && cp.getAtivo())
+                .filter(cp -> cp.getDeleted() == null || !cp.getDeleted())
+                .map(
+                        cp -> CondicaoPagamentoDTO.builder()
+                                .id(cp.getId())
+                                .condicao(cp.getCondicao())
                                 .build())
                 .toList();
     }
