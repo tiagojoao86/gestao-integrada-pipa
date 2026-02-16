@@ -124,26 +124,14 @@ public class TituloServiceImpl
                     .pessoa(pessoa)
                     .tituloCategoria(tituloCategoria)
                     .unidadeNegocio(unidadeNegocio)
-                    .valorOriginal(Money.positive(dto.getValorOriginal())) // Usa positive() - valida > 0
+                    .valorOriginal(dto.getValorOriginal())
+                    .valorDesconto(dto.getValorDesconto())
+                    .valorJuros(dto.getValorJuros())
+                    .valorMulta(dto.getValorMulta())
                     .dataEmissao(dto.getDataEmissao())
                     .dataVencimento(dto.getDataVencimento())
-                    .dataPagamento(dto.getDataPagamento()) // Valida >= dataEmissao
+                    .dataPagamento(dto.getDataPagamento())
                     .build();
-
-            // Aplicar descontos, juros, multa se fornecidos (usa positiveOrZero - valida >=
-            // 0)
-            if (dto.getValorDesconto() != null
-                    && dto.getValorDesconto().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarDesconto(Money.positiveOrZero(dto.getValorDesconto()));
-            }
-            if (dto.getValorJuros() != null
-                    && dto.getValorJuros().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarJuros(Money.positiveOrZero(dto.getValorJuros()));
-            }
-            if (dto.getValorMulta() != null
-                    && dto.getValorMulta().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                entity.aplicarMulta(Money.positiveOrZero(dto.getValorMulta()));
-            }
 
             // Parcelamento
             if (dto.getNumeroParcela() != null && dto.getTotalParcelas() != null) {
