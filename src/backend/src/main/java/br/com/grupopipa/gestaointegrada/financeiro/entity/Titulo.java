@@ -244,8 +244,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                             "dataPagamento", "Data de pagamento não pode ser anterior à data de emissão"));
         }
 
-        // Usar Money.positive() para valorOriginal - garante > 0 automaticamente
-        Money money = ValidationUtils.validateAndGet(() -> Money.positive(valorOriginal), violations);
+        Money money = ValidationUtils.validateAndGet(
+                () -> Money.positive(valorOriginal), violations);
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -841,10 +841,13 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         private Pessoa pessoa;
         private TituloCategoria tituloCategoria;
         private UnidadeNegocio unidadeNegocio;
-        private Money valorOriginal;
+        private BigDecimal valorOriginal;
         private LocalDate dataEmissao;
         private LocalDate dataVencimento;
         private LocalDate dataPagamento;
+        private BigDecimal valorDesconto;
+        private BigDecimal valorJuros;
+        private BigDecimal valorMulta;
         private Boolean rateioAutomatico;
 
         public Builder tipo(TipoTitulo tipo) {
@@ -888,8 +891,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return this;
         }
 
-        public Builder valorOriginal(Money valorOriginal) {
+        public Builder valorOriginal(BigDecimal valorOriginal) {
             this.valorOriginal = valorOriginal;
+            return this;
+        }
+
+        public Builder valorOriginal(Money valorOriginal) {
+            this.valorOriginal = valorOriginal != null
+                    ? valorOriginal.getValue() : null;
             return this;
         }
 
@@ -908,13 +917,27 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return this;
         }
 
+        public Builder valorDesconto(BigDecimal valorDesconto) {
+            this.valorDesconto = valorDesconto;
+            return this;
+        }
+
+        public Builder valorJuros(BigDecimal valorJuros) {
+            this.valorJuros = valorJuros;
+            return this;
+        }
+
+        public Builder valorMulta(BigDecimal valorMulta) {
+            this.valorMulta = valorMulta;
+            return this;
+        }
+
         public Builder rateioAutomatico(Boolean rateioAutomatico) {
             this.rateioAutomatico = rateioAutomatico;
             return this;
         }
 
         public Titulo build() {
-            BigDecimal valorOriginalValue = (this.valorOriginal != null) ? this.valorOriginal.getValue() : null;
             ValidatedData data = validate(
                     this.tipo,
                     this.descricao,
@@ -922,7 +945,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                     this.pessoa,
                     this.tituloCategoria,
                     this.unidadeNegocio,
-                    valorOriginalValue,
+                    this.valorOriginal,
                     this.dataEmissao,
                     this.dataVencimento,
                     this.dataPagamento);
@@ -939,6 +962,22 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             // Definir dataPagamento se fornecida (já foi validada)
             if (this.dataPagamento != null) {
                 titulo.dataPagamento = this.dataPagamento;
+            }
+            // Aplicar desconto, juros, multa se fornecidos
+            if (this.valorDesconto != null
+                    && this.valorDesconto.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarDesconto(
+                        Money.positiveOrZero(this.valorDesconto));
+            }
+            if (this.valorJuros != null
+                    && this.valorJuros.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarJuros(
+                        Money.positiveOrZero(this.valorJuros));
+            }
+            if (this.valorMulta != null
+                    && this.valorMulta.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarMulta(
+                        Money.positiveOrZero(this.valorMulta));
             }
             titulo.setRateioAutomatico(this.rateioAutomatico);
             return titulo;

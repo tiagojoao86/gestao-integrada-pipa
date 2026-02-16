@@ -79,12 +79,29 @@ export class TituloSetorRateioComponent implements OnInit {
 
     this.setoresSelecionados.push(novoSetor);
     this.setorSelecionado = null;
+    this.distribuirPercentuais();
     this.emitirMudanca();
   }
 
   removerSetor(index: number): void {
     this.setoresSelecionados.splice(index, 1);
+    this.distribuirPercentuais();
     this.emitirMudanca();
+  }
+
+  private distribuirPercentuais(): void {
+    const qtd = this.setoresSelecionados.length;
+    if (qtd === 0) {
+      return;
+    }
+    const base = Math.floor((10000 / qtd)) / 100; // 2 decimais
+    const soma = +(base * (qtd - 1)).toFixed(2);
+    const ultimo = +(100 - soma).toFixed(2);
+
+    for (let i = 0; i < qtd; i++) {
+      this.setoresSelecionados[i].percentualRateio =
+        i === 0 ? ultimo : base;
+    }
   }
 
   onPercentualChange(index: number, valor: number | null): void {

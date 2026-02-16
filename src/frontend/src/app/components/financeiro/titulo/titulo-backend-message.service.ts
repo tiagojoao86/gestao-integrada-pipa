@@ -12,6 +12,7 @@ export class TituloBackendMessages extends AbstractBackendMessageService {
       'titulo.pessoaId.notNull': $localize`:@@titulo.pessoaId.notNull:A pessoa é obrigatória.`,
       'titulo.planoContasId.notNull': $localize`:@@titulo.planoContasId.notNull:O plano de contas é obrigatório.`,
       'titulo.valorOriginal.notNull': $localize`:@@titulo.valorOriginal.notNull:O valor original é obrigatório.`,
+      'titulo.valor': $localize`:@@titulo.valor:O valor original é obrigatório e deve ser maior que zero.`,
       'titulo.dataEmissao.notNull': $localize`:@@titulo.dataEmissao.notNull:A data de emissão é obrigatória.`,
       'titulo.dataVencimento.notNull': $localize`:@@titulo.dataVencimento.notNull:A data de vencimento é obrigatória.`,
       'titulo.status': $localize`:@@titulo.status:Não é possível alterar título com esse status.`,
