@@ -1,8 +1,17 @@
 @if (viewMode === 'GRID') {
-<gi-titulo-grid (openDetailEvent)="openDetail($event)"></gi-titulo-grid>
+<gi-titulo-grid
+  (openDetailEvent)="openDetail($event)"
+  (openMovimentacaoEvent)="openMovimentacao($event)"
+></gi-titulo-grid>
 } @if (viewMode === 'DETAIL') {
 <gi-titulo-detalhe
   [id]="detailId"
   (backEvent)="toggleView()"
 ></gi-titulo-detalhe>
+} @if (viewMode === 'MOVIMENTACAO') {
+<gi-movimentacao-financeira-detalhe
+  id="add"
+  [titulosIniciais]="titulosSelecionados"
+  (backEvent)="backToGrid()"
+></gi-movimentacao-financeira-detalhe>
 }

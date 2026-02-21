@@ -57,6 +57,7 @@ import {
   SearchField,
 } from '../../../base/entity-search/entity-search.model';
 import { TituloDTO } from '../../titulo/model/titulo-dto';
+import { TituloGridDTO } from '../../titulo/model/titulo-grid-dto';
 import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
 import { DialogService } from '../../../base/dialog/dialog.service';
 
@@ -92,6 +93,7 @@ export class MovimentacaoFinanceiraDetalheComponent
   implements OnInit, OnDestroy
 {
   @Input() id: string | null = null;
+  @Input() titulosIniciais: TituloGridDTO[] = [];
   @Output() backEvent = new EventEmitter<void>();
 
   service: MovimentacaoFinanceiraService = inject(
@@ -245,6 +247,12 @@ export class MovimentacaoFinanceiraDetalheComponent
         .get('unidadeNegocio')
         ?.setValue(defaultUnidadeNegocio.unidadeNegocioId);
       this.changeUnidadeNegocio();
+    }
+    if (this.titulosIniciais.length > 0) {
+      this.selectedTitulos = this.titulosIniciais.map(
+        (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valorOriginal)
+      );
+      this.form.get('titulos')?.setValue(this.selectedTitulos);
     }
   }
 

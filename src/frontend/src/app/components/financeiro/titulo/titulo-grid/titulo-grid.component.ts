@@ -47,6 +47,8 @@ export class TituloGridComponent {
   titulo: string = $localize`Cadastro de títulos`;
 
   @Output() openDetailEvent = new EventEmitter<string>();
+  @Output() selectionChange = new EventEmitter<TituloGridDTO[]>();
+  @Output() openMovimentacaoEvent = new EventEmitter<TituloGridDTO[]>();
 
   itensPorPagina = PaginationEvent.DEFAULT_PAGE_SIZE;
   totalElements = 0;
@@ -56,6 +58,7 @@ export class TituloGridComponent {
   auditInfoData: AuditInfoData | null = null;
 
   titulosList: TituloGridDTO[] = [];
+  titulosSelecionados: TituloGridDTO[] = [];
 
   columns: ColumnModel<TituloGridDTO>[] = [
     {
@@ -273,6 +276,20 @@ export class TituloGridComponent {
       });
     }
 
+    if (
+      this.auth.hasAuthorityEditarToModulo(
+        SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
+      )
+    ) {
+      this.toolbarActions.push({
+        action: () => {
+          this.openMovimentacaoEvent.emit(this.titulosSelecionados);
+        },
+        icon: 'payments',
+        title: $localize`Nova movimentação com selecionados`,
+      });
+    }
+
     this.toolbarActions.push({
       action: () => {
         this.toggleShowFilters();
@@ -374,6 +391,11 @@ export class TituloGridComponent {
         ? $localize`Ocultar excluídos` + ' (alt + d)'
         : $localize`Mostrar excluídos` + ' (alt + d)';
     }
+  }
+
+  onSelectionChange(itens: TituloGridDTO[]): void {
+    this.titulosSelecionados = itens;
+    this.selectionChange.emit(itens);
   }
 
   refreshList() {

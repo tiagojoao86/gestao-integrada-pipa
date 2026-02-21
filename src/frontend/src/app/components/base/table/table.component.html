@@ -7,6 +7,15 @@
 >
   <ng-template #header>
     <tr>
+      @if (multiSelection) {
+      <th class="selection-col">
+        <p-checkbox
+          [binary]="true"
+          [ngModel]="isAllPageSelected()"
+          (onChange)="toggleAll()"
+        />
+      </th>
+      }
       @for (col of columns; track col) {
       <th
         [pSortableColumn]="col.name"
@@ -25,6 +34,15 @@
   </ng-template>
   <ng-template #body let-rowData>
     <tr [ngClass]="{ 'deleted-row': isDeletedRow(rowData) }">
+      @if (multiSelection) {
+      <td class="selection-col">
+        <p-checkbox
+          [binary]="true"
+          [ngModel]="isSelected(rowData)"
+          (onChange)="toggleItem(rowData)"
+        />
+      </td>
+      }
       @for (col of columns; track col) {
       <td>
         <div class="td-content">
