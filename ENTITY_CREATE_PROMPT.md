@@ -209,6 +209,88 @@ export class {{Entity}}Service extends BaseService<{{Entity}}DTO, {{Entity}}Grid
 - `ngOnInit`: se `id` presente, carregar via `service.findById(id)`
 - `save()`: chamar `service.save(dto, { onSuccess })` - NÃO forneça `onError` (já tratado pelo BaseService)
 
+#### Clean Code nos Componentes Frontend (OBRIGATÓRIO)
+
+**Princípio**: Assim como no backend, cada método deve fazer **uma única coisa** com nomes expressivos.
+Os métodos `ngOnInit()` e `salvar()` devem ser **orquestradores** que contam a história em alto nível.
+
+**Regras:**
+1. `ngOnInit()` deve ser uma **sequência de chamadas** a métodos bem nomeados — nunca lógica inline
+2. `salvar()` deve delegar para métodos: validar, montar DTO, chamar service
+3. Extrair **métodos de inicialização**: `initForm()`, `createToolbarActions()`, `loadUnidadesNegocio()`
+4. Extrair **métodos de preparação**: `prepareForNew()`, `prepareForEdit()`
+5. Extrair **métodos de população**: `populateColumns()`, `populateOptions()`
+6. Extrair **métodos de validação**: `validateBeforeSave()`
+7. Extrair **métodos de montagem de DTO**: `populateDTOBeforeSend()`
+
+**Exemplo — Componente Detalhe:**
+
+```typescript
+// ngOnInit como orquestrador — conta a história em alto nível
+ngOnInit(): void {
+  this.populateColumns();
+  this.populateActions();
+  this.populateOptions();
+  this.initForm();
+  this.loadDependencias();
+  this.createToolbarActions();
+
+  if (this.id === 'add') {
+    this.prepareForNew();
+  } else if (this.id) {
+    this.prepareForEdit();
+  }
+}
+
+// salvar() delega — validar, montar, enviar
+salvar(): void {
+  this.validateBeforeSave();
+  this.populateDTOBeforeSend();
+
+  this.service.save(this.dto, {
+    onSuccess: (data: {{Entity}}DTO) => {
+      this.messages.sucesso($localize`Salvo com sucesso.`);
+      this.goBackFn();
+    },
+  });
+}
+
+// Cada método faz UMA coisa
+private prepareForNew(): void {
+  this.editMode = false;
+  this.dto = {} as {{Entity}}DTO;
+  this.form.get('data')?.setValue(new Date());
+}
+
+private prepareForEdit(): void {
+  this.editMode = true;
+  this.service.findById(String(this.id)).subscribe((response) => {
+    this.dto = response.body!;
+    this.fillForm();
+  });
+}
+
+private validateBeforeSave(): void {
+  if (!this.form.valid) {
+    this.messages.erro($localize`Existem campos inválidos.`);
+    return;
+  }
+  // validações específicas de negócio...
+}
+
+private populateDTOBeforeSend(): void {
+  this.dto.campo = this.form.value.campo;
+  // mapear form → DTO...
+}
+```
+
+**Antipadrões a evitar:**
+- `ngOnInit` com mais de 15 linhas de lógica inline
+- `salvar()` que valida, monta DTO e chama service tudo junto
+- Lógica de inicialização de formulário dentro do `ngOnInit`
+- Configuração de colunas/actions dentro do `ngOnInit`
+- Métodos sem nome descritivo (ex: `init1()`, `setup()`)
+
 #### Response Types
 
 Use os tipos definidos em `src/frontend/src/app/components/base/model/response.ts`:
@@ -566,6 +648,99 @@ public class {{EntityName}}ServiceImpl extends
     }
 }
 ```
+
+### Clean Code no ServiceImpl (OBRIGATÓRIO)
+
+**Princípio**: Cada método deve fazer **uma única coisa** e ter um nome expressivo em português.
+O `mergeEntityAndDTO` deve ser apenas um **orquestrador** que delega para métodos bem nomeados.
+
+**Regras:**
+1. `mergeEntityAndDTO` deve ter no máximo 5 linhas — apenas decidir entre criar ou atualizar
+2. Extrair **métodos de busca** para cada entidade relacionada: `buscarPessoa(UUID)`, `buscarUnidadeNegocio(UUID)`
+3. Extrair **métodos de ação**: `criarNovo{{EntityName}}(dto)`, `atualizar{{EntityName}}(entity, dto)`
+4. Extrair **métodos auxiliares**: `construir{{EntityName}}(...)`, `configurarParcelamento(...)`, etc.
+5. Métodos de busca opcionais (nullable) devem tratar `null` internamente
+
+**Exemplo para entidade com relacionamentos (FK):**
+
+```java
+@Override
+protected {{EntityName}} mergeEntityAndDTO({{EntityName}} entity, {{EntityName}}DTO dto) {
+    if (Objects.isNull(entity)) {
+        return criarNovo{{EntityName}}(dto);
+    }
+    return atualizar{{EntityName}}(entity, dto);
+}
+
+private {{EntityName}} criarNovo{{EntityName}}({{EntityName}}DTO dto) {
+    Pessoa pessoa = buscarPessoa(dto.getPessoaId());
+    UnidadeNegocio unidadeNegocio = buscarUnidadeNegocio(dto.getUnidadeNegocioId());
+
+    {{EntityName}} entity = construir{{EntityName}}(dto, pessoa, unidadeNegocio);
+
+    if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
+        entity.adicionarObservacao(dto.getObservacoes());
+    }
+
+    return entity;
+}
+
+private {{EntityName}} atualizar{{EntityName}}({{EntityName}} entity, {{EntityName}}DTO dto) {
+    UnidadeNegocio unidadeNegocio = buscarUnidadeNegocio(dto.getUnidadeNegocioId());
+
+    entity.atualizar(
+            dto.getDescricao(),
+            dto.getValorOriginal(),
+            dto.getObservacoes());
+
+    if (unidadeNegocio != null) {
+        entity.atualizarUnidadeNegocio(unidadeNegocio);
+    }
+
+    return entity;
+}
+
+private {{EntityName}} construir{{EntityName}}(
+        {{EntityName}}DTO dto, Pessoa pessoa,
+        UnidadeNegocio unidadeNegocio) {
+    return new {{EntityName}}.Builder()
+            .descricao(dto.getDescricao())
+            .pessoa(pessoa)
+            .unidadeNegocio(unidadeNegocio)
+            .valorOriginal(dto.getValorOriginal())
+            .build();
+}
+
+// Métodos de busca — cada um faz UMA coisa
+private Pessoa buscarPessoa(UUID pessoaId) {
+    return pessoaRepository.findById(pessoaId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Pessoa não encontrada"));
+}
+
+// Busca opcional — trata null internamente
+private UnidadeNegocio buscarUnidadeNegocio(UUID unidadeNegocioId) {
+    if (unidadeNegocioId == null) {
+        return null;
+    }
+    return unidadeNegocioRepository.findById(unidadeNegocioId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Unidade de negócio não encontrada"));
+}
+```
+
+**Por que seguir este padrão?**
+- O `mergeEntityAndDTO` conta a **história de alto nível** (criar ou atualizar)
+- Cada método privado tem um **nome que descreve sua intenção**
+- Facilita leitura, manutenção e testes
+- Segue o princípio SRP (Single Responsibility Principle) do Clean Code
+- Conversão de tipos primitivos para Value Objects (ex: `BigDecimal` → `Money`) deve ser feita **dentro da entidade**, não no service
+
+**Antipadrões a evitar:**
+- Método `mergeEntityAndDTO` com mais de 20 linhas
+- Buscas de entidades inline (ex: `repository.findById(...).orElseThrow(...)` direto no fluxo principal)
+- Conversão de tipos no service (ex: `Money.positiveOrZero(dto.getValor())`) — isso é responsabilidade da entidade
+- Lógica de decisão de negócio no service (ex: `if (condicao.getQuantidadeParcelas() > 1)`) — a entidade decide
 
 ### Controller
 ```java

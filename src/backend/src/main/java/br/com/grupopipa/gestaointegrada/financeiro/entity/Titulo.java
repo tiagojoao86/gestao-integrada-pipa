@@ -367,23 +367,10 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
      * Marca este título como origem de parcelamento (totalParcelas = N).
      */
     public List<Titulo> gerarParcelas() {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        if (condicaoPagamento == null) {
-            violations.add(new BeanValidationMessage(
-                    "condicaoPagamento",
-                    "Condição de pagamento é obrigatória para parcelar"));
-        }
-
-        if (condicaoPagamento != null
-                && condicaoPagamento.getQuantidadeParcelas() <= 1) {
-            violations.add(new BeanValidationMessage(
-                    "condicaoPagamento",
-                    "Condição deve ter mais de uma parcela"));
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("titulo", violations);
+        // Sem condição de pagamento ou parcela única → não é parcelado
+        if (condicaoPagamento == null
+                || condicaoPagamento.getQuantidadeParcelas() <= 1) {
+            return List.of();
         }
 
         int qtd = condicaoPagamento.getQuantidadeParcelas();
@@ -469,11 +456,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     public void atualizar(
             String descricao,
             LocalDate dataVencimento,
-            Money valorDesconto,
-            Money valorJuros,
-            Money valorMulta,
+            BigDecimal valorDesconto,
+            BigDecimal valorJuros,
+            BigDecimal valorMulta,
             LocalDate dataPagamento,
-            String observacoes) {
+            String observacoes,
+            Boolean rateioAutomatico) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         // Títulos origem de parcelamento não podem ser alterados
@@ -489,31 +477,41 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (!movimentacoes.isEmpty()) {
             violations.add(
                     new BeanValidationMessage(
-                            "movimentacoes", "Não é possível alterar título com movimentações financeiras"));
+                            "movimentacoes",
+                            "Não é possível alterar título com movimentações financeiras"));
         }
 
         // Títulos cancelados não podem ser alterados
         if (status == StatusTitulo.CANCELADO) {
             violations.add(
                     new BeanValidationMessage(
-                            "status", "Não é possível alterar título " + status.getDescricao()));
+                            "status",
+                            "Não é possível alterar título "
+                                    + status.getDescricao()));
         }
 
-        if (descricao != null && !descricao.isBlank() && descricao.length() > 500) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 500 caracteres"));
-        }
-
-        if (dataVencimento != null && dataVencimento.isBefore(dataEmissao)) {
+        if (descricao != null && !descricao.isBlank()
+                && descricao.length() > 500) {
             violations.add(
                     new BeanValidationMessage(
-                            "dataVencimento", "Data de vencimento não pode ser anterior à data de emissão"));
+                            "descricao",
+                            "Descrição deve ter no máximo 500 caracteres"));
         }
 
-        if (dataPagamento != null && dataPagamento.isBefore(dataEmissao)) {
+        if (dataVencimento != null
+                && dataVencimento.isBefore(dataEmissao)) {
             violations.add(
                     new BeanValidationMessage(
-                            "dataPagamento", "Data de pagamento não pode ser anterior à data de emissão"));
+                            "dataVencimento",
+                            "Data de vencimento não pode ser anterior à data de emissão"));
+        }
+
+        if (dataPagamento != null
+                && dataPagamento.isBefore(dataEmissao)) {
+            violations.add(
+                    new BeanValidationMessage(
+                            "dataPagamento",
+                            "Data de pagamento não pode ser anterior à data de emissão"));
         }
 
         if (!violations.isEmpty()) {
@@ -534,15 +532,19 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             this.observacoes = observacoes;
         }
 
-        // Aplicar valores monetários (já validados como positiveOrZero)
+        // Converter e aplicar valores monetários
         if (valorDesconto != null) {
-            aplicarDesconto(valorDesconto);
+            aplicarDesconto(Money.positiveOrZero(valorDesconto));
         }
         if (valorJuros != null) {
-            aplicarJuros(valorJuros);
+            aplicarJuros(Money.positiveOrZero(valorJuros));
         }
         if (valorMulta != null) {
-            aplicarMulta(valorMulta);
+            aplicarMulta(Money.positiveOrZero(valorMulta));
+        }
+
+        if (rateioAutomatico != null) {
+            this.rateioAutomatico = rateioAutomatico;
         }
     }
 
