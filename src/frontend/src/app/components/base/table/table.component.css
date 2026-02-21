@@ -2,6 +2,12 @@
   margin-right: 5px;
 }
 
+.selection-col {
+  width: 2.5rem;
+  text-align: center;
+  padding: 0 8px !important;
+}
+
 .table-icon {
   color: var(--text-color);
 }

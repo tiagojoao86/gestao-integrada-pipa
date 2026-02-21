@@ -11,7 +11,10 @@
       [columns]="columns"
       [data]="titulosList"
       [actions]="tableActions"
+      [multiSelection]="true"
+      [pageIndex]="request.page"
       (sortingEvent)="sort($event)"
+      (selectionChange)="onSelectionChange($event)"
     ></gi-table-component>
   </div>
   <div footer-content>
