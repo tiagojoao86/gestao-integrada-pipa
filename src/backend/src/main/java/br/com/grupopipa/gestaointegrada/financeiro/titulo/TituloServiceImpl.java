@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +24,6 @@ import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
-import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CondicaoPagamento;
@@ -80,17 +80,13 @@ public class TituloServiceImpl
         boolean isCreation = (dto.getId() == null);
         TituloDTO savedDTO = super.save(dto);
 
-        if (isCreation && savedDTO.getCondicaoPagamentoId() != null) {
+        if (isCreation) {
             Titulo parent = this.findEntityById(savedDTO.getId());
-            CondicaoPagamento condicao = parent.getCondicaoPagamento();
+            List<Titulo> parcelas = parent.gerarParcelas();
 
-            if (condicao != null
-                    && condicao.getQuantidadeParcelas() > 1) {
-                List<Titulo> parcelas = parent.gerarParcelas();
+            if (!parcelas.isEmpty()) {
                 repository.save(parent);
-                for (Titulo parcela : parcelas) {
-                    repository.save(parcela);
-                }
+                parcelas.forEach(repository::save);
                 return buildDTOFromEntity(parent);
             }
         }
@@ -100,121 +96,138 @@ public class TituloServiceImpl
     @Override
     protected Titulo mergeEntityAndDTO(Titulo entity, TituloDTO dto) {
         if (Objects.isNull(entity)) {
-            // Buscar entidades relacionadas
-            Pessoa pessoa = pessoaRepository
-                    .findById(dto.getPessoaId())
-                    .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada"));
-
-            TipoTitulo tipo = TipoTitulo.valueOf(dto.getTipo());
-
-            // Categoria (obrigatória)
-            TituloCategoria tituloCategoria = tituloCategoriaRepository
-                    .findById(dto.getTituloCategoriaId())
-                    .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
-
-            // Unidade de negócio (obrigatória)
-            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository
-                    .findById(dto.getUnidadeNegocioId())
-                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
-
-            entity = new Titulo.Builder()
-                    .tipo(tipo)
-                    .descricao(dto.getDescricao())
-                    .numeroDocumento(dto.getNumeroDocumento())
-                    .pessoa(pessoa)
-                    .tituloCategoria(tituloCategoria)
-                    .unidadeNegocio(unidadeNegocio)
-                    .valorOriginal(dto.getValorOriginal())
-                    .valorDesconto(dto.getValorDesconto())
-                    .valorJuros(dto.getValorJuros())
-                    .valorMulta(dto.getValorMulta())
-                    .dataEmissao(dto.getDataEmissao())
-                    .dataVencimento(dto.getDataVencimento())
-                    .dataPagamento(dto.getDataPagamento())
-                    .build();
-
-            // Parcelamento
-            if (dto.getNumeroParcela() != null && dto.getTotalParcelas() != null) {
-                Titulo tituloOrigem = null;
-                if (dto.getTituloOrigemId() != null) {
-                    tituloOrigem = repository.findById(dto.getTituloOrigemId()).orElse(null);
-                }
-                entity.definirParcelamento(dto.getNumeroParcela(), dto.getTotalParcelas(), tituloOrigem);
-            }
-
-            if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
-                entity.adicionarObservacao(dto.getObservacoes());
-            }
-
-            // Condição de pagamento (opcional)
-            if (dto.getCondicaoPagamentoId() != null) {
-                CondicaoPagamento condicaoPagamento = condicaoPagamentoRepository
-                        .findById(dto.getCondicaoPagamentoId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "Condição de pagamento não encontrada"));
-                entity.setCondicaoPagamento(condicaoPagamento);
-            }
-
-            // Processar setores
-            processarSetores(entity, dto);
-
-            // Definir rateio automático
-            entity.setRateioAutomatico(
-                    dto.getRateioAutomatico() != null ? dto.getRateioAutomatico() : false);
-
-            // Validar setores antes de salvar
-            entity.validarSetores();
-
-            return entity;
+            return criarNovoTitulo(dto);
         }
+        return atualizarTitulo(entity, dto);
+    }
 
-        // Atualizar título existente - Preparar Money objects (usa positiveOrZero -
-        // valida >= 0)
-        Money valorDesconto = dto.getValorDesconto() != null ? Money.positiveOrZero(dto.getValorDesconto()) : null;
-        Money valorJuros = dto.getValorJuros() != null ? Money.positiveOrZero(dto.getValorJuros()) : null;
-        Money valorMulta = dto.getValorMulta() != null ? Money.positiveOrZero(dto.getValorMulta()) : null;
+    private Titulo criarNovoTitulo(TituloDTO dto) {
+        Pessoa pessoa = buscarPessoa(dto.getPessoaId());
+        TituloCategoria categoria = buscarCategoria(dto.getTituloCategoriaId());
+        UnidadeNegocio unidadeNegocio =
+                buscarUnidadeNegocio(dto.getUnidadeNegocioId());
+        CondicaoPagamento condicaoPagamento =
+                buscarCondicaoPagamento(dto.getCondicaoPagamentoId());
 
-        // Atualizar através do método único da entidade (contém todas as validações)
+        Titulo titulo = construirTitulo(dto, pessoa, categoria,
+                unidadeNegocio);
+
+        titulo.setCondicaoPagamento(condicaoPagamento);
+
+        configurarParcelamento(titulo, dto);
+        adicionarObservacoes(titulo, dto);
+        processarSetores(titulo, dto);
+        titulo.validarSetores();
+
+        return titulo;
+    }
+
+    private Titulo atualizarTitulo(Titulo entity, TituloDTO dto) {
+        UnidadeNegocio unidadeNegocio =
+                buscarUnidadeNegocio(dto.getUnidadeNegocioId());
+        CondicaoPagamento condicaoPagamento =
+                buscarCondicaoPagamento(dto.getCondicaoPagamentoId());
+
         entity.atualizar(
                 dto.getDescricao(),
                 dto.getDataVencimento(),
-                valorDesconto,
-                valorJuros,
-                valorMulta,
+                dto.getValorDesconto(),
+                dto.getValorJuros(),
+                dto.getValorMulta(),
                 dto.getDataPagamento(),
-                dto.getObservacoes());
+                dto.getObservacoes(),
+                dto.getRateioAutomatico());
 
-        // Atualizar unidade de negócio se fornecida
-        if (dto.getUnidadeNegocioId() != null) {
-            UnidadeNegocio unidadeNegocio = unidadeNegocioRepository
-                    .findById(dto.getUnidadeNegocioId())
-                    .orElseThrow(() -> new IllegalArgumentException("Unidade de negócio não encontrada"));
+        if (unidadeNegocio != null) {
             entity.atualizarUnidadeNegocio(unidadeNegocio);
         }
+        entity.setCondicaoPagamento(condicaoPagamento);
 
-        // Processar setores na atualização
         if (dto.getSetores() != null) {
             processarSetores(entity, dto);
             entity.validarSetores();
         }
 
-        // Atualizar rateio automático
-        if (dto.getRateioAutomatico() != null) {
-            entity.setRateioAutomatico(dto.getRateioAutomatico());
-        }
-
-        // Atualizar condição de pagamento
-        if (dto.getCondicaoPagamentoId() != null) {
-            CondicaoPagamento condicaoPagamento = condicaoPagamentoRepository
-                    .findById(dto.getCondicaoPagamentoId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Condição de pagamento não encontrada"));
-            entity.setCondicaoPagamento(condicaoPagamento);
-        } else {
-            entity.setCondicaoPagamento(null);
-        }
-
         return entity;
+    }
+
+    private Titulo construirTitulo(
+            TituloDTO dto, Pessoa pessoa,
+            TituloCategoria categoria,
+            UnidadeNegocio unidadeNegocio) {
+        return new Titulo.Builder()
+                .tipo(TipoTitulo.valueOf(dto.getTipo()))
+                .descricao(dto.getDescricao())
+                .numeroDocumento(dto.getNumeroDocumento())
+                .pessoa(pessoa)
+                .tituloCategoria(categoria)
+                .unidadeNegocio(unidadeNegocio)
+                .valorOriginal(dto.getValorOriginal())
+                .valorDesconto(dto.getValorDesconto())
+                .valorJuros(dto.getValorJuros())
+                .valorMulta(dto.getValorMulta())
+                .dataEmissao(dto.getDataEmissao())
+                .dataVencimento(dto.getDataVencimento())
+                .dataPagamento(dto.getDataPagamento())
+                .rateioAutomatico(dto.getRateioAutomatico())
+                .build();
+    }
+
+    private void configurarParcelamento(Titulo titulo, TituloDTO dto) {
+        if (dto.getNumeroParcela() == null
+                || dto.getTotalParcelas() == null) {
+            return;
+        }
+        Titulo tituloOrigem = buscarTituloOrigem(dto.getTituloOrigemId());
+        titulo.definirParcelamento(
+                dto.getNumeroParcela(), dto.getTotalParcelas(),
+                tituloOrigem);
+    }
+
+    private void adicionarObservacoes(Titulo titulo, TituloDTO dto) {
+        if (dto.getObservacoes() != null
+                && !dto.getObservacoes().isBlank()) {
+            titulo.adicionarObservacao(dto.getObservacoes());
+        }
+    }
+
+    private Pessoa buscarPessoa(UUID pessoaId) {
+        return pessoaRepository.findById(pessoaId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Pessoa não encontrada"));
+    }
+
+    private TituloCategoria buscarCategoria(UUID categoriaId) {
+        return tituloCategoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Categoria não encontrada"));
+    }
+
+    private UnidadeNegocio buscarUnidadeNegocio(
+            UUID unidadeNegocioId) {
+        if (unidadeNegocioId == null) {
+            return null;
+        }
+        return unidadeNegocioRepository.findById(unidadeNegocioId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unidade de negócio não encontrada"));
+    }
+
+    private CondicaoPagamento buscarCondicaoPagamento(
+            UUID condicaoPagamentoId) {
+        if (condicaoPagamentoId == null) {
+            return null;
+        }
+        return condicaoPagamentoRepository.findById(condicaoPagamentoId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Condição de pagamento não encontrada"));
+    }
+
+    private Titulo buscarTituloOrigem(UUID tituloOrigemId) {
+        if (tituloOrigemId == null) {
+            return null;
+        }
+        return repository.findById(tituloOrigemId).orElse(null);
     }
 
     private void processarSetores(Titulo entity, TituloDTO dto) {
@@ -485,7 +498,7 @@ public class TituloServiceImpl
     }
 
     @Override
-    public List<PlanoContasDTO> listarPlanosDisponiveis(java.util.UUID unidadeNegocioId) {
+    public List<PlanoContasDTO> listarPlanosDisponiveis(UUID unidadeNegocioId) {
         return planoContasRepository.findByAtivoTrueAndUnidadeNegocioId(unidadeNegocioId).stream()
                 .map(
                         plano -> PlanoContasDTO.builder()

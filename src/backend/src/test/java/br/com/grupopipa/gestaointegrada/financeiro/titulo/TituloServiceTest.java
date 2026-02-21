@@ -74,6 +74,18 @@ class TituloServiceTest {
     private TituloDTO dto;
     private Titulo entity;
 
+    private static void setEntityId(Object entity, UUID id) {
+        try {
+            java.lang.reflect.Field idField =
+                    br.com.grupopipa.gestaointegrada.core.entity.BaseEntity.class
+                            .getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(entity, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao setar ID", e);
+        }
+    }
+
     @BeforeEach
     void setUp() {
         // Setup unidade de negócio
@@ -82,12 +94,18 @@ class TituloServiceTest {
                 .nome("Unidade Teste")
                 .cnpj("11222333000181")
                 .build();
+        setEntityId(unidadeNegocio, UUID.randomUUID());
 
         // Setup centro de custo
-        centroCusto = new CentroCusto.Builder().nome("Centro Custo Teste").unidadeNegocio(unidadeNegocio).build();
+        centroCusto = new CentroCusto.Builder()
+                .nome("Centro Custo Teste")
+                .unidadeNegocio(unidadeNegocio).build();
 
         // Setup setor
-        setor = new Setor.Builder().nome("Setor Teste").centroCusto(centroCusto).build();
+        setor = new Setor.Builder()
+                .nome("Setor Teste")
+                .centroCusto(centroCusto).build();
+        setEntityId(setor, UUID.randomUUID());
 
         // Setup pessoa
         pessoa = new Pessoa.Builder()
@@ -107,6 +125,7 @@ class TituloServiceTest {
                 .tipo(
                         br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum.DESPESA)
                 .build();
+        setEntityId(tituloCategoria, UUID.randomUUID());
 
         // Setup DTO with setores
         TituloSetorDTO setorDTO = TituloSetorDTO.builder()
@@ -140,6 +159,7 @@ class TituloServiceTest {
                 .dataVencimento(LocalDate.now().plusDays(30))
                 .rateioAutomatico(false)
                 .build();
+        setEntityId(entity, UUID.randomUUID());
 
         // Add setor to entity
         entity.adicionarSetor(setor, BigDecimal.valueOf(100.00));
@@ -209,6 +229,8 @@ class TituloServiceTest {
 
         dto.setDescricao("Descrição atualizada");
         dto.setDataVencimento(LocalDate.now().plusDays(45));
+        when(unidadeNegocioRepository.findById(unidadeNegocio.getId()))
+                .thenReturn(Optional.of(unidadeNegocio));
         when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
 
         // When
@@ -244,9 +266,11 @@ class TituloServiceTest {
         when(pessoaRepository.findById(dto.getPessoaId())).thenReturn(Optional.of(pessoa));
         when(tituloCategoriaRepository.findById(dto.getTituloCategoriaId()))
                 .thenReturn(Optional.of(tituloCategoria));
-        when(unidadeNegocioRepository.findById(any())).thenReturn(Optional.of(unidadeNegocio));
+        when(unidadeNegocioRepository.findById(unidadeNegocio.getId()))
+                .thenReturn(Optional.of(unidadeNegocio));
         when(setorRepository.findById(setor.getId())).thenReturn(Optional.of(setor));
         when(repository.save(any(Titulo.class))).thenReturn(entity);
+        when(repository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
         // When
         TituloDTO resultado = service.save(dto);
