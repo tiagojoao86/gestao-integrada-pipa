@@ -30,7 +30,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -124,8 +123,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @JoinColumn(name = "condicao_pagamento_id", foreignKey = @ForeignKey(name = "fk_titulo_condicao_pagamento"))
     private CondicaoPagamento condicaoPagamento;
 
-    @ManyToMany(mappedBy = "titulos")
-    private Set<MovimentacaoFinanceira> movimentacoes = new HashSet<>();
+    @OneToMany(mappedBy = "titulo")
+    private Set<MovimentacaoFinanceiraTitulo> movimentacoes = new HashSet<>();
 
     @OneToMany(mappedBy = "titulo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TituloSetor> setores = new HashSet<>();
@@ -304,10 +303,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             return Money.zero();
         }
         return movimentacoes.stream()
-                .filter(
-                        m -> m.getDeleted() == null
-                                || !m.getDeleted()) // Filtrar apenas movimentações não deletadas
-                .map(MovimentacaoFinanceira::getValor)
+                .filter(mt -> !mt.getMovimentacaoFinanceira().isDeleted())
+                .map(MovimentacaoFinanceiraTitulo::getValor)
                 .reduce(Money.zero(), Money::add);
     }
 
@@ -687,7 +684,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         this.condicaoPagamento = condicaoPagamento;
     }
 
-    public Set<MovimentacaoFinanceira> getMovimentacoes() {
+    public Set<MovimentacaoFinanceiraTitulo> getMovimentacoes() {
         return movimentacoes;
     }
 

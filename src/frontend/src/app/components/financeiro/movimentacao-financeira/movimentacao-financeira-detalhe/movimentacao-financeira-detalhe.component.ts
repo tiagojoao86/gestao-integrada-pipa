@@ -8,8 +8,7 @@ import {
   Output,
   LOCALE_ID,
 } from '@angular/core';
-import { Subject, forkJoin } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { BaseComponent } from '../../../base/base.component';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
 import { TituloService } from '../../titulo/titulo.service';
@@ -151,6 +150,7 @@ export class MovimentacaoFinanceiraDetalheComponent
           if (index != -1) {
             this.selectedTitulos.splice(index, 1);
             this.form.get('titulos')?.setValue([...this.selectedTitulos]);
+            this.recalcularValorMovimentacao();
           }
         },
       },
@@ -168,7 +168,7 @@ export class MovimentacaoFinanceiraDetalheComponent
       },
       {
         name: 'valor',
-        label: $localize`Valor`,
+        label: $localize`Saldo`,
         getValue: (rowData: MovimentacaoTituloDTO) => {
           const currency = LocaleUtils.getCurrencyForLocale(this.locale);
           return this.currencyPipe.transform(rowData.valor, currency, 'symbol');
@@ -252,9 +252,10 @@ export class MovimentacaoFinanceiraDetalheComponent
     }
     if (this.titulosIniciais.length > 0) {
       this.selectedTitulos = this.titulosIniciais.map(
-        (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valorOriginal)
+        (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.saldo)
       );
       this.form.get('titulos')?.setValue(this.selectedTitulos);
+      this.recalcularValorMovimentacao();
     }
   }
 
@@ -263,35 +264,12 @@ export class MovimentacaoFinanceiraDetalheComponent
     this.service.findById(String(this.id)).subscribe((response) => {
       this.movimentacao = response.body!;
       this.fillForm();
-      // If there are existing títulos, extract ids and fetch them to populate selection
-      if (
-        this.movimentacao &&
-        this.movimentacao.titulos &&
-        this.movimentacao.titulos.length > 0
-      ) {
-        const ids = this.movimentacao.titulos
-          .map((t: string | MovimentacaoTituloDTO) =>
-            typeof t === 'string' ? t : t.id
-          )
-          .filter((id) => !!id);
-        const calls = ids.map((id) =>
-          this.tituloService.findById(id as string).pipe(map((r) => r.body))
+      // Populate selectedTitulos from movimentacao DTO (includes valor por título)
+      if (this.movimentacao?.titulos?.length > 0) {
+        this.selectedTitulos = this.movimentacao.titulos.map(
+          (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valor)
         );
-        if (calls.length > 0) {
-          forkJoin(calls)
-            .pipe(take(1))
-            .subscribe((arr) => {
-              this.selectedTitulos = arr.map(
-                (it) =>
-                  new MovimentacaoTituloDTO(
-                    it?.id,
-                    it?.descricao,
-                    it?.valorOriginal
-                  )
-              );
-              this.form.get('titulos')?.setValue(this.selectedTitulos);
-            });
-        }
+        this.form.get('titulos')?.setValue(this.selectedTitulos);
       }
     });
   }
@@ -397,7 +375,27 @@ export class MovimentacaoFinanceiraDetalheComponent
       return false;
     }
 
+    const somaValoresTitulos = this.selectedTitulos.reduce(
+      (sum, t) => sum + (t.valor || 0),
+      0
+    );
+    const valorMovimentacao = this.form.value.valor || 0;
+    if (Math.abs(valorMovimentacao - somaValoresTitulos) > 0.005) {
+      this.messages.erro(
+        $localize`O valor da movimentação deve ser igual à soma dos saldos dos títulos selecionados.`
+      );
+      return false;
+    }
+
     return true;
+  }
+
+  recalcularValorMovimentacao(): void {
+    const soma = this.selectedTitulos.reduce(
+      (sum, t) => sum + (t.valor || 0),
+      0
+    );
+    this.form.get('valor')?.setValue(soma > 0 ? soma : null);
   }
 
   buildTitulosToSend(): MovimentacaoTituloDTO[] {
@@ -454,9 +452,10 @@ export class MovimentacaoFinanceiraDetalheComponent
           this.selectedTitulos.push({
             id: result.entity.id,
             descricao: result.entity.descricao,
-            valor: result.entity.valorOriginal,
+            valor: result.entity.saldo,
           });
           this.form.get('titulos')?.setValue([...this.selectedTitulos]);
+          this.recalcularValorMovimentacao();
         } else {
           this.dialogService
             .showOk(

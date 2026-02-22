@@ -87,11 +87,12 @@ public class MovimentacaoFinanceiraServiceImpl extends
 
     @Override
     protected MovimentacaoFinanceiraDTO buildDTOFromEntity(MovimentacaoFinanceira entity) {
-        List<MovimentacaoTituloDTO> titulos = entity.getTitulos().stream()
+        List<MovimentacaoTituloDTO> titulos = entity.getTitulosAssociados().stream()
                 .map(
-                        t -> MovimentacaoTituloDTO.builder()
-                                .id(t.getId())
-                                .descricao(t.getDescricao())
+                        mt -> MovimentacaoTituloDTO.builder()
+                                .id(mt.getTitulo().getId())
+                                .descricao(mt.getTitulo().getDescricao())
+                                .valor(mt.getValor().getValue())
                                 .build())
                 .toList();
         return MovimentacaoFinanceiraDTO.builder()

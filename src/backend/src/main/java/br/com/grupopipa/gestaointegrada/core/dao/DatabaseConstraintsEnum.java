@@ -98,7 +98,8 @@ public enum DatabaseConstraintsEnum {
     FK_MOVIMENTACAO_TITULO("Título inválido."),
     FK_MOVIMENTACAO_CONTA("Conta bancária inválida."),
     FK_MOVIMENTACAO_TITULO_MOV("Título inválido."),
-    FK_MOVIMENTACAO_TITULO_TIT("Título inválido.");
+    FK_MOVIMENTACAO_TITULO_TIT("Título inválido."),
+    UK_MOVIMENTACAO_FINANCEIRA_TITULO("Este título já está associado a esta movimentação.");
 
     private final String message;
 

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
@@ -17,6 +18,7 @@ import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -26,20 +28,17 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
  * Entidade para MovimentacaoFinanceira - representa o dinheiro real no
- * caixa/banco (regime de
- * caixa)
+ * caixa/banco (regime de caixa)
  */
 @Entity
 @Table(name = "movimentacao_financeira", indexes = {
     @Index(name = "idx_movimentacao_data", columnList = "data"),
-    @Index(name = "idx_movimentacao_titulo", columnList = "titulo_id"),
     @Index(name = "idx_movimentacao_conta", columnList = "conta_bancaria_id")
 })
 public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocioFiltravel {
@@ -48,12 +47,9 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         foreignKey = @ForeignKey(name = "fk_movimentacao_unidade_negocio"))
     private UnidadeNegocio unidadeNegocio;
 
-    @ManyToMany
-    @JoinTable(name = "movimentacao_financeira_titulo", joinColumns = @JoinColumn(name = "movimentacao_financeira_id",
-        foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_mov")),
-        inverseJoinColumns = @JoinColumn(name = "titulo_id",
-        foreignKey = @ForeignKey(name = "fk_movimentacao_titulo_tit")))
-    private Set<Titulo> titulos = new HashSet<>();
+    @OneToMany(mappedBy = "movimentacaoFinanceira",
+        cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<MovimentacaoFinanceiraTitulo> titulosAssociados = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conta_bancaria_id", nullable = false, foreignKey = @ForeignKey(name = "fk_movimentacao_conta"))
@@ -85,23 +81,22 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
             Money valor,
             LocalDate data,
             UnidadeNegocio unidadeNegocio) {
-        this.titulos = titulos;
+        this.titulosAssociados = new HashSet<>();
         this.contaBancaria = contaBancaria;
         this.tipo = tipo;
         this.formaPagamento = formaPagamento;
         this.valor = valor;
         this.data = data;
         this.unidadeNegocio = unidadeNegocio;
-        // Sincronizar relacionamento bidirecional: adicionar esta movimentação ao Set
-        // de movimentações
-        // de cada título
-        // Isso garante que getValorPago() em Titulo consiga calcular corretamente
+        // Para cada título, registrar pagamento com o saldo exato do título
         if (titulos != null) {
-            titulos.forEach(
-                    t -> {
-                        t.getMovimentacoes().add(this);
-                        t.registrarPagamento(valor); // Atualiza o status do título
-                    });
+            titulos.forEach(t -> {
+                Money saldo = t.calcularSaldo();
+                MovimentacaoFinanceiraTitulo mt = MovimentacaoFinanceiraTitulo.create(this, t, saldo);
+                this.titulosAssociados.add(mt);
+                t.getMovimentacoes().add(mt);
+                t.registrarPagamento(saldo);
+            });
         }
     }
 
@@ -164,7 +159,19 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
 
         // Validar regras de negócio para cada título
-        if (titulos != null && money != null) {
+        if (titulos != null && !titulos.isEmpty() && money != null) {
+            // Validar que o valor total da movimentação é igual à soma dos saldos dos títulos
+            Money somaSaldos = titulos.stream()
+                    .map(Titulo::calcularSaldo)
+                    .reduce(Money.zero(), Money::add);
+
+            if (!money.equals(somaSaldos)) {
+                violations.add(new BeanValidationMessage(
+                        "validation.movimentacao.valorDivergente",
+                        "Valor da movimentação (" + money + ") deve ser igual à soma dos saldos "
+                                + "dos títulos selecionados (" + somaSaldos + ")."));
+            }
+
             for (Titulo titulo : titulos) {
                 if (!titulo.getStatus().permiteMovimentacao()) {
                     violations.add(new BeanValidationMessage(
@@ -180,22 +187,10 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
                                     + "Utilize as parcelas."));
                 }
 
-                Money valorTotal = titulo
-                        .getValorOriginal()
-                        .add(titulo.getValorJuros())
-                        .add(titulo.getValorMulta())
-                        .subtract(titulo.getValorDesconto());
-
-                Money valorPagoAtual = titulo.getValorPago();
-                Money valorPagoAposMovimentacao = valorPagoAtual.add(money);
-
-                if (valorPagoAposMovimentacao.isGreaterThan(valorTotal)) {
+                if (!titulo.calcularSaldo().isPositive()) {
                     violations.add(new BeanValidationMessage(
-                            "validation.movimentacao.valorUltrapassaTotal",
-                            "Valor pago após a movimentação (" + valorPagoAposMovimentacao
-                                    + ") ultrapassaria o valor total do título (" + valorTotal
-                                    + "). Valor já pago: " + valorPagoAtual
-                                    + ", valor da movimentação: " + money + "."));
+                            "validation.movimentacao.tituloSemSaldo",
+                            "Título '" + titulo.getDescricao() + "' não possui saldo para pagamento."));
                 }
             }
         }
@@ -238,8 +233,20 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
     }
 
     // Getters
+
+    /** Retorna os títulos associados com seus valores de pagamento */
+    public Set<MovimentacaoFinanceiraTitulo> getTitulosAssociados() {
+        return titulosAssociados;
+    }
+
+    /** Retorna apenas os títulos (sem o valor por título) */
     public Set<Titulo> getTitulos() {
-        return titulos;
+        if (titulosAssociados == null) {
+            return new HashSet<>();
+        }
+        return titulosAssociados.stream()
+                .map(MovimentacaoFinanceiraTitulo::getTitulo)
+                .collect(Collectors.toSet());
     }
 
     public ContaBancaria getContaBancaria() {
@@ -278,14 +285,13 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
             return false;
         }
         MovimentacaoFinanceira that = (MovimentacaoFinanceira) o;
-        return Objects.equals(titulos, that.titulos)
-                && Objects.equals(data, that.data)
+        return Objects.equals(data, that.data)
                 && Objects.equals(valor, that.valor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), titulos, data, valor);
+        return Objects.hash(super.hashCode(), data, valor);
     }
 
     public static class Builder {
