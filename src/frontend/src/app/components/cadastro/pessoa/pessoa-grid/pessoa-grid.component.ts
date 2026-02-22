@@ -6,6 +6,8 @@ import { Order, PageRequest } from '../../../base/model/page-request';
 import { PessoaGridDTO } from '../model/pessoa-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
@@ -146,6 +148,7 @@ export class PessoaGridComponent {
   private service: PessoaService = inject(PessoaService);
   private datePipe: DatePipe = inject(DatePipe);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -167,7 +170,16 @@ export class PessoaGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: PessoaGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listPessoas());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listPessoas());
+              }
+            });
         },
       });
     }

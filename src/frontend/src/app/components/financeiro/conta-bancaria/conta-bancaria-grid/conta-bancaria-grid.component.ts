@@ -5,6 +5,8 @@ import { Order, PageRequest } from '../../../base/model/page-request';
 import { ContaBancariaGridDTO } from '../model/conta-bancaria-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
@@ -145,6 +147,7 @@ export class ContaBancariaGridComponent {
   private service: ContaBancariaService = inject(ContaBancariaService);
   private datePipe: DatePipe = inject(DatePipe);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -171,7 +174,16 @@ export class ContaBancariaGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: ContaBancariaGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarContas());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarContas());
+              }
+            });
         },
       });
     }

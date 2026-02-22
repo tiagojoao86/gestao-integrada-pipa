@@ -5,6 +5,8 @@ import { Order, PageRequest } from '../../../base/model/page-request';
 import { UnidadeNegocioGridDTO } from '../model/unidade-negocio-grid-dto';
 
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { FilterDTO, FilterLogicOperator } from '../../../base/model/filter-dto';
 
 import { TableComponent } from '../../../base/table/table.component';
@@ -125,6 +127,7 @@ export class UnidadeNegocioGridComponent {
   private service: UnidadeNegocioService = inject(UnidadeNegocioService);
   private datePipe: DatePipe = inject(DatePipe);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -278,9 +281,18 @@ export class UnidadeNegocioGridComponent {
   }
 
   excluir(element: UnidadeNegocioGridDTO) {
-    this.service.delete(element.id).subscribe(() => {
-      this.listarUnidades();
-    });
+    this.dialogService
+      .showYesNo(
+        $localize`Confirmar Exclusão`,
+        $localize`Deseja realmente excluir o registro selecionado?`
+      )
+      .subscribe((result) => {
+        if (result === DialogResult.YES) {
+          this.service.delete(element.id).subscribe(() => {
+            this.listarUnidades();
+          });
+        }
+      });
   }
 
   refreshList() {

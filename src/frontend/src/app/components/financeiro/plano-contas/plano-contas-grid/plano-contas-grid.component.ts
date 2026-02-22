@@ -5,6 +5,8 @@ import { PlanoContasGridDTO } from '../model/plano-contas-grid-dto';
 import { PlanoContasService } from '../plano-contas.service';
 
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
@@ -53,6 +55,7 @@ export class PlanoContasGridComponent {
 
   authService = inject(AuthService);
   service = inject(PlanoContasService);
+  dialogService = inject(DialogService);
 
   columns: ColumnModel<PlanoContasGridDTO>[] = [
     {
@@ -189,9 +192,16 @@ export class PlanoContasGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: PlanoContasGridDTO) => {
-          this.service
-            .delete(element.id)
-            .subscribe(() => this.listarPlanoContas());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarPlanoContas());
+              }
+            });
         },
       });
     }

@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { MovimentacaoFinanceiraGridDTO } from '../model/movimentacao-financeira-grid.dto';
 import { MovimentacaoFinanceiraService } from '../movimentacao-financeira.service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { BaseComponent } from '../../../base/base.component';
 import { TableComponent } from '../../../base/table/table.component';
 import { PaginationComponent } from '../../../base/pagination/pagination.component';
@@ -118,6 +120,7 @@ export class MovimentacaoFinanceiraGridComponent {
   private currencyPipe: CurrencyPipe = inject(CurrencyPipe);
   private auth: AuthService = inject(AuthService);
   private locale: string = inject(LOCALE_ID);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     // configurar ações da tabela/toolbar
@@ -140,10 +143,18 @@ export class MovimentacaoFinanceiraGridComponent {
       this.tableActions.push({
         icon: 'delete',
         title: $localize`Excluir`,
-        action: (element: MovimentacaoFinanceiraGridDTO) =>
-          this.service
-            .delete(element.id)
-            .subscribe(() => this.listarMovimentacoes()),
+        action: (element: MovimentacaoFinanceiraGridDTO) => {
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarMovimentacoes());
+              }
+            });
+        },
       });
     }
 

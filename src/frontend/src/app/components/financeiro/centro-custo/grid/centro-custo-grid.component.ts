@@ -4,6 +4,8 @@ import { CentroCustoService } from '../centro-custo.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { CentroCustoGridDTO } from '../model/centro-custo-grid-dto';
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
@@ -90,6 +92,7 @@ export class CentroCustoGridComponent {
 
   private service: CentroCustoService = inject(CentroCustoService);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -116,7 +119,16 @@ export class CentroCustoGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: CentroCustoGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarCentros());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarCentros());
+              }
+            });
         },
       });
     }

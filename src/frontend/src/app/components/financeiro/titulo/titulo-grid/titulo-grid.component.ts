@@ -8,6 +8,8 @@ import {
 import { MessageService } from '../../../base/messages/messages.service';
 import { BaseComponent } from '../../../base/base.component';
 import { TituloService } from '../titulo.service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { TituloGridDTO } from '../model/titulo-grid-dto';
 import { DatePipe, CurrencyPipe } from '@angular/common';
@@ -214,6 +216,7 @@ export class TituloGridComponent {
   private auth: AuthService = inject(AuthService);
   private locale: string = inject(LOCALE_ID);
   private messages: MessageService = inject(MessageService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -236,7 +239,16 @@ export class TituloGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: TituloGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarTitulos());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarTitulos());
+              }
+            });
         },
       });
     }

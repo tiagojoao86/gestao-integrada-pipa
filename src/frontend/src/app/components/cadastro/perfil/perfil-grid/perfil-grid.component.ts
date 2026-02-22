@@ -5,6 +5,8 @@ import { Order, PageRequest } from '../../../base/model/page-request';
 import { PerfilGridDTO } from '../model/perfil-grid-dto';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { PaginationComponent } from '../../../base/pagination/pagination.component';
 import {
@@ -96,6 +98,7 @@ export class PerfilGridComponent {
   private service: PerfilService = inject(PerfilService);
   private datePipe: DatePipe = inject(DatePipe);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -117,7 +120,16 @@ export class PerfilGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: PerfilGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listPerfis());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listPerfis());
+              }
+            });
         },
       });
     }

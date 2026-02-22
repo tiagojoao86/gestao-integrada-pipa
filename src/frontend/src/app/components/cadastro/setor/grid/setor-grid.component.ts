@@ -4,6 +4,8 @@ import { SetorService } from '../setor.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { SetorGridDTO } from '../model/setor-grid-dto';
 import { AuthService } from '../../../base/auth/auth-service';
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
 import { TableComponent } from '../../../base/table/table.component';
 import { ColumnModel } from '../../../base/table/column.model';
 import { ActionModel } from '../../../base/table/action.model';
@@ -89,6 +91,7 @@ export class SetorGridComponent {
 
   private service: SetorService = inject(SetorService);
   private auth: AuthService = inject(AuthService);
+  private dialogService: DialogService = inject(DialogService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -114,7 +117,16 @@ export class SetorGridComponent {
         icon: 'delete',
         title: $localize`Excluir`,
         action: (element: SetorGridDTO) => {
-          this.service.delete(element.id).subscribe(() => this.listarSetores());
+          this.dialogService
+            .showYesNo(
+              $localize`Confirmar Exclusão`,
+              $localize`Deseja realmente excluir o registro selecionado?`
+            )
+            .subscribe((result) => {
+              if (result === DialogResult.YES) {
+                this.service.delete(element.id).subscribe(() => this.listarSetores());
+              }
+            });
         },
       });
     }
