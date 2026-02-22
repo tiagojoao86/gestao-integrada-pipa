@@ -27,9 +27,11 @@ import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CondicaoPagamento;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceiraTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacao.MovimentacaoFinanceiraService;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaDTO;
@@ -50,6 +52,7 @@ public class TituloServiceImpl
     private final SetorRepository setorRepository;
     private final TituloCategoriaRepository tituloCategoriaRepository;
     private final CondicaoPagamentoRepository condicaoPagamentoRepository;
+    private final MovimentacaoFinanceiraService movimentacaoFinanceiraService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -63,7 +66,8 @@ public class TituloServiceImpl
             UnidadeNegocioService unidadeNegocioService,
             SetorRepository setorRepository,
             TituloCategoriaRepository tituloCategoriaRepository,
-            CondicaoPagamentoRepository condicaoPagamentoRepository) {
+            CondicaoPagamentoRepository condicaoPagamentoRepository,
+            MovimentacaoFinanceiraService movimentacaoFinanceiraService) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
@@ -72,6 +76,24 @@ public class TituloServiceImpl
         this.setorRepository = setorRepository;
         this.tituloCategoriaRepository = tituloCategoriaRepository;
         this.condicaoPagamentoRepository = condicaoPagamentoRepository;
+        this.movimentacaoFinanceiraService = movimentacaoFinanceiraService;
+    }
+
+    /**
+     * Sobrescreve delete para excluir as movimentações financeiras associadas
+     * ao título antes de fazer o soft delete do próprio título.
+     */
+    @Override
+    @Transactional
+    public UUID delete(UUID id) {
+        Titulo titulo = this.findEntityById(id);
+
+        titulo.getMovimentacoes().stream()
+                .map(MovimentacaoFinanceiraTitulo::getMovimentacaoFinanceira)
+                .filter(m -> !m.isDeleted())
+                .forEach(m -> movimentacaoFinanceiraService.delete(m.getId()));
+
+        return super.delete(id);
     }
 
     @Override
