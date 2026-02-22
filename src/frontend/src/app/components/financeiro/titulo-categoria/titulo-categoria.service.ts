@@ -6,7 +6,6 @@ import { TituloCategoriaDTO } from './model/titulo-categoria.dto';
 import { TituloCategoriaGridDTO } from './model/titulo-categoria-grid.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
-import { TituloCategoriaBackendMessageService } from './titulo-categoria-backend-message.service';
 import { BaseService } from '../../base/base-service';
 
 @Injectable()
@@ -17,11 +16,7 @@ export class TituloCategoriaService extends BaseService<
   private static readonly DOMINIO = 'titulo-categoria';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(TituloCategoriaBackendMessageService)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   protected override convertToDto(body: unknown): TituloCategoriaDTO {

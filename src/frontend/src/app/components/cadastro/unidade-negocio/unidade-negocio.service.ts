@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { UnidadeNegocioDTO } from './model/unidade-negocio-dto';
 import { UnidadeNegocioGridDTO } from './model/unidade-negocio-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { UnidadeNegocioBackendMessages } from './unidade-negocio-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { plainToInstance } from 'class-transformer';
 
@@ -17,11 +16,7 @@ export class UnidadeNegocioService extends BaseService<
   private static readonly UNIDADE_NEGOCIO = 'unidade-negocio';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(UnidadeNegocioBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

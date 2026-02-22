@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { TituloDTO } from './model/titulo-dto';
 import { TituloGridDTO } from './model/titulo-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { TituloBackendMessages } from './titulo-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { plainToInstance, instanceToPlain, instanceToInstance } from 'class-transformer';
 
@@ -14,11 +13,7 @@ export class TituloService extends BaseService<TituloDTO, TituloGridDTO> {
   private static readonly TITULO = 'titulo';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(TituloBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {
