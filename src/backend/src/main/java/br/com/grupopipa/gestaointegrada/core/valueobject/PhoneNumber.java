@@ -24,14 +24,14 @@ public class PhoneNumber implements Serializable {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (value == null || value.isBlank()) {
-            violations.add(new BeanValidationMessage("telefone", "Telefone não pode ser vazio"));
+            violations.add(new BeanValidationMessage("telefone", "O campo 'telefone' é obrigatório."));
             throw new BeanValidationException(violations);
         }
 
         String numeros = value.replaceAll("[^0-9]", "");
 
         if (numeros.length() < 10 || numeros.length() > 11) {
-            violations.add(new BeanValidationMessage("telefone", "Telefone deve ter 10 ou 11 dígitos"));
+            violations.add(new BeanValidationMessage("telefone", "Telefone deve ter 10 ou 11 dígitos."));
             throw new BeanValidationException(violations);
         }
 

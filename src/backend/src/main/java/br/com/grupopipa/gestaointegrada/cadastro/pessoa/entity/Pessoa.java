@@ -116,16 +116,8 @@ public class Pessoa extends BaseEntity {
         }
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-
-        Email email = null;
-        if (emailStr != null && !emailStr.isBlank()) {
-            email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-        }
-
-        PhoneNumber telefone = null;
-        if (telefoneStr != null && !telefoneStr.isBlank()) {
-            telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
-        }
+        Email email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
+        PhoneNumber telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
 
         CPF cpf = null;
         CNPJ cnpj = null;
@@ -216,10 +208,17 @@ public class Pessoa extends BaseEntity {
             String inscricaoEstadualStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Validar e criar ValueObjects
         Nome nomeValidado = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
         Email emailValidado = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
         PhoneNumber telefoneValidado = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+
+        CPF cpfValidado = null;
+        CNPJ cnpjValidado = null;
+        if (this.tipoPessoa == TipoPessoa.FISICA) {
+            cpfValidado = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+        } else {
+            cnpjValidado = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+        }
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("Pessoa", violations);
@@ -230,16 +229,12 @@ public class Pessoa extends BaseEntity {
         this.telefone = telefoneValidado;
 
         if (this.tipoPessoa == TipoPessoa.FISICA) {
-            this.cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            this.cpf = cpfValidado;
             this.dataNascimento = dataNascimentoArg;
         } else {
-            this.cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+            this.cnpj = cnpjValidado;
             this.razaoSocial = razaoSocialStr;
             this.inscricaoEstadual = inscricaoEstadualStr;
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("Pessoa", violations);
         }
     }
 
