@@ -17,6 +17,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
   FormsModule,
+  Validators,
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -163,20 +164,20 @@ export class TituloDetalheComponent implements OnInit {
 
   initForm() {
     const fb = new FormBuilder().nonNullable;
-    this.form.addControl('tipo', fb.control(null));
+    this.form.addControl('tipo', fb.control(null, [Validators.required]));
     this.form.addControl('status', fb.control(null));
     this.form.addControl('numeroDocumento', fb.control(null));
-    this.form.addControl('descricao', fb.control(null));
-    this.form.addControl('tituloCategoria', fb.control(null));
-    this.form.addControl('valorOriginal', fb.control(null));
+    this.form.addControl('descricao', fb.control(null, [Validators.required, Validators.maxLength(500)]));
+    this.form.addControl('tituloCategoria', fb.control(null, [Validators.required]));
+    this.form.addControl('valorOriginal', fb.control(null, [Validators.required, Validators.min(0.01)]));
     this.form.addControl('valorDesconto', fb.control(null));
     this.form.addControl('valorJuros', fb.control(null));
     this.form.addControl('valorMulta', fb.control(null));
-    this.form.addControl('dataEmissao', fb.control(null));
-    this.form.addControl('dataVencimento', fb.control(null));
+    this.form.addControl('dataEmissao', fb.control(null, [Validators.required]));
+    this.form.addControl('dataVencimento', fb.control(null, [Validators.required]));
     this.form.addControl('dataPagamento', fb.control(null));
     this.form.addControl('observacoes', fb.control(null));
-    this.form.addControl('unidadeNegocio', fb.control(''));
+    this.form.addControl('unidadeNegocio', fb.control('', [Validators.required]));
     this.form.addControl('condicaoPagamento', fb.control(null));
     this.form.addControl('rateioAutomatico', fb.control(false));
   }
@@ -320,6 +321,7 @@ export class TituloDetalheComponent implements OnInit {
 
   salvar() {
     if (!this.form.valid) {
+      this.form.markAllAsTouched();
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }

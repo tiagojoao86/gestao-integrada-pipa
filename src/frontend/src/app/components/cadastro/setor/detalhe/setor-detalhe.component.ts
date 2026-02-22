@@ -19,6 +19,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { MessageService } from '../../../base/messages/messages.service';
 import { SetorService } from '../setor.service';
 import { SetorDTO } from '../model/setor-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
@@ -58,6 +59,7 @@ export class SetorDetalheComponent implements OnInit {
   private service = inject(SetorService);
   private centroCustoService = inject(CentroCustoService);
   private auth = inject(AuthService);
+  private messages = inject(MessageService);
 
   ngOnInit(): void {
     this.initForm();
@@ -120,6 +122,8 @@ export class SetorDetalheComponent implements OnInit {
 
   save() {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
     const dto: SetorDTO = this.form.getRawValue();

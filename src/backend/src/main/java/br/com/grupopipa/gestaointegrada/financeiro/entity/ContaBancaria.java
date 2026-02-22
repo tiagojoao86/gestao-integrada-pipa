@@ -117,6 +117,12 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
         Validator.of(tipo, "tipo da conta", violations).notNull();
         Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
+        if (tipo == TipoConta.CORRENTE || tipo == TipoConta.POUPANCA) {
+            Validator.of(banco, "banco", violations).notBlank().maxLength(100);
+            Validator.of(agencia, "agência", violations).notBlank().maxLength(10);
+            Validator.of(numeroConta, "número da conta", violations).notBlank().maxLength(20);
+        }
+
         // Validar e criar Money
         Money money = Money.zero();
         if (saldoInicial != null) {
@@ -138,6 +144,12 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Validator.of(nome, "nome da conta", violations).notBlank().maxLength(100);
+
+        if (this.isBancaria()) {
+            Validator.of(banco, "banco", violations).notBlank().maxLength(100);
+            Validator.of(agencia, "agência", violations).notBlank().maxLength(10);
+            Validator.of(numeroConta, "número da conta", violations).notBlank().maxLength(20);
+        }
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("contaBancaria", violations);

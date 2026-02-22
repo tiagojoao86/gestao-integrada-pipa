@@ -51,6 +51,9 @@
           </ng-template>
         </p-select>
         <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+        @if (isControlInvalid('unidadeNegocio')) {
+        <small i18n>Esse campo é obrigatório.</small>
+        }
       </p-iftalabel>
 
       <!-- Número Documento -->

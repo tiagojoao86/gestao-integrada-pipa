@@ -3,6 +3,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -18,10 +19,12 @@ import {
   FormGroup,
   ReactiveFormsModule,
   FormsModule,
+  Validators,
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { Subscription } from 'rxjs';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ContaBancariaDTO } from '../model/conta-bancaria-dto';
 import { AuthService } from '../../../base/auth/auth-service';
@@ -29,6 +32,8 @@ import { TipoConta } from '../model/tipo-conta.enum';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+
+const TIPOS_BANCARIOS = ['CORRENTE', 'POUPANCA'];
 
 @Component({
   selector: 'gi-conta-bancaria-detalhe',
@@ -47,7 +52,8 @@ import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuari
   styleUrl: './conta-bancaria-detalhe.component.css',
   providers: [ContaBancariaService],
 })
-export class ContaBancariaDetalheComponent implements OnInit {
+export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
+  private tipoSubscription?: Subscription;
   form: FormGroup = new FormGroup([]);
   editMode = false;
   contaBancaria: ContaBancariaDTO = {} as ContaBancariaDTO;
@@ -147,14 +153,38 @@ export class ContaBancariaDetalheComponent implements OnInit {
 
   initForm() {
     const fb = new FormBuilder().nonNullable;
-    this.form.addControl('nome', fb.control(''));
+    this.form.addControl('nome', fb.control('', [Validators.required, Validators.maxLength(100)]));
     this.form.addControl('banco', fb.control(''));
     this.form.addControl('agencia', fb.control(''));
     this.form.addControl('numeroConta', fb.control(''));
-    this.form.addControl('tipo', fb.control('CORRENTE'));
+    this.form.addControl('tipo', fb.control('CORRENTE', [Validators.required]));
     this.form.addControl('saldoInicial', fb.control(0));
     this.form.addControl('ativa', fb.control(true));
-    this.form.addControl('unidadeNegocio', fb.control(''));
+    this.form.addControl('unidadeNegocio', fb.control('', [Validators.required]));
+
+    // Aplica validators iniciais (CORRENTE é o default)
+    this.updateBankFieldValidators('CORRENTE');
+
+    // Atualiza validators quando tipo mudar
+    this.tipoSubscription = this.form.get('tipo')!.valueChanges.subscribe(
+      (tipo: string) => this.updateBankFieldValidators(tipo)
+    );
+  }
+
+  private updateBankFieldValidators(tipo: string): void {
+    const bankFields = ['banco', 'agencia', 'numeroConta'];
+    if (TIPOS_BANCARIOS.includes(tipo)) {
+      this.form.get('banco')!.setValidators([Validators.required, Validators.maxLength(100)]);
+      this.form.get('agencia')!.setValidators([Validators.required, Validators.maxLength(10)]);
+      this.form.get('numeroConta')!.setValidators([Validators.required, Validators.maxLength(20)]);
+    } else {
+      bankFields.forEach((f) => this.form.get(f)!.clearValidators());
+    }
+    bankFields.forEach((f) => this.form.get(f)!.updateValueAndValidity());
+  }
+
+  ngOnDestroy(): void {
+    this.tipoSubscription?.unsubscribe();
   }
 
   fillForm() {
@@ -176,6 +206,7 @@ export class ContaBancariaDetalheComponent implements OnInit {
 
   salvar() {
     if (!this.form.valid) {
+      this.form.markAllAsTouched();
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
