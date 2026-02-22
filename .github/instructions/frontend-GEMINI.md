@@ -1,3 +1,83 @@
+# Validação de Formulários nos Componentes de Detalhe
+
+Todo componente de detalhe deve aplicar o seguinte padrão para dar feedback ao usuário ao tentar salvar um formulário inválido:
+
+**1. Declarar validators no `initForm()`:**
+```typescript
+initForm() {
+  const fb = new FormBuilder().nonNullable;
+  // Campos obrigatórios DEVEM ter Validators.required
+  this.form.addControl('nome', fb.control('', [Validators.required, Validators.maxLength(200)]));
+  this.form.addControl('tipo', fb.control(null, [Validators.required]));
+  this.form.addControl('valor', fb.control(null, [Validators.required, Validators.min(0.01)]));
+  this.form.addControl('unidadeNegocio', fb.control('', [Validators.required]));
+  // Campos opcionais sem validators
+  this.form.addControl('observacoes', fb.control(''));
+}
+```
+
+**2. Chamar `markAllAsTouched()` + `messages.erro()` no `save()`:**
+```typescript
+save() {
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();  // ativa isControlInvalid() em todos os campos
+    this.messages.erro($localize`Existem campos inválidos.`);
+    return;
+  }
+  // ... envio para o backend
+}
+```
+
+**3. Validar listas/coleções com validator customizado:**
+```typescript
+// No initForm() — valida que o array não está vazio
+this.form.addControl('itens', fb.control([], {
+  validators: [(c) => (c.value as unknown[])?.length > 0 ? null : { required: true }],
+}));
+
+// Ao adicionar/remover itens, sincronizar o form control:
+this.itens.push(novoItem);
+this.form.get('itens')?.setValue([...this.itens]);
+```
+
+**4. Métodos de validação que bloqueiam o fluxo devem retornar `boolean`:**
+```typescript
+// CORRETO — salvar() verifica o retorno
+salvar() {
+  if (!this.validarAntesDeSalvar()) return;
+  this.populateDTOBeforeSend();
+  this.service.save(...);
+}
+
+validarAntesDeSalvar(): boolean {
+  if (!this.form.valid) {
+    this.form.markAllAsTouched();
+    this.messages.erro($localize`Existem campos inválidos.`);
+    return false;
+  }
+  return true;
+}
+
+// ERRADO — o return interno não para o fluxo do chamador
+salvar() {
+  this.validarAntesDeSalvar(); // void — não bloqueia!
+  this.service.save(...);      // sempre executado
+}
+```
+
+**5. Exibir erros no HTML com `@if (isControlInvalid(...))`:**
+```html
+<p-iftalabel>
+  <input pInputText formControlName="nome" />
+  <label>Nome</label>
+  @if (isControlInvalid('nome')) {
+    <small>Esse campo não pode ser em branco.</small>
+  }
+</p-iftalabel>
+```
+
+---
+
 # Prática Angular: Controle de Campos Desabilitados
 
 Nunca use `[disabled]` no HTML de campos com `formControlName`. Controle o estado via TypeScript:
@@ -14,12 +94,13 @@ campo: new FormControl({ value: null, disabled: true });
 
 # Auto-set de Unidade de Negócio Default
 
-Carregue a unidade default do usuário e defina no form após carregar as opções:
+Carregue a unidade default do usuário e defina no form após carregar as opções.
+`UsuarioUnidadeNegocioDTO` usa `unidadeNegocioId` (não `id`):
 
 ```typescript
 const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
 if (defaultUnidade) {
-  this.form.get("unidadeNegocio")?.setValue(defaultUnidade.id);
+  this.form.get("unidadeNegocio")?.setValue(defaultUnidade.unidadeNegocioId);
 }
 ```
 
@@ -27,19 +108,21 @@ if (defaultUnidade) {
 
 # Exemplos Reais
 
+`UsuarioUnidadeNegocioDTO` tem os campos: `unidadeNegocioId`, `unidadeNegocioNome`, `unidadeNegocioCodigo`, `isDefault`. Use os nomes corretos no template:
+
 ```html
 <p-select
   inputId="unidadeNegocio"
   [options]="allUnidadesNegocio"
   formControlName="unidadeNegocio"
-  optionLabel="codigo"
-  optionValue="id"
+  optionLabel="unidadeNegocioCodigo"
+  optionValue="unidadeNegocioId"
   [filter]="true"
-  filterBy="codigo,nome"
+  filterBy="unidadeNegocioCodigo,unidadeNegocioNome"
   [showClear]="false"
 >
   <ng-template let-item pTemplate="item">
-    <div>{{ item.codigo }} - {{ item.nome }}</div>
+    <div>{{ item.unidadeNegocioCodigo }} - {{ item.unidadeNegocioNome }}</div>
   </ng-template>
 </p-select>
 ```

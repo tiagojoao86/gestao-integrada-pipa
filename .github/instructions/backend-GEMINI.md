@@ -204,6 +204,39 @@ public class Pessoa extends BaseEntity {
 - Imutabilidade por design
 - Menos bugs de validação
 
+### Validação de Entidades — Padrão Obrigatório
+
+Use a API fluente `Validator.of()` para todas as validações de campos. Para Value Objects, use `ValidationUtils.validateAndGet()` para acumular erros sem interromper na primeira falha.
+
+```java
+private static ValidatedData validate(String nomeStr, String descricao, UnidadeNegocio un) {
+    Set<BeanValidationMessage> violations = new HashSet<>();
+
+    // Primitivos/objetos: Validator fluente
+    Validator.of(descricao, "descrição", violations).notBlank().maxLength(500);
+    Validator.of(un, "unidade de negócio", violations).notNull();
+
+    // Value Objects: sempre via factory method + ValidationUtils
+    Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
+
+    // Regras de negócio específicas: BeanValidationMessage com chave registrada em messages.properties
+    if (dataVenc != null && dataVenc.isBefore(dataEmissao)) {
+        violations.add(new BeanValidationMessage(
+            "validation.titulo.dataVencimentoInvalida",
+            "Data de vencimento não pode ser anterior à data de emissão."));
+    }
+
+    if (!violations.isEmpty()) {
+        throw new BeanValidationException("entidade", violations);
+    }
+    return new ValidatedData(nome, descricao, un);
+}
+```
+
+**Chaves geradas pelo `Validator.of()`:** `validation.field.required`, `validation.field.notBlank`, `validation.field.maxLength`
+**Resolvidas por:** `RestExceptionHandler` via Spring `MessageSource` → `messages.properties` (PT) / `messages_en.properties` (EN)
+**NÃO usar:** `new BeanValidationMessage("campo", "mensagem hardcoded")` para validações padrão.
+
 ### Domain-Driven Design (DDD)
 
 - **PRIORIZE o uso de DDD** para modelar o domínio rico.
