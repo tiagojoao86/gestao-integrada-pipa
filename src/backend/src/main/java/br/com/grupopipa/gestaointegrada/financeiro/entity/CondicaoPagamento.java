@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -85,16 +86,12 @@ public class CondicaoPagamento extends BaseEntity {
             Boolean ativo) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (descricaoStr != null && descricaoStr.length() > 400) {
-            violations.add(
-                    new BeanValidationMessage("descricao.maxLength", "Descrição deve ter no máximo 400 caracteres"));
-        }
+        Validator.of(descricaoStr, "descrição", violations).maxLength(400);
 
-        if (condicao == null || condicao.trim().isEmpty()) {
-            violations.add(new BeanValidationMessage("condicao.notBlank", "Condição de pagamento é obrigatória"));
+        if (condicao == null || condicao.isBlank()) {
+            Validator.of(condicao, "condição de pagamento", violations).notBlank();
         } else {
-            String trimmed = condicao.trim();
-            validateCondicaoFormat(trimmed, violations);
+            validateCondicaoFormat(condicao.trim(), violations);
         }
 
         if (!violations.isEmpty()) {
@@ -112,9 +109,9 @@ public class CondicaoPagamento extends BaseEntity {
         if (matcherNx.matches()) {
             int n = Integer.parseInt(matcherNx.group(1));
             if (n <= 0) {
-                violations.add(
-                        new BeanValidationMessage(
-                                "condicao.invalid", "Número de parcelas deve ser maior que zero"));
+                violations.add(new BeanValidationMessage(
+                        "validation.condicaoPagamento.parcelasZero",
+                        "Número de parcelas deve ser maior que zero."));
             }
             return;
         }
@@ -126,15 +123,15 @@ public class CondicaoPagamento extends BaseEntity {
             for (String part : parts) {
                 int dias = Integer.parseInt(part);
                 if (dias <= 0) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "condicao.invalid", "Dias de vencimento devem ser maiores que zero"));
+                    violations.add(new BeanValidationMessage(
+                            "validation.condicaoPagamento.diasZero",
+                            "Dias de vencimento devem ser maiores que zero."));
                     return;
                 }
                 if (dias <= anterior) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "condicao.invalid", "Dias de vencimento devem estar em ordem crescente"));
+                    violations.add(new BeanValidationMessage(
+                            "validation.condicaoPagamento.diasOrdem",
+                            "Dias de vencimento devem estar em ordem crescente."));
                     return;
                 }
                 anterior = dias;
@@ -142,10 +139,9 @@ public class CondicaoPagamento extends BaseEntity {
             return;
         }
 
-        violations.add(
-                new BeanValidationMessage(
-                        "condicao.invalid",
-                        "Formato de condição inválido. Use 'Nx' (ex: 3x) ou 'dias/dias/dias' (ex: 10/20/40)"));
+        violations.add(new BeanValidationMessage(
+                "validation.condicaoPagamento.formatoInvalido",
+                "Formato de condição inválido. Use 'Nx' (ex: 3x) ou 'dias/dias/dias' (ex: 10/20/40)."));
     }
 
     public void atualizar(

@@ -11,6 +11,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -102,33 +103,16 @@ public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
             UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (codigo == null || codigo.isBlank()) {
-            violations.add(new BeanValidationMessage("codigo", "Código é obrigatório"));
-        } else if (codigo.length() > 20) {
-            violations.add(
-                    new BeanValidationMessage("codigo", "Código deve ter no máximo 20 caracteres"));
-        }
-
-        if (descricao == null || descricao.isBlank()) {
-            violations.add(new BeanValidationMessage("descricao", "Descrição é obrigatória"));
-        } else if (descricao.length() > 200) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 200 caracteres"));
-        }
-
-        if (tipo == null) {
-            violations.add(new BeanValidationMessage("tipo", "Tipo é obrigatório"));
-        }
-
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
-        }
+        Validator.of(codigo, "código", violations).notBlank().maxLength(20);
+        Validator.of(descricao, "descrição", violations).notBlank().maxLength(200);
+        Validator.of(tipo, "tipo", violations).notNull();
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
         // Validar plano pai
-        if (planoPai != null && !planoPai.getTipo().equals(tipo)) {
-            violations.add(
-                    new BeanValidationMessage("planoPai", "Plano pai deve ser do mesmo tipo: " + tipo));
+        if (planoPai != null && tipo != null && !planoPai.getTipo().equals(tipo)) {
+            violations.add(new BeanValidationMessage(
+                    "validation.planoContas.tipoPaiDiferente",
+                    "Plano pai deve ser do mesmo tipo: " + tipo));
         }
         // Nota: Validação de auto-referência não é possível aqui pois o objeto ainda
         // não foi criado
@@ -144,12 +128,7 @@ public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
     public void atualizar(String descricao) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (descricao == null || descricao.isBlank()) {
-            violations.add(new BeanValidationMessage("descricao", "Descrição é obrigatória"));
-        } else if (descricao.length() > 200) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 200 caracteres"));
-        }
+        Validator.of(descricao, "descrição", violations).notBlank().maxLength(200);
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("planoContas", violations);
@@ -161,10 +140,7 @@ public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
     public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
-        }
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("planoContas", violations);
