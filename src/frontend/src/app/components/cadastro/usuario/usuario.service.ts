@@ -6,7 +6,6 @@ import { UsuarioDTO } from './model/usuario-dto';
 import { UnidadeNegocioDTO } from '../unidade-negocio/model/unidade-negocio-dto';
 import { PerfilParaVinculoDTO } from '../perfil/model/perfil-para-vinculo-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { UsuarioBackendMessages } from './usuario-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { UsuarioGridDTO } from './model/usuario-grid-dto';
 import { plainToInstance } from 'class-transformer';
@@ -16,11 +15,7 @@ export class UsuarioService extends BaseService<UsuarioDTO, UsuarioGridDTO> {
   private static readonly USUARIO = 'usuario';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(UsuarioBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

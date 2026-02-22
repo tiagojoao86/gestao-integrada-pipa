@@ -4,7 +4,6 @@ import { CondicaoPagamentoDTO } from './model/condicao-pagamento.dto';
 import { CondicaoPagamentoGridDTO } from './model/condicao-pagamento-grid.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
-import { CondicaoPagamentoBackendMessageService } from './condicao-pagamento-backend-message.service';
 import { BaseService } from '../../base/base-service';
 
 @Injectable()
@@ -15,11 +14,7 @@ export class CondicaoPagamentoService extends BaseService<
   private static readonly DOMINIO = 'condicao-pagamento';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(CondicaoPagamentoBackendMessageService)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   protected override convertToDto(body: unknown): CondicaoPagamentoDTO {

@@ -18,7 +18,4 @@ public class ApiError {
     private String title;
     private List<String> detail;
     private List<String> messages;
-    /** @deprecated Use {@link #messages} instead. Will be removed in a future version. */
-    @Deprecated
-    private List<String> userMessageKey;
 }

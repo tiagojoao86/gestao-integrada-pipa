@@ -6,7 +6,6 @@ import { BaseService } from '../../base/base-service';
 import { TituloDTO } from '../titulo/model/titulo-dto';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from '../../base/messages/messages.service';
-import { MovimentacaoFinanceiraBackendMessages } from './movimentacao-financeira-backend-message.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable({ providedIn: 'root' })
@@ -17,11 +16,7 @@ export class MovimentacaoFinanceiraService extends BaseService<
   private static readonly MOVIMENTACAO_FINANCEIRA = 'movimentacao-financeira';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(MovimentacaoFinanceiraBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {
