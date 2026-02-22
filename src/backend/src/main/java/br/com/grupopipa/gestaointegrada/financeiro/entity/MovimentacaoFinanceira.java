@@ -17,6 +17,7 @@ import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
+import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -192,6 +193,16 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
                             "validation.movimentacao.tituloSemSaldo",
                             "Título '" + titulo.getDescricao() + "' não possui saldo para pagamento."));
                 }
+            }
+
+            // Validar que todos os títulos são do mesmo tipo (A_PAGAR ou A_RECEBER)
+            Set<TipoTitulo> tiposTitulo = titulos.stream()
+                    .map(Titulo::getTipo)
+                    .collect(Collectors.toSet());
+            if (tiposTitulo.size() > 1) {
+                violations.add(new BeanValidationMessage(
+                        "validation.movimentacao.tiposMistos",
+                        "Não é possível misturar títulos A Pagar e A Receber na mesma movimentação."));
             }
         }
 

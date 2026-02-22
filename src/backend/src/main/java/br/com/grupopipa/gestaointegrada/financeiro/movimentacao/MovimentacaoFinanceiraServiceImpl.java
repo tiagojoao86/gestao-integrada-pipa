@@ -93,6 +93,7 @@ public class MovimentacaoFinanceiraServiceImpl extends
                                 .id(mt.getTitulo().getId())
                                 .descricao(mt.getTitulo().getDescricao())
                                 .valor(mt.getValor().getValue())
+                                .tipo(mt.getTitulo().getTipo().name())
                                 .build())
                 .toList();
         return MovimentacaoFinanceiraDTO.builder()

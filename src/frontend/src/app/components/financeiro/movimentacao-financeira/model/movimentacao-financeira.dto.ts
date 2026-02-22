@@ -2,11 +2,13 @@ export class MovimentacaoTituloDTO {
   id?: string;
   descricao?: string;
   valor?: number;
+  tipo?: string;
 
-  constructor(id?: string, descricao?: string, valor?: number) {
+  constructor(id?: string, descricao?: string, valor?: number, tipo?: string) {
     this.id = id;
     this.descricao = descricao;
     this.valor = valor;
+    this.tipo = tipo;
   }
 }
 

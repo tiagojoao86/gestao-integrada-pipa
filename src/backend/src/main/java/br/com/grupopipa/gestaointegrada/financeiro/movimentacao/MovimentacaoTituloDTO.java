@@ -15,4 +15,6 @@ public class MovimentacaoTituloDTO {
     private String descricao;
     /** Valor aplicado a este título nesta movimentação (saldo quitado). */
     private BigDecimal valor;
+    /** Tipo do título (A_PAGAR ou A_RECEBER). */
+    private String tipo;
 }

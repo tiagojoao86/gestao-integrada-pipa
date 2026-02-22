@@ -252,7 +252,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     }
     if (this.titulosIniciais.length > 0) {
       this.selectedTitulos = this.titulosIniciais.map(
-        (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.saldo)
+        (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.saldo, t.tipo)
       );
       this.form.get('titulos')?.setValue(this.selectedTitulos);
       this.recalcularValorMovimentacao();
@@ -267,7 +267,7 @@ export class MovimentacaoFinanceiraDetalheComponent
       // Populate selectedTitulos from movimentacao DTO (includes valor por título)
       if (this.movimentacao?.titulos?.length > 0) {
         this.selectedTitulos = this.movimentacao.titulos.map(
-          (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valor)
+          (t) => new MovimentacaoTituloDTO(t.id, t.descricao, t.valor, t.tipo)
         );
         this.form.get('titulos')?.setValue(this.selectedTitulos);
       }
@@ -448,22 +448,42 @@ export class MovimentacaoFinanceiraDetalheComponent
     // Abre a modal e aguarda a seleção
     this.entitySearchService.search(config).subscribe((result) => {
       if (!result.cancelled && result.entity) {
-        if (!this.tituloExists(result.entity.id)) {
-          this.selectedTitulos.push({
-            id: result.entity.id,
-            descricao: result.entity.descricao,
-            valor: result.entity.saldo,
-          });
-          this.form.get('titulos')?.setValue([...this.selectedTitulos]);
-          this.recalcularValorMovimentacao();
-        } else {
+        if (this.tituloExists(result.entity.id)) {
           this.dialogService
             .showOk(
               $localize`Titulo já existe`,
               $localize`Titulo já está associado a essa movimentação`
             )
             .subscribe();
+          return;
         }
+
+        // Validar que o tipo do novo título é compatível com os já selecionados
+        if (this.selectedTitulos.length > 0) {
+          const tipoExistente = this.selectedTitulos[0].tipo;
+          if (tipoExistente && result.entity.tipo !== tipoExistente) {
+            const tipoLabel =
+              tipoExistente === 'A_PAGAR'
+                ? $localize`A Pagar`
+                : $localize`A Receber`;
+            this.dialogService
+              .showOk(
+                $localize`Tipo incompatível`,
+                $localize`Não é possível misturar títulos A Pagar e A Receber. Os títulos selecionados são do tipo ${tipoLabel}.`
+              )
+              .subscribe();
+            return;
+          }
+        }
+
+        this.selectedTitulos.push({
+          id: result.entity.id,
+          descricao: result.entity.descricao,
+          valor: result.entity.saldo,
+          tipo: result.entity.tipo,
+        });
+        this.form.get('titulos')?.setValue([...this.selectedTitulos]);
+        this.recalcularValorMovimentacao();
       }
     });
   }

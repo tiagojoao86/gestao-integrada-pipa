@@ -5,6 +5,7 @@ import {
   LOCALE_ID,
   Output,
 } from '@angular/core';
+import { MessageService } from '../../../base/messages/messages.service';
 import { BaseComponent } from '../../../base/base.component';
 import { TituloService } from '../titulo.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
@@ -212,6 +213,7 @@ export class TituloGridComponent {
   private currencyPipe: CurrencyPipe = inject(CurrencyPipe);
   private auth: AuthService = inject(AuthService);
   private locale: string = inject(LOCALE_ID);
+  private messages: MessageService = inject(MessageService);
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(
@@ -283,6 +285,17 @@ export class TituloGridComponent {
     ) {
       this.toolbarActions.push({
         action: () => {
+          if (this.titulosSelecionados.length === 0) {
+            this.messages.erro($localize`Selecione ao menos um título.`);
+            return;
+          }
+          const tipos = new Set(this.titulosSelecionados.map((t) => t.tipo));
+          if (tipos.size > 1) {
+            this.messages.erro(
+              $localize`Não é possível misturar títulos A Pagar e A Receber na mesma movimentação.`
+            );
+            return;
+          }
           this.openMovimentacaoEvent.emit(this.titulosSelecionados);
         },
         icon: 'payments',
