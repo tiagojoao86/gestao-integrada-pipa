@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -32,19 +31,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String INTERNAL_SERVER_ERROR = "Internal server error";
     private static final String UNEXPECTED_ERROR_DETAIL = "An unexpected internal system error has occurred.";
 
+    private static final String MSG_NOT_AUTHORIZED = "Você não tem permissão para realizar esta ação.";
+    private static final String MSG_RESOURCE_NOT_FOUND = "Recurso não encontrado.";
+    private static final String MSG_DELETED_ENTITY = "Não é possível alterar um registro que foi excluído.";
+    private static final String MSG_BAD_CREDENTIAL = "Credenciais inválidas.";
+    private static final String MSG_INTERNAL_SERVER_ERROR = "Erro interno do servidor.";
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Object> handleAuthorizationDeniedException(
             AuthorizationDeniedException ex, WebRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
-        String title = HttpStatus.FORBIDDEN.getReasonPhrase();
-        String detail = ex.getMessage();
-        List<String> userMessageKeys = List.of(ErrorKeys.NOT_AUTHORIZED);
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(userMessageKeys)
-                .detail(List.of(detail))
+                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .messages(List.of(MSG_NOT_AUTHORIZED))
+                .detail(List.of(ex.getMessage()))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
@@ -53,19 +55,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleEntidadeNaoEncontrada(
             EntityNotFoundException ex, WebRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
-        String title = RESOURCE_NOT_FOUND;
-        String detail = ex.getMessage();
-
+        log.error(RESOURCE_NOT_FOUND + ": " + ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(List.of(ErrorKeys.RESOURCE_NOT_FOUND))
-                .detail(List.of(detail))
+                .title(RESOURCE_NOT_FOUND)
+                .messages(List.of(MSG_RESOURCE_NOT_FOUND))
+                .detail(List.of(ex.getMessage()))
                 .build();
-
-        log.error(title + ": " + detail);
-
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
 
@@ -73,19 +70,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDeletedEntityException(
             DeletedEntityException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String title = INVALID_DATA;
-        String detail = ex.getMessage();
-
+        log.error(INVALID_DATA + ": " + ex.getMessage());
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(List.of(ErrorKeys.DELETED_ENTITY))
-                .detail(List.of(detail))
+                .title(INVALID_DATA)
+                .messages(List.of(MSG_DELETED_ENTITY))
+                .detail(List.of(ex.getMessage()))
                 .build();
-
-        log.error(title + ": " + detail);
-
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
 
@@ -93,29 +85,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleBeanValidationException(
             BeanValidationException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String title = INVALID_DATA;
         String detail = ex.getViolations().stream()
                 .map(v -> String.format("'%s': %s", v.getKey(), v.getMessage()))
                 .collect(Collectors.joining(",\n"));
 
-        List<String> userMessageKey = ex.getViolations().stream()
-                .map(
-                        v -> {
-                            String key = v.getKey();
-                            return StringUtils.hasText(ex.getEntityName())
-                                    ? ex.getEntityName() + "." + key
-                                    : key;
-                        })
+        List<String> messages = ex.getViolations().stream()
+                .map(v -> v.getMessage())
                 .toList();
 
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(userMessageKey)
+                .title(INVALID_DATA)
+                .messages(messages)
                 .build();
 
-        log.error(title + ": " + detail);
+        log.error(INVALID_DATA + ": " + detail);
 
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
@@ -124,26 +109,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolationException(
             DataIntegrityViolationException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String title = INVALID_DATA;
-        String detail = ex.getMessage();
-        List<String> userMessageKeys = List.of(ErrorKeys.INTERNAL_SERVER_ERROR);
+        String message = MSG_INTERNAL_SERVER_ERROR;
 
-        if (ex.getCause()
-                .getClass()
-                .getName()
-                .equals("org.hibernate.exception.ConstraintViolationException")) {
-            userMessageKeys = List.of(
-                    DatabaseConstraintsEnum.getByKey(
-                            ((ConstraintViolationException) ex.getCause()).getConstraintName())
-                            .getUserMessageKey());
+        if (ex.getCause() instanceof ConstraintViolationException constraintEx) {
+            message = DatabaseConstraintsEnum
+                    .getByKey(constraintEx.getConstraintName())
+                    .getMessage();
         }
 
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(userMessageKeys)
-                .detail(List.of(detail))
+                .title(INVALID_DATA)
+                .messages(List.of(message))
+                .detail(List.of(ex.getMessage()))
                 .build();
 
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
@@ -153,37 +132,27 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleBadCredentialsException(
             BadCredentialsException ex, WebRequest request) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
-        String title = HttpStatus.UNAUTHORIZED.getReasonPhrase();
-        String detail = ex.getMessage();
-        List<String> userMessageKeys = List.of(ErrorKeys.BAD_CREDENTIAL);
-
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(userMessageKeys)
-                .detail(List.of(detail))
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .messages(List.of(MSG_BAD_CREDENTIAL))
+                .detail(List.of(ex.getMessage()))
                 .build();
-
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUncaught(Exception ex, WebRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String title = INTERNAL_SERVER_ERROR;
-        String detail = UNEXPECTED_ERROR_DETAIL;
-
         log.error("Unexpected internal error: ", ex);
-
         ApiError apiError = ApiError.builder()
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
-                .title(title)
-                .userMessageKey(List.of(ErrorKeys.INTERNAL_SERVER_ERROR))
-                .detail(List.of(detail))
+                .title(INTERNAL_SERVER_ERROR)
+                .messages(List.of(MSG_INTERNAL_SERVER_ERROR))
+                .detail(List.of(UNEXPECTED_ERROR_DETAIL))
                 .build();
-
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
     }
 }
