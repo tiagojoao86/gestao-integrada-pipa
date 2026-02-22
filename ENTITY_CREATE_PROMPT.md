@@ -1469,3 +1469,126 @@ Antes de usar o código gerado, verifique:
 ### Configuração
 - [ ] Pacote entity adicionado a `DataSourceConfig.ENTITY_PACKAGES`
 - [ ] Rotas adicionadas ao arquivo de rotas do módulo
+
+---
+
+## PADRÕES AVANÇADOS
+
+> Padrões genéricos aplicáveis a qualquer entidade. NÃO inclui regras de negócio específicas de domínio.
+
+### Value Objects — Padrão de Uso
+
+**❌ ERRADO — Construtor privado**
+```java
+Money valor = new Money(BigDecimal.valueOf(100.00));
+```
+
+**✅ CORRETO — Método fábrica**
+```java
+Money valor = Money.of(BigDecimal.valueOf(100.00));
+// O mesmo padrão se aplica a Nome, CPF, CNPJ, Email, PhoneNumber
+```
+
+**Em testes (asserções):**
+```java
+// ❌ assertEquals(new Money(BigDecimal.valueOf(100.00)), resultado.getValor());
+// ✅
+assertEquals(Money.of(BigDecimal.valueOf(100.00)), resultado.getValor());
+```
+
+**VOs opcionais:**
+```java
+CPF cpf = null;
+if (cpfStr != null && !cpfStr.isBlank()) {
+    cpf = ValidationUtils.validateAndGet(() -> CPF.of(cpfStr), violations);
+}
+```
+
+### Relacionamentos Bidirecionais
+
+Use sincronização bidirecional quando há `@ManyToMany` ou `@OneToMany`/`@ManyToOne` e cálculos dependem de ambos os lados:
+
+```java
+private MinhaEntidade(Set<EntidadeRelacionada> relacionadas, ...) {
+    this.relacionadas = relacionadas;
+    // Sincronizar relacionamento bidirecional no construtor
+    if (relacionadas != null) {
+        relacionadas.forEach(rel -> rel.getMinhasEntidades().add(this));
+    }
+}
+```
+
+### Campos Transientes Calculados
+
+```java
+@Transient
+public Money getTotalCalculado() {
+    if (itens == null || itens.isEmpty()) return Money.zero();
+    return itens.stream()
+            .filter(item -> item.getDeleted() == null || !item.getDeleted()) // ⚠️ CRÍTICO
+            .map(Item::getValor)
+            .reduce(Money.zero(), Money::add);
+}
+```
+
+### Soft Delete em Projeções SQL (JPA Criteria API)
+
+Para SUM/COUNT com filtro de soft delete em queries customizadas:
+
+```java
+Expression<BigDecimal> valorExpr = cb.coalesce(
+    cb.sum(
+        cb.<BigDecimal>selectCase()
+            .when(cb.or(cb.isFalse(join.get("deleted")), cb.isNull(join.get("deleted"))),
+                  join.get("valor").get("value"))  // .get("value") para Value Objects
+            .otherwise(BigDecimal.ZERO)
+    ),
+    BigDecimal.ZERO
+);
+// GROUP BY root.get("id") é obrigatório quando usa agregações
+```
+
+### Testes — Delete com Soft Delete
+
+**⚠️ Soft delete chama `findById()` + `save()`, NÃO `deleteById()`**
+
+```java
+@Test
+void deveDeletar() {
+    when(repository.findById(id)).thenReturn(Optional.of(entity));
+    when(repository.save(any())).thenReturn(entity);
+
+    service.delete(id);
+
+    verify(repository).findById(id);
+    verify(repository).save(any());
+    verify(repository, never()).deleteById(any());
+}
+```
+
+### Testes de Integração — Ordem de Criação
+
+```java
+@BeforeEach
+void setUp() {
+    // 1. Criar entidades sem FK (independentes)
+    UnidadeNegocio unidade = new UnidadeNegocio.Builder().codigo("UN001").build();
+    entityManager.persist(unidade);
+    // 2. Criar entidades com FK referenciando as anteriores
+    // 3. Flush ao final
+    entityManager.flush();
+}
+```
+
+### Qualidade de Código
+
+**Backend:**
+- Imports no topo (NUNCA FQCNs inline)
+- Remover imports e variáveis não utilizados
+- Executar `./mvnw test` antes de commit
+
+**Frontend/TypeScript:**
+- Evitar `any` → usar tipos explícitos (`Response<T>`, `as unknown as HttpErrorResponse`)
+- Tipos explícitos em callbacks: `arr.find((u: MeuDTO) => u.id === id)`
+- Remover imports não utilizados (`ng lint -- --fix` resolve automaticamente)
+- Executar `npm test` antes de commit
