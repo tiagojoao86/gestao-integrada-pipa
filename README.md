@@ -134,11 +134,31 @@ Para o primeiro acesso ao sistema, utilize as seguintes credenciais:
 
 **DISCLAIMER:** É **imprescindível** que a senha seja alterada no primeiro acesso, através do módulo de cadastro de usuários, para garantir a segurança do sistema.
 
-## Copilot / Gemini Instructions
+## Arquitetura de Containers
 
-Este repositório inclui instruções para agentes (Copilot / Gemini). Consulte:
+```
+┌────────────────────────────────────────────┐
+│  Container Nginx SSL (porta 443/80)        │
+│  - Termina SSL/HTTPS                       │
+│  - Redireciona HTTP → HTTPS                │
+│  - Certbot para Let's Encrypt              │
+│  - Proxy / → frontend:80                   │
+│  - Proxy /api/ → backend:8080              │
+└────────────────────────────────────────────┘
+           │                   │
+           ↓                   ↓
+┌──────────────────┐   ┌─────────────────┐
+│ Container        │   │ Container       │
+│ Frontend         │   │ Backend         │
+│ (nginx interno)  │   │ (Spring Boot)   │
+└──────────────────┘   └─────────────────┘
+```
 
-- `COPILOT_INSTRUCTIONS.md` na raiz para políticas e orientações globais.
-- Instruções específicas por domínio em `.github/instructions/` (backend e frontend) que contêm os conteúdos dos arquivos GEMINI do projeto.
+## Instruções para Agentes de IA
 
-Há também um workflow de exemplo em `.github/workflows/copilot-context.yml` que demonstra como expor as instruções aos agentes via a variável de ambiente `COPILOT_CUSTOM_INSTRUCTIONS_DIRS`.
+Este repositório inclui instruções para agentes (Claude Code, Copilot, Gemini). Consulte:
+
+- **`CLAUDE.md`** — Regras críticas, padrões de código e checklist (arquivo principal para Claude Code)
+- **`COPILOT_INSTRUCTIONS.md`** — Complemento para Copilot/Gemini
+- **`ENTITY_CREATE_PROMPT.md`** — Template completo para criação de novas entidades
+- Instruções específicas por domínio em `.github/instructions/`
