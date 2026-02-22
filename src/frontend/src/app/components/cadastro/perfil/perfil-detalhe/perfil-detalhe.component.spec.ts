@@ -537,7 +537,7 @@ describe('PerfilDetalheComponent', () => {
       component.savePerfil();
 
       expect(perfilService.save).toHaveBeenCalled();
-      // BaseService/BackendMessageService deve processar constraint e exibir mensagem amigável
+      // BaseService deve processar constraint e exibir mensagem amigável
     });
   });
 
@@ -576,7 +576,7 @@ describe('PerfilDetalheComponent', () => {
 
       expect(perfilService.save).toHaveBeenCalled();
       expect(closeDetailSpy).not.toHaveBeenCalled();
-      // BaseService/BackendMessageService deve processar e exibir mensagem:
+      // BaseService deve processar e exibir mensagem:
       // "Não é possível alterar um registro que foi excluído."
     });
 
@@ -607,7 +607,7 @@ describe('PerfilDetalheComponent', () => {
       component.savePerfil();
 
       expect(perfilService.save).toHaveBeenCalled();
-      // BackendMessageService deve traduzir 'errors.deletedEntity' para
+      // BaseService exibe mensagem de entidade excluída:
       // "Não é possível alterar um registro que foi excluído."
     });
   });

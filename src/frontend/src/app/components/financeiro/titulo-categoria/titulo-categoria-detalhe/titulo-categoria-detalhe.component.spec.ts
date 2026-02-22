@@ -526,7 +526,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       component.salvar();
 
       expect(tituloCategoriaService.save).toHaveBeenCalled();
-      // BaseService/BackendMessageService deve processar constraint e exibir mensagem amigável
+      // BaseService deve processar constraint e exibir mensagem amigável
     });
 
     it('deve permitir BaseService tratar erro de foreign key', () => {
@@ -556,7 +556,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       component.salvar();
 
       expect(tituloCategoriaService.save).toHaveBeenCalled();
-      // BaseService/BackendMessageService deve processar FK e exibir mensagem amigável
+      // BaseService deve processar FK e exibir mensagem amigável
     });
   });
 });
