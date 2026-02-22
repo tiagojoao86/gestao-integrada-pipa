@@ -10,6 +10,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 import jakarta.persistence.AttributeOverride;
@@ -112,19 +113,14 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
             UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (nome == null || nome.isBlank()) {
-            violations.add(new BeanValidationMessage("nome", "Nome da conta é obrigatório"));
-        } else if (nome.length() > 100) {
-            violations.add(new BeanValidationMessage("nome", "Nome deve ter no máximo 100 caracteres"));
-        }
+        Validator.of(nome, "nome da conta", violations).notBlank().maxLength(100);
+        Validator.of(tipo, "tipo da conta", violations).notNull();
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
-        if (tipo == null) {
-            violations.add(new BeanValidationMessage("tipo", "Tipo da conta é obrigatório"));
-        }
-
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
+        if (tipo == TipoConta.CORRENTE || tipo == TipoConta.POUPANCA) {
+            Validator.of(banco, "banco", violations).notBlank().maxLength(100);
+            Validator.of(agencia, "agência", violations).notBlank().maxLength(10);
+            Validator.of(numeroConta, "número da conta", violations).notBlank().maxLength(20);
         }
 
         // Validar e criar Money
@@ -147,10 +143,12 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
     public void atualizar(String nome, String banco, String agencia, String numeroConta) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (nome == null || nome.isBlank()) {
-            violations.add(new BeanValidationMessage("nome", "Nome da conta é obrigatório"));
-        } else if (nome.length() > 100) {
-            violations.add(new BeanValidationMessage("nome", "Nome deve ter no máximo 100 caracteres"));
+        Validator.of(nome, "nome da conta", violations).notBlank().maxLength(100);
+
+        if (this.isBancaria()) {
+            Validator.of(banco, "banco", violations).notBlank().maxLength(100);
+            Validator.of(agencia, "agência", violations).notBlank().maxLength(10);
+            Validator.of(numeroConta, "número da conta", violations).notBlank().maxLength(20);
         }
 
         if (!violations.isEmpty()) {
@@ -164,10 +162,10 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
     }
 
     public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
-        if (unidadeNegocio == null) {
-            throw new BeanValidationException(
-                    "contaBancaria",
-                    Set.of(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória")));
+        Set<BeanValidationMessage> violations = new HashSet<>();
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("contaBancaria", violations);
         }
         this.unidadeNegocio = unidadeNegocio;
     }

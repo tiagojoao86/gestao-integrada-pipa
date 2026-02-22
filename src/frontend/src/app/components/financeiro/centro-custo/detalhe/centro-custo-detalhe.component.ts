@@ -19,6 +19,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
+import { MessageService } from '../../../base/messages/messages.service';
 import { CentroCustoService } from '../centro-custo.service';
 import { CentroCustoDTO } from '../model/centro-custo-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
@@ -55,6 +56,7 @@ export class CentroCustoDetalheComponent implements OnInit {
   private fb = inject(FormBuilder);
   private service = inject(CentroCustoService);
   private auth = inject(AuthService);
+  private messages = inject(MessageService);
 
   ngOnInit(): void {
     this.initForm();
@@ -122,6 +124,8 @@ export class CentroCustoDetalheComponent implements OnInit {
 
   save() {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
     const dto: CentroCustoDTO = this.form.getRawValue();

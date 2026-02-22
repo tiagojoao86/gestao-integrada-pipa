@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { PlanoContasDTO } from './model/plano-contas-dto';
 import { PlanoContasGridDTO } from './model/plano-contas-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { PlanoContasBackendMessages } from './plano-contas-backend-message.service';
 import { BaseService } from '../../base/base-service';
 
 @Injectable()
@@ -16,11 +15,7 @@ export class PlanoContasService extends BaseService<
   private static readonly PLANO_CONTAS = 'plano-contas';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(PlanoContasBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

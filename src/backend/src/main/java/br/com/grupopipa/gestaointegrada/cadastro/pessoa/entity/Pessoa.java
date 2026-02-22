@@ -75,18 +75,78 @@ public class Pessoa extends BaseEntity {
     protected Pessoa() {
     }
 
-    private Pessoa(Builder builder) {
-        this.tipoPessoa = builder.tipoPessoa;
-        this.nome = builder.nome;
-        this.email = builder.email;
-        this.telefone = builder.telefone;
-        this.cpf = builder.cpf;
-        this.dataNascimento = builder.dataNascimento;
-        this.cnpj = builder.cnpj;
-        this.razaoSocial = builder.razaoSocial;
-        this.inscricaoEstadual = builder.inscricaoEstadual;
-        this.observacoes = builder.observacoes;
-        this.ativa = builder.ativa != null ? builder.ativa : true;
+    private static class ValidatedData {
+        final TipoPessoa tipoPessoa;
+        final Nome nome;
+        final Email email;
+        final PhoneNumber telefone;
+        final CPF cpf;
+        final LocalDate dataNascimento;
+        final CNPJ cnpj;
+        final String razaoSocial;
+        final String inscricaoEstadual;
+        final String observacoes;
+        final Boolean ativa;
+
+        ValidatedData(TipoPessoa tipoPessoa, Nome nome, Email email, PhoneNumber telefone,
+                CPF cpf, LocalDate dataNascimento, CNPJ cnpj, String razaoSocial,
+                String inscricaoEstadual, String observacoes, Boolean ativa) {
+            this.tipoPessoa = tipoPessoa;
+            this.nome = nome;
+            this.email = email;
+            this.telefone = telefone;
+            this.cpf = cpf;
+            this.dataNascimento = dataNascimento;
+            this.cnpj = cnpj;
+            this.razaoSocial = razaoSocial;
+            this.inscricaoEstadual = inscricaoEstadual;
+            this.observacoes = observacoes;
+            this.ativa = ativa;
+        }
+    }
+
+    private static ValidatedData validateForCreate(TipoPessoa tipoPessoa, String nomeStr,
+            String emailStr, String telefoneStr, String cpfStr, LocalDate dataNascimento,
+            String cnpjStr, String razaoSocial, String inscricaoEstadual,
+            String observacoes, Boolean ativa) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (tipoPessoa == null) {
+            violations.add(new BeanValidationMessage("tipoPessoa", "Tipo de pessoa é obrigatório"));
+        }
+
+        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
+        Email email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
+        PhoneNumber telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+
+        CPF cpf = null;
+        CNPJ cnpj = null;
+        if (tipoPessoa == TipoPessoa.FISICA) {
+            cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+        } else if (tipoPessoa == TipoPessoa.JURIDICA) {
+            cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("Pessoa", violations);
+        }
+
+        return new ValidatedData(tipoPessoa, nome, email, telefone, cpf, dataNascimento,
+                cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
+    }
+
+    private Pessoa(ValidatedData data) {
+        this.tipoPessoa = data.tipoPessoa;
+        this.nome = data.nome;
+        this.email = data.email;
+        this.telefone = data.telefone;
+        this.cpf = data.cpf;
+        this.dataNascimento = data.dataNascimento;
+        this.cnpj = data.cnpj;
+        this.razaoSocial = data.razaoSocial;
+        this.inscricaoEstadual = data.inscricaoEstadual;
+        this.observacoes = data.observacoes;
+        this.ativa = data.ativa != null ? data.ativa : true;
     }
 
     @PrePersist
@@ -148,10 +208,17 @@ public class Pessoa extends BaseEntity {
             String inscricaoEstadualStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Validar e criar ValueObjects
         Nome nomeValidado = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
         Email emailValidado = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
         PhoneNumber telefoneValidado = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+
+        CPF cpfValidado = null;
+        CNPJ cnpjValidado = null;
+        if (this.tipoPessoa == TipoPessoa.FISICA) {
+            cpfValidado = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+        } else {
+            cnpjValidado = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+        }
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("Pessoa", violations);
@@ -162,16 +229,12 @@ public class Pessoa extends BaseEntity {
         this.telefone = telefoneValidado;
 
         if (this.tipoPessoa == TipoPessoa.FISICA) {
-            this.cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            this.cpf = cpfValidado;
             this.dataNascimento = dataNascimentoArg;
         } else {
-            this.cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
+            this.cnpj = cnpjValidado;
             this.razaoSocial = razaoSocialStr;
             this.inscricaoEstadual = inscricaoEstadualStr;
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("Pessoa", violations);
         }
     }
 
@@ -273,12 +336,12 @@ public class Pessoa extends BaseEntity {
     // Builder Pattern
     public static class Builder {
         private TipoPessoa tipoPessoa;
-        private Nome nome;
-        private Email email;
-        private PhoneNumber telefone;
-        private CPF cpf;
+        private String nome;
+        private String email;
+        private String telefone;
+        private String cpf;
         private LocalDate dataNascimento;
-        private CNPJ cnpj;
+        private String cnpj;
         private String razaoSocial;
         private String inscricaoEstadual;
         private String observacoes;
@@ -289,39 +352,23 @@ public class Pessoa extends BaseEntity {
             return this;
         }
 
-        public Builder nome(String nomeStr) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            this.nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
+        public Builder nome(String nome) {
+            this.nome = nome;
             return this;
         }
 
-        public Builder email(String emailStr) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            this.email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
+        public Builder email(String email) {
+            this.email = email;
             return this;
         }
 
-        public Builder telefone(String telefoneStr) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            this.telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
+        public Builder telefone(String telefone) {
+            this.telefone = telefone;
             return this;
         }
 
-        public Builder cpf(String cpfStr) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            this.cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
+        public Builder cpf(String cpf) {
+            this.cpf = cpf;
             return this;
         }
 
@@ -330,12 +377,8 @@ public class Pessoa extends BaseEntity {
             return this;
         }
 
-        public Builder cnpj(String cnpjStr) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            this.cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
+        public Builder cnpj(String cnpj) {
+            this.cnpj = cnpj;
             return this;
         }
 
@@ -360,22 +403,9 @@ public class Pessoa extends BaseEntity {
         }
 
         public Pessoa build() {
-            // Validações básicas
-            Set<BeanValidationMessage> violations = new HashSet<>();
-
-            if (tipoPessoa == null) {
-                violations.add(new BeanValidationMessage("tipoPessoa", "Tipo de pessoa é obrigatório"));
-            }
-
-            if (nome == null) {
-                violations.add(new BeanValidationMessage("nome", "Nome é obrigatório"));
-            }
-
-            if (!violations.isEmpty()) {
-                throw new BeanValidationException("Pessoa", violations);
-            }
-
-            return new Pessoa(this);
+            ValidatedData data = validateForCreate(tipoPessoa, nome, email, telefone, cpf,
+                    dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
+            return new Pessoa(data);
         }
     }
 }

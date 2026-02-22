@@ -22,6 +22,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
   FormsModule,
+  Validators,
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -149,6 +150,7 @@ export class MovimentacaoFinanceiraDetalheComponent
           );
           if (index != -1) {
             this.selectedTitulos.splice(index, 1);
+            this.form.get('titulos')?.setValue([...this.selectedTitulos]);
           }
         },
       },
@@ -330,13 +332,15 @@ export class MovimentacaoFinanceiraDetalheComponent
 
   initForm() {
     const fb = new FormBuilder().nonNullable;
-    this.form.addControl('titulos', fb.control([]));
-    this.form.addControl('contaBancaria', fb.control(''));
-    this.form.addControl('tipo', fb.control(null));
-    this.form.addControl('formaPagamento', fb.control(''));
-    this.form.addControl('valor', fb.control(null));
-    this.form.addControl('data', fb.control(null));
-    this.form.addControl('unidadeNegocio', fb.control(''));
+    this.form.addControl('titulos', fb.control([], {
+      validators: [(c) => (c.value as unknown[])?.length > 0 ? null : { required: true }],
+    }));
+    this.form.addControl('contaBancaria', fb.control('', [Validators.required]));
+    this.form.addControl('tipo', fb.control(null, [Validators.required]));
+    this.form.addControl('formaPagamento', fb.control('', [Validators.required]));
+    this.form.addControl('valor', fb.control(null, [Validators.required, Validators.min(0.01)]));
+    this.form.addControl('data', fb.control(null, [Validators.required]));
+    this.form.addControl('unidadeNegocio', fb.control('', [Validators.required]));
     this.form.addControl('observacoes', fb.control(''));
   }
 
@@ -374,7 +378,7 @@ export class MovimentacaoFinanceiraDetalheComponent
   }
 
   salvar() {
-    this.validateBeforeSave();
+    if (!this.validateBeforeSave()) return;
     this.populateDTOBeforeSend();
 
     this.service.save(this.movimentacao, {
@@ -386,51 +390,14 @@ export class MovimentacaoFinanceiraDetalheComponent
     });
   }
 
-  validateBeforeSave(): void {
+  validateBeforeSave(): boolean {
     if (!this.form.valid) {
+      this.form.markAllAsTouched();
       this.messages.erro($localize`Existem campos inválidos.`);
-      return;
+      return false;
     }
 
-    const titulosIds = (this.selectedTitulos || [])
-      .map((t) => t.id)
-      .filter((id) => !!id);
-    if (titulosIds.length === 0) {
-      this.messages.erro($localize`Pelo menos um título é obrigatório.`);
-      return;
-    }
-
-    if (!this.form.value.contaBancaria) {
-      this.messages.erro($localize`Conta bancária é obrigatória.`);
-      return;
-    }
-
-    if (!this.form.value.tipo) {
-      this.messages.erro($localize`Tipo de movimentação é obrigatório.`);
-      return;
-    }
-
-    if (!this.form.value.formaPagamento) {
-      this.messages.erro($localize`Forma de pagamento é obrigatória.`);
-      return;
-    }
-
-    const valor = this.form.value.valor;
-    if (!valor || valor <= 0) {
-      this.messages.erro($localize`Valor deve ser maior que zero.`);
-      return;
-    }
-
-    const data = this.form.value.data;
-    if (!data) {
-      this.messages.erro($localize`Data é obrigatória.`);
-      return;
-    }
-
-    if (!this.form.value.unidadeNegocio) {
-      this.messages.erro($localize`Unidade de negócio é obrigatória.`);
-      return;
-    }
+    return true;
   }
 
   buildTitulosToSend(): MovimentacaoTituloDTO[] {
@@ -447,8 +414,7 @@ export class MovimentacaoFinanceiraDetalheComponent
     this.movimentacao.formaPagamento = this.form.value.formaPagamento;
     this.movimentacao.valor = this.form.value.valor;
     this.movimentacao.data = this.form.value.data;
-    this.movimentacao.unidadeNegocioId =
-      this.form.value.unidadeNegocio.unidadeNegocioId;
+    this.movimentacao.unidadeNegocioId = this.form.value.unidadeNegocio;
     this.movimentacao.observacoes = this.form.value.observacoes;
     // Build DTO - filter out selected titles without id and send títulos as objects (backend expects MovimentacaoTituloDTO[])
     this.movimentacao.titulos = this.buildTitulosToSend();
@@ -490,6 +456,7 @@ export class MovimentacaoFinanceiraDetalheComponent
             descricao: result.entity.descricao,
             valor: result.entity.valorOriginal,
           });
+          this.form.get('titulos')?.setValue([...this.selectedTitulos]);
         } else {
           this.dialogService
             .showOk(

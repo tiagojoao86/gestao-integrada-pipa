@@ -5,7 +5,6 @@ import { map, take } from 'rxjs/operators';
 import { ContaBancariaDTO } from './model/conta-bancaria-dto';
 import { ContaBancariaGridDTO } from './model/conta-bancaria-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { ContaBancariaBackendMessages } from './conta-bancaria-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { plainToInstance } from 'class-transformer';
 
@@ -17,11 +16,7 @@ export class ContaBancariaService extends BaseService<
   private static readonly CONTA_BANCARIA = 'conta-bancaria';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(ContaBancariaBackendMessages)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

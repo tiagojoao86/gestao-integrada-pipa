@@ -27,14 +27,14 @@ public class Email implements Serializable {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (value == null || value.isBlank()) {
-            violations.add(new BeanValidationMessage("email", "Email não pode ser vazio"));
+            violations.add(new BeanValidationMessage("validation.email.required", "O campo 'E-mail' é obrigatório."));
             throw new BeanValidationException(violations);
         }
 
         String emailTrimmed = value.trim().toLowerCase();
 
         if (!EMAIL_PATTERN.matcher(emailTrimmed).matches()) {
-            violations.add(new BeanValidationMessage("email", "Email inválido: " + value));
+            violations.add(new BeanValidationMessage("validation.email.invalid", "E-mail inválido."));
             throw new BeanValidationException(violations);
         }
 

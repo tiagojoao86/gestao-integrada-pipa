@@ -8,6 +8,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.Column;
@@ -66,12 +67,7 @@ public class UnidadeNegocio extends BaseEntity {
             String codigo, String nomeStr, String descricao, String cnpjStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (codigo == null || codigo.isBlank()) {
-            violations.add(new BeanValidationMessage("codigo", "Código é obrigatório"));
-        } else if (codigo.length() > 20) {
-            violations.add(
-                    new BeanValidationMessage("codigo", "Código deve ter no máximo 20 caracteres"));
-        }
+        Validator.of(codigo, "código", violations).notBlank().maxLength(20);
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
         CNPJ cnpj = null;

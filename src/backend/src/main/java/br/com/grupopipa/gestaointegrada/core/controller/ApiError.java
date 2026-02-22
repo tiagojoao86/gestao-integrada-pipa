@@ -17,5 +17,5 @@ public class ApiError {
     private OffsetDateTime timestamp;
     private String title;
     private List<String> detail;
-    private List<String> userMessageKey;
+    private List<String> messages;
 }

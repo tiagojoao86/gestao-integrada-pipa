@@ -16,7 +16,6 @@ import {
 } from './model/response';
 import { HttpConstants } from './constants/http-constants';
 import { MessageService } from './messages/messages.service';
-import { AbstractBackendMessageService } from './services/backend-messsages/abstract-backend-message.service';
 import { AuditInfoData } from './audit-info/audit-info.component';
 
 export interface ExecutionCallbacks<T> {
@@ -30,16 +29,10 @@ export abstract class BaseService<D, G = D> {
 
   protected httpClient: HttpClient;
   protected messageService: MessageService;
-  protected backendMessageService: AbstractBackendMessageService;
 
-  constructor(
-    httpClient: HttpClient,
-    messageService: MessageService,
-    backendMessageService: AbstractBackendMessageService
-  ) {
+  constructor(httpClient: HttpClient, messageService: MessageService) {
     this.httpClient = httpClient;
     this.messageService = messageService;
-    this.backendMessageService = backendMessageService;
   }
 
   abstract getDomain(): string;
@@ -159,11 +152,8 @@ export abstract class BaseService<D, G = D> {
   }
 
   private handleError(error: HttpErrorResponse) {
-    if (error.status === 400 && error.error?.userMessageKey) {
-      const translatedErrors = this.backendMessageService.getMessages(
-        error.error.userMessageKey
-      );
-      this.messageService.erro(translatedErrors);
+    if (error.error?.messages?.length > 0) {
+      this.messageService.erro(error.error.messages);
     } else {
       const genericMessage =
         error.error?.title ||

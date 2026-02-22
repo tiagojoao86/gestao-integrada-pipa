@@ -24,19 +24,19 @@ public class CPF implements Serializable {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (value == null || value.isBlank()) {
-            violations.add(new BeanValidationMessage("cpf.notBlank", "CPF não pode ser vazio"));
+            violations.add(new BeanValidationMessage("validation.cpf.required", "O campo 'CPF' é obrigatório."));
             throw new BeanValidationException(violations);
         }
 
         String cpfNumeros = value.replaceAll("[^0-9]", "");
 
         if (cpfNumeros.length() != 11) {
-            violations.add(new BeanValidationMessage("cpf.invalid", "CPF deve ter 11 dígitos"));
+            violations.add(new BeanValidationMessage("validation.cpf.length", "CPF deve ter 11 dígitos."));
             throw new BeanValidationException(violations);
         }
 
         if (!validarDigitos(cpfNumeros)) {
-            violations.add(new BeanValidationMessage("cpf.invalid", "CPF inválido: " + value));
+            violations.add(new BeanValidationMessage("validation.cpf.invalid", "CPF inválido."));
             throw new BeanValidationException(violations);
         }
 

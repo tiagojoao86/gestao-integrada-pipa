@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { SetorDTO } from './model/setor-dto';
 import { SetorGridDTO } from './model/setor-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { SetorBackendMessageService } from './setor-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { plainToInstance } from 'class-transformer';
 
@@ -12,11 +11,7 @@ export class SetorService extends BaseService<SetorDTO, SetorGridDTO> {
   private static readonly DOMAIN = 'setor';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(SetorBackendMessageService)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

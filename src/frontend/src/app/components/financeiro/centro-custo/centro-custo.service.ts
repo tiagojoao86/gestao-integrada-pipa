@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { CentroCustoDTO } from './model/centro-custo-dto';
 import { CentroCustoGridDTO } from './model/centro-custo-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
-import { CentroCustoBackendMessageService } from './centro-custo-backend-message.service';
 import { BaseService } from '../../base/base-service';
 import { plainToInstance } from 'class-transformer';
 
@@ -15,11 +14,7 @@ export class CentroCustoService extends BaseService<
   private static readonly DOMAIN = 'centro-custo';
 
   constructor() {
-    super(
-      inject(HttpClient),
-      inject(MessageService),
-      inject(CentroCustoBackendMessageService)
-    );
+    super(inject(HttpClient), inject(MessageService));
   }
 
   getDomain(): string {

@@ -25,22 +25,28 @@
           inputId="unidadeNegocio"
           [options]="allUnidadesNegocio"
           formControlName="unidadeNegocio"
-          optionLabel="codigo"
-          optionValue="id"
+          optionLabel="unidadeNegocioCodigo"
+          optionValue="unidadeNegocioId"
           [filter]="true"
-          filterBy="codigo,nome"
+          filterBy="unidadeNegocioCodigo,unidadeNegocioNome"
           [showClear]="false"
         >
           <ng-template let-item pTemplate="item">
-            <div>{{ item.codigo }} - {{ item.nome }}</div>
+            <div>{{ item.unidadeNegocioCodigo }} - {{ item.unidadeNegocioNome }}</div>
           </ng-template>
         </p-select>
         <label for="unidadeNegocio" i18n>Unidade de Negócio</label>
+        @if (isControlInvalid('unidadeNegocio')) {
+        <small i18n>Esse campo é obrigatório.</small>
+        }
       </p-iftalabel>
 
       <p-iftalabel class="w-33">
         <input pInputText id="banco" formControlName="banco" />
         <label for="banco" i18n>Banco</label>
+        @if (isControlInvalid('banco')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
       </p-iftalabel>
 
       <p-iftalabel class="w-33">
@@ -60,11 +66,17 @@
       <p-iftalabel class="w-40">
         <input pInputText id="agencia" formControlName="agencia" />
         <label for="agencia" i18n>Agência</label>
+        @if (isControlInvalid('agencia')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
       </p-iftalabel>
 
       <p-iftalabel class="w-40">
         <input pInputText id="numeroConta" formControlName="numeroConta" />
         <label for="numeroConta" i18n>Número da Conta</label>
+        @if (isControlInvalid('numeroConta')) {
+        <small i18n>Esse campo não pode ser em branco.</small>
+        }
       </p-iftalabel>
       <p-iftalabel class="w-20">
         <p-inputNumber
