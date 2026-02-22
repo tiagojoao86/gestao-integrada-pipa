@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -27,11 +28,11 @@ import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CondicaoPagamento;
-import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceiraTitulo;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
-import br.com.grupopipa.gestaointegrada.financeiro.movimentacao.MovimentacaoFinanceiraService;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasDTO;
 import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaDTO;
@@ -52,7 +53,6 @@ public class TituloServiceImpl
     private final SetorRepository setorRepository;
     private final TituloCategoriaRepository tituloCategoriaRepository;
     private final CondicaoPagamentoRepository condicaoPagamentoRepository;
-    private final MovimentacaoFinanceiraService movimentacaoFinanceiraService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -66,8 +66,7 @@ public class TituloServiceImpl
             UnidadeNegocioService unidadeNegocioService,
             SetorRepository setorRepository,
             TituloCategoriaRepository tituloCategoriaRepository,
-            CondicaoPagamentoRepository condicaoPagamentoRepository,
-            MovimentacaoFinanceiraService movimentacaoFinanceiraService) {
+            CondicaoPagamentoRepository condicaoPagamentoRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
@@ -76,22 +75,26 @@ public class TituloServiceImpl
         this.setorRepository = setorRepository;
         this.tituloCategoriaRepository = tituloCategoriaRepository;
         this.condicaoPagamentoRepository = condicaoPagamentoRepository;
-        this.movimentacaoFinanceiraService = movimentacaoFinanceiraService;
     }
 
     /**
-     * Sobrescreve delete para excluir as movimentações financeiras associadas
-     * ao título antes de fazer o soft delete do próprio título.
+     * Bloqueia a exclusão de títulos com movimentações financeiras ativas.
+     * O usuário deve remover as movimentações manualmente antes de excluir o título.
      */
     @Override
     @Transactional
     public UUID delete(UUID id) {
         Titulo titulo = this.findEntityById(id);
 
-        titulo.getMovimentacoes().stream()
-                .map(MovimentacaoFinanceiraTitulo::getMovimentacaoFinanceira)
-                .filter(m -> !m.isDeleted())
-                .forEach(m -> movimentacaoFinanceiraService.delete(m.getId()));
+        boolean hasActiveMovimentacoes = titulo.getMovimentacoes().stream()
+                .anyMatch(m -> !m.getMovimentacaoFinanceira().isDeleted());
+
+        if (hasActiveMovimentacoes) {
+            throw new BeanValidationException(Set.of(new BeanValidationMessage(
+                    "validation.titulo.possuiMovimentacoes",
+                    "Não é possível excluir um título com movimentações financeiras associadas."
+                            + " Remova as movimentações antes de excluir o título.")));
+        }
 
         return super.delete(id);
     }
