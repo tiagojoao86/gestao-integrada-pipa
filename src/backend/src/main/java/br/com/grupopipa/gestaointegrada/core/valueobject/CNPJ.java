@@ -24,19 +24,19 @@ public class CNPJ implements Serializable {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (value == null || value.isBlank()) {
-            violations.add(new BeanValidationMessage("cnpj", "O campo 'cnpj' é obrigatório."));
+            violations.add(new BeanValidationMessage("validation.cnpj.required", "O campo 'CNPJ' é obrigatório."));
             throw new BeanValidationException(violations);
         }
 
         String cnpjNumeros = value.replaceAll("[^0-9]", "");
 
         if (cnpjNumeros.length() != 14) {
-            violations.add(new BeanValidationMessage("cnpj", "CNPJ deve ter 14 dígitos."));
+            violations.add(new BeanValidationMessage("validation.cnpj.length", "CNPJ deve ter 14 dígitos."));
             throw new BeanValidationException(violations);
         }
 
         if (!validarDigitos(cnpjNumeros)) {
-            violations.add(new BeanValidationMessage("cnpj", "CNPJ inválido."));
+            violations.add(new BeanValidationMessage("validation.cnpj.invalid", "CNPJ inválido."));
             throw new BeanValidationException(violations);
         }
 
