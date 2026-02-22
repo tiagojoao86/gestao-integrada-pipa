@@ -115,22 +115,39 @@ public class MyEntity extends BaseEntity {
 
 ### Validation & Error Handling
 
-**Use BeanValidationException for ALL business validations. Exceptions become i18n keys for frontend.**
+**Use BeanValidationException with fluent Validator API. Messages resolved via Spring MessageSource (messages.properties / messages_en.properties).**
 
 ```java
-// Validation with structured keys
-private void validar() {
+// Use Validator.of() fluent API for all field validation
+private static ValidatedData validate(String descricao, Pessoa pessoa, BigDecimal valor, ...) {
     Set<BeanValidationMessage> violations = new HashSet<>();
-    if (tipo == null) {
-        violations.add(new BeanValidationMessage("tipo", "Tipo é obrigatório"));
+
+    // Primitives/objects: fluent Validator
+    Validator.of(descricao, "descrição", violations).notBlank().maxLength(500);
+    Validator.of(pessoa, "pessoa", violations).notNull();
+
+    // Value Objects: use ValidationUtils.validateAndGet() to accumulate errors
+    // (avoids short-circuiting — shows ALL errors at once)
+    Nome nomeVO = ValidationUtils.validateAndGet(() -> Nome.of(descricao), violations);
+
+    // Business rule violations: direct BeanValidationMessage with MessageSource key
+    if (dataVencimento != null && dataVencimento.isBefore(dataEmissao)) {
+        violations.add(new BeanValidationMessage(
+            "validation.titulo.dataVencimentoInvalida",
+            "Data de vencimento não pode ser anterior à data de emissão."));
     }
+
     if (!violations.isEmpty()) {
         throw new BeanValidationException("titulo", violations);
     }
+    return new ValidatedData(...);
 }
-// Backend response: { "userMessageKey": ["titulo.tipo"], "status": 400 }
-// Frontend uses key to fetch translated message
+// Validator.of() generates keys: "validation.field.required", "validation.field.notBlank", etc.
+// Resolved by RestExceptionHandler via MessageSource (Portuguese fallback if key not found)
+// Backend response: { "userMessageKey": ["validation.field.required"], "status": 400 }
 ```
+
+**DO NOT use manual `new BeanValidationMessage("fieldName", "hardcoded message")` for standard validations.** Reserve direct `BeanValidationMessage` only for business rule violations with specific keys registered in `messages.properties`.
 
 ### Database Constraints (CRITICAL)
 
