@@ -1032,6 +1032,49 @@ Siga o padrão dos componentes existentes:
 - Detalhe: `gi-app-base` com `[actions]`, ReactiveForm
 - Principal: ViewMode (GRID/DETAIL), orquestra grid e detalhe
 
+#### Confirmação de Exclusão (OBRIGATÓRIA em Grid)
+
+Todos os componentes `-grid.component` DEVEM exibir diálogo de confirmação antes de excluir qualquer registro.
+
+**1. Imports no TypeScript:**
+```typescript
+import { DialogService } from '../../../base/dialog/dialog.service';
+import { DialogResult } from '../../../base/dialog/dialog.model';
+```
+
+**2. Injetar `DialogService` na classe:**
+```typescript
+private dialogService: DialogService = inject(DialogService);
+```
+
+> **IMPORTANTE**: `DialogService` é fornecido via `app.config.ts` — NÃO adicionar ao array `providers` do `@Component`.
+
+**3. Ação de exclusão no `tableActions`:**
+```typescript
+if (canDelete) {
+  this.tableActions.push({
+    icon: 'delete',
+    title: $localize`Excluir`,
+    action: (element: {{Entity}}GridDTO) => {
+      this.dialogService
+        .showYesNo(
+          $localize`Confirmar Exclusão`,
+          $localize`Deseja realmente excluir o registro selecionado?`
+        )
+        .subscribe((result) => {
+          if (result === DialogResult.YES) {
+            this.service.delete(element.id).subscribe(() => this.list{{Entity}}s());
+          }
+        });
+    },
+  });
+}
+```
+
+**IMPORTANTE**: Nunca chame `service.delete()` diretamente sem confirmação. O usuário deve confirmar com "Sim" antes da exclusão acontecer.
+
+---
+
 #### Funcionalidade de Auditoria (OBRIGATÓRIA em Grid)
 
 Todos os componentes `-grid.component` DEVEM implementar visualização de auditoria:
@@ -1440,6 +1483,9 @@ Antes de usar o código gerado, verifique:
 - [ ] Enum com getByKey() para conversão
 - [ ] Backend message service implementado
 - [ ] Mensagens de constraints incluídas no BackendMessageService
+- [ ] **Grid component: imports DialogService e DialogResult**
+- [ ] **Grid component: `private dialogService = inject(DialogService)` (sem providers)**
+- [ ] **Grid component: ação de delete usa `showYesNo` antes de chamar `service.delete()`**
 - [ ] **Grid component: imports AuditInfoComponent e AuditInfoData**
 - [ ] **Grid component: propriedades showAuditInfo e auditInfoData**
 - [ ] **Grid component: botão de auditoria no tableActions (condicional)**
