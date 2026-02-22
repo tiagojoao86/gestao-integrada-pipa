@@ -2,9 +2,14 @@ package br.com.grupopipa.gestaointegrada.core.controller;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,11 +36,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String INTERNAL_SERVER_ERROR = "Internal server error";
     private static final String UNEXPECTED_ERROR_DETAIL = "An unexpected internal system error has occurred.";
 
-    private static final String MSG_NOT_AUTHORIZED = "Você não tem permissão para realizar esta ação.";
-    private static final String MSG_RESOURCE_NOT_FOUND = "Recurso não encontrado.";
-    private static final String MSG_DELETED_ENTITY = "Não é possível alterar um registro que foi excluído.";
-    private static final String MSG_BAD_CREDENTIAL = "Credenciais inválidas.";
-    private static final String MSG_INTERNAL_SERVER_ERROR = "Erro interno do servidor.";
+    // Message codes (resolved via MessageSource)
+    private static final String CODE_NOT_AUTHORIZED = "error.notAuthorized";
+    private static final String CODE_RESOURCE_NOT_FOUND = "error.resourceNotFound";
+    private static final String CODE_DELETED_ENTITY = "error.deletedEntity";
+    private static final String CODE_BAD_CREDENTIAL = "error.badCredential";
+    private static final String CODE_INTERNAL_SERVER_ERROR = "error.internalServerError";
+
+    // Portuguese fallbacks (used when MessageSource is unavailable or key not found)
+    private static final String FALLBACK_NOT_AUTHORIZED = "Você não tem permissão para realizar esta ação.";
+    private static final String FALLBACK_RESOURCE_NOT_FOUND = "Recurso não encontrado.";
+    private static final String FALLBACK_DELETED_ENTITY = "Não é possível alterar um registro que foi excluído.";
+    private static final String FALLBACK_BAD_CREDENTIAL = "Credenciais inválidas.";
+    private static final String FALLBACK_INTERNAL_SERVER_ERROR = "Erro interno do servidor.";
+
+    @Autowired(required = false)
+    private MessageSource messageSource;
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Object> handleAuthorizationDeniedException(
@@ -45,7 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
                 .title(HttpStatus.FORBIDDEN.getReasonPhrase())
-                .messages(List.of(MSG_NOT_AUTHORIZED))
+                .messages(List.of(resolve(CODE_NOT_AUTHORIZED, null, FALLBACK_NOT_AUTHORIZED)))
                 .detail(List.of(ex.getMessage()))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
@@ -60,7 +76,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
                 .title(RESOURCE_NOT_FOUND)
-                .messages(List.of(MSG_RESOURCE_NOT_FOUND))
+                .messages(List.of(resolve(CODE_RESOURCE_NOT_FOUND, null, FALLBACK_RESOURCE_NOT_FOUND)))
                 .detail(List.of(ex.getMessage()))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
@@ -75,7 +91,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
                 .title(INVALID_DATA)
-                .messages(List.of(MSG_DELETED_ENTITY))
+                .messages(List.of(resolve(CODE_DELETED_ENTITY, null, FALLBACK_DELETED_ENTITY)))
                 .detail(List.of(ex.getMessage()))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
@@ -90,7 +106,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.joining(",\n"));
 
         List<String> messages = ex.getViolations().stream()
-                .map(v -> v.getMessage())
+                .map(v -> resolve(v.getKey(), v.getArgs(), v.getMessage()))
                 .toList();
 
         ApiError apiError = ApiError.builder()
@@ -109,12 +125,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolationException(
             DataIntegrityViolationException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message = MSG_INTERNAL_SERVER_ERROR;
+        String message = resolve(CODE_INTERNAL_SERVER_ERROR, null, FALLBACK_INTERNAL_SERVER_ERROR);
 
         if (ex.getCause() instanceof ConstraintViolationException constraintEx) {
-            message = DatabaseConstraintsEnum
-                    .getByKey(constraintEx.getConstraintName())
-                    .getMessage();
+            DatabaseConstraintsEnum constraint = DatabaseConstraintsEnum
+                    .getByKey(constraintEx.getConstraintName());
+            String code = "db.constraint." + constraint.name().toLowerCase();
+            message = resolve(code, null, constraint.getMessage());
         }
 
         ApiError apiError = ApiError.builder()
@@ -136,7 +153,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .messages(List.of(MSG_BAD_CREDENTIAL))
+                .messages(List.of(resolve(CODE_BAD_CREDENTIAL, null, FALLBACK_BAD_CREDENTIAL)))
                 .detail(List.of(ex.getMessage()))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
@@ -150,9 +167,26 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(status.value())
                 .timestamp(OffsetDateTime.now())
                 .title(INTERNAL_SERVER_ERROR)
-                .messages(List.of(MSG_INTERNAL_SERVER_ERROR))
+                .messages(List.of(resolve(CODE_INTERNAL_SERVER_ERROR, null, FALLBACK_INTERNAL_SERVER_ERROR)))
                 .detail(List.of(UNEXPECTED_ERROR_DETAIL))
                 .build();
         return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
+    }
+
+    /**
+     * Resolves a message code using MessageSource with the request locale.
+     * Falls back to the provided Portuguese fallback if MessageSource is unavailable
+     * or the code is not found (e.g., entity-specific messages not yet translated).
+     */
+    private String resolve(String code, Object[] args, String fallback) {
+        if (messageSource == null) {
+            return fallback;
+        }
+        Locale locale = LocaleContextHolder.getLocale();
+        try {
+            return messageSource.getMessage(code, args, locale);
+        } catch (NoSuchMessageException e) {
+            return fallback;
+        }
     }
 }

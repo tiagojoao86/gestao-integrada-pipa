@@ -25,14 +25,16 @@ public class Validator {
 
     public Validator notNull() {
         if (value == null) {
-            addMessage("notNull", String.format("O campo '%s' é obrigatório.", fieldName));
+            addMessage("validation.field.required", new Object[]{fieldName},
+                    String.format("O campo '%s' é obrigatório.", fieldName));
         }
         return this;
     }
 
     public Validator notBlank() {
         if (value == null || !(value instanceof String) || ((String) value).trim().isEmpty()) {
-            addMessage("notBlank", String.format("O campo '%s' é obrigatório.", fieldName));
+            addMessage("validation.field.required", new Object[]{fieldName},
+                    String.format("O campo '%s' é obrigatório.", fieldName));
         }
         return this;
     }
@@ -40,8 +42,7 @@ public class Validator {
     public Validator maxLength(int max) {
         if (value instanceof String) {
             if (((String) value).trim().length() > max) {
-                addMessage(
-                        "maxLength",
+                addMessage("validation.field.maxLength", new Object[]{fieldName, max},
                         String.format("O campo '%s' deve ter no máximo %d caracteres.", fieldName, max));
             }
         }
@@ -51,8 +52,7 @@ public class Validator {
     public Validator minLength(int min) {
         if (value instanceof String) {
             if (((String) value).trim().length() < min) {
-                addMessage(
-                        "minLength",
+                addMessage("validation.field.minLength", new Object[]{fieldName, min},
                         String.format("O campo '%s' deve ter no mínimo %d caracteres.", fieldName, min));
             }
         }
@@ -62,7 +62,8 @@ public class Validator {
     public Validator emailFormat() {
         if (value instanceof String && !((String) value).trim().isEmpty()) {
             if (!EMAIL_PATTERN.matcher((String) value).matches()) {
-                addMessage("email", String.format("O campo '%s' possui formato de e-mail inválido.", fieldName));
+                addMessage("validation.field.email", new Object[]{fieldName},
+                        String.format("O campo '%s' possui formato de e-mail inválido.", fieldName));
             }
         }
         return this;
@@ -71,16 +72,14 @@ public class Validator {
     public Validator greaterThan(Number number) {
         if (value instanceof Number) {
             if (((Number) value).doubleValue() <= number.doubleValue()) {
-                addMessage(
-                        "greaterThan",
+                addMessage("validation.field.greaterThan", new Object[]{fieldName, number},
                         String.format("O campo '%s' deve ser maior que %s.", fieldName, number));
             }
         }
         return this;
     }
 
-    private void addMessage(String ruleKey, String defaultMessage) {
-        this.messages.add(
-                new BeanValidationMessage(String.format("%s.%s", fieldName, ruleKey), defaultMessage));
+    private void addMessage(String code, Object[] args, String fallback) {
+        this.messages.add(new BeanValidationMessage(code, args, fallback));
     }
 }
