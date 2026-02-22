@@ -8,6 +8,8 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -56,22 +58,14 @@ public class CentroCusto extends BaseEntity implements UnidadeNegocioFiltravel {
             String nome, Boolean centroResultado, UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (nome == null || nome.isBlank()) {
-            violations.add(new BeanValidationMessage("nome", "centroCusto.nome.notBlank"));
-        } else if (nome.length() > 200) {
-            violations.add(new BeanValidationMessage("nome", "centroCusto.nome.maxLength"));
-        }
-
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "centroCusto.unidadeNegocio.required"));
-        }
+        Nome nomeVO = ValidationUtils.validateAndGet(() -> Nome.of(nome), violations);
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException(violations);
         }
 
-        return new ValidatedData(Nome.of(nome.trim()), centroResultado, unidadeNegocio);
+        return new ValidatedData(nomeVO, centroResultado, unidadeNegocio);
     }
 
     private static class ValidatedData {

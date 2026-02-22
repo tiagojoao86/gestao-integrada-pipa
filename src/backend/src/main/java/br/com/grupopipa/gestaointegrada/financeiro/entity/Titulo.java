@@ -15,6 +15,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
@@ -206,42 +207,24 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             LocalDate dataPagamento) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (tipo == null) {
-            violations.add(new BeanValidationMessage("tipo", "Tipo do título é obrigatório"));
-        }
-        if (descricao == null || descricao.isBlank()) {
-            violations.add(new BeanValidationMessage("descricao", "Descrição é obrigatória"));
-        } else if (descricao.length() > 500) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 500 caracteres"));
-        }
-        if (pessoa == null) {
-            violations.add(new BeanValidationMessage("pessoa", "Pessoa é obrigatória"));
-        }
-        if (tituloCategoria == null) {
-            violations.add(new BeanValidationMessage("tituloCategoria", "Categoria é obrigatória"));
-        }
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
-        }
-        if (dataEmissao == null) {
-            violations.add(new BeanValidationMessage("dataEmissao", "Data de emissão é obrigatória"));
-        }
-        if (dataVencimento == null) {
-            violations.add(
-                    new BeanValidationMessage("dataVencimento", "Data de vencimento é obrigatória"));
-        } else if (dataEmissao != null && dataVencimento.isBefore(dataEmissao)) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "dataVencimento", "Data de vencimento não pode ser anterior à data de emissão"));
+        Validator.of(tipo, "tipo do título", violations).notNull();
+        Validator.of(descricao, "descrição", violations).notBlank().maxLength(500);
+        Validator.of(pessoa, "pessoa", violations).notNull();
+        Validator.of(tituloCategoria, "categoria", violations).notNull();
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
+        Validator.of(dataEmissao, "data de emissão", violations).notNull();
+        Validator.of(dataVencimento, "data de vencimento", violations).notNull();
+
+        if (dataVencimento != null && dataEmissao != null && dataVencimento.isBefore(dataEmissao)) {
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.dataVencimentoInvalida",
+                    "Data de vencimento não pode ser anterior à data de emissão."));
         }
 
-        // Validar dataPagamento se fornecida
         if (dataPagamento != null && dataEmissao != null && dataPagamento.isBefore(dataEmissao)) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "dataPagamento", "Data de pagamento não pode ser anterior à data de emissão"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.dataPagamentoInvalida",
+                    "Data de pagamento não pode ser anterior à data de emissão."));
         }
 
         Money money = ValidationUtils.validateAndGet(
@@ -267,12 +250,11 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         // Money.positiveOrZero() já garante >= 0
-        if (desconto == null) {
-            violations.add(new BeanValidationMessage("valorDesconto", "Desconto não pode ser nulo"));
-        } else if (desconto.isGreaterThan(valorOriginal)) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "valorDesconto", "Desconto não pode ser maior que o valor original"));
+        Validator.of(desconto, "desconto", violations).notNull();
+        if (desconto != null && desconto.isGreaterThan(valorOriginal)) {
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.descontoAcimaOriginal",
+                    "Desconto não pode ser maior que o valor original."));
         }
 
         if (!violations.isEmpty()) {
@@ -287,9 +269,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         // Money.positiveOrZero() já garante >= 0
-        if (juros == null) {
-            violations.add(new BeanValidationMessage("valorJuros", "Juros não pode ser nulo"));
-        }
+        Validator.of(juros, "juros", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -303,9 +283,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         // Money.positiveOrZero() já garante >= 0
-        if (multa == null) {
-            violations.add(new BeanValidationMessage("valorMulta", "Multa não pode ser nula"));
-        }
+        Validator.of(multa, "multa", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -431,17 +409,19 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (numeroParcela == null || numeroParcela <= 0) {
-            violations.add(
-                    new BeanValidationMessage("numeroParcela", "Número da parcela deve ser maior que zero"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.numeroParcela",
+                    "Número da parcela deve ser maior que zero."));
         }
         if (totalParcelas == null || totalParcelas <= 0) {
-            violations.add(
-                    new BeanValidationMessage("totalParcelas", "Total de parcelas deve ser maior que zero"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.totalParcelas",
+                    "Total de parcelas deve ser maior que zero."));
         }
         if (numeroParcela != null && totalParcelas != null && numeroParcela > totalParcelas) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "numeroParcela", "Número da parcela não pode ser maior que o total"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.parcelaAcimaTotal",
+                    "Número da parcela não pode ser maior que o total."));
         }
 
         if (!violations.isEmpty()) {
@@ -464,54 +444,38 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             Boolean rateioAutomatico) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Títulos origem de parcelamento não podem ser alterados
         if (isOrigemParcelamento()) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "parcelamento",
-                            "Não é possível alterar título origem de parcelamento"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.origemParcelamento",
+                    "Não é possível alterar título origem de parcelamento."));
         }
 
-        // Títulos com movimentações financeiras não podem ter campos principais
-        // alterados
         if (!movimentacoes.isEmpty()) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "movimentacoes",
-                            "Não é possível alterar título com movimentações financeiras"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.comMovimentacoes",
+                    "Não é possível alterar título com movimentações financeiras."));
         }
 
-        // Títulos cancelados não podem ser alterados
         if (status == StatusTitulo.CANCELADO) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "status",
-                            "Não é possível alterar título "
-                                    + status.getDescricao()));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.cancelado",
+                    "Não é possível alterar título " + status.getDescricao() + "."));
         }
 
-        if (descricao != null && !descricao.isBlank()
-                && descricao.length() > 500) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "descricao",
-                            "Descrição deve ter no máximo 500 caracteres"));
+        if (descricao != null && !descricao.isBlank() && descricao.length() > 500) {
+            Validator.of(descricao, "descrição", violations).maxLength(500);
         }
 
-        if (dataVencimento != null
-                && dataVencimento.isBefore(dataEmissao)) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "dataVencimento",
-                            "Data de vencimento não pode ser anterior à data de emissão"));
+        if (dataVencimento != null && dataVencimento.isBefore(dataEmissao)) {
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.dataVencimentoInvalida",
+                    "Data de vencimento não pode ser anterior à data de emissão."));
         }
 
-        if (dataPagamento != null
-                && dataPagamento.isBefore(dataEmissao)) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "dataPagamento",
-                            "Data de pagamento não pode ser anterior à data de emissão"));
+        if (dataPagamento != null && dataPagamento.isBefore(dataEmissao)) {
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.dataPagamentoInvalida",
+                    "Data de pagamento não pode ser anterior à data de emissão."));
         }
 
         if (!violations.isEmpty()) {
@@ -554,23 +518,18 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         // Títulos com movimentações financeiras não podem ter unidade de negócio
         // alterada
         if (!movimentacoes.isEmpty()) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "movimentacoes",
-                            "Não é possível alterar unidade de negócio de título com movimentações financeiras"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.comMovimentacoes",
+                    "Não é possível alterar unidade de negócio de título com movimentações financeiras."));
         }
 
-        // Títulos cancelados não podem ser alterados
         if (status == StatusTitulo.CANCELADO) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "status", "Não é possível alterar título " + status.getDescricao()));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.cancelado",
+                    "Não é possível alterar título " + status.getDescricao() + "."));
         }
 
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
-        }
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("titulo", violations);
@@ -583,14 +542,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (status == StatusTitulo.PAGO) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "status.cancelar.pago", "Não é possível cancelar título já pago"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.cancelarPago",
+                    "Não é possível cancelar título já pago."));
         }
         if (!movimentacoes.isEmpty()) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "movimentacoes", "Não é possível cancelar título com movimentações"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.cancelarComMovimentacoes",
+                    "Não é possível cancelar título com movimentações."));
         }
 
         if (!violations.isEmpty()) {
@@ -749,18 +708,18 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             BigDecimal percentualRateio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (setor == null) {
-            violations.add(new BeanValidationMessage("setor", "Setor é obrigatório"));
-        }
+        Validator.of(setor, "setor", violations).notNull();
 
         if (percentualRateio == null || percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
-            violations.add(
-                    new BeanValidationMessage("percentualRateio", "Percentual deve ser maior que zero"));
+            violations.add(new BeanValidationMessage(
+                    "validation.tituloSetor.percentualZero",
+                    "Percentual de rateio deve ser maior que zero."));
         }
 
         if (percentualRateio != null && percentualRateio.compareTo(new BigDecimal("100")) > 0) {
-            violations.add(
-                    new BeanValidationMessage("percentualRateio", "Percentual não pode ser maior que 100"));
+            violations.add(new BeanValidationMessage(
+                    "validation.tituloSetor.percentualMaximo",
+                    "Percentual de rateio não pode ser maior que 100."));
         }
 
         // Note: Removed duplicate sector validation as we clear sectors before adding
@@ -795,8 +754,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (setores.isEmpty()) {
-            violations.add(
-                    new BeanValidationMessage("setores", "Pelo menos um setor deve ser vinculado ao título"));
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.setoresObrigatorio",
+                    "Pelo menos um setor deve ser vinculado ao título."));
         }
 
         if (!setores.isEmpty()) {
@@ -805,9 +765,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             if (somaPercentuais.compareTo(new BigDecimal("100")) != 0) {
-                violations.add(
-                        new BeanValidationMessage(
-                                "setores", "A soma dos percentuais deve ser exatamente 100%"));
+                violations.add(new BeanValidationMessage(
+                        "validation.titulo.percentualTotal",
+                        "A soma dos percentuais deve ser exatamente 100%."));
             }
         }
 

@@ -8,6 +8,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 import jakarta.persistence.Column;
@@ -61,14 +62,8 @@ public class Setor extends BaseEntity {
         // Isso captura BeanValidationExceptions e adiciona ao set de violations
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
 
-        if (descricao != null && descricao.length() > 500) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 500 caracteres"));
-        }
-
-        if (centroCusto == null) {
-            violations.add(new BeanValidationMessage("centroCusto", "Centro de Custo é obrigatório"));
-        }
+        Validator.of(descricao, "descrição", violations).maxLength(500);
+        Validator.of(centroCusto, "centro de custo", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("setor", violations);

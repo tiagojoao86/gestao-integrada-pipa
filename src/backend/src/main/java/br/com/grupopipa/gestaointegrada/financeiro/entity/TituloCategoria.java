@@ -8,6 +8,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum;
 import jakarta.persistence.Column;
@@ -103,26 +104,18 @@ public class TituloCategoria extends BaseEntity {
             TituloCategoria agrupador) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (codigo == null || codigo.trim().isEmpty()) {
-            violations.add(new BeanValidationMessage("codigo", "Código é obrigatório"));
-        }
+        Validator.of(codigo, "código", violations).notBlank();
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
 
-        if (descricaoStr != null && descricaoStr.length() > 400) {
-            violations.add(
-                    new BeanValidationMessage("descricao", "Descrição deve ter no máximo 400 caracteres"));
-        }
-
-        if (tipo == null) {
-            violations.add(new BeanValidationMessage("tipo", "Tipo é obrigatório"));
-        }
+        Validator.of(descricaoStr, "descrição", violations).maxLength(400);
+        Validator.of(tipo, "tipo", violations).notNull();
 
         // Validação: se tem agrupador, o tipo deve ser o mesmo
         if (agrupador != null && tipo != null && agrupador.getTipo() != tipo) {
-            violations.add(
-                    new BeanValidationMessage(
-                            "agrupador", "O tipo da categoria deve ser o mesmo do agrupador"));
+            violations.add(new BeanValidationMessage(
+                    "validation.tituloCategoria.tipoAgrupadorDiferente",
+                    "O tipo da categoria deve ser o mesmo do agrupador."));
         }
 
         if (!violations.isEmpty()) {

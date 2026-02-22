@@ -9,6 +9,7 @@ import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -60,25 +61,20 @@ public class TituloSetor extends BaseEntity {
     private static ValidatedData validate(Titulo titulo, Setor setor, BigDecimal percentualRateio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (titulo == null) {
-            violations.add(new BeanValidationMessage("titulo", "Título é obrigatório"));
-        }
+        Validator.of(titulo, "título", violations).notNull();
+        Validator.of(setor, "setor", violations).notNull();
+        Validator.of(percentualRateio, "percentual de rateio", violations).notNull();
 
-        if (setor == null) {
-            violations.add(new BeanValidationMessage("setor", "Setor é obrigatório"));
-        }
-
-        if (percentualRateio == null) {
-            violations.add(
-                    new BeanValidationMessage("percentualRateio", "Percentual de rateio é obrigatório"));
-        } else {
+        if (percentualRateio != null) {
             if (percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
-                violations.add(
-                        new BeanValidationMessage("percentualRateio", "Percentual deve ser maior que zero"));
+                violations.add(new BeanValidationMessage(
+                        "validation.tituloSetor.percentualZero",
+                        "Percentual de rateio deve ser maior que zero."));
             }
             if (percentualRateio.compareTo(new BigDecimal("100")) > 0) {
-                violations.add(
-                        new BeanValidationMessage("percentualRateio", "Percentual não pode ser maior que 100"));
+                violations.add(new BeanValidationMessage(
+                        "validation.tituloSetor.percentualMaximo",
+                        "Percentual de rateio não pode ser maior que 100."));
             }
         }
 
@@ -92,17 +88,18 @@ public class TituloSetor extends BaseEntity {
     public void atualizar(BigDecimal percentualRateio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        if (percentualRateio == null) {
-            violations.add(
-                    new BeanValidationMessage("percentualRateio", "Percentual de rateio é obrigatório"));
-        } else {
+        Validator.of(percentualRateio, "percentual de rateio", violations).notNull();
+
+        if (percentualRateio != null) {
             if (percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
-                violations.add(
-                        new BeanValidationMessage("percentualRateio", "Percentual deve ser maior que zero"));
+                violations.add(new BeanValidationMessage(
+                        "validation.tituloSetor.percentualZero",
+                        "Percentual de rateio deve ser maior que zero."));
             }
             if (percentualRateio.compareTo(new BigDecimal("100")) > 0) {
-                violations.add(
-                        new BeanValidationMessage("percentualRateio", "Percentual não pode ser maior que 100"));
+                violations.add(new BeanValidationMessage(
+                        "validation.tituloSetor.percentualMaximo",
+                        "Percentual de rateio não pode ser maior que 100."));
             }
         }
 

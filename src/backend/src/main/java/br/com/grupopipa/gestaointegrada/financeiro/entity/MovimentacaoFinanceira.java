@@ -12,6 +12,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
+import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
@@ -145,28 +146,20 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (titulos == null || titulos.isEmpty()) {
-            violations.add(new BeanValidationMessage("titulos", "Pelo menos um título é obrigatório"));
+            violations.add(new BeanValidationMessage(
+                    "validation.movimentacao.titulosObrigatorio",
+                    "Pelo menos um título é obrigatório."));
         }
-        if (contaBancaria == null) {
-            violations.add(new BeanValidationMessage("contaBancaria", "Conta bancária é obrigatória"));
-        }
-        if (tipo == null) {
-            violations.add(new BeanValidationMessage("tipo", "Tipo de movimentação é obrigatório"));
-        }
-        if (formaPagamento == null) {
-            violations.add(
-                    new BeanValidationMessage("formaPagamento", "Forma de pagamento é obrigatória"));
-        }
+        Validator.of(contaBancaria, "conta bancária", violations).notNull();
+        Validator.of(tipo, "tipo de movimentação", violations).notNull();
+        Validator.of(formaPagamento, "forma de pagamento", violations).notNull();
         if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
-            violations.add(new BeanValidationMessage("valor", "Valor deve ser maior que zero"));
+            violations.add(new BeanValidationMessage(
+                    "validation.movimentacao.valorPositivo",
+                    "Valor deve ser maior que zero."));
         }
-        if (data == null) {
-            violations.add(new BeanValidationMessage("data", "Data é obrigatória"));
-        }
-        if (unidadeNegocio == null) {
-            violations.add(
-                    new BeanValidationMessage("unidadeNegocio", "Unidade de negócio é obrigatória"));
-        }
+        Validator.of(data, "data", violations).notNull();
+        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
 
         Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
 
@@ -174,48 +167,35 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         if (titulos != null && money != null) {
             for (Titulo titulo : titulos) {
                 if (!titulo.getStatus().permiteMovimentacao()) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "titulo.status",
-                                    "Não é possível criar movimentação para título "
-                                            + titulo.getStatus().getDescricao()));
+                    violations.add(new BeanValidationMessage(
+                            "validation.movimentacao.statusNaoPermite",
+                            "Não é possível criar movimentação para título "
+                                    + titulo.getStatus().getDescricao() + "."));
                 }
 
                 if (titulo.isOrigemParcelamento()) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "titulo.origemParcelamento",
-                                    "Não é possível criar movimentação para "
-                                            + "título origem de parcelamento. "
-                                            + "Utilize as parcelas."));
+                    violations.add(new BeanValidationMessage(
+                            "validation.movimentacao.origemParcelamento",
+                            "Não é possível criar movimentação para título origem de parcelamento. "
+                                    + "Utilize as parcelas."));
                 }
 
-                // Calcular o valor total que o título pode receber (valor original + juros +
-                // multa -
-                // desconto)
                 Money valorTotal = titulo
                         .getValorOriginal()
                         .add(titulo.getValorJuros())
                         .add(titulo.getValorMulta())
                         .subtract(titulo.getValorDesconto());
 
-                // Calcular o valor que será pago após esta movimentação
                 Money valorPagoAtual = titulo.getValorPago();
                 Money valorPagoAposMovimentacao = valorPagoAtual.add(money);
 
-                // Verificar se o valor pago ultrapassaria o valor total do título
                 if (valorPagoAposMovimentacao.isGreaterThan(valorTotal)) {
-                    violations.add(
-                            new BeanValidationMessage(
-                                    "valor.valorPagoUltrapassaTotal",
-                                    "Valor pago após a movimentação ("
-                                            + valorPagoAposMovimentacao
-                                            + ") ultrapassaria o valor total do título ("
-                                            + valorTotal
-                                            + "). Valor já pago: "
-                                            + valorPagoAtual
-                                            + ", valor da movimentação: "
-                                            + money));
+                    violations.add(new BeanValidationMessage(
+                            "validation.movimentacao.valorUltrapassaTotal",
+                            "Valor pago após a movimentação (" + valorPagoAposMovimentacao
+                                    + ") ultrapassaria o valor total do título (" + valorTotal
+                                    + "). Valor já pago: " + valorPagoAtual
+                                    + ", valor da movimentação: " + money + "."));
                 }
             }
         }
