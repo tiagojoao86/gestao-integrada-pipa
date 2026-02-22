@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 @Repository
 public interface TituloRepository
         extends JpaRepository<Titulo, UUID>, JpaSpecificationExecutor<Titulo>, TituloRepositoryCustom {
+
+    List<Titulo> findByTituloOrigem(Titulo tituloOrigem);
 }

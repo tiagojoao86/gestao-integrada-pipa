@@ -46,6 +46,7 @@ public class TituloServiceImpl
         extends CrudServiceImpl<TituloDTO, TituloGridDTO, Titulo, TituloRepository>
         implements TituloService {
 
+    private final TituloRepository tituloRepository;
     private final PessoaRepository pessoaRepository;
     private final PlanoContasRepository planoContasRepository;
     private final UnidadeNegocioRepository unidadeNegocioRepository;
@@ -68,6 +69,7 @@ public class TituloServiceImpl
             TituloCategoriaRepository tituloCategoriaRepository,
             CondicaoPagamentoRepository condicaoPagamentoRepository) {
         super(repository, specifications);
+        this.tituloRepository = repository;
         this.pessoaRepository = pessoaRepository;
         this.planoContasRepository = planoContasRepository;
         this.unidadeNegocioRepository = unidadeNegocioRepository;
@@ -78,25 +80,56 @@ public class TituloServiceImpl
     }
 
     /**
-     * Bloqueia a exclusão de títulos com movimentações financeiras ativas.
-     * O usuário deve remover as movimentações manualmente antes de excluir o título.
+     * Regras de exclusão de títulos:
+     * <ul>
+     *   <li>Título filho (parcela) não pode ser excluído individualmente.</li>
+     *   <li>Título com movimentações financeiras ativas não pode ser excluído.</li>
+     *   <li>Título pai de parcelamento: se alguma parcela tiver movimentação ativa,
+     *       a exclusão é bloqueada. Caso contrário, todas as parcelas são excluídas
+     *       junto com o título pai.</li>
+     * </ul>
      */
     @Override
     @Transactional
     public UUID delete(UUID id) {
         Titulo titulo = this.findEntityById(id);
 
-        boolean hasActiveMovimentacoes = titulo.getMovimentacoes().stream()
-                .anyMatch(m -> !m.getMovimentacaoFinanceira().isDeleted());
+        if (titulo.getTituloOrigem() != null) {
+            throw new BeanValidationException(Set.of(new BeanValidationMessage(
+                    "validation.titulo.isParcela",
+                    "Este título é uma parcela e não pode ser excluído individualmente."
+                            + " Exclua o título de origem do parcelamento.")));
+        }
 
-        if (hasActiveMovimentacoes) {
+        if (hasActiveMovimentacoes(titulo)) {
             throw new BeanValidationException(Set.of(new BeanValidationMessage(
                     "validation.titulo.possuiMovimentacoes",
                     "Não é possível excluir um título com movimentações financeiras associadas."
                             + " Remova as movimentações antes de excluir o título.")));
         }
 
+        if (titulo.getTotalParcelas() != null && titulo.getTotalParcelas() > 1) {
+            List<Titulo> parcelas = tituloRepository.findByTituloOrigem(titulo);
+
+            boolean anyParcelaHasMovimentacao = parcelas.stream()
+                    .anyMatch(this::hasActiveMovimentacoes);
+
+            if (anyParcelaHasMovimentacao) {
+                throw new BeanValidationException(Set.of(new BeanValidationMessage(
+                        "validation.titulo.parcelasComMovimentacoes",
+                        "Existem movimentações financeiras associadas a parcelas deste título."
+                                + " Remova as movimentações das parcelas antes de excluir.")));
+            }
+
+            parcelas.forEach(p -> super.delete(p.getId()));
+        }
+
         return super.delete(id);
+    }
+
+    private boolean hasActiveMovimentacoes(Titulo titulo) {
+        return titulo.getMovimentacoes().stream()
+                .anyMatch(m -> !m.getMovimentacaoFinanceira().isDeleted());
     }
 
     @Override
