@@ -5,8 +5,8 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, take } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { EMPTY, Observable, take } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { PageRequest } from './model/page-request';
 import {
   Response,
@@ -131,7 +131,13 @@ export abstract class BaseService<D, G = D> {
       .delete<ResponseString>(this.getUrl('/' + id), {
         headers: this.getHeaders(),
       })
-      .pipe(take(1));
+      .pipe(
+        take(1),
+        catchError((error: HttpErrorResponse) => {
+          this.handleError(error);
+          return EMPTY;
+        })
+      );
   }
 
   getAuditInfo(id: string): Observable<Response<AuditInfoData>> {
