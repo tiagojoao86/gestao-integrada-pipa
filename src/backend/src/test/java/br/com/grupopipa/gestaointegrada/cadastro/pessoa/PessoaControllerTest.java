@@ -1,6 +1,7 @@
 package br.com.grupopipa.gestaointegrada.cadastro.pessoa;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -128,7 +129,7 @@ class PessoaControllerTest {
 
         PageDTO<PessoaGridDTO> pageDTO = new PageDTO<>(List.of(gridDTO1, gridDTO2), PageRequest.of(0, 10), 2L);
 
-        when(service.list(any(FilterDTO.class), any(Pageable.class))).thenReturn(pageDTO);
+        when(service.list(nullable(FilterDTO.class), any(Pageable.class))).thenReturn(pageDTO);
 
         // When & Then
         mockMvc
@@ -147,7 +148,7 @@ class PessoaControllerTest {
                 .andExpect(jsonPath("$.body.content[1].tipoPessoa").value("JURIDICA"))
                 .andExpect(jsonPath("$.body.totalElements").value(2));
 
-        verify(service, times(1)).list(any(FilterDTO.class), any(Pageable.class));
+        verify(service, times(1)).list(nullable(FilterDTO.class), any(Pageable.class));
     }
 
     @Test
