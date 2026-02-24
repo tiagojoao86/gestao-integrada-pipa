@@ -25,6 +25,7 @@ describe('TituloDetalheComponent', () => {
       listarPessoasDisponiveis: jest.fn(),
       listarUnidadesDisponiveis: jest.fn(),
       listarCategoriasDisponiveis: jest.fn(),
+      listarCondicoesPagamentoDisponiveis: jest.fn(),
     };
 
     const messageServiceMock = {
@@ -36,6 +37,7 @@ describe('TituloDetalheComponent', () => {
     const authServiceMock = {
       hasAuthorityEditarToModulo: jest.fn(),
       getDefaultUnidadeNegocio: jest.fn(),
+      getUnidadesNegocio: jest.fn().mockReturnValue([]),
     };
 
     await TestBed.configureTestingModule({
@@ -67,13 +69,15 @@ describe('TituloDetalheComponent', () => {
     // Setup padrão
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
     authServiceMock.getDefaultUnidadeNegocio.mockReturnValue({
-      id: 'un-default',
-      nome: 'Unidade Padrão',
-      codigo: '001',
+      unidadeNegocioId: 'un-default',
+      unidadeNegocioNome: 'Unidade Padrão',
+      unidadeNegocioCodigo: '001',
+      isDefault: true,
     });
     tituloServiceMock.listarPessoasDisponiveis.mockReturnValue(of([]));
     tituloServiceMock.listarUnidadesDisponiveis.mockReturnValue(of([]));
     tituloServiceMock.listarCategoriasDisponiveis.mockReturnValue(of([]));
+    tituloServiceMock.listarCondicoesPagamentoDisponiveis.mockReturnValue(of([]));
   });
 
   afterEach(() => {
@@ -148,34 +152,33 @@ describe('TituloDetalheComponent', () => {
       expect(component.allPessoas.length).toBe(2);
     });
 
-    it('deve carregar unidades de negócio disponíveis', async () => {
+    it('deve carregar unidades de negócio disponíveis', () => {
       // Arrange
       const mockUnidades = [
-        { id: 'un-1', codigo: '001', nome: 'Matriz' },
-        { id: 'un-2', codigo: '002', nome: 'Filial' },
+        { unidadeNegocioId: 'un-1', unidadeNegocioNome: 'Matriz', unidadeNegocioCodigo: '001', isDefault: false },
+        { unidadeNegocioId: 'un-2', unidadeNegocioNome: 'Filial', unidadeNegocioCodigo: '002', isDefault: false },
       ];
-      tituloService.listarUnidadesDisponiveis.mockReturnValue(of(mockUnidades));
+      authService.getUnidadesNegocio.mockReturnValue(mockUnidades);
 
       // Act
       component.loadUnidadesNegocio();
-      await fixture.whenStable();
 
       // Assert
       expect(component.allUnidadesNegocio).toEqual(mockUnidades);
+      expect(component.allUnidadesNegocio.length).toBe(2);
     });
 
     it('deve definir unidade padrão ao criar novo título', async () => {
       // Arrange
       component.id = RouteConstants.P_ADD;
       const defaultUnidade = {
-        id: 'un-default',
-        codigo: '001',
-        nome: 'Unidade Padrão',
+        unidadeNegocioId: 'un-default',
+        unidadeNegocioNome: 'Unidade Padrão',
+        unidadeNegocioCodigo: '001',
+        isDefault: true,
       };
       authService.getDefaultUnidadeNegocio.mockReturnValue(defaultUnidade);
-      tituloService.listarUnidadesDisponiveis.mockReturnValue(
-        of([defaultUnidade])
-      );
+      authService.getUnidadesNegocio.mockReturnValue([defaultUnidade]);
 
       // Act
       component.ngOnInit();
@@ -291,7 +294,6 @@ describe('TituloDetalheComponent', () => {
     beforeEach(() => {
       component.id = RouteConstants.P_ADD;
       component.ngOnInit();
-      component.initForm();
     });
 
     it('NÃO deve salvar se formulário está inválido', () => {
@@ -312,9 +314,11 @@ describe('TituloDetalheComponent', () => {
       // Arrange
       component.form.patchValue({
         tipo: 'A_PAGAR',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-1',
         unidadeNegocio: 'un-1',
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = [
         { setorId: 'setor-1', setorNome: 'Admin', percentualRateio: 100 },
@@ -332,13 +336,15 @@ describe('TituloDetalheComponent', () => {
     });
 
     it('NÃO deve salvar se unidade de negócio não foi selecionada', () => {
-      // Arrange
+      // Arrange - unidadeNegocio com Validators.required, valor '' invalida o form
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_PAGAR',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-1',
-        unidadeNegocio: '', // Vazio
+        unidadeNegocio: '', // Vazio — Validators.required torna form inválido
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = [
         { setorId: 'setor-1', setorNome: 'Admin', percentualRateio: 100 },
@@ -347,21 +353,23 @@ describe('TituloDetalheComponent', () => {
       // Act
       component.salvar();
 
-      // Assert
+      // Assert — form.valid = false porque unidadeNegocio tem Validators.required
       expect(messageService.erro).toHaveBeenCalled();
       const callArgs = messageService.erro.mock.calls[0][0];
-      expect(callArgs).toContain('Unidade');
+      expect(callArgs).toContain('inválid');
       expect(tituloService.save).not.toHaveBeenCalled();
     });
 
     it('NÃO deve salvar se categoria não foi selecionada', () => {
-      // Arrange
+      // Arrange - tituloCategoria com Validators.required, valor null invalida o form
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_PAGAR',
-        tituloCategoria: null, // Categoria não selecionada
+        descricao: 'Título Teste',
+        tituloCategoria: null, // Categoria não selecionada — Validators.required torna form inválido
         unidadeNegocio: 'un-1',
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = [
         { setorId: 'setor-1', setorNome: 'Admin', percentualRateio: 100 },
@@ -370,10 +378,10 @@ describe('TituloDetalheComponent', () => {
       // Act
       component.salvar();
 
-      // Assert
+      // Assert — form.valid = false porque tituloCategoria tem Validators.required
       expect(messageService.erro).toHaveBeenCalled();
       const callArgs = messageService.erro.mock.calls[0][0];
-      expect(callArgs).toContain('Categoria');
+      expect(callArgs).toContain('inválid');
       expect(tituloService.save).not.toHaveBeenCalled();
     });
 
@@ -382,9 +390,11 @@ describe('TituloDetalheComponent', () => {
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_PAGAR',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-1',
         unidadeNegocio: 'un-1',
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = [
         { setorId: 'setor-1', setorNome: 'Admin', percentualRateio: 60 },
@@ -407,9 +417,11 @@ describe('TituloDetalheComponent', () => {
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_PAGAR',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-1',
         unidadeNegocio: 'un-1',
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = []; // Nenhum setor
 
@@ -428,7 +440,6 @@ describe('TituloDetalheComponent', () => {
     beforeEach(() => {
       component.id = RouteConstants.P_ADD;
       component.ngOnInit();
-      component.initForm();
     });
 
     it('deve salvar título com sucesso e exibir mensagem', async () => {
@@ -504,9 +515,11 @@ describe('TituloDetalheComponent', () => {
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_RECEBER',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-2',
         unidadeNegocio: 'un-2',
         valorOriginal: 5000,
+        dataVencimento: new Date('2025-01-31'),
       });
       component.setoresSelecionados = [
         {
@@ -545,9 +558,11 @@ describe('TituloDetalheComponent', () => {
       component.titulo.pessoaId = 'pessoa-1';
       component.form.patchValue({
         tipo: 'A_PAGAR',
+        descricao: 'Título Teste',
         tituloCategoria: 'cat-1',
         unidadeNegocio: 'un-1',
         valorOriginal: 1000,
+        dataVencimento: new Date('2025-01-31'),
         valorDesconto: null,
         valorJuros: null,
         valorMulta: null,

@@ -19,15 +19,14 @@ describe('ContaBancariaDetalheComponent', () => {
   let authService: jest.Mocked<AuthService>;
 
   const mockUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [
-    { id: 'un-1', nome: 'Unidade 1', codigo: 'UN01' } as UsuarioUnidadeNegocioDTO,
-    { id: 'un-2', nome: 'Unidade 2', codigo: 'UN02' } as UsuarioUnidadeNegocioDTO,
+    new UsuarioUnidadeNegocioDTO('un-1', 'Unidade 1', 'UN01', true),
+    new UsuarioUnidadeNegocioDTO('un-2', 'Unidade 2', 'UN02', false),
   ];
 
   beforeEach(async () => {
     const contaBancariaServiceMock = {
       findById: jest.fn(),
       save: jest.fn(),
-      listarUnidadesDisponiveis: jest.fn(),
     };
 
     const messageServiceMock = {
@@ -38,6 +37,7 @@ describe('ContaBancariaDetalheComponent', () => {
     const authServiceMock = {
       hasAuthorityEditarToModulo: jest.fn(),
       getDefaultUnidadeNegocio: jest.fn(),
+      getUnidadesNegocio: jest.fn().mockReturnValue(mockUnidadesNegocio),
     };
 
     await TestBed.configureTestingModule({
@@ -71,10 +71,6 @@ describe('ContaBancariaDetalheComponent', () => {
     // Mocks padrão
     contaBancariaServiceMock.findById.mockReturnValue(
       of({ body: new ContaBancariaDTO() } as Response<ContaBancariaDTO>)
-    );
-
-    contaBancariaServiceMock.listarUnidadesDisponiveis.mockReturnValue(
-      of(mockUnidadesNegocio)
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -138,7 +134,7 @@ describe('ContaBancariaDetalheComponent', () => {
       component.detailId = 'add';
       component.ngOnInit();
 
-      expect(contaBancariaService.listarUnidadesDisponiveis).toHaveBeenCalled();
+      expect(authService.getUnidadesNegocio).toHaveBeenCalled();
     });
 
     it('deve definir unidade de negócio padrão do usuário ao criar novo', () => {
@@ -282,6 +278,9 @@ describe('ContaBancariaDetalheComponent', () => {
       component.contaBancaria.id = 'cb-456';
       component.form.patchValue({
         nome: 'Conta Editada',
+        banco: 'Banco Editado',
+        agencia: '9876',
+        numeroConta: '54321-0',
         tipo: 'POUPANCA',
         saldoInicial: 2000,
         ativa: true,
@@ -311,6 +310,9 @@ describe('ContaBancariaDetalheComponent', () => {
 
       component.form.patchValue({
         nome: 'Conta Nova',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         unidadeNegocio: 'un-1',
       });
@@ -332,6 +334,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve salvar conta inativa (ativa=false)', () => {
       component.form.patchValue({
         nome: 'Conta Inativa',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         ativa: false,
         unidadeNegocio: 'un-1',
@@ -354,6 +359,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve salvar conta do tipo POUPANCA', () => {
       component.form.patchValue({
         nome: 'Poupança',
+        banco: 'Banco Poupança',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'POUPANCA',
         saldoInicial: 3000,
         unidadeNegocio: 'un-1',
@@ -405,6 +413,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve salvar com saldoInicial zero', () => {
       component.form.patchValue({
         nome: 'Conta Zerada',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         saldoInicial: 0,
         unidadeNegocio: 'un-1',
@@ -467,6 +478,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve chamar onError quando backend retorna erro', () => {
       component.form.patchValue({
         nome: 'Conta Duplicada',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         unidadeNegocio: 'un-1',
       });
@@ -493,6 +507,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('NÃO deve fechar detalhe quando há erro do backend', () => {
       component.form.patchValue({
         nome: 'Conta Erro',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         unidadeNegocio: 'un-1',
       });
@@ -522,6 +539,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve permitir BaseService tratar erro de constraint unique', () => {
       component.form.patchValue({
         nome: 'Conta Existente',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         unidadeNegocio: 'un-1',
       });
@@ -551,6 +571,9 @@ describe('ContaBancariaDetalheComponent', () => {
     it('deve permitir BaseService tratar erro de foreign key', () => {
       component.form.patchValue({
         nome: 'Conta FK',
+        banco: 'Banco X',
+        agencia: '0001',
+        numeroConta: '99999-9',
         tipo: 'CORRENTE',
         unidadeNegocio: 'un-inexistente',
       });
