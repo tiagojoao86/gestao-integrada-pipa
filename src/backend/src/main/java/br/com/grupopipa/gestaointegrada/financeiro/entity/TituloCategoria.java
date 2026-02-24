@@ -1,16 +1,11 @@
 package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum;
+import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -75,56 +70,52 @@ public class TituloCategoria extends BaseEntity {
     protected TituloCategoria() {
     }
 
-    private static class ValidatedData {
-        final String codigo;
-        final Nome nome;
-        final String descricao;
-        final TituloCategoriaTipoEnum tipo;
-        final TituloCategoria agrupador;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                String codigo,
-                Nome nome,
-                String descricao,
-                TituloCategoriaTipoEnum tipo,
-                TituloCategoria agrupador) {
+    public static class Builder {
+        private String codigo;
+        private String nome;
+        private String descricao;
+        private TituloCategoriaTipoEnum tipo;
+        private TituloCategoria agrupador;
+
+        public Builder codigo(String codigo) {
             this.codigo = codigo;
+            return this;
+        }
+
+        public Builder nome(String nome) {
             this.nome = nome;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder tipo(TituloCategoriaTipoEnum tipo) {
             this.tipo = tipo;
+            return this;
+        }
+
+        public Builder agrupador(TituloCategoria agrupador) {
             this.agrupador = agrupador;
+            return this;
+        }
+
+        public TituloCategoria build() {
+            TituloCategoriaValidator.ValidatedData data = TituloCategoriaValidator.validate(
+                    this.codigo, this.nome, this.descricao, this.tipo, this.agrupador);
+            return new TituloCategoria(data.codigo, data.nome, data.descricao, this.tipo, this.agrupador);
         }
     }
 
-    private static ValidatedData validate(
-            String codigo,
-            String nomeStr,
-            String descricaoStr,
-            TituloCategoriaTipoEnum tipo,
-            TituloCategoria agrupador) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(codigo, "código", violations).notBlank();
-
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-
-        Validator.of(descricaoStr, "descrição", violations).maxLength(400);
-        Validator.of(tipo, "tipo", violations).notNull();
-
-        // Validação: se tem agrupador, o tipo deve ser o mesmo
-        if (agrupador != null && tipo != null && agrupador.getTipo() != tipo) {
-            violations.add(new BeanValidationMessage(
-                    "validation.tituloCategoria.tipoAgrupadorDiferente",
-                    "O tipo da categoria deve ser o mesmo do agrupador."));
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("tituloCategoria", violations);
-        }
-
-        return new ValidatedData(
-                codigo != null ? codigo.trim() : null, nome, descricaoStr, tipo, agrupador);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(
             String codigo,
@@ -132,7 +123,8 @@ public class TituloCategoria extends BaseEntity {
             String descricao,
             TituloCategoriaTipoEnum tipo,
             TituloCategoria agrupador) {
-        ValidatedData data = validate(codigo, nome, descricao, tipo, agrupador);
+        TituloCategoriaValidator.ValidatedData data = TituloCategoriaValidator.validate(
+                codigo, nome, descricao, tipo, agrupador);
         this.codigo = data.codigo;
         this.nome = data.nome;
         this.descricao = data.descricao;
@@ -193,43 +185,5 @@ public class TituloCategoria extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), nome);
-    }
-
-    public static class Builder {
-        private String codigo;
-        private String nome;
-        private String descricao;
-        private TituloCategoriaTipoEnum tipo;
-        private TituloCategoria agrupador;
-
-        public Builder codigo(String codigo) {
-            this.codigo = codigo;
-            return this;
-        }
-
-        public Builder nome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder tipo(TituloCategoriaTipoEnum tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-
-        public Builder agrupador(TituloCategoria agrupador) {
-            this.agrupador = agrupador;
-            return this;
-        }
-
-        public TituloCategoria build() {
-            ValidatedData data = validate(this.codigo, this.nome, this.descricao, this.tipo, this.agrupador);
-            return new TituloCategoria(data.codigo, data.nome, data.descricao, this.tipo, this.agrupador);
-        }
     }
 }

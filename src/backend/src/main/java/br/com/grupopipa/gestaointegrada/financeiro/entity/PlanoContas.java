@@ -13,6 +13,7 @@ import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValida
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoPlanoContas;
+import br.com.grupopipa.gestaointegrada.financeiro.planocontas.PlanoContasValidator;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,56 +75,53 @@ public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
     protected PlanoContas() {
     }
 
-    private static class ValidatedData {
-        final String codigo;
-        final String descricao;
-        final TipoPlanoContas tipo;
-        final PlanoContas planoPai;
-        final UnidadeNegocio unidadeNegocio;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                String codigo,
-                String descricao,
-                TipoPlanoContas tipo,
-                PlanoContas planoPai,
-                UnidadeNegocio unidadeNegocio) {
+    public static class Builder {
+        private String codigo;
+        private String descricao;
+        private TipoPlanoContas tipo;
+        private PlanoContas planoPai;
+        private UnidadeNegocio unidadeNegocio;
+
+        public Builder codigo(String codigo) {
             this.codigo = codigo;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder tipo(TipoPlanoContas tipo) {
             this.tipo = tipo;
+            return this;
+        }
+
+        public Builder planoPai(PlanoContas planoPai) {
             this.planoPai = planoPai;
+            return this;
+        }
+
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
             this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
+        public PlanoContas build() {
+            PlanoContasValidator.ValidatedData data = PlanoContasValidator.validate(
+                    this.codigo, this.descricao, this.tipo, this.planoPai, this.unidadeNegocio);
+            return new PlanoContas(
+                    data.codigo, data.descricao, data.tipo, data.planoPai, data.unidadeNegocio);
         }
     }
 
-    private static ValidatedData validate(
-            String codigo,
-            String descricao,
-            TipoPlanoContas tipo,
-            PlanoContas planoPai,
-            UnidadeNegocio unidadeNegocio) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(codigo, "código", violations).notBlank().maxLength(20);
-        Validator.of(descricao, "descrição", violations).notBlank().maxLength(200);
-        Validator.of(tipo, "tipo", violations).notNull();
-        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
-
-        // Validar plano pai
-        if (planoPai != null && tipo != null && !planoPai.getTipo().equals(tipo)) {
-            violations.add(new BeanValidationMessage(
-                    "validation.planoContas.tipoPaiDiferente",
-                    "Plano pai deve ser do mesmo tipo: " + tipo));
-        }
-        // Nota: Validação de auto-referência não é possível aqui pois o objeto ainda
-        // não foi criado
-        // Esta validação deve ser feita em @PrePersist/@PreUpdate se necessário
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("planoContas", violations);
-        }
-
-        return new ValidatedData(codigo, descricao, tipo, planoPai, unidadeNegocio);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(String descricao) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -231,44 +229,5 @@ public class PlanoContas extends BaseEntity implements UnidadeNegocioFiltravel {
     @Override
     public String toString() {
         return codigo + " - " + descricao;
-    }
-
-    public static class Builder {
-        private String codigo;
-        private String descricao;
-        private TipoPlanoContas tipo;
-        private PlanoContas planoPai;
-        private UnidadeNegocio unidadeNegocio;
-
-        public Builder codigo(String codigo) {
-            this.codigo = codigo;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder tipo(TipoPlanoContas tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-
-        public Builder planoPai(PlanoContas planoPai) {
-            this.planoPai = planoPai;
-            return this;
-        }
-
-        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
-            this.unidadeNegocio = unidadeNegocio;
-            return this;
-        }
-
-        public PlanoContas build() {
-            ValidatedData data = validate(this.codigo, this.descricao, this.tipo, this.planoPai, this.unidadeNegocio);
-            return new PlanoContas(
-                    data.codigo, data.descricao, data.tipo, data.planoPai, data.unidadeNegocio);
-        }
     }
 }

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -293,14 +292,16 @@ class PessoaServiceTest {
     void deveDeletarPessoa() {
         // Given
         UUID id = UUID.randomUUID();
-        doNothing().when(repository).deleteById(id);
+        when(repository.findById(id)).thenReturn(Optional.of(pessoaFisica));
+        when(repository.save(any(Pessoa.class))).thenReturn(pessoaFisica);
 
         // When
         UUID resultadoId = service.delete(id);
 
         // Then
         assertEquals(id, resultadoId);
-        verify(repository, times(1)).deleteById(id);
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(any(Pessoa.class));
     }
 
     @Test

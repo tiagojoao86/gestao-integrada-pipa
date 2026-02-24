@@ -12,6 +12,7 @@ import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValida
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
+import br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaValidator;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -76,69 +77,78 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
     protected ContaBancaria() {
     }
 
-    private static class ValidatedData {
-        final String nome;
-        final TipoConta tipo;
-        final String banco;
-        final String agencia;
-        final String numeroConta;
-        final Money saldoInicial;
-        final UnidadeNegocio unidadeNegocio;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                String nome,
-                TipoConta tipo,
-                String banco,
-                String agencia,
-                String numeroConta,
-                Money saldoInicial,
-                UnidadeNegocio unidadeNegocio) {
+    public static class Builder {
+        private String nome;
+        private TipoConta tipo;
+        private String banco;
+        private String agencia;
+        private String numeroConta;
+        private Money saldoInicial;
+        private UnidadeNegocio unidadeNegocio;
+
+        public Builder nome(String nome) {
             this.nome = nome;
+            return this;
+        }
+
+        public Builder tipo(TipoConta tipo) {
             this.tipo = tipo;
+            return this;
+        }
+
+        public Builder banco(String banco) {
             this.banco = banco;
+            return this;
+        }
+
+        public Builder agencia(String agencia) {
             this.agencia = agencia;
+            return this;
+        }
+
+        public Builder numeroConta(String numeroConta) {
             this.numeroConta = numeroConta;
+            return this;
+        }
+
+        public Builder saldoInicial(Money saldoInicial) {
             this.saldoInicial = saldoInicial;
+            return this;
+        }
+
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
             this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
+        public ContaBancaria build() {
+            BigDecimal saldoInicialValue = (this.saldoInicial != null) ? this.saldoInicial.getValue() : null;
+            ContaBancariaValidator.ValidatedData data = ContaBancariaValidator.validate(
+                    this.nome,
+                    this.tipo,
+                    this.banco,
+                    this.agencia,
+                    this.numeroConta,
+                    saldoInicialValue,
+                    this.unidadeNegocio);
+            return new ContaBancaria(
+                    data.nome,
+                    data.tipo,
+                    data.banco,
+                    data.agencia,
+                    data.numeroConta,
+                    data.saldoInicial,
+                    data.unidadeNegocio);
         }
     }
 
-    private static ValidatedData validate(
-            String nome,
-            TipoConta tipo,
-            String banco,
-            String agencia,
-            String numeroConta,
-            BigDecimal saldoInicial,
-            UnidadeNegocio unidadeNegocio) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(nome, "nome da conta", violations).notBlank().maxLength(100);
-        Validator.of(tipo, "tipo da conta", violations).notNull();
-        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
-
-        if (tipo == TipoConta.CORRENTE || tipo == TipoConta.POUPANCA) {
-            Validator.of(banco, "banco", violations).notBlank().maxLength(100);
-            Validator.of(agencia, "agência", violations).notBlank().maxLength(10);
-            Validator.of(numeroConta, "número da conta", violations).notBlank().maxLength(20);
-        }
-
-        // Validar e criar Money
-        Money money = Money.zero();
-        if (saldoInicial != null) {
-            try {
-                money = Money.of(saldoInicial);
-            } catch (Exception e) {
-                violations.add(new BeanValidationMessage("saldoInicial", "Saldo inicial inválido"));
-            }
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("contaBancaria", violations);
-        }
-
-        return new ValidatedData(nome, tipo, banco, agencia, numeroConta, money, unidadeNegocio);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(String nome, String banco, String agencia, String numeroConta) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -249,70 +259,5 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
             return nome + " - " + banco + " Ag: " + agencia + " Conta: " + numeroConta;
         }
         return nome;
-    }
-
-    public static class Builder {
-        private String nome;
-        private TipoConta tipo;
-        private String banco;
-        private String agencia;
-        private String numeroConta;
-        private Money saldoInicial;
-        private UnidadeNegocio unidadeNegocio;
-
-        public Builder nome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-
-        public Builder tipo(TipoConta tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-
-        public Builder banco(String banco) {
-            this.banco = banco;
-            return this;
-        }
-
-        public Builder agencia(String agencia) {
-            this.agencia = agencia;
-            return this;
-        }
-
-        public Builder numeroConta(String numeroConta) {
-            this.numeroConta = numeroConta;
-            return this;
-        }
-
-        public Builder saldoInicial(Money saldoInicial) {
-            this.saldoInicial = saldoInicial;
-            return this;
-        }
-
-        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
-            this.unidadeNegocio = unidadeNegocio;
-            return this;
-        }
-
-        public ContaBancaria build() {
-            BigDecimal saldoInicialValue = (this.saldoInicial != null) ? this.saldoInicial.getValue() : null;
-            ValidatedData data = validate(
-                    this.nome,
-                    this.tipo,
-                    this.banco,
-                    this.agencia,
-                    this.numeroConta,
-                    saldoInicialValue,
-                    this.unidadeNegocio);
-            return new ContaBancaria(
-                    data.nome,
-                    data.tipo,
-                    data.banco,
-                    data.agencia,
-                    data.numeroConta,
-                    data.saldoInicial,
-                    data.unidadeNegocio);
-        }
     }
 }

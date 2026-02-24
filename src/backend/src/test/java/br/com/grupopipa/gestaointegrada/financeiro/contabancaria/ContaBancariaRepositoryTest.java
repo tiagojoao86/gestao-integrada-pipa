@@ -86,6 +86,9 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Poupança")
                 .tipo(TipoConta.POUPANCA)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
                 .saldoInicial(Money.zero())
                 .unidadeNegocio(unidadeNegocio)
                 .build();
@@ -109,6 +112,9 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Temporária")
                 .tipo(TipoConta.CORRENTE)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
                 .saldoInicial(Money.zero())
                 .unidadeNegocio(unidadeNegocio)
                 .build();
@@ -131,6 +137,9 @@ class ContaBancariaRepositoryTest extends AbstractIntegrationTest {
         ContaBancaria conta = new ContaBancaria.Builder()
                 .nome("Conta Validação")
                 .tipo(TipoConta.CORRENTE)
+                .banco("Banco do Brasil")
+                .agencia("1234")
+                .numeroConta("12345-6")
                 .saldoInicial(Money.of(BigDecimal.valueOf(1000.00)))
                 .unidadeNegocio(unidadeNegocio)
                 .build();

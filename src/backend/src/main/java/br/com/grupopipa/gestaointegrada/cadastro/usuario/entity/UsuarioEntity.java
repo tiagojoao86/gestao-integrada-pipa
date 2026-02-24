@@ -10,10 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import br.com.grupopipa.gestaointegrada.cadastro.perfil.entity.UsuarioPerfilEntity;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioDTO;
+import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Login;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Senha;
@@ -50,85 +48,9 @@ public class UsuarioEntity extends BaseEntity {
     private UsuarioEntity() {
     }
 
-    public String getNome() {
-        return this.nome != null ? this.nome.getValue() : null;
-    }
-
-    public String getLogin() {
-        return this.login != null ? this.login.getValue() : null;
-    }
-
-    public String getSenha() {
-        return this.senha != null ? this.senha.getValue() : null;
-    }
-
-    public Set<UsuarioPerfilEntity> getPerfis() {
-        return perfis;
-    }
-
-    public Set<UsuarioUnidadeNegocioEntity> getUnidadesNegocio() {
-        return unidadesNegocio;
-    }
-
-    public void setUnidadesNegocio(Set<UsuarioUnidadeNegocioEntity> unidadesNegocio) {
-        this.unidadesNegocio = unidadesNegocio != null ? unidadesNegocio : new HashSet<>();
-    }
-
-    public void addUnidadeNegocio(UnidadeNegocio unidadeNegocio, Boolean isDefault) {
-        if (unidadeNegocio != null) {
-            UsuarioUnidadeNegocioEntity association = new UsuarioUnidadeNegocioEntity(this, unidadeNegocio, isDefault);
-            this.unidadesNegocio.add(association);
-        }
-    }
-
-    public void removeUnidadeNegocio(UUID unidadeNegocioId) {
-        this.unidadesNegocio.removeIf(uun -> uun.getUnidadeNegocio().getId().equals(unidadeNegocioId));
-    }
-
-    private static class ValidatedData {
-        final Nome nome;
-        final Login login;
-        final Senha senha;
-
-        ValidatedData(Nome nome, Login login, Senha senha) {
-            this.nome = nome;
-            this.login = login;
-            this.senha = senha;
-        }
-    }
-
-    private static ValidatedData validate(
-            String nomeStr,
-            String loginStr,
-            String senhaStr,
-            PasswordEncoder passwordEncoder,
-            boolean isCreation) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Login login = ValidationUtils.validateAndGet(() -> Login.of(loginStr), violations);
-
-        Senha senha = null;
-        if (isCreation) {
-            senha = ValidationUtils.validateAndGet(() -> Senha.of(senhaStr, passwordEncoder), violations);
-        } else if (senhaStr != null && !senhaStr.trim().isEmpty()) {
-            senha = ValidationUtils.validateAndGet(() -> Senha.of(senhaStr, passwordEncoder), violations);
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("usuario", violations);
-        }
-        return new ValidatedData(nome, login, senha);
-    }
-
-    public void updateUsuarioFromDTO(UsuarioDTO dto, PasswordEncoder passwordEncoder) {
-        ValidatedData data = validate(dto.getNome(), dto.getLogin(), dto.getSenha(), passwordEncoder, false);
-        this.nome = data.nome;
-        this.login = data.login;
-        if (Objects.nonNull(data.senha)) {
-            this.senha = data.senha;
-        }
-    }
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
     public static class Builder {
 
@@ -152,8 +74,58 @@ public class UsuarioEntity extends BaseEntity {
         }
 
         public UsuarioEntity build(PasswordEncoder passwordEncoder) {
-            ValidatedData data = validate(this.nome, this.login, this.senha, passwordEncoder, true);
+            UsuarioValidator.ValidatedData data = UsuarioValidator.validate(
+                    this.nome, this.login, this.senha, passwordEncoder, true);
             return new UsuarioEntity(data.nome, data.login, data.senha);
         }
+    }
+
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
+
+    public void updateUsuarioFromDTO(UsuarioDTO dto, PasswordEncoder passwordEncoder) {
+        UsuarioValidator.ValidatedData data = UsuarioValidator.validate(
+                dto.getNome(), dto.getLogin(), dto.getSenha(), passwordEncoder, false);
+        this.nome = data.nome;
+        this.login = data.login;
+        if (Objects.nonNull(data.senha)) {
+            this.senha = data.senha;
+        }
+    }
+
+    public void addUnidadeNegocio(UnidadeNegocio unidadeNegocio, Boolean isDefault) {
+        if (unidadeNegocio != null) {
+            UsuarioUnidadeNegocioEntity association = new UsuarioUnidadeNegocioEntity(this, unidadeNegocio, isDefault);
+            this.unidadesNegocio.add(association);
+        }
+    }
+
+    public void removeUnidadeNegocio(UUID unidadeNegocioId) {
+        this.unidadesNegocio.removeIf(uun -> uun.getUnidadeNegocio().getId().equals(unidadeNegocioId));
+    }
+
+    public String getNome() {
+        return this.nome != null ? this.nome.getValue() : null;
+    }
+
+    public String getLogin() {
+        return this.login != null ? this.login.getValue() : null;
+    }
+
+    public String getSenha() {
+        return this.senha != null ? this.senha.getValue() : null;
+    }
+
+    public Set<UsuarioPerfilEntity> getPerfis() {
+        return perfis;
+    }
+
+    public Set<UsuarioUnidadeNegocioEntity> getUnidadesNegocio() {
+        return unidadesNegocio;
+    }
+
+    public void setUnidadesNegocio(Set<UsuarioUnidadeNegocioEntity> unidadesNegocio) {
+        this.unidadesNegocio = unidadesNegocio != null ? unidadesNegocio : new HashSet<>();
     }
 }

@@ -3,7 +3,6 @@ package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -118,14 +117,16 @@ class ContaBancariaServiceTest {
     @DisplayName("Deve deletar conta bancária")
     void deveDeletarContaBancaria() {
         // Given
-        doNothing().when(repository).deleteById(contaId);
+        when(repository.findById(contaId)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(ContaBancaria.class))).thenReturn(entidadeValida);
 
         // When
         UUID resultado = service.delete(contaId);
 
         // Then
         assertEquals(contaId, resultado);
-        verify(repository, times(1)).deleteById(contaId);
+        verify(repository, times(1)).findById(contaId);
+        verify(repository, times(1)).save(any(ContaBancaria.class));
     }
 
     @Test

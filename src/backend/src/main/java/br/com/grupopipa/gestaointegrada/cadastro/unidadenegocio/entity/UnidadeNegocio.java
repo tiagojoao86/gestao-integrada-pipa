@@ -4,11 +4,11 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.Column;
@@ -49,38 +49,46 @@ public class UnidadeNegocio extends BaseEntity {
     protected UnidadeNegocio() {
     }
 
-    private static class ValidatedData {
-        final String codigo;
-        final Nome nome;
-        final String descricao;
-        final CNPJ cnpj;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(String codigo, Nome nome, String descricao, CNPJ cnpj) {
+    public static class Builder {
+        private String codigo;
+        private String nome;
+        private String descricao;
+        private String cnpj;
+
+        public Builder codigo(String codigo) {
             this.codigo = codigo;
+            return this;
+        }
+
+        public Builder nome(String nome) {
             this.nome = nome;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder cnpj(String cnpj) {
             this.cnpj = cnpj;
+            return this;
+        }
+
+        public UnidadeNegocio build() {
+            UnidadeNegocioValidator.ValidatedData data = UnidadeNegocioValidator.validate(
+                    this.codigo, this.nome, this.descricao, this.cnpj);
+            return new UnidadeNegocio(data.codigo, data.nome, data.descricao, data.cnpj);
         }
     }
 
-    private static ValidatedData validate(
-            String codigo, String nomeStr, String descricao, String cnpjStr) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(codigo, "código", violations).notBlank().maxLength(20);
-
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        CNPJ cnpj = null;
-        if (cnpjStr != null && !cnpjStr.isBlank()) {
-            cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("unidadeNegocio", violations);
-        }
-
-        return new ValidatedData(codigo, nome, descricao, cnpj);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(String nomeStr, String descricao, String cnpjStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -156,37 +164,5 @@ public class UnidadeNegocio extends BaseEntity {
     @Override
     public String toString() {
         return codigo + " - " + getNome();
-    }
-
-    public static class Builder {
-        private String codigo;
-        private String nome;
-        private String descricao;
-        private String cnpj;
-
-        public Builder codigo(String codigo) {
-            this.codigo = codigo;
-            return this;
-        }
-
-        public Builder nome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder cnpj(String cnpj) {
-            this.cnpj = cnpj;
-            return this;
-        }
-
-        public UnidadeNegocio build() {
-            ValidatedData data = validate(this.codigo, this.nome, this.descricao, this.cnpj);
-            return new UnidadeNegocio(data.codigo, data.nome, data.descricao, data.cnpj);
-        }
     }
 }

@@ -10,14 +10,10 @@ import java.util.stream.Collectors;
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
-import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacao.MovimentacaoFinanceiraValidator;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -104,115 +100,89 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
     protected MovimentacaoFinanceira() {
     }
 
-    private static class ValidatedData {
-        final Set<Titulo> titulos;
-        final ContaBancaria contaBancaria;
-        final TipoMovimentacao tipo;
-        final FormaPagamento formaPagamento;
-        final Money valor;
-        final LocalDate data;
-        final UnidadeNegocio unidadeNegocio;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                Set<Titulo> titulos,
-                ContaBancaria contaBancaria,
-                TipoMovimentacao tipo,
-                FormaPagamento formaPagamento,
-                Money valor,
-                LocalDate data,
-                UnidadeNegocio unidadeNegocio) {
+    public static class Builder {
+        private Set<Titulo> titulos = new HashSet<>();
+        private ContaBancaria contaBancaria;
+        private TipoMovimentacao tipo;
+        private FormaPagamento formaPagamento;
+        private Money valor;
+        private LocalDate data;
+        private UnidadeNegocio unidadeNegocio;
+
+        public Builder titulos(Set<Titulo> titulos) {
             this.titulos = titulos;
+            return this;
+        }
+
+        public Builder addTitulo(Titulo titulo) {
+            this.titulos.add(titulo);
+            return this;
+        }
+
+        public Builder contaBancaria(ContaBancaria contaBancaria) {
             this.contaBancaria = contaBancaria;
+            return this;
+        }
+
+        public Builder tipo(TipoMovimentacao tipo) {
             this.tipo = tipo;
+            return this;
+        }
+
+        public Builder formaPagamento(FormaPagamento formaPagamento) {
             this.formaPagamento = formaPagamento;
+            return this;
+        }
+
+        public Builder valor(Money valor) {
             this.valor = valor;
+            return this;
+        }
+
+        public Builder data(LocalDate data) {
             this.data = data;
+            return this;
+        }
+
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
             this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
+        public MovimentacaoFinanceira build() {
+            // Inferir unidadeNegocio a partir da contaBancaria se não fornecida
+            // explicitamente
+            if (this.unidadeNegocio == null && this.contaBancaria != null) {
+                this.unidadeNegocio = this.contaBancaria.getUnidadeNegocio();
+            }
+
+            BigDecimal valorValue = (this.valor != null) ? this.valor.getValue() : null;
+            MovimentacaoFinanceiraValidator.ValidatedData data = MovimentacaoFinanceiraValidator.validate(
+                    this.titulos,
+                    this.contaBancaria,
+                    this.tipo,
+                    this.formaPagamento,
+                    valorValue,
+                    this.data,
+                    this.unidadeNegocio);
+            return new MovimentacaoFinanceira(
+                    data.titulos,
+                    data.contaBancaria,
+                    data.tipo,
+                    data.formaPagamento,
+                    data.valor,
+                    data.data,
+                    data.unidadeNegocio);
         }
     }
 
-    private static ValidatedData validate(
-            Set<Titulo> titulos,
-            ContaBancaria contaBancaria,
-            TipoMovimentacao tipo,
-            FormaPagamento formaPagamento,
-            BigDecimal valor,
-            LocalDate data,
-            UnidadeNegocio unidadeNegocio) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        if (titulos == null || titulos.isEmpty()) {
-            violations.add(new BeanValidationMessage(
-                    "validation.movimentacao.titulosObrigatorio",
-                    "Pelo menos um título é obrigatório."));
-        }
-        Validator.of(contaBancaria, "conta bancária", violations).notNull();
-        Validator.of(tipo, "tipo de movimentação", violations).notNull();
-        Validator.of(formaPagamento, "forma de pagamento", violations).notNull();
-        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
-            violations.add(new BeanValidationMessage(
-                    "validation.movimentacao.valorPositivo",
-                    "Valor deve ser maior que zero."));
-        }
-        Validator.of(data, "data", violations).notNull();
-        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
-
-        Money money = ValidationUtils.validateAndGet(() -> Money.of(valor), violations);
-
-        // Validar regras de negócio para cada título
-        if (titulos != null && !titulos.isEmpty() && money != null) {
-            // Validar que o valor total da movimentação é igual à soma dos saldos dos títulos
-            Money somaSaldos = titulos.stream()
-                    .map(Titulo::calcularSaldo)
-                    .reduce(Money.zero(), Money::add);
-
-            if (!money.equals(somaSaldos)) {
-                violations.add(new BeanValidationMessage(
-                        "validation.movimentacao.valorDivergente",
-                        "Valor da movimentação (" + money + ") deve ser igual à soma dos saldos "
-                                + "dos títulos selecionados (" + somaSaldos + ")."));
-            }
-
-            for (Titulo titulo : titulos) {
-                if (!titulo.getStatus().permiteMovimentacao()) {
-                    violations.add(new BeanValidationMessage(
-                            "validation.movimentacao.statusNaoPermite",
-                            "Não é possível criar movimentação para título "
-                                    + titulo.getStatus().getDescricao() + "."));
-                }
-
-                if (titulo.isOrigemParcelamento()) {
-                    violations.add(new BeanValidationMessage(
-                            "validation.movimentacao.origemParcelamento",
-                            "Não é possível criar movimentação para título origem de parcelamento. "
-                                    + "Utilize as parcelas."));
-                }
-
-                if (!titulo.calcularSaldo().isPositive()) {
-                    violations.add(new BeanValidationMessage(
-                            "validation.movimentacao.tituloSemSaldo",
-                            "Título '" + titulo.getDescricao() + "' não possui saldo para pagamento."));
-                }
-            }
-
-            // Validar que todos os títulos são do mesmo tipo (A_PAGAR ou A_RECEBER)
-            Set<TipoTitulo> tiposTitulo = titulos.stream()
-                    .map(Titulo::getTipo)
-                    .collect(Collectors.toSet());
-            if (tiposTitulo.size() > 1) {
-                violations.add(new BeanValidationMessage(
-                        "validation.movimentacao.tiposMistos",
-                        "Não é possível misturar títulos A Pagar e A Receber na mesma movimentação."));
-            }
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("movimentacaoFinanceira", violations);
-        }
-
-        return new ValidatedData(
-                titulos, contaBancaria, tipo, formaPagamento, money, data, unidadeNegocio);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     @Override
     public UnidadeNegocio getUnidadeNegocio() {
@@ -303,81 +273,5 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), data, valor);
-    }
-
-    public static class Builder {
-        private Set<Titulo> titulos = new HashSet<>();
-        private ContaBancaria contaBancaria;
-        private TipoMovimentacao tipo;
-        private FormaPagamento formaPagamento;
-        private Money valor;
-        private LocalDate data;
-        private UnidadeNegocio unidadeNegocio;
-
-        public Builder titulos(Set<Titulo> titulos) {
-            this.titulos = titulos;
-            return this;
-        }
-
-        public Builder addTitulo(Titulo titulo) {
-            this.titulos.add(titulo);
-            return this;
-        }
-
-        public Builder contaBancaria(ContaBancaria contaBancaria) {
-            this.contaBancaria = contaBancaria;
-            return this;
-        }
-
-        public Builder tipo(TipoMovimentacao tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-
-        public Builder formaPagamento(FormaPagamento formaPagamento) {
-            this.formaPagamento = formaPagamento;
-            return this;
-        }
-
-        public Builder valor(Money valor) {
-            this.valor = valor;
-            return this;
-        }
-
-        public Builder data(LocalDate data) {
-            this.data = data;
-            return this;
-        }
-
-        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
-            this.unidadeNegocio = unidadeNegocio;
-            return this;
-        }
-
-        public MovimentacaoFinanceira build() {
-            // Inferir unidadeNegocio a partir da contaBancaria se não fornecida
-            // explicitamente
-            if (this.unidadeNegocio == null && this.contaBancaria != null) {
-                this.unidadeNegocio = this.contaBancaria.getUnidadeNegocio();
-            }
-
-            BigDecimal valorValue = (this.valor != null) ? this.valor.getValue() : null;
-            ValidatedData data = validate(
-                    this.titulos,
-                    this.contaBancaria,
-                    this.tipo,
-                    this.formaPagamento,
-                    valorValue,
-                    this.data,
-                    this.unidadeNegocio);
-            return new MovimentacaoFinanceira(
-                    data.titulos,
-                    data.contaBancaria,
-                    data.tipo,
-                    data.formaPagamento,
-                    data.valor,
-                    data.data,
-                    data.unidadeNegocio);
-        }
     }
 }

@@ -1,14 +1,9 @@
 package br.com.grupopipa.gestaointegrada.cadastro.setor.entity;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.CentroCusto;
 import jakarta.persistence.Column;
@@ -43,37 +38,43 @@ public class Setor extends BaseEntity {
     protected Setor() {
     }
 
-    private static class ValidatedData {
-        final Nome nome;
-        final String descricao;
-        final CentroCusto centroCusto;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(Nome nome, String descricao, CentroCusto centroCusto) {
+    public static class Builder {
+        private String nome;
+        private String descricao;
+        private CentroCusto centroCusto;
+
+        public Builder nome(String nome) {
             this.nome = nome;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder centroCusto(CentroCusto centroCusto) {
             this.centroCusto = centroCusto;
+            return this;
+        }
+
+        public Setor build() {
+            SetorValidator.ValidatedData data = SetorValidator.validate(
+                    this.nome, this.descricao, this.centroCusto);
+            return new Setor(data.nome, data.descricao, data.centroCusto);
         }
     }
 
-    private static ValidatedData validate(String nomeStr, String descricao, CentroCusto centroCusto) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        // IMPORTANTE: Use ValidationUtils.validateAndGet para Value Objects
-        // Isso captura BeanValidationExceptions e adiciona ao set de violations
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-
-        Validator.of(descricao, "descrição", violations).maxLength(500);
-        Validator.of(centroCusto, "centro de custo", violations).notNull();
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("setor", violations);
-        }
-
-        return new ValidatedData(nome, descricao, centroCusto);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(String nomeStr, String descricao, CentroCusto centroCusto) {
-        ValidatedData data = validate(nomeStr, descricao, centroCusto);
+        SetorValidator.ValidatedData data = SetorValidator.validate(nomeStr, descricao, centroCusto);
         this.nome = data.nome;
         this.descricao = data.descricao;
         this.centroCusto = data.centroCusto;
@@ -115,31 +116,5 @@ public class Setor extends BaseEntity {
     @Override
     public String toString() {
         return getNome();
-    }
-
-    public static class Builder {
-        private String nome;
-        private String descricao;
-        private CentroCusto centroCusto;
-
-        public Builder nome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder centroCusto(CentroCusto centroCusto) {
-            this.centroCusto = centroCusto;
-            return this;
-        }
-
-        public Setor build() {
-            ValidatedData data = validate(this.nome, this.descricao, this.centroCusto);
-            return new Setor(data.nome, data.descricao, data.centroCusto);
-        }
     }
 }

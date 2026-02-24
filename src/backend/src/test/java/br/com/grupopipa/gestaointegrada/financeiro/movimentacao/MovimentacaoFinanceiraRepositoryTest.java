@@ -122,7 +122,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.PIX)
-                .valor(Money.of(BigDecimal.valueOf(500.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
 
@@ -136,7 +136,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         assertNotNull(recuperada.getId());
         assertEquals(TipoMovimentacao.PAGAMENTO, recuperada.getTipo());
         assertEquals(FormaPagamento.PIX, recuperada.getFormaPagamento());
-        assertEquals(Money.of(BigDecimal.valueOf(500.00)), recuperada.getValor());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), recuperada.getValor());
         assertNotNull(recuperada.getCreatedAt());
         assertTrue(recuperada.isPagamento());
     }
@@ -207,7 +207,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.TED)
-                .valor(Money.of(BigDecimal.valueOf(300.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
         repository.save(movimentacao);
@@ -226,27 +226,21 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve registrar pagamento parcial no título")
-    void deveRegistrarPagamentoParcialNoTitulo() {
-        // Given
-        MovimentacaoFinanceira movimentacao = new MovimentacaoFinanceira.Builder()
-                .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
-                .contaBancaria(contaBancaria)
-                .tipo(TipoMovimentacao.PAGAMENTO)
-                .formaPagamento(FormaPagamento.DINHEIRO)
-                .valor(Money.of(BigDecimal.valueOf(400.00))) // Pagamento parcial
-                .data(LocalDate.now())
-                .build();
-
-        // When
-        repository.save(movimentacao);
-        entityManager.flush();
-        entityManager.refresh(titulo);
-
-        // Then
-        assertEquals(StatusTitulo.PARCIAL, titulo.getStatus());
-        assertEquals(Money.of(BigDecimal.valueOf(400.00)), titulo.getValorPago());
-        assertEquals(Money.of(BigDecimal.valueOf(600.00)), titulo.calcularSaldo());
+    @DisplayName("Não deve permitir movimentação com valor diferente do saldo do título")
+    void naoDevePermitirMovimentacaoComValorDiferenteDoSaldo() {
+        // When & Then - partial payment is not allowed, valor must equal titulo saldo
+        assertThrows(
+                BeanValidationException.class,
+                () -> {
+                    new MovimentacaoFinanceira.Builder()
+                            .titulos(new java.util.HashSet<>(java.util.List.of(titulo)))
+                            .contaBancaria(contaBancaria)
+                            .tipo(TipoMovimentacao.PAGAMENTO)
+                            .formaPagamento(FormaPagamento.DINHEIRO)
+                            .valor(Money.of(BigDecimal.valueOf(400.00))) // 400 != 1000 (saldo)
+                            .data(LocalDate.now())
+                            .build();
+                });
     }
 
     @Test
@@ -283,14 +277,16 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.DOC)
-                .valor(Money.of(BigDecimal.valueOf(200.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
         MovimentacaoFinanceira movimentacaoSalva = repository.save(movimentacao);
         entityManager.flush();
+        entityManager.clear();
 
         // When
-        repository.delete(movimentacaoSalva);
+        MovimentacaoFinanceira movimentacaoParaDeletar = repository.findById(movimentacaoSalva.getId()).orElseThrow();
+        repository.delete(movimentacaoParaDeletar);
         entityManager.flush();
 
         // Then
@@ -307,7 +303,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.CHEQUE)
-                .valor(Money.of(BigDecimal.valueOf(150.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
         MovimentacaoFinanceira movimentacaoSalva = repository.save(movimentacao);
@@ -320,7 +316,7 @@ class MovimentacaoFinanceiraRepositoryTest extends AbstractIntegrationTest {
         // Then
         assertTrue(resultado.isPresent());
         assertEquals(movimentacaoSalva.getId(), resultado.get().getId());
-        assertEquals(Money.of(BigDecimal.valueOf(150.00)), resultado.get().getValor());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), resultado.get().getValor());
     }
 
     @Test

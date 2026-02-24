@@ -135,17 +135,42 @@ class MovimentacaoFinanceiraServiceTest {
                 .contaBancariaId(UUID.randomUUID())
                 .tipo(TipoMovimentacao.PAGAMENTO.name())
                 .formaPagamento(FormaPagamento.PIX.name())
-                .valor(BigDecimal.valueOf(500.00))
+                .valor(BigDecimal.valueOf(1000.00))
                 .data(LocalDate.now())
                 .build();
 
-        // Setup Entity
+        // Setup Entity - usar título separado para não afetar o estado de 'titulo'
+        br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria tituloCategoria2 =
+                new br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria.Builder()
+                        .codigo("099")
+                        .nome("Despesas Entidade")
+                        .tipo(
+                                br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaTipoEnum.DESPESA)
+                        .build();
+        Titulo tituloEntity = new Titulo.Builder()
+                .tipo(TipoTitulo.A_PAGAR)
+                .descricao("Pagamento fornecedor entity")
+                .pessoa(new Pessoa.Builder()
+                        .tipoPessoa(br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa.JURIDICA)
+                        .nome("Fornecedor Entity")
+                        .email("entity@test.com")
+                        .telefone("11999999998")
+                        .cnpj("06158095000152")
+                        .razaoSocial("Fornecedor Entity LTDA")
+                        .build())
+                .tituloCategoria(tituloCategoria2)
+                .unidadeNegocio(unidadeNegocio)
+                .valorOriginal(Money.of(BigDecimal.valueOf(1000.00)))
+                .dataEmissao(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .rateioAutomatico(false)
+                .build();
         entity = new MovimentacaoFinanceira.Builder()
-                .titulos(java.util.Set.of(titulo))
+                .titulos(java.util.Set.of(tituloEntity))
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.PIX)
-                .valor(Money.of(BigDecimal.valueOf(500.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
     }
@@ -167,7 +192,7 @@ class MovimentacaoFinanceiraServiceTest {
         assertNotNull(resultado);
         assertEquals(TipoMovimentacao.PAGAMENTO, resultado.getTipo());
         assertEquals(FormaPagamento.PIX, resultado.getFormaPagamento());
-        assertEquals(Money.of(BigDecimal.valueOf(500.00)), resultado.getValor());
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), resultado.getValor());
         assertTrue(resultado.getTitulos().contains(titulo));
         assertEquals(contaBancaria, resultado.getContaBancaria());
         assertTrue(resultado.isPagamento());
@@ -208,7 +233,7 @@ class MovimentacaoFinanceiraServiceTest {
         assertNotNull(resultado);
         assertEquals(TipoMovimentacao.PAGAMENTO.name(), resultado.getTipo());
         assertEquals(FormaPagamento.PIX.name(), resultado.getFormaPagamento());
-        assertEquals(0, resultado.getValor().compareTo(BigDecimal.valueOf(500.00)));
+        assertEquals(0, resultado.getValor().compareTo(BigDecimal.valueOf(1000.00)));
         verify(repository, times(1)).findById(id);
     }
 
@@ -245,9 +270,9 @@ class MovimentacaoFinanceiraServiceTest {
 
         // Then
         assertEquals(id, resultado);
-        verify(repository, times(1)).findById(id);
+        verify(repository, times(2)).findById(id);
         // Verifica que o título foi salvo (para persistir a reversão do pagamento)
-        verify(tituloRepository, times(1)).save(titulo);
+        verify(tituloRepository, times(1)).save(any(Titulo.class));
         // Verifica que a movimentação foi salva com deleted=true
         verify(repository, times(1)).save(any(MovimentacaoFinanceira.class));
     }
@@ -370,7 +395,7 @@ class MovimentacaoFinanceiraServiceTest {
         // total
         assertTrue(
                 exception.getViolations().stream()
-                        .anyMatch(v -> v.getKey().contains("valorPagoUltrapassaTotal")));
+                        .anyMatch(v -> v.getKey().contains("valorDivergente")));
     }
 
     @Test
@@ -419,13 +444,13 @@ class MovimentacaoFinanceiraServiceTest {
         // Verificar que a exceção contém informação sobre o erro
         assertTrue(
                 exception.getViolations().stream()
-                        .anyMatch(v -> v.getKey().contains("valorPagoUltrapassaTotal")));
+                        .anyMatch(v -> v.getKey().contains("valorDivergente")));
     }
 
     @Test
     @DisplayName("Deve desconsiderar movimentações deletadas no cálculo do valor pago")
     void deveDesconsiderarMovimentacoesDeletedasNoCalculoDoValorPago() {
-        // Given - criar um título novo
+        // Given - criar um título novo com saldo de R$ 1.000
         TituloCategoria tituloCategoria = new TituloCategoria.Builder()
                 .codigo("003")
                 .nome("Categoria Teste 3")
@@ -443,45 +468,35 @@ class MovimentacaoFinanceiraServiceTest {
                 .dataVencimento(LocalDate.now().plusDays(30))
                 .build();
 
-        // Criar primeira movimentação de R$ 300 (ativa)
-        new MovimentacaoFinanceira.Builder()
+        // Criar movimentação que paga o saldo total
+        MovimentacaoFinanceira mov = new MovimentacaoFinanceira.Builder()
                 .titulos(java.util.Set.of(tituloNovo))
                 .contaBancaria(contaBancaria)
                 .tipo(TipoMovimentacao.PAGAMENTO)
                 .formaPagamento(FormaPagamento.PIX)
-                .valor(Money.of(BigDecimal.valueOf(300.00)))
+                .valor(Money.of(BigDecimal.valueOf(1000.00)))
                 .data(LocalDate.now())
                 .build();
 
-        // Criar segunda movimentação de R$ 200 e marcar como deletada
-        MovimentacaoFinanceira mov2 = new MovimentacaoFinanceira.Builder()
-                .titulos(java.util.Set.of(tituloNovo))
-                .contaBancaria(contaBancaria)
-                .tipo(TipoMovimentacao.PAGAMENTO)
-                .formaPagamento(FormaPagamento.PIX)
-                .valor(Money.of(BigDecimal.valueOf(200.00)))
-                .data(LocalDate.now())
-                .build();
+        // Verificar que o título está pago
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), tituloNovo.getValorPago());
 
-        // Simular soft delete na segunda movimentação usando reflexão
+        // Simular soft delete na movimentação usando reflexão
         try {
             java.lang.reflect.Field deletedField = BaseEntity.class.getDeclaredField("deleted");
             deletedField.setAccessible(true);
-            deletedField.set(mov2, true);
+            deletedField.set(mov, true);
         } catch (Exception e) {
             fail("Erro ao configurar soft delete: " + e.getMessage());
         }
 
-        // When - calcular valor pago
+        // When - recalcular valor pago (movimentação deletada deve ser ignorada)
         Money valorPago = tituloNovo.getValorPago();
         Money saldo = tituloNovo.calcularSaldo();
 
-        // Then - deve considerar apenas a primeira movimentação (R$ 300)
-        assertEquals(Money.of(BigDecimal.valueOf(300.00)), valorPago);
-        // Saldo deve ser 1000 - 300 = 700
-        assertEquals(Money.of(BigDecimal.valueOf(700.00)), saldo);
-        // Status deve ser PARCIAL (pago algo mas não tudo)
-        assertEquals(StatusTitulo.PARCIAL, tituloNovo.getStatus());
+        // Then - movimentação deletada não deve ser considerada
+        assertEquals(Money.zero(), valorPago);
+        assertEquals(Money.of(BigDecimal.valueOf(1000.00)), saldo);
     }
 
     @Test

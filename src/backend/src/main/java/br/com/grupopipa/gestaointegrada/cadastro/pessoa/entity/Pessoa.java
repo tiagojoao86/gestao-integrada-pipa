@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaValidator;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
@@ -72,70 +73,7 @@ public class Pessoa extends BaseEntity {
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
 
-    protected Pessoa() {
-    }
-
-    private static class ValidatedData {
-        final TipoPessoa tipoPessoa;
-        final Nome nome;
-        final Email email;
-        final PhoneNumber telefone;
-        final CPF cpf;
-        final LocalDate dataNascimento;
-        final CNPJ cnpj;
-        final String razaoSocial;
-        final String inscricaoEstadual;
-        final String observacoes;
-        final Boolean ativa;
-
-        ValidatedData(TipoPessoa tipoPessoa, Nome nome, Email email, PhoneNumber telefone,
-                CPF cpf, LocalDate dataNascimento, CNPJ cnpj, String razaoSocial,
-                String inscricaoEstadual, String observacoes, Boolean ativa) {
-            this.tipoPessoa = tipoPessoa;
-            this.nome = nome;
-            this.email = email;
-            this.telefone = telefone;
-            this.cpf = cpf;
-            this.dataNascimento = dataNascimento;
-            this.cnpj = cnpj;
-            this.razaoSocial = razaoSocial;
-            this.inscricaoEstadual = inscricaoEstadual;
-            this.observacoes = observacoes;
-            this.ativa = ativa;
-        }
-    }
-
-    private static ValidatedData validateForCreate(TipoPessoa tipoPessoa, String nomeStr,
-            String emailStr, String telefoneStr, String cpfStr, LocalDate dataNascimento,
-            String cnpjStr, String razaoSocial, String inscricaoEstadual,
-            String observacoes, Boolean ativa) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        if (tipoPessoa == null) {
-            violations.add(new BeanValidationMessage("tipoPessoa", "Tipo de pessoa é obrigatório"));
-        }
-
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Email email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-        PhoneNumber telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
-
-        CPF cpf = null;
-        CNPJ cnpj = null;
-        if (tipoPessoa == TipoPessoa.FISICA) {
-            cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
-        } else if (tipoPessoa == TipoPessoa.JURIDICA) {
-            cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("Pessoa", violations);
-        }
-
-        return new ValidatedData(tipoPessoa, nome, email, telefone, cpf, dataNascimento,
-                cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
-    }
-
-    private Pessoa(ValidatedData data) {
+    private Pessoa(PessoaValidator.ValidatedData data) {
         this.tipoPessoa = data.tipoPessoa;
         this.nome = data.nome;
         this.email = data.email;
@@ -148,6 +86,92 @@ public class Pessoa extends BaseEntity {
         this.observacoes = data.observacoes;
         this.ativa = data.ativa != null ? data.ativa : true;
     }
+
+    protected Pessoa() {
+    }
+
+    // =========================================================================
+    // Builder
+    // =========================================================================
+
+    public static class Builder {
+        private TipoPessoa tipoPessoa;
+        private String nome;
+        private String email;
+        private String telefone;
+        private String cpf;
+        private LocalDate dataNascimento;
+        private String cnpj;
+        private String razaoSocial;
+        private String inscricaoEstadual;
+        private String observacoes;
+        private Boolean ativa = true;
+
+        public Builder tipoPessoa(TipoPessoa tipoPessoa) {
+            this.tipoPessoa = tipoPessoa;
+            return this;
+        }
+
+        public Builder nome(String nome) {
+            this.nome = nome;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder telefone(String telefone) {
+            this.telefone = telefone;
+            return this;
+        }
+
+        public Builder cpf(String cpf) {
+            this.cpf = cpf;
+            return this;
+        }
+
+        public Builder dataNascimento(LocalDate dataNascimento) {
+            this.dataNascimento = dataNascimento;
+            return this;
+        }
+
+        public Builder cnpj(String cnpj) {
+            this.cnpj = cnpj;
+            return this;
+        }
+
+        public Builder razaoSocial(String razaoSocial) {
+            this.razaoSocial = razaoSocial;
+            return this;
+        }
+
+        public Builder inscricaoEstadual(String inscricaoEstadual) {
+            this.inscricaoEstadual = inscricaoEstadual;
+            return this;
+        }
+
+        public Builder observacoes(String observacoes) {
+            this.observacoes = observacoes;
+            return this;
+        }
+
+        public Builder ativa(Boolean ativa) {
+            this.ativa = ativa;
+            return this;
+        }
+
+        public Pessoa build() {
+            PessoaValidator.ValidatedData data = PessoaValidator.validate(tipoPessoa, nome, email, telefone, cpf,
+                    dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
+            return new Pessoa(data);
+        }
+    }
+
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     @PrePersist
     @PreUpdate
@@ -331,81 +355,5 @@ public class Pessoa extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getNome(), getCpf(), getCnpj());
-    }
-
-    // Builder Pattern
-    public static class Builder {
-        private TipoPessoa tipoPessoa;
-        private String nome;
-        private String email;
-        private String telefone;
-        private String cpf;
-        private LocalDate dataNascimento;
-        private String cnpj;
-        private String razaoSocial;
-        private String inscricaoEstadual;
-        private String observacoes;
-        private Boolean ativa = true;
-
-        public Builder tipoPessoa(TipoPessoa tipoPessoa) {
-            this.tipoPessoa = tipoPessoa;
-            return this;
-        }
-
-        public Builder nome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder telefone(String telefone) {
-            this.telefone = telefone;
-            return this;
-        }
-
-        public Builder cpf(String cpf) {
-            this.cpf = cpf;
-            return this;
-        }
-
-        public Builder dataNascimento(LocalDate dataNascimento) {
-            this.dataNascimento = dataNascimento;
-            return this;
-        }
-
-        public Builder cnpj(String cnpj) {
-            this.cnpj = cnpj;
-            return this;
-        }
-
-        public Builder razaoSocial(String razaoSocial) {
-            this.razaoSocial = razaoSocial;
-            return this;
-        }
-
-        public Builder inscricaoEstadual(String inscricaoEstadual) {
-            this.inscricaoEstadual = inscricaoEstadual;
-            return this;
-        }
-
-        public Builder observacoes(String observacoes) {
-            this.observacoes = observacoes;
-            return this;
-        }
-
-        public Builder ativa(Boolean ativa) {
-            this.ativa = ativa;
-            return this;
-        }
-
-        public Pessoa build() {
-            ValidatedData data = validateForCreate(tipoPessoa, nome, email, telefone, cpf,
-                    dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
-            return new Pessoa(data);
-        }
     }
 }

@@ -10,6 +10,7 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
+import br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloSetorValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,44 +47,40 @@ public class TituloSetor extends BaseEntity {
     protected TituloSetor() {
     }
 
-    private static class ValidatedData {
-        final Titulo titulo;
-        final Setor setor;
-        final BigDecimal percentualRateio;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(Titulo titulo, Setor setor, BigDecimal percentualRateio) {
+    public static class Builder {
+        private Titulo titulo;
+        private Setor setor;
+        private BigDecimal percentualRateio;
+
+        public Builder titulo(Titulo titulo) {
             this.titulo = titulo;
+            return this;
+        }
+
+        public Builder setor(Setor setor) {
             this.setor = setor;
+            return this;
+        }
+
+        public Builder percentualRateio(BigDecimal percentualRateio) {
             this.percentualRateio = percentualRateio;
+            return this;
+        }
+
+        public TituloSetor build() {
+            TituloSetorValidator.ValidatedData data =
+                    TituloSetorValidator.validate(this.titulo, this.setor, this.percentualRateio);
+            return new TituloSetor(data.titulo, data.setor, data.percentualRateio);
         }
     }
 
-    private static ValidatedData validate(Titulo titulo, Setor setor, BigDecimal percentualRateio) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(titulo, "título", violations).notNull();
-        Validator.of(setor, "setor", violations).notNull();
-        Validator.of(percentualRateio, "percentual de rateio", violations).notNull();
-
-        if (percentualRateio != null) {
-            if (percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
-                violations.add(new BeanValidationMessage(
-                        "validation.tituloSetor.percentualZero",
-                        "Percentual de rateio deve ser maior que zero."));
-            }
-            if (percentualRateio.compareTo(new BigDecimal("100")) > 0) {
-                violations.add(new BeanValidationMessage(
-                        "validation.tituloSetor.percentualMaximo",
-                        "Percentual de rateio não pode ser maior que 100."));
-            }
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("tituloSetor", violations);
-        }
-
-        return new ValidatedData(titulo, setor, percentualRateio);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(BigDecimal percentualRateio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -151,31 +148,5 @@ public class TituloSetor extends BaseEntity {
                 + ", percentual="
                 + percentualRateio
                 + '}';
-    }
-
-    public static class Builder {
-        private Titulo titulo;
-        private Setor setor;
-        private BigDecimal percentualRateio;
-
-        public Builder titulo(Titulo titulo) {
-            this.titulo = titulo;
-            return this;
-        }
-
-        public Builder setor(Setor setor) {
-            this.setor = setor;
-            return this;
-        }
-
-        public Builder percentualRateio(BigDecimal percentualRateio) {
-            this.percentualRateio = percentualRateio;
-            return this;
-        }
-
-        public TituloSetor build() {
-            ValidatedData data = validate(this.titulo, this.setor, this.percentualRateio);
-            return new TituloSetor(data.titulo, data.setor, data.percentualRateio);
-        }
     }
 }

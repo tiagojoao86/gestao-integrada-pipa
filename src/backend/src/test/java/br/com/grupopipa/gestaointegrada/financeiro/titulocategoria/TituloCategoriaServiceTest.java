@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,12 +88,14 @@ class TituloCategoriaServiceTest {
     @Test
     @DisplayName("Deve deletar categoria")
     void deveDeletarCategoria() {
-        doNothing().when(repository).deleteById(categoriaId);
+        when(repository.findById(categoriaId)).thenReturn(Optional.of(entity));
+        when(repository.save(any(TituloCategoria.class))).thenReturn(entity);
 
         UUID resultado = service.delete(categoriaId);
 
         assertEquals(categoriaId, resultado);
-        verify(repository, times(1)).deleteById(categoriaId);
+        verify(repository, times(1)).findById(categoriaId);
+        verify(repository, times(1)).save(any(TituloCategoria.class));
     }
 
     @Test

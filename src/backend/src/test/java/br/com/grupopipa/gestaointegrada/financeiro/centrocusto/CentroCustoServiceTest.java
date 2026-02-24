@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -134,12 +133,14 @@ class CentroCustoServiceTest {
     @Test
     @DisplayName("Deve deletar centro de custo")
     void deveDeletarCentro() {
-        doNothing().when(repository).deleteById(centroId);
+        when(repository.findById(centroId)).thenReturn(Optional.of(entidadeValida));
+        when(repository.save(any(CentroCusto.class))).thenReturn(entidadeValida);
 
         UUID resultado = service.delete(centroId);
 
         assertEquals(centroId, resultado);
-        verify(repository, times(1)).deleteById(centroId);
+        verify(repository, times(1)).findById(centroId);
+        verify(repository, times(1)).save(any(CentroCusto.class));
     }
 
     @Test

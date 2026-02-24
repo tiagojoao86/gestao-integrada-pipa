@@ -1,16 +1,12 @@
 package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
+import br.com.grupopipa.gestaointegrada.financeiro.condicaopagamento.CondicaoPagamentoValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -65,90 +61,47 @@ public class CondicaoPagamento extends BaseEntity {
     protected CondicaoPagamento() {
     }
 
-    private static class ValidatedData {
-        final String condicao;
-        final String descricao;
-        final Boolean ativo;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                String condicao,
-                String descricao,
-                Boolean ativo) {
+    public static class Builder {
+        private String condicao;
+        private String descricao;
+        private Boolean ativo;
+
+        public Builder condicao(String condicao) {
             this.condicao = condicao;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder ativo(Boolean ativo) {
             this.ativo = ativo;
+            return this;
+        }
+
+        public CondicaoPagamento build() {
+            CondicaoPagamentoValidator.ValidatedData data = CondicaoPagamentoValidator.validate(
+                    this.condicao, this.descricao, this.ativo);
+            return new CondicaoPagamento(data.condicao, data.descricao, data.ativo);
         }
     }
 
-    private static ValidatedData validate(
-            String condicao,
-            String descricaoStr,
-            Boolean ativo) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(descricaoStr, "descrição", violations).maxLength(400);
-
-        if (condicao == null || condicao.isBlank()) {
-            Validator.of(condicao, "condição de pagamento", violations).notBlank();
-        } else {
-            validateCondicaoFormat(condicao.trim(), violations);
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("condicaoPagamento", violations);
-        }
-
-        return new ValidatedData(
-                condicao != null ? condicao.trim() : null,
-                descricaoStr,
-                ativo != null ? ativo : Boolean.TRUE);
-    }
-
-    private static void validateCondicaoFormat(String condicao, Set<BeanValidationMessage> violations) {
-        var matcherNx = PATTERN_NX.matcher(condicao);
-        if (matcherNx.matches()) {
-            int n = Integer.parseInt(matcherNx.group(1));
-            if (n <= 0) {
-                violations.add(new BeanValidationMessage(
-                        "validation.condicaoPagamento.parcelasZero",
-                        "Número de parcelas deve ser maior que zero."));
-            }
-            return;
-        }
-
-        var matcherDias = PATTERN_DIAS.matcher(condicao);
-        if (matcherDias.matches()) {
-            String[] parts = condicao.split("/");
-            int anterior = 0;
-            for (String part : parts) {
-                int dias = Integer.parseInt(part);
-                if (dias <= 0) {
-                    violations.add(new BeanValidationMessage(
-                            "validation.condicaoPagamento.diasZero",
-                            "Dias de vencimento devem ser maiores que zero."));
-                    return;
-                }
-                if (dias <= anterior) {
-                    violations.add(new BeanValidationMessage(
-                            "validation.condicaoPagamento.diasOrdem",
-                            "Dias de vencimento devem estar em ordem crescente."));
-                    return;
-                }
-                anterior = dias;
-            }
-            return;
-        }
-
-        violations.add(new BeanValidationMessage(
-                "validation.condicaoPagamento.formatoInvalido",
-                "Formato de condição inválido. Use 'Nx' (ex: 3x) ou 'dias/dias/dias' (ex: 10/20/40)."));
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void atualizar(
             String condicao,
             String descricao,
             Boolean ativo) {
-        ValidatedData data = validate(condicao, descricao, ativo);
+        CondicaoPagamentoValidator.ValidatedData data = CondicaoPagamentoValidator.validate(
+                condicao, descricao, ativo);
         this.condicao = data.condicao;
         this.descricao = data.descricao;
         this.ativo = data.ativo;
@@ -247,31 +200,5 @@ public class CondicaoPagamento extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), condicao);
-    }
-
-    public static class Builder {
-        private String condicao;
-        private String descricao;
-        private Boolean ativo;
-
-        public Builder condicao(String condicao) {
-            this.condicao = condicao;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder ativo(Boolean ativo) {
-            this.ativo = ativo;
-            return this;
-        }
-
-        public CondicaoPagamento build() {
-            ValidatedData data = validate(this.condicao, this.descricao, this.ativo);
-            return new CondicaoPagamento(data.condicao, data.descricao, data.ativo);
-        }
     }
 }

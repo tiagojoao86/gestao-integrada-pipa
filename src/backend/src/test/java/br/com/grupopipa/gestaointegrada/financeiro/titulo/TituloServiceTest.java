@@ -293,7 +293,7 @@ class TituloServiceTest {
 
         // Then
         assertEquals(id, resultado);
-        verify(repository, times(1)).findById(id);
+        verify(repository, times(2)).findById(id);
         verify(repository, times(1)).save(any(Titulo.class));
     }
 
