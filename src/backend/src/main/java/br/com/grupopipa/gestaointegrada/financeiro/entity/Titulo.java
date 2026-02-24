@@ -14,11 +14,11 @@ import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoTitulo;
+import br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloValidator;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,8 +37,7 @@ import jakarta.persistence.Transient;
 
 /**
  * Entidade principal do domínio financeiro - representa títulos a pagar/receber
- * (regime de
- * competência)
+ * (regime de competência)
  */
 @Entity
 @Table(name = "titulo", indexes = {
@@ -68,7 +67,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     private Pessoa pessoa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "titulo_categoria_id", nullable = false, foreignKey = @ForeignKey(name = "fk_titulo_categoria"))
+    @JoinColumn(name = "titulo_categoria_id", nullable = false,
+        foreignKey = @ForeignKey(name = "fk_titulo_categoria"))
     private TituloCategoria tituloCategoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -120,7 +120,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     private Titulo tituloOrigem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "condicao_pagamento_id", foreignKey = @ForeignKey(name = "fk_titulo_condicao_pagamento"))
+    @JoinColumn(name = "condicao_pagamento_id",
+        foreignKey = @ForeignKey(name = "fk_titulo_condicao_pagamento"))
     private CondicaoPagamento condicaoPagamento;
 
     @OneToMany(mappedBy = "titulo")
@@ -160,90 +161,151 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     protected Titulo() {
     }
 
-    private static class ValidatedData {
-        final TipoTitulo tipo;
-        final String descricao;
-        final String numeroDocumento;
-        final Pessoa pessoa;
-        final TituloCategoria tituloCategoria;
-        final UnidadeNegocio unidadeNegocio;
-        final Money valorOriginal;
-        final LocalDate dataEmissao;
-        final LocalDate dataVencimento;
+    // =========================================================================
+    // Builder
+    // =========================================================================
 
-        ValidatedData(
-                TipoTitulo tipo,
-                String descricao,
-                String numeroDocumento,
-                Pessoa pessoa,
-                TituloCategoria tituloCategoria,
-                UnidadeNegocio unidadeNegocio,
-                Money valorOriginal,
-                LocalDate dataEmissao,
-                LocalDate dataVencimento) {
+    public static class Builder {
+        private TipoTitulo tipo;
+        private String descricao;
+        private String numeroDocumento;
+        private Pessoa pessoa;
+        private TituloCategoria tituloCategoria;
+        private UnidadeNegocio unidadeNegocio;
+        private BigDecimal valorOriginal;
+        private LocalDate dataEmissao;
+        private LocalDate dataVencimento;
+        private LocalDate dataPagamento;
+        private BigDecimal valorDesconto;
+        private BigDecimal valorJuros;
+        private BigDecimal valorMulta;
+        private Boolean rateioAutomatico;
+
+        public Builder tipo(TipoTitulo tipo) {
             this.tipo = tipo;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder numeroDocumento(String numeroDocumento) {
             this.numeroDocumento = numeroDocumento;
+            return this;
+        }
+
+        public Builder pessoa(Pessoa pessoa) {
             this.pessoa = pessoa;
+            return this;
+        }
+
+        public Builder tituloCategoria(TituloCategoria tituloCategoria) {
             this.tituloCategoria = tituloCategoria;
+            return this;
+        }
+
+        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
             this.unidadeNegocio = unidadeNegocio;
+            return this;
+        }
+
+        // Compatibility shim: campo 'planoContas' foi removido da entidade.
+        // Mantido para compatibilidade com testes e código legado.
+        public Builder planoContas(PlanoContas ignored) {
+            return this;
+        }
+
+        public Builder valorOriginal(BigDecimal valorOriginal) {
             this.valorOriginal = valorOriginal;
+            return this;
+        }
+
+        public Builder valorOriginal(Money valorOriginal) {
+            this.valorOriginal = valorOriginal != null ? valorOriginal.getValue() : null;
+            return this;
+        }
+
+        public Builder dataEmissao(LocalDate dataEmissao) {
             this.dataEmissao = dataEmissao;
+            return this;
+        }
+
+        public Builder dataVencimento(LocalDate dataVencimento) {
             this.dataVencimento = dataVencimento;
+            return this;
+        }
+
+        public Builder dataPagamento(LocalDate dataPagamento) {
+            this.dataPagamento = dataPagamento;
+            return this;
+        }
+
+        public Builder valorDesconto(BigDecimal valorDesconto) {
+            this.valorDesconto = valorDesconto;
+            return this;
+        }
+
+        public Builder valorJuros(BigDecimal valorJuros) {
+            this.valorJuros = valorJuros;
+            return this;
+        }
+
+        public Builder valorMulta(BigDecimal valorMulta) {
+            this.valorMulta = valorMulta;
+            return this;
+        }
+
+        public Builder rateioAutomatico(Boolean rateioAutomatico) {
+            this.rateioAutomatico = rateioAutomatico;
+            return this;
+        }
+
+        public Titulo build() {
+            TituloValidator.ValidatedData data = TituloValidator.validate(
+                    this.tipo,
+                    this.descricao,
+                    this.numeroDocumento,
+                    this.pessoa,
+                    this.tituloCategoria,
+                    this.unidadeNegocio,
+                    this.valorOriginal,
+                    this.dataEmissao,
+                    this.dataVencimento,
+                    this.dataPagamento);
+
+            Titulo titulo = new Titulo(
+                    data.tipo,
+                    data.descricao,
+                    data.numeroDocumento,
+                    data.pessoa,
+                    data.tituloCategoria,
+                    data.unidadeNegocio,
+                    data.valorOriginal,
+                    data.dataEmissao,
+                    data.dataVencimento);
+
+            if (this.dataPagamento != null) {
+                titulo.dataPagamento = this.dataPagamento;
+            }
+            if (this.valorDesconto != null && this.valorDesconto.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarDesconto(Money.positiveOrZero(this.valorDesconto));
+            }
+            if (this.valorJuros != null && this.valorJuros.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarJuros(Money.positiveOrZero(this.valorJuros));
+            }
+            if (this.valorMulta != null && this.valorMulta.compareTo(BigDecimal.ZERO) > 0) {
+                titulo.aplicarMulta(Money.positiveOrZero(this.valorMulta));
+            }
+            titulo.setRateioAutomatico(this.rateioAutomatico);
+            return titulo;
         }
     }
 
-    private static ValidatedData validate(
-            TipoTitulo tipo,
-            String descricao,
-            String numeroDocumento,
-            Pessoa pessoa,
-            TituloCategoria tituloCategoria,
-            UnidadeNegocio unidadeNegocio,
-            BigDecimal valorOriginal,
-            LocalDate dataEmissao,
-            LocalDate dataVencimento,
-            LocalDate dataPagamento) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(tipo, "tipo do título", violations).notNull();
-        Validator.of(descricao, "descrição", violations).notBlank().maxLength(500);
-        Validator.of(pessoa, "pessoa", violations).notNull();
-        Validator.of(tituloCategoria, "categoria", violations).notNull();
-        Validator.of(unidadeNegocio, "unidade de negócio", violations).notNull();
-        Validator.of(dataEmissao, "data de emissão", violations).notNull();
-        Validator.of(dataVencimento, "data de vencimento", violations).notNull();
-
-        if (dataVencimento != null && dataEmissao != null && dataVencimento.isBefore(dataEmissao)) {
-            violations.add(new BeanValidationMessage(
-                    "validation.titulo.dataVencimentoInvalida",
-                    "Data de vencimento não pode ser anterior à data de emissão."));
-        }
-
-        if (dataPagamento != null && dataEmissao != null && dataPagamento.isBefore(dataEmissao)) {
-            violations.add(new BeanValidationMessage(
-                    "validation.titulo.dataPagamentoInvalida",
-                    "Data de pagamento não pode ser anterior à data de emissão."));
-        }
-
-        Money money = ValidationUtils.validateAndGet(
-                () -> Money.positive(valorOriginal), violations);
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("titulo", violations);
-        }
-
-        return new ValidatedData(
-                tipo,
-                descricao,
-                numeroDocumento,
-                pessoa,
-                tituloCategoria,
-                unidadeNegocio,
-                money,
-                dataEmissao,
-                dataVencimento);
-    }
+    // =========================================================================
+    // Domain methods
+    // =========================================================================
 
     public void aplicarDesconto(Money desconto) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -261,13 +323,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorDesconto = desconto;
-        atualizarStatus(); // Recalcular status após alterar desconto
+        atualizarStatus();
     }
 
     public void aplicarJuros(Money juros) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Money.positiveOrZero() já garante >= 0
         Validator.of(juros, "juros", violations).notNull();
 
         if (!violations.isEmpty()) {
@@ -275,13 +336,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorJuros = juros;
-        atualizarStatus(); // Recalcular status após alterar juros
+        atualizarStatus();
     }
 
     public void aplicarMulta(Money multa) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Money.positiveOrZero() já garante >= 0
         Validator.of(multa, "multa", violations).notNull();
 
         if (!violations.isEmpty()) {
@@ -289,13 +349,12 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
 
         this.valorMulta = multa;
-        atualizarStatus(); // Recalcular status após alterar multa
+        atualizarStatus();
     }
 
     /**
      * Calcula o valor pago a partir do somatório das movimentações financeiras não
-     * deletadas Campo
-     * transiente - não é armazenado no banco de dados
+     * deletadas. Campo transiente - não é armazenado no banco de dados.
      */
     @Transient
     public Money getValorPago() {
@@ -329,8 +388,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     }
 
     public boolean isOrigemParcelamento() {
-        return totalParcelas != null && totalParcelas > 1
-                && numeroParcela == null;
+        return totalParcelas != null && totalParcelas > 1 && numeroParcela == null;
     }
 
     /**
@@ -342,18 +400,14 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
      * Marca este título como origem de parcelamento (totalParcelas = N).
      */
     public List<Titulo> gerarParcelas() {
-        // Sem condição de pagamento ou parcela única → não é parcelado
-        if (condicaoPagamento == null
-                || condicaoPagamento.getQuantidadeParcelas() <= 1) {
+        if (condicaoPagamento == null || condicaoPagamento.getQuantidadeParcelas() <= 1) {
             return List.of();
         }
 
         int qtd = condicaoPagamento.getQuantidadeParcelas();
-        List<Integer> diasVencimento =
-                condicaoPagamento.getDiasVencimento();
+        List<Integer> diasVencimento = condicaoPagamento.getDiasVencimento();
 
-        Money valorParcela =
-                valorOriginal.divide(BigDecimal.valueOf(qtd));
+        Money valorParcela = valorOriginal.divide(BigDecimal.valueOf(qtd));
         Money somaAnterior = Money.zero();
 
         List<Titulo> parcelas = new ArrayList<>();
@@ -367,8 +421,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
                 somaAnterior = somaAnterior.add(valorParcela);
             }
 
-            LocalDate vencimento =
-                    dataEmissao.plusDays(diasVencimento.get(i));
+            LocalDate vencimento = dataEmissao.plusDays(diasVencimento.get(i));
 
             Titulo parcela = new Titulo.Builder()
                     .tipo(this.tipo)
@@ -387,15 +440,13 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             parcela.definirParcelamento(i + 1, qtd, this);
 
             for (TituloSetor ts : this.setores) {
-                parcela.adicionarSetor(
-                        ts.getSetor(), ts.getPercentualRateio());
+                parcela.adicionarSetor(ts.getSetor(), ts.getPercentualRateio());
             }
             parcela.validarSetores();
 
             parcelas.add(parcela);
         }
 
-        // Mark parent as origin of parcelas
         this.totalParcelas = qtd;
 
         return parcelas;
@@ -479,7 +530,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
             throw new BeanValidationException("titulo", violations);
         }
 
-        // Atualizar campos se fornecidos
         if (descricao != null && !descricao.isBlank()) {
             this.descricao = descricao;
         }
@@ -492,8 +542,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (observacoes != null && !observacoes.isBlank()) {
             this.observacoes = observacoes;
         }
-
-        // Converter e aplicar valores monetários
         if (valorDesconto != null) {
             aplicarDesconto(Money.positiveOrZero(valorDesconto));
         }
@@ -503,7 +551,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         if (valorMulta != null) {
             aplicarMulta(Money.positiveOrZero(valorMulta));
         }
-
         if (rateioAutomatico != null) {
             this.rateioAutomatico = rateioAutomatico;
         }
@@ -512,8 +559,6 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     public void atualizarUnidadeNegocio(UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        // Títulos com movimentações financeiras não podem ter unidade de negócio
-        // alterada
         if (!movimentacoes.isEmpty()) {
             violations.add(new BeanValidationMessage(
                     "validation.titulo.comMovimentacoes",
@@ -566,9 +611,8 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     /**
      * Método interno usado por MovimentacaoFinanceira para atualizar status após
-     * pagamento Como
-     * valorPago agora é calculado a partir das movimentações, apenas atualiza o
-     * status
+     * pagamento. Como valorPago é calculado a partir das movimentações, apenas
+     * atualiza o status.
      */
     void registrarPagamento(Money valor) {
         atualizarStatus();
@@ -576,12 +620,11 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
 
     /**
      * Método público usado ao deletar uma MovimentacaoFinanceira para reverter
-     * o pagamento e atualizar o status do título
+     * o pagamento e atualizar o status do título.
      */
     public void reverterPagamento() {
         atualizarStatus();
 
-        // Se o título estava pago e agora não está mais, limpar a data de pagamento
         if (this.status != StatusTitulo.PAGO && this.dataPagamento != null) {
             this.dataPagamento = null;
         }
@@ -603,7 +646,80 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         }
     }
 
+    // =========================================================================
+    // Setor methods
+    // =========================================================================
+
+    public void adicionarSetor(
+            br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor,
+            BigDecimal percentualRateio) {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        Validator.of(setor, "setor", violations).notNull();
+
+        if (percentualRateio == null || percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
+            violations.add(new BeanValidationMessage(
+                    "validation.tituloSetor.percentualZero",
+                    "Percentual de rateio deve ser maior que zero."));
+        }
+
+        if (percentualRateio != null && percentualRateio.compareTo(new BigDecimal("100")) > 0) {
+            violations.add(new BeanValidationMessage(
+                    "validation.tituloSetor.percentualMaximo",
+                    "Percentual de rateio não pode ser maior que 100."));
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
+
+        TituloSetor tituloSetor = new TituloSetor.Builder()
+                .titulo(this)
+                .setor(setor)
+                .percentualRateio(percentualRateio)
+                .build();
+
+        this.setores.add(tituloSetor);
+    }
+
+    public void removerSetor(br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor) {
+        setores.removeIf(ts -> ts.getSetor().equals(setor));
+    }
+
+    public void limparSetores() {
+        setores.removeIf(s -> true);
+    }
+
+    public void validarSetores() {
+        Set<BeanValidationMessage> violations = new HashSet<>();
+
+        if (setores.isEmpty()) {
+            violations.add(new BeanValidationMessage(
+                    "validation.titulo.setoresObrigatorio",
+                    "Pelo menos um setor deve ser vinculado ao título."));
+        }
+
+        if (!setores.isEmpty()) {
+            BigDecimal somaPercentuais = setores.stream()
+                    .map(TituloSetor::getPercentualRateio)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            if (somaPercentuais.compareTo(new BigDecimal("100")) != 0) {
+                violations.add(new BeanValidationMessage(
+                        "validation.titulo.percentualTotal",
+                        "A soma dos percentuais deve ser exatamente 100%."));
+            }
+        }
+
+        if (!violations.isEmpty()) {
+            throw new BeanValidationException("titulo", violations);
+        }
+    }
+
+    // =========================================================================
     // Getters
+    // =========================================================================
+
     public TipoTitulo getTipo() {
         return tipo;
     }
@@ -700,78 +816,9 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
         this.rateioAutomatico = rateioAutomatico != null ? rateioAutomatico : false;
     }
 
-    public void adicionarSetor(
-            br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor,
-            BigDecimal percentualRateio) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(setor, "setor", violations).notNull();
-
-        if (percentualRateio == null || percentualRateio.compareTo(BigDecimal.ZERO) <= 0) {
-            violations.add(new BeanValidationMessage(
-                    "validation.tituloSetor.percentualZero",
-                    "Percentual de rateio deve ser maior que zero."));
-        }
-
-        if (percentualRateio != null && percentualRateio.compareTo(new BigDecimal("100")) > 0) {
-            violations.add(new BeanValidationMessage(
-                    "validation.tituloSetor.percentualMaximo",
-                    "Percentual de rateio não pode ser maior que 100."));
-        }
-
-        // Note: Removed duplicate sector validation as we clear sectors before adding
-        // in update flow
-        // The validation would fail when updating because Hibernate hasn't flushed the
-        // delete yet
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("titulo", violations);
-        }
-
-        TituloSetor tituloSetor = new TituloSetor.Builder()
-                .titulo(this)
-                .setor(setor)
-                .percentualRateio(percentualRateio)
-                .build();
-
-        this.setores.add(tituloSetor);
-    }
-
-    public void removerSetor(br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor setor) {
-        setores.removeIf(ts -> ts.getSetor().equals(setor));
-    }
-
-    public void limparSetores() {
-        // Remove all elements to trigger orphanRemoval
-        // Using removeIf ensures proper Hibernate collection tracking
-        setores.removeIf(s -> true);
-    }
-
-    public void validarSetores() {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        if (setores.isEmpty()) {
-            violations.add(new BeanValidationMessage(
-                    "validation.titulo.setoresObrigatorio",
-                    "Pelo menos um setor deve ser vinculado ao título."));
-        }
-
-        if (!setores.isEmpty()) {
-            BigDecimal somaPercentuais = setores.stream()
-                    .map(TituloSetor::getPercentualRateio)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            if (somaPercentuais.compareTo(new BigDecimal("100")) != 0) {
-                violations.add(new BeanValidationMessage(
-                        "validation.titulo.percentualTotal",
-                        "A soma dos percentuais deve ser exatamente 100%."));
-            }
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("titulo", violations);
-        }
-    }
+    // =========================================================================
+    // equals / hashCode
+    // =========================================================================
 
     @Override
     public boolean equals(Object o) {
@@ -791,155 +838,5 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), numeroDocumento);
-    }
-
-    public static class Builder {
-        private TipoTitulo tipo;
-        private String descricao;
-        private String numeroDocumento;
-        private Pessoa pessoa;
-        private TituloCategoria tituloCategoria;
-        private UnidadeNegocio unidadeNegocio;
-        private BigDecimal valorOriginal;
-        private LocalDate dataEmissao;
-        private LocalDate dataVencimento;
-        private LocalDate dataPagamento;
-        private BigDecimal valorDesconto;
-        private BigDecimal valorJuros;
-        private BigDecimal valorMulta;
-        private Boolean rateioAutomatico;
-
-        public Builder tipo(TipoTitulo tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-
-        public Builder descricao(String descricao) {
-            this.descricao = descricao;
-            return this;
-        }
-
-        public Builder numeroDocumento(String numeroDocumento) {
-            this.numeroDocumento = numeroDocumento;
-            return this;
-        }
-
-        public Builder pessoa(Pessoa pessoa) {
-            this.pessoa = pessoa;
-            return this;
-        }
-
-        public Builder tituloCategoria(TituloCategoria tituloCategoria) {
-            this.tituloCategoria = tituloCategoria;
-            return this;
-        }
-
-        public Builder unidadeNegocio(UnidadeNegocio unidadeNegocio) {
-            this.unidadeNegocio = unidadeNegocio;
-            return this;
-        }
-
-        // Compatibility shim: some tests (and older code) may call `.planoContas(...)`
-        // on the
-        // builder even after the campo 'planoContas' was removed from the entity. Keep
-        // a no-op
-        // method to preserve binary/source compatibility for tests while the codebase
-        // is updated.
-        public Builder planoContas(
-                br.com.grupopipa.gestaointegrada.financeiro.entity.PlanoContas ignored) {
-            return this;
-        }
-
-        public Builder valorOriginal(BigDecimal valorOriginal) {
-            this.valorOriginal = valorOriginal;
-            return this;
-        }
-
-        public Builder valorOriginal(Money valorOriginal) {
-            this.valorOriginal = valorOriginal != null
-                    ? valorOriginal.getValue() : null;
-            return this;
-        }
-
-        public Builder dataEmissao(LocalDate dataEmissao) {
-            this.dataEmissao = dataEmissao;
-            return this;
-        }
-
-        public Builder dataVencimento(LocalDate dataVencimento) {
-            this.dataVencimento = dataVencimento;
-            return this;
-        }
-
-        public Builder dataPagamento(LocalDate dataPagamento) {
-            this.dataPagamento = dataPagamento;
-            return this;
-        }
-
-        public Builder valorDesconto(BigDecimal valorDesconto) {
-            this.valorDesconto = valorDesconto;
-            return this;
-        }
-
-        public Builder valorJuros(BigDecimal valorJuros) {
-            this.valorJuros = valorJuros;
-            return this;
-        }
-
-        public Builder valorMulta(BigDecimal valorMulta) {
-            this.valorMulta = valorMulta;
-            return this;
-        }
-
-        public Builder rateioAutomatico(Boolean rateioAutomatico) {
-            this.rateioAutomatico = rateioAutomatico;
-            return this;
-        }
-
-        public Titulo build() {
-            ValidatedData data = validate(
-                    this.tipo,
-                    this.descricao,
-                    this.numeroDocumento,
-                    this.pessoa,
-                    this.tituloCategoria,
-                    this.unidadeNegocio,
-                    this.valorOriginal,
-                    this.dataEmissao,
-                    this.dataVencimento,
-                    this.dataPagamento);
-            Titulo titulo = new Titulo(
-                    data.tipo,
-                    data.descricao,
-                    data.numeroDocumento,
-                    data.pessoa,
-                    data.tituloCategoria,
-                    data.unidadeNegocio,
-                    data.valorOriginal,
-                    data.dataEmissao,
-                    data.dataVencimento);
-            // Definir dataPagamento se fornecida (já foi validada)
-            if (this.dataPagamento != null) {
-                titulo.dataPagamento = this.dataPagamento;
-            }
-            // Aplicar desconto, juros, multa se fornecidos
-            if (this.valorDesconto != null
-                    && this.valorDesconto.compareTo(BigDecimal.ZERO) > 0) {
-                titulo.aplicarDesconto(
-                        Money.positiveOrZero(this.valorDesconto));
-            }
-            if (this.valorJuros != null
-                    && this.valorJuros.compareTo(BigDecimal.ZERO) > 0) {
-                titulo.aplicarJuros(
-                        Money.positiveOrZero(this.valorJuros));
-            }
-            if (this.valorMulta != null
-                    && this.valorMulta.compareTo(BigDecimal.ZERO) > 0) {
-                titulo.aplicarMulta(
-                        Money.positiveOrZero(this.valorMulta));
-            }
-            titulo.setRateioAutomatico(this.rateioAutomatico);
-            return titulo;
-        }
     }
 }
