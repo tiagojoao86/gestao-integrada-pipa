@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.core.controller;
 
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.PV_ID;
+import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_EXPORT_CSV;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_FIND_BY_ID;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_LIST;
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_QUERY;
@@ -11,6 +12,10 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,5 +80,14 @@ public abstract class BaseController<D extends DTO, G extends GridDTO, S extends
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         AuditInfoDTO auditInfo = service.getAuditInfo(id);
         return ok(auditInfo);
+    }
+
+    @PostMapping(R_EXPORT_CSV)
+    public ResponseEntity<byte[]> exportCsv(@RequestBody PageRequest request) {
+        byte[] csv = service.exportToCsv(request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+        headers.setContentDispositionFormData("attachment", "export.csv");
+        return new ResponseEntity<>(csv, headers, HttpStatus.OK);
     }
 }

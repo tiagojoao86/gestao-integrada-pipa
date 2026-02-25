@@ -11,6 +11,7 @@ import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
+import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 
 public interface CrudService<D extends DTO, G extends GridDTO> {
 
@@ -25,4 +26,6 @@ public interface CrudService<D extends DTO, G extends GridDTO> {
     D findById(UUID id);
 
     AuditInfoDTO getAuditInfo(UUID id);
+
+    byte[] exportToCsv(PageRequest request);
 }

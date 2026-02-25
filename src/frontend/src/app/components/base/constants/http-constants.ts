@@ -2,5 +2,6 @@ export class HttpConstants {
   static readonly R_QUERY: string = '/query';
   static readonly R_LIST: string = '/list';
   static readonly R_FIND_BY_ID: string = '/find-by-id';
+  static readonly R_EXPORT_CSV: string = '/export/csv';
   static readonly F_ID: string = 'id';
 }

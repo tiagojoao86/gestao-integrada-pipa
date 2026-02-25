@@ -146,6 +146,15 @@ export abstract class BaseService<D, G = D> {
       .pipe(take(1));
   }
 
+  exportToCsv(request: PageRequest): Observable<Blob> {
+    return this.httpClient
+      .post(this.getUrl(HttpConstants.R_EXPORT_CSV), request, {
+        headers: this.getHeaders(),
+        responseType: 'blob',
+      })
+      .pipe(take(1));
+  }
+
   getUrl(contexto = ''): string {
     return this.urlBase + this.getDomain() + contexto;
   }

@@ -1,15 +1,18 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
 import static br.com.grupopipa.gestaointegrada.core.constants.Constants.F_ID;
+import static br.com.grupopipa.gestaointegrada.core.constants.Constants.R_EXPORT_CSV;
 import static br.com.grupopipa.gestaointegrada.core.controller.Response.ok;
 import static br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloConstants.R_TITULO;
 
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -86,5 +89,12 @@ public class TituloController extends BaseController<TituloDTO, TituloGridDTO, T
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         return super.getAuditInfo(id);
+    }
+
+    @Override
+    @PostMapping(R_EXPORT_CSV)
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_LISTAR')")
+    public ResponseEntity<byte[]> exportCsv(@RequestBody PageRequest request) {
+        return super.exportCsv(request);
     }
 }

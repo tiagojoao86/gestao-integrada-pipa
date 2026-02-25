@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.core.service.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,9 @@ import br.com.grupopipa.gestaointegrada.core.dto.AuditInfoDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import br.com.grupopipa.gestaointegrada.core.dto.FilterDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
+import br.com.grupopipa.gestaointegrada.core.dto.OrderDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.PageDTO;
+import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.entity.UnidadeNegocioFiltravel;
 import br.com.grupopipa.gestaointegrada.core.enums.FilterLogicOperator;
@@ -210,6 +213,57 @@ public abstract class CrudServiceImpl<D extends DTO, G extends GridDTO, T extend
         }
 
         return list;
+    }
+
+    @Override
+    @Transactional
+    public byte[] exportToCsv(PageRequest request) {
+        String[] headers = getCsvHeaders();
+        if (headers.length == 0) {
+            return "\uFEFF".getBytes(StandardCharsets.UTF_8);
+        }
+        Sort sort = Sort.by(
+                request.getOrder() != null
+                        ? request.getOrder().stream().map(OrderDTO::getOrder).toList()
+                        : List.of());
+        List<G> records = list(request.getFilter(), sort);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append('\uFEFF');
+        sb.append(buildCsvLine(headers));
+        for (G record : records) {
+            sb.append(buildCsvLine(buildCsvRow(record)));
+        }
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    protected String[] getCsvHeaders() {
+        return new String[0];
+    }
+
+    protected String[] buildCsvRow(G gridDto) {
+        return new String[0];
+    }
+
+    private String buildCsvLine(String[] values) {
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
+                line.append(';');
+            }
+            line.append(escapeCsvValue(values[i]));
+        }
+        return line.append('\n').toString();
+    }
+
+    private String escapeCsvValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        if (value.contains(";") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 
     protected abstract T mergeEntityAndDTO(T entity, D dto);

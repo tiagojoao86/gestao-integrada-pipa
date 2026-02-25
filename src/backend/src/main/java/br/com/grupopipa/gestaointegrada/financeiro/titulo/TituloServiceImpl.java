@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulo;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -403,6 +404,34 @@ public class TituloServiceImpl
                 .parcelamento(parcelamento)
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    @Override
+    protected String[] getCsvHeaders() {
+        return new String[]{
+            "Tipo", "Status", "Nº Documento", "Descrição",
+            "Pessoa", "Categoria", "Unidade", "Valor Original",
+            "Valor Pago", "Saldo", "Vencimento", "Parcelamento"
+        };
+    }
+
+    @Override
+    protected String[] buildCsvRow(TituloGridDTO g) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return new String[]{
+            g.getTipo(),
+            g.getStatus(),
+            g.getNumeroDocumento(),
+            g.getDescricao(),
+            g.getPessoaNome(),
+            g.getTituloCategoriaNome(),
+            g.getUnidadeNegocioCodigo(),
+            g.getValorOriginal() != null ? g.getValorOriginal().toPlainString() : "",
+            g.getValorPago() != null ? g.getValorPago().toPlainString() : "",
+            g.getSaldo() != null ? g.getSaldo().toPlainString() : "",
+            g.getDataVencimento() != null ? g.getDataVencimento().format(fmt) : "",
+            g.getParcelamento()
+        };
     }
 
     @Override

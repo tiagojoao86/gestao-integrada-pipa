@@ -316,6 +316,12 @@ export class TituloGridComponent {
     }
 
     this.toolbarActions.push({
+      action: () => this.exportarCsv(),
+      icon: 'download',
+      title: $localize`Exportar CSV`,
+    });
+
+    this.toolbarActions.push({
       action: () => {
         this.toggleShowFilters();
       },
@@ -425,6 +431,17 @@ export class TituloGridComponent {
 
   refreshList() {
     this.listarTitulos();
+  }
+
+  exportarCsv() {
+    this.service.exportToCsv(this.request).subscribe((blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'titulos.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   }
 
   private getCurrencyForLocale(): string {
