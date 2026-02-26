@@ -82,6 +82,14 @@ export class PrincipalComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityToGrupo(SystemModuleKey.DASHBOARDS)) {
+      this.menu.push({
+        name: $localize`Dashboards`,
+        icon: 'dashboard',
+        url: '/dashboard',
+      });
+    }
+
     if (this.authService.hasAuthorityToGrupo('ATENDIMENTO')) {
       this.menu.push({
         name: $localize`Atendimento`,

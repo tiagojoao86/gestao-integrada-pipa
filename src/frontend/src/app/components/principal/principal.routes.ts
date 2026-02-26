@@ -24,4 +24,12 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('../dashboard/dashboard.routes').then(
+        (dashboardRoutes) => dashboardRoutes.routes
+      ),
+    canActivate: [authGuard],
+  },
 ];
