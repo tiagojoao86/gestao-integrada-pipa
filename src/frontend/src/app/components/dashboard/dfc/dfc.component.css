@@ -1,0 +1,175 @@
+/* ---- Filtros ---- */
+
+.dfc-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+:host ::ng-deep .dfc-filters p-datepicker .p-datepicker {
+  width: 160px;
+}
+
+/* ---- Painel: forçar fundo claro sobre o tema escuro do Aura ---- */
+
+:host ::ng-deep .p-panel .p-panel-content {
+  background-color: #ffffff;
+  color: #333333;
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-panel .p-panel-header {
+  background-color: #f4f6f8;
+  color: #333333;
+}
+
+/* ---- Tabela ---- */
+
+.dfc-table-wrapper {
+  overflow-x: auto;
+}
+
+.dfc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 500px;
+}
+
+.dfc-table thead tr {
+  background-color: #1a5276;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.dfc-table th,
+.dfc-table td {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #d4d4d4;
+}
+
+.col-label {
+  text-align: left;
+  min-width: 160px;
+}
+
+.col-value {
+  text-align: right;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+.col-total {
+  background-color: #dbe9f8;
+  font-weight: 700;
+  border-left: 2px solid #1a5276;
+}
+
+/* ---- Tipos de linha ---- */
+
+.dfc-table tr.receitas td {
+  background-color: #f0f9f0;
+  color: #1a6b2a;
+  font-weight: 700;
+}
+
+.dfc-table tr.gastos td {
+  background-color: #fff5f5;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.dfc-table tr.saldo td {
+  background-color: #fef9c3;
+  color: #333333;
+  font-weight: 700;
+}
+
+/* Números negativos */
+.dfc-table td.negative {
+  color: #b91c1c;
+}
+
+/* col-total dentro de cada tipo de linha */
+.dfc-table tr.receitas td.col-total {
+  background-color: #d4edda;
+}
+
+.dfc-table tr.gastos td.col-total {
+  background-color: #fde8e8;
+}
+
+.dfc-table tr.saldo td.col-total {
+  background-color: #fef08a;
+}
+
+.dfc-table tbody tr:hover {
+  filter: brightness(0.96);
+}
+
+/* ---- Gráfico de linhas ---- */
+
+.dfc-chart {
+  height: 380px;
+  width: 100%;
+}
+
+/* ---- Painéis: espaçamento entre eles ---- */
+
+:host ::ng-deep .dfc-panel {
+  margin-bottom: 1rem;
+}
+
+/* ---- Detalhamento: cabeçalhos de seção ---- */
+
+.dfc-table tr.section-header td {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dfc-table tr.section-header.receitas td {
+  background-color: #c8e6c9;
+  color: #1b5e20;
+}
+
+.dfc-table tr.section-header.gastos td {
+  background-color: #ffcdd2;
+  color: #7f0000;
+}
+
+/* ---- Agrupadores (nível 1) ---- */
+
+.dfc-table tr.detalhe-agrupador td {
+  font-weight: 600;
+}
+
+.dfc-table tr.detalhe-agrupador.receitas td {
+  background-color: #f1f8e9;
+  color: #33691e;
+}
+
+.dfc-table tr.detalhe-agrupador.gastos td {
+  background-color: #fff3e0;
+  color: #bf360c;
+}
+
+/* ---- Categorias (nível 2) ---- */
+
+.dfc-table tr.detalhe-categoria td {
+  background-color: #fafafa;
+  color: #444;
+}
+
+/* ---- Indentação ---- */
+
+.indent-1 {
+  padding-left: 1.5rem !important;
+}
+
+.indent-2 {
+  padding-left: 3rem !important;
+}

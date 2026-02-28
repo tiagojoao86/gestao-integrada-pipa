@@ -1,7 +1,29 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { MessageService } from '../base/messages/messages.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface DFCItemDTO {
+  mes: string;
+  entradas: number;
+  saidas: number;
+}
+
+export type RegimeDFC = 'COMPETENCIA' | 'CAIXA';
+
+export interface DFCDetalheItemDTO {
+  mes: string;
+  tipo: 'RECEITA' | 'DESPESA';
+  agrupadorId: string;
+  agrupadorNome: string;
+  agrupadorCodigo: string;
+  categoriaId: string;
+  categoriaNome: string;
+  categoriaCodigo: string;
+  temAgrupador: boolean;
+  total: number;
+}
 
 /**
  * Serviço de dashboards.
@@ -35,5 +57,42 @@ export class DashboardService {
         $localize`:@@erro.generico.inesperado:Ocorreu um erro inesperado.`;
       this.messageService.erro(msg);
     }
+  }
+
+  getFluxoCaixa(
+    dataInicio: Date,
+    dataFim: Date,
+    regime: RegimeDFC
+  ): Observable<DFCItemDTO[]> {
+    const params = new HttpParams()
+      .set('dataInicio', this.formatDate(dataInicio))
+      .set('dataFim', this.formatDate(dataFim))
+      .set('regime', regime);
+    return this.httpClient.get<DFCItemDTO[]>(
+      this.getUrl('/financeiro/fluxo-caixa'),
+      { params }
+    );
+  }
+
+  getFluxoCaixaDetalhe(
+    dataInicio: Date,
+    dataFim: Date,
+    regime: RegimeDFC
+  ): Observable<DFCDetalheItemDTO[]> {
+    const params = new HttpParams()
+      .set('dataInicio', this.formatDate(dataInicio))
+      .set('dataFim', this.formatDate(dataFim))
+      .set('regime', regime);
+    return this.httpClient.get<DFCDetalheItemDTO[]>(
+      this.getUrl('/financeiro/fluxo-caixa-detalhe'),
+      { params }
+    );
+  }
+
+  private formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 }

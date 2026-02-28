@@ -1,0 +1,165 @@
+<gi-app-base [title]="title" [hideFooter]="true">
+  <div body-content>
+
+    <!-- Filtros -->
+    <form [formGroup]="form" class="dfc-filters">
+      <p-selectbutton
+        formControlName="regime"
+        [options]="regimeOptions"
+        optionLabel="label"
+        optionValue="value"
+      ></p-selectbutton>
+
+      <p-datepicker
+        formControlName="dataInicio"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+      ></p-datepicker>
+
+      <p-datepicker
+        formControlName="dataFim"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+      ></p-datepicker>
+
+      <p-button label="Filtrar" icon="pi pi-filter" (onClick)="filtrar()"></p-button>
+    </form>
+
+    <!-- Painel Resumo -->
+    <p-panel header="Resumo" [toggleable]="true" [collapsed]="false" styleClass="dfc-panel">
+      <div class="dfc-table-wrapper">
+        <table class="dfc-table">
+          <thead>
+            <tr>
+              <th class="col-label"></th>
+              @for (mes of mesesLabels; track mes) {
+                <th class="col-value">{{ mes }}</th>
+              }
+              <th class="col-value col-total">Ano</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track row.label) {
+              <tr [ngClass]="row.rowType">
+                <td class="col-label">{{ row.label }}</td>
+                @for (val of row.values; track $index) {
+                  <td class="col-value" [ngClass]="{ negative: val < 0 }">
+                    {{ val | number: '1.0-0' }}
+                  </td>
+                }
+                <td class="col-value col-total" [ngClass]="{ negative: row.total < 0 }">
+                  {{ row.total | number: '1.0-0' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </p-panel>
+
+    <!-- Painel Detalhamento -->
+    <p-panel header="Detalhamento por Categoria" [toggleable]="true" [collapsed]="true"
+             styleClass="dfc-panel">
+      <div class="dfc-table-wrapper">
+        <table class="dfc-table">
+          <thead>
+            <tr>
+              <th class="col-label"></th>
+              @for (mes of mesesLabels; track mes) {
+                <th class="col-value">{{ mes }}</th>
+              }
+              <th class="col-value col-total">Ano</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- RECEITAS -->
+            @if (receitasAgrupadores.length > 0) {
+              <tr class="section-header receitas">
+                <td class="col-label">RECEITAS</td>
+                @for (val of receitasTotaisPorMes; track $index) {
+                  <td class="col-value">{{ val | number: '1.0-0' }}</td>
+                }
+                <td class="col-value col-total">{{ receitasTotalAno | number: '1.0-0' }}</td>
+              </tr>
+
+              @for (ag of receitasAgrupadores; track ag.id) {
+                <tr class="detalhe-agrupador receitas">
+                  <td class="col-label indent-1">{{ ag.nome }}</td>
+                  @for (val of ag.values; track $index) {
+                    <td class="col-value" [ngClass]="{ negative: val < 0 }">
+                      {{ val | number: '1.0-0' }}
+                    </td>
+                  }
+                  <td class="col-value col-total" [ngClass]="{ negative: ag.total < 0 }">
+                    {{ ag.total | number: '1.0-0' }}
+                  </td>
+                </tr>
+
+                @for (cat of ag.categorias; track cat.id) {
+                  <tr class="detalhe-categoria">
+                    <td class="col-label indent-2">{{ cat.nome }}</td>
+                    @for (val of cat.values; track $index) {
+                      <td class="col-value" [ngClass]="{ negative: val < 0 }">
+                        {{ val | number: '1.0-0' }}
+                      </td>
+                    }
+                    <td class="col-value col-total" [ngClass]="{ negative: cat.total < 0 }">
+                      {{ cat.total | number: '1.0-0' }}
+                    </td>
+                  </tr>
+                }
+              }
+            }
+
+            <!-- GASTOS -->
+            @if (despesasAgrupadores.length > 0) {
+              <tr class="section-header gastos">
+                <td class="col-label">GASTOS</td>
+                @for (val of despesasTotaisPorMes; track $index) {
+                  <td class="col-value">{{ val | number: '1.0-0' }}</td>
+                }
+                <td class="col-value col-total">{{ despesasTotalAno | number: '1.0-0' }}</td>
+              </tr>
+
+              @for (ag of despesasAgrupadores; track ag.id) {
+                <tr class="detalhe-agrupador gastos">
+                  <td class="col-label indent-1">{{ ag.nome }}</td>
+                  @for (val of ag.values; track $index) {
+                    <td class="col-value" [ngClass]="{ negative: val < 0 }">
+                      {{ val | number: '1.0-0' }}
+                    </td>
+                  }
+                  <td class="col-value col-total" [ngClass]="{ negative: ag.total < 0 }">
+                    {{ ag.total | number: '1.0-0' }}
+                  </td>
+                </tr>
+
+                @for (cat of ag.categorias; track cat.id) {
+                  <tr class="detalhe-categoria">
+                    <td class="col-label indent-2">{{ cat.nome }}</td>
+                    @for (val of cat.values; track $index) {
+                      <td class="col-value" [ngClass]="{ negative: val < 0 }">
+                        {{ val | number: '1.0-0' }}
+                      </td>
+                    }
+                    <td class="col-value col-total" [ngClass]="{ negative: cat.total < 0 }">
+                      {{ cat.total | number: '1.0-0' }}
+                    </td>
+                  </tr>
+                }
+              }
+            }
+
+          </tbody>
+        </table>
+      </div>
+    </p-panel>
+
+    <!-- Painel Evolução (gráfico de linhas) -->
+    <p-panel header="Evolução" [toggleable]="true" [collapsed]="false" styleClass="dfc-panel">
+      <div echarts [options]="chartOptions" class="dfc-chart"></div>
+    </p-panel>
+
+  </div>
+</gi-app-base>

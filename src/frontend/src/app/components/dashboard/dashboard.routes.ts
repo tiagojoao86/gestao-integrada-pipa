@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../base/auth/auth-guard';
 import { groupAuthorityGuard } from '../base/auth/group-authority.guard';
+import { moduleAuthorityGuard } from '../base/auth/module-authority.guard';
 import { SystemModuleKey } from '../base/enum/system-module-key.enum';
 
 export const routes: Routes = [
@@ -11,6 +12,15 @@ export const routes: Routes = [
     canActivate: [authGuard, groupAuthorityGuard],
     data: {
       group: SystemModuleKey.DASHBOARDS,
+    },
+  },
+  {
+    path: 'fluxo-caixa',
+    loadComponent: () =>
+      import('./dfc/dfc.component').then((app) => app.DfcComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.DASHBOARD_FINANCEIRO_FLUXO_CAIXA,
     },
   },
 ];
