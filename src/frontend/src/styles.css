@@ -23,6 +23,9 @@
   --success-color: rgba(84, 159, 61, 1);
   --warning-color: rgba(234, 179, 8, 1);
   --error-color: rgba(168, 46, 46, 1);
+  --input-label-color: rgba(161, 161, 170, 1);
+  --input-label-font-family: Roboto, "Helvetica Neue", sans-serif;
+  --icon-size: 1rem;
 }
 
 html,
@@ -503,4 +506,9 @@ p-datepicker {
 
 .p-card-body {
   padding: 1rem !important;
+}
+
+.p-icon {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
 }

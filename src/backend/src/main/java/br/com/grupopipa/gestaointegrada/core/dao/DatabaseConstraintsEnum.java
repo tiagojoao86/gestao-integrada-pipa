@@ -39,6 +39,7 @@ public enum DatabaseConstraintsEnum {
     UK_PESSOA_CNPJ("Este CNPJ já está cadastrado."),
     UK_PESSOA_FISICA_CPF("Este CPF já está cadastrado."),
     UK_PESSOA_JURIDICA_CNPJ("Este CNPJ já está cadastrado."),
+    FK_PESSOA_RESPONSAVEL("Responsável inválido."),
 
     // -------- Unidade de Negócio --------
     UK_UNIDADE_NEGOCIO_CODIGO("Este código já está cadastrado."),
@@ -99,7 +100,15 @@ public enum DatabaseConstraintsEnum {
     FK_MOVIMENTACAO_CONTA("Conta bancária inválida."),
     FK_MOVIMENTACAO_TITULO_MOV("Título inválido."),
     FK_MOVIMENTACAO_TITULO_TIT("Título inválido."),
-    UK_MOVIMENTACAO_FINANCEIRA_TITULO("Este título já está associado a esta movimentação.");
+    UK_MOVIMENTACAO_FINANCEIRA_TITULO("Este título já está associado a esta movimentação."),
+
+    // ========================================
+    // MÓDULO ATENDIMENTO
+    // ========================================
+
+    // -------- Profissional --------
+    FK_PROFISSIONAL_PESSOA("Pessoa inválida."),
+    UK_PROFISSIONAL_PESSOA("Esta pessoa já está cadastrada como profissional.");
 
     private final String message;
 

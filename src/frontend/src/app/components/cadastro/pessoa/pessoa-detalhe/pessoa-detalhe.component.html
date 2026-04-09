@@ -10,17 +10,17 @@
         <div class="tipo-pessoa-selector w-80">
           <label for="tipoFisica" i18n>Tipo de Pessoa:</label>
           @for (tipoPessoa of tiposPessoa; track tipoPessoa.getKey()) {
-          <div class="radio-group">
-            <p-radioButton
-              name="tipoPessoa"
-              [inputId]="tipoPessoa.getKey()"
-              [value]="tipoPessoa"
-              formControlName="tipoPessoa"
-              (onClick)="onTipoPessoaChange()"
-              inputId="tipoFisica"
-            />
-            <label for="tipoFisica" i18n>{{ tipoPessoa.getLabel() }}</label>
-          </div>
+            <div class="radio-group">
+              <p-radioButton
+                name="tipoPessoa"
+                [inputId]="tipoPessoa.getKey()"
+                [value]="tipoPessoa"
+                formControlName="tipoPessoa"
+                (onClick)="onTipoPessoaChange()"
+                inputId="tipoFisica"
+              />
+              <label for="tipoFisica" i18n>{{ tipoPessoa.getLabel() }}</label>
+            </div>
           }
         </div>
         <div class="checkbox-field w-20">
@@ -38,19 +38,21 @@
         <p-iftalabel class="w-33">
           <input pInputText id="nomePessoa" formControlName="nome" />
           @if (isFisica()) {
-          <label for="nomePessoa" i18n>Nome</label>
-          } @if (isJuridica()) {
-          <label for="nomePessoa" i18n>Nome Fantasia</label>
-          } @if (isControlInvalid('nome')) {
-          <small i18n>Esse campo não pode ser em branco.</small>
+            <label for="nomePessoa" i18n>Nome</label>
+          }
+          @if (isJuridica()) {
+            <label for="nomePessoa" i18n>Nome Fantasia</label>
+          }
+          @if (isControlInvalid("nome")) {
+            <small i18n>Esse campo não pode ser em branco.</small>
           }
         </p-iftalabel>
 
         <p-iftalabel class="w-33">
           <input pInputText id="emailPessoa" formControlName="email" />
           <label for="emailPessoa" i18n>E-mail</label>
-          @if (isControlInvalid('email')) {
-          <small i18n>E-mail inválido.</small>
+          @if (isControlInvalid("email")) {
+            <small i18n>E-mail inválido.</small>
           }
         </p-iftalabel>
 
@@ -62,71 +64,79 @@
             [autoClear]="false"
           />
           <label for="telefonePessoa" i18n>Telefone</label>
-          @if (isControlInvalid('telefone')) {
-          <small i18n>Telefone inválido.</small>
+          @if (isControlInvalid("telefone")) {
+            <small i18n>Telefone inválido.</small>
           }
         </p-iftalabel>
       </div>
 
       <!-- Campos Pessoa Física -->
       @if (isFisica()) {
-      <div class="campos-fisica">
-        <p-iftalabel class="w-33">
-          <p-inputMask
-            id="cpfPessoa"
-            formControlName="cpf"
-            mask="999.999.999-99"
-          />
-          <label for="cpfPessoa" i18n>CPF</label>
-          @if (isControlInvalid('cpf')) {
-          <small i18n>CPF inválido.</small>
-          }
-        </p-iftalabel>
-        <p-iftalabel class="w-33">
-          <p-datepicker
-            inputId="dataNascimentoPessoa"
-            formControlName="dataNascimento"
-            dateFormat="dd/mm/yy"
-            [showIcon]="true"
-          />
-          <label for="dataNascimentoPessoa" i18n>Data de Nascimento</label>
-          @if (isControlInvalid('dataNascimento')) {
-          <small i18n>Data inválida.</small>
-          }
-        </p-iftalabel>
-      </div>
+        <div class="campos-fisica">
+          <p-iftalabel class="w-33">
+            <p-inputMask
+              id="cpfPessoa"
+              formControlName="cpf"
+              mask="999.999.999-99"
+            />
+            <label for="cpfPessoa" i18n>CPF</label>
+            @if (isControlInvalid("cpf")) {
+              <small i18n>CPF inválido.</small>
+            }
+          </p-iftalabel>
+          <p-iftalabel class="w-33">
+            <p-datepicker
+              inputId="dataNascimentoPessoa"
+              formControlName="dataNascimento"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+            />
+            <label for="dataNascimentoPessoa" i18n>Data de Nascimento</label>
+            @if (isControlInvalid("dataNascimento")) {
+              <small i18n>Data inválida.</small>
+            }
+          </p-iftalabel>
+          <div class="w-33 box-fieldset">
+            <gi-entity-field
+              [label]="responsavelLabel"
+              [entityLabel]="responsavelSelecionado?.nome ?? null"
+              (entitySearch)="pesquisarResponsavel()"
+              (remove)="limparResponsavel()"
+            />
+          </div>
+        </div>
       }
 
       <!-- Campos Pessoa Jurídica -->
       @if (isJuridica()) {
-      <div class="campos-juridica">
-        <p-iftalabel class="w-33">
-          <p-inputMask
-            id="cnpjPessoa"
-            formControlName="cnpj"
-            mask="99.999.999/9999-99"
-          />
-          <label for="cnpjPessoa" i18n>CNPJ</label>
-          @if (isControlInvalid('cnpj')) {
-          <small i18n>CNPJ inválido.</small>
-          }
-        </p-iftalabel>
-        <p-iftalabel class="w-33">
-          <input
-            pInputText
-            id="inscricaoEstadual"
-            formControlName="inscricaoEstadual"
-          />
-          <label for="inscricaoEstadual" i18n>Inscrição Estadual</label>
-        </p-iftalabel>
-        <p-iftalabel class="w-33">
-          <input pInputText id="razaoSocial" formControlName="razaoSocial" />
-          <label for="razaoSocial" i18n>Razão Social</label>
-          @if (isControlInvalid('razaoSocial')) {
-          <small i18n>Esse campo não pode ser em branco.</small>
-          }
-        </p-iftalabel>
-      </div>
+        <div class="campos-juridica">
+          <p-iftalabel class="w-33">
+            <p-inputMask
+              id="cnpjPessoa"
+              formControlName="cnpj"
+              mask="99.999.999/9999-99"
+            />
+            <label for="cnpjPessoa" i18n>CNPJ</label>
+            @if (isControlInvalid("cnpj")) {
+              <small i18n>CNPJ inválido.</small>
+            }
+          </p-iftalabel>
+          <p-iftalabel class="w-33">
+            <input
+              pInputText
+              id="inscricaoEstadual"
+              formControlName="inscricaoEstadual"
+            />
+            <label for="inscricaoEstadual" i18n>Inscrição Estadual</label>
+          </p-iftalabel>
+          <p-iftalabel class="w-33">
+            <input pInputText id="razaoSocial" formControlName="razaoSocial" />
+            <label for="razaoSocial" i18n>Razão Social</label>
+            @if (isControlInvalid("razaoSocial")) {
+              <small i18n>Esse campo não pode ser em branco.</small>
+            }
+          </p-iftalabel>
+        </div>
       }
 
       <!-- Observações -->

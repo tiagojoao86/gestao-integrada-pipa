@@ -55,7 +55,9 @@ export class PessoaDTO {
       data.createdAt,
       data.updatedAt,
       data.createdBy,
-      data.updatedBy
+      data.updatedBy,
+      data.responsavelId,
+      data.responsavelNome
     );
     return instance;
   }
@@ -88,6 +90,12 @@ export class PessoaDTO {
   @Expose()
   tipoPessoa: TipoPessoa;
 
+  // Responsável (para menores/incapazes)
+  @Expose()
+  responsavelId?: string;
+  @Expose()
+  responsavelNome?: string;
+
   @Expose()
   createdAt?: Date;
   @Expose()
@@ -113,7 +121,9 @@ export class PessoaDTO {
     createdAt?: Date,
     updatedAt?: Date,
     createdBy?: string,
-    updatedBy?: string
+    updatedBy?: string,
+    responsavelId?: string,
+    responsavelNome?: string
   ) {
     this.id = id;
     this.nome = nome;
@@ -131,6 +141,8 @@ export class PessoaDTO {
     this.updatedAt = updatedAt;
     this.createdBy = createdBy;
     this.updatedBy = updatedBy;
+    this.responsavelId = responsavelId;
+    this.responsavelNome = responsavelNome;
   }
 }
 

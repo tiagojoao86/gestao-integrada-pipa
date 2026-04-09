@@ -1,0 +1,88 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Pessoa -->
+      <div class="w-33 box-fieldset">
+        <gi-entity-field
+          [label]="pessoaLabel"
+          [entityLabel]="pessoaSelecionada?.nome ?? null"
+          (entitySearch)="pesquisarPessoa()"
+          (remove)="limparPessoa()"
+        />
+        @if (isControlInvalid('pessoaId')) {
+          <small i18n>Selecione uma pessoa.</small>
+        }
+      </div>
+
+      <!-- Conselho e Código -->
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="conselho"
+          formControlName="conselho"
+          [options]="conselhos"
+          appendTo="body"
+        >
+          <ng-template let-item pTemplate="item">{{ item.getLabel() }}</ng-template>
+          <ng-template let-item pTemplate="selectedItem">{{ item.getLabel() }}</ng-template>
+        </p-select>
+        <label for="conselho" i18n>Conselho</label>
+        @if (isControlInvalid('conselho')) {
+          <small i18n>Esse campo é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <input pInputText id="codigoConselho" formControlName="codigoConselho" />
+        <label for="codigoConselho" i18n>Código do Conselho</label>
+        @if (isControlInvalid('codigoConselho')) {
+          <small i18n>Esse campo é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Tipo de Remuneração -->
+      <p-iftalabel class="w-33">
+        <p-select
+          inputId="tipoRemuneracao"
+          formControlName="tipoRemuneracao"
+          [options]="tiposRemuneracao"
+          appendTo="body"
+        >
+          <ng-template let-item pTemplate="item">{{ item.getLabel() }}</ng-template>
+          <ng-template let-item pTemplate="selectedItem">{{ item.getLabel() }}</ng-template>
+        </p-select>
+        <label for="tipoRemuneracao" i18n>Tipo de Remuneração</label>
+        @if (isControlInvalid('tipoRemuneracao')) {
+          <small i18n>Esse campo é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Dados Bancários -->
+      <p-iftalabel class="w-33">
+        <input pInputText id="banco" formControlName="banco" />
+        <label for="banco" i18n>Banco</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <input pInputText id="conta" formControlName="conta" />
+        <label for="conta" i18n>Conta</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <input pInputText id="chavePix" formControlName="chavePix" />
+        <label for="chavePix" i18n>Chave PIX</label>
+      </p-iftalabel>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-100">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoProfissional" />
+        <label for="ativoProfissional" i18n>Ativo</label>
+      </div>
+
+    </div>
+  </div>
+</gi-app-base>

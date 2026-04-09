@@ -115,6 +115,7 @@ class PessoaRepositoryTest extends AbstractIntegrationTest {
                 null,
                 null,
                 null,
+                null,
                 null);
         repository.save(pessoaSalva);
 
@@ -148,7 +149,8 @@ class PessoaRepositoryTest extends AbstractIntegrationTest {
                 null,
                 "11222333000181",
                 "ABC Comércio e Serviços Ltda",
-                "987654321");
+                "987654321",
+                null);
         repository.save(pessoaSalva);
 
         // Then
@@ -234,6 +236,38 @@ class PessoaRepositoryTest extends AbstractIntegrationTest {
                     repository.save(pessoa2);
                     repository.flush();
                 });
+    }
+
+    @Test
+    @DisplayName("Deve salvar e recuperar pessoa física com responsável")
+    void deveSalvarERecuperarPessoaFisicaComResponsavel() {
+        // Given
+        Pessoa responsavel = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Maria Responsável")
+                .email("maria.resp@exemplo.com")
+                .telefone("11987654399")
+                .cpf("79687636068")
+                .build();
+        Pessoa responsavelSalvo = repository.save(responsavel);
+
+        Pessoa paciente = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Criança Paciente")
+                .email("crianca@exemplo.com")
+                .telefone("11987654398")
+                .cpf("41780831048")
+                .responsavel(responsavelSalvo)
+                .build();
+
+        // When
+        Pessoa pacienteSalvo = repository.save(paciente);
+
+        // Then
+        Pessoa recuperado = repository.findById(pacienteSalvo.getId()).orElseThrow();
+        assertNotNull(recuperado.getResponsavel());
+        assertEquals(responsavelSalvo.getId(), recuperado.getResponsavelId());
+        assertEquals("Maria Responsável", recuperado.getResponsavelNome());
     }
 
     @Test

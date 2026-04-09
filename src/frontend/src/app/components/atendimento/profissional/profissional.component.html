@@ -1,0 +1,9 @@
+@if (viewMode === 'GRID') {
+  <gi-profissional-grid (openDetail)="openDetail($event)"></gi-profissional-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-profissional-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-profissional-detalhe>
+}

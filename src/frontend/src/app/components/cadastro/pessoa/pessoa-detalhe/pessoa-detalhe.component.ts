@@ -29,6 +29,13 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { InputMaskModule } from 'primeng/inputmask';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
+import {
+  EntitySearchConfig,
+  SearchField,
+  ResultField,
+} from '../../../base/entity-search/entity-search.model';
+import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
 
 @Component({
   selector: 'gi-pessoa-detalhe',
@@ -44,6 +51,7 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     DatePickerModule,
     TextareaModule,
     InputMaskModule,
+    EntityFieldComponent,
   ],
   templateUrl: './pessoa-detalhe.component.html',
   styleUrl: './pessoa-detalhe.component.css',
@@ -58,12 +66,15 @@ export class PessoaDetalheComponent implements OnInit {
 
   private service: PessoaService = inject(PessoaService);
   private messages: MessageService = inject(MessageService);
+  private entitySearchService: EntitySearchService = inject(EntitySearchService);
 
   titulo = $localize`Pessoa: `;
 
   toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
   tiposPessoa = TipoPessoa.getList();
+  responsavelSelecionado: PessoaDTO | null = null;
+  readonly responsavelLabel = $localize`Responsável`;
 
   ngOnInit(): void {
     this.initForm();
@@ -155,6 +166,11 @@ export class PessoaDetalheComponent implements OnInit {
     this.form.get('cnpj')?.setValue(this.pessoa.cnpj);
     this.form.get('razaoSocial')?.setValue(this.pessoa.razaoSocial);
     this.form.get('inscricaoEstadual')?.setValue(this.pessoa.inscricaoEstadual);
+
+    // Responsável
+    if (this.pessoa.responsavelId) {
+      this.responsavelSelecionado = { id: this.pessoa.responsavelId, nome: this.pessoa.responsavelNome } as PessoaDTO;
+    }
   }
 
   isFisica(): boolean {
@@ -193,6 +209,7 @@ export class PessoaDetalheComponent implements OnInit {
     if (this.isFisica()) {
       this.pessoa.cpf = this.form.value.cpf;
       this.pessoa.dataNascimento = this.form.value.dataNascimento;
+      this.pessoa.responsavelId = this.responsavelSelecionado?.id ?? undefined;
       // Limpa campos de PJ
       this.pessoa.cnpj = undefined;
       this.pessoa.razaoSocial = undefined;
@@ -201,9 +218,10 @@ export class PessoaDetalheComponent implements OnInit {
       this.pessoa.cnpj = this.form.value.cnpj;
       this.pessoa.razaoSocial = this.form.value.razaoSocial;
       this.pessoa.inscricaoEstadual = this.form.value.inscricaoEstadual;
-      // Limpa campos de PF
+      // Limpa campos de PF e responsável (não se aplica a PJ)
       this.pessoa.cpf = undefined;
       this.pessoa.dataNascimento = undefined;
+      this.pessoa.responsavelId = undefined;
     }
 
     this.service.save(this.pessoa, {
@@ -213,6 +231,33 @@ export class PessoaDetalheComponent implements OnInit {
         this.goBackFn();
       },
     });
+  }
+
+  pesquisarResponsavel(): void {
+    const searchFields: SearchField[] = [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ];
+    const resultFields: ResultField[] = [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+      { key: 'telefone', label: $localize`Telefone` },
+    ];
+    const config: EntitySearchConfig<PessoaDTO> = {
+      service: this.service,
+      searchFields,
+      resultFields,
+      title: $localize`Pesquisar Responsável`,
+    };
+    this.entitySearchService.search(config).subscribe((result) => {
+      if (!result.cancelled && result.entity) {
+        this.responsavelSelecionado = result.entity;
+      }
+    });
+  }
+
+  limparResponsavel(): void {
+    this.responsavelSelecionado = null;
   }
 
   isControlInvalid(campo: string) {

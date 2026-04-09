@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaValidator;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.TipoPessoa;
@@ -22,6 +23,9 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -73,6 +77,10 @@ public class Pessoa extends BaseEntity {
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responsavel_id", foreignKey = @jakarta.persistence.ForeignKey(name = "fk_pessoa_responsavel"))
+    private Pessoa responsavel;
+
     private Pessoa(PessoaValidator.ValidatedData data) {
         this.tipoPessoa = data.tipoPessoa;
         this.nome = data.nome;
@@ -88,6 +96,10 @@ public class Pessoa extends BaseEntity {
     }
 
     protected Pessoa() {
+    }
+
+    void setResponsavel(Pessoa responsavel) {
+        this.responsavel = responsavel;
     }
 
     // =========================================================================
@@ -106,6 +118,7 @@ public class Pessoa extends BaseEntity {
         private String inscricaoEstadual;
         private String observacoes;
         private Boolean ativa = true;
+        private Pessoa responsavelObj;
 
         public Builder tipoPessoa(TipoPessoa tipoPessoa) {
             this.tipoPessoa = tipoPessoa;
@@ -162,10 +175,17 @@ public class Pessoa extends BaseEntity {
             return this;
         }
 
+        public Builder responsavel(Pessoa responsavel) {
+            this.responsavelObj = responsavel;
+            return this;
+        }
+
         public Pessoa build() {
             PessoaValidator.ValidatedData data = PessoaValidator.validate(tipoPessoa, nome, email, telefone, cpf,
                     dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
-            return new Pessoa(data);
+            Pessoa pessoa = new Pessoa(data);
+            pessoa.setResponsavel(this.responsavelObj);
+            return pessoa;
         }
     }
 
@@ -229,7 +249,8 @@ public class Pessoa extends BaseEntity {
             LocalDate dataNascimentoArg,
             String cnpjStr,
             String razaoSocialStr,
-            String inscricaoEstadualStr) {
+            String inscricaoEstadualStr,
+            Pessoa responsavelArg) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Nome nomeValidado = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
@@ -260,6 +281,8 @@ public class Pessoa extends BaseEntity {
             this.razaoSocial = razaoSocialStr;
             this.inscricaoEstadual = inscricaoEstadualStr;
         }
+
+        this.responsavel = responsavelArg;
     }
 
     public void adicionarObservacao(String observacao) {
@@ -333,6 +356,18 @@ public class Pessoa extends BaseEntity {
 
     public boolean isPessoaJuridica() {
         return tipoPessoa == TipoPessoa.JURIDICA;
+    }
+
+    public Pessoa getResponsavel() {
+        return responsavel;
+    }
+
+    public UUID getResponsavelId() {
+        return responsavel != null ? responsavel.getId() : null;
+    }
+
+    public String getResponsavelNome() {
+        return responsavel != null ? responsavel.getNome() : null;
     }
 
     @Override

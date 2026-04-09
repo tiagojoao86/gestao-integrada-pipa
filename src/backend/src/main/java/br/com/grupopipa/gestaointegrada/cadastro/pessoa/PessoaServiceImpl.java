@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.cadastro.pessoa;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -20,15 +21,17 @@ public class PessoaServiceImpl
 
     @Override
     protected Pessoa mergeEntityAndDTO(Pessoa entity, PessoaDTO dto) {
+        Pessoa responsavel = resolverResponsavel(dto.getResponsavelId());
+
         if (Objects.isNull(entity)) {
-            // Criar nova pessoa usando Builder
             TipoPessoa tipo = TipoPessoa.valueOf(dto.getTipoPessoa());
 
             Pessoa.Builder builder = new Pessoa.Builder()
                     .tipoPessoa(tipo)
                     .nome(dto.getNome())
                     .email(dto.getEmail())
-                    .telefone(dto.getTelefone());
+                    .telefone(dto.getTelefone())
+                    .responsavel(responsavel);
 
             if (tipo == TipoPessoa.FISICA) {
                 builder.cpf(dto.getCpf()).dataNascimento(dto.getDataNascimento());
@@ -50,7 +53,6 @@ public class PessoaServiceImpl
             return builder.build();
         }
 
-        // Atualizar pessoa existente
         entity.atualizar(
                 dto.getNome(),
                 dto.getEmail(),
@@ -59,7 +61,8 @@ public class PessoaServiceImpl
                 dto.getDataNascimento(),
                 dto.getCnpj(),
                 dto.getRazaoSocial(),
-                dto.getInscricaoEstadual());
+                dto.getInscricaoEstadual(),
+                responsavel);
 
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
@@ -70,6 +73,13 @@ public class PessoaServiceImpl
         }
 
         return entity;
+    }
+
+    private Pessoa resolverResponsavel(UUID responsavelId) {
+        if (responsavelId == null) {
+            return null;
+        }
+        return repository.findById(responsavelId).orElse(null);
     }
 
     @Override
@@ -87,6 +97,8 @@ public class PessoaServiceImpl
                 .inscricaoEstadual(entity.getInscricaoEstadual())
                 .observacoes(entity.getObservacoes())
                 .ativa(entity.getAtiva())
+                .responsavelId(entity.getResponsavelId())
+                .responsavelNome(entity.getResponsavelNome())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())

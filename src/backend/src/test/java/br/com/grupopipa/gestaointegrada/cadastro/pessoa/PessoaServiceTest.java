@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.cadastro.pessoa;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -406,6 +407,104 @@ class PessoaServiceTest {
         assertEquals(TipoPessoa.FISICA, resultado.getTipoPessoa());
         assertEquals("João Santos Silva", resultado.getNome());
         assertEquals("joao.novo@example.com", resultado.getEmail());
+    }
+
+    @Test
+    @DisplayName("Deve criar nova pessoa física com responsável")
+    void deveCriarNovaPessoaFisicaComResponsavel() {
+        // Given
+        UUID responsavelId = UUID.randomUUID();
+        Pessoa responsavel = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Maria Silva")
+                .email("maria@example.com")
+                .telefone("11987654000")
+                .cpf("79687636068")
+                .build();
+
+        dtoPessoaFisica.setResponsavelId(responsavelId);
+
+        when(repository.findById(responsavelId)).thenReturn(Optional.of(responsavel));
+
+        // When
+        Pessoa resultado = service.mergeEntityAndDTO(null, dtoPessoaFisica);
+
+        // Then
+        assertNotNull(resultado);
+        assertNotNull(resultado.getResponsavel());
+        // ID é nulo em unit test (sem @PrePersist): verificar pelo nome
+        assertEquals("Maria Silva", resultado.getResponsavelNome());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar responsável de pessoa física existente")
+    void deveAtualizarResponsavelDePessoaFisicaExistente() {
+        // Given
+        UUID responsavelId = UUID.randomUUID();
+        Pessoa responsavel = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Ana Pereira")
+                .email("ana@example.com")
+                .telefone("11911112222")
+                .cpf("41780831048")
+                .build();
+
+        dtoPessoaFisica.setResponsavelId(responsavelId);
+
+        when(repository.findById(responsavelId)).thenReturn(Optional.of(responsavel));
+
+        // When
+        Pessoa resultado = service.mergeEntityAndDTO(pessoaFisica, dtoPessoaFisica);
+
+        // Then
+        assertNotNull(resultado.getResponsavel());
+        assertEquals("Ana Pereira", resultado.getResponsavelNome());
+    }
+
+    @Test
+    @DisplayName("Deve criar pessoa física sem responsável quando responsavelId for nulo")
+    void deveCriarPessoaFisicaSemResponsavel() {
+        // Given
+        dtoPessoaFisica.setResponsavelId(null);
+
+        // When
+        Pessoa resultado = service.mergeEntityAndDTO(null, dtoPessoaFisica);
+
+        // Then
+        assertNotNull(resultado);
+        assertNull(resultado.getResponsavel());
+        assertNull(resultado.getResponsavelId());
+    }
+
+    @Test
+    @DisplayName("Deve construir DTO com responsável preenchido")
+    void deveConstruirDTOComResponsavelPreenchido() {
+        // Given
+        Pessoa responsavel = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Carlos Responsável")
+                .email("carlos.resp@example.com")
+                .telefone("11999998888")
+                .cpf("39644439058")
+                .build();
+
+        pessoaFisica = new Pessoa.Builder()
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nome("Criança Paciente")
+                .email("crianca@example.com")
+                .telefone("11987654321")
+                .cpf("12345678909")
+                .responsavel(responsavel)
+                .build();
+
+        // When
+        PessoaDTO dto = service.buildDTOFromEntity(pessoaFisica);
+
+        // Then
+        assertNotNull(dto);
+        assertEquals("Carlos Responsável", dto.getResponsavelNome());
+        // ID nulo em unit test (sem DB); apenas verificar que o nome é propagado
+        assertNull(dto.getResponsavelId());
     }
 
     @Test

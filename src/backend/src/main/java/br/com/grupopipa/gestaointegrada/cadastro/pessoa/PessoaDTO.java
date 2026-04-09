@@ -33,6 +33,10 @@ public class PessoaDTO implements DTO {
     // Tipo para identificar se é PF ou PJ
     private String tipoPessoa; // "FISICA" ou "JURIDICA"
 
+    // Responsável (para menores/incapazes)
+    private UUID responsavelId;
+    private String responsavelNome;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

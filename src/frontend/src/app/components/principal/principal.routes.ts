@@ -32,4 +32,12 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'atendimento',
+    loadChildren: () =>
+      import('../atendimento/atendimento.routes').then(
+        (atendimentoRoutes) => atendimentoRoutes.routes
+      ),
+    canActivate: [authGuard],
+  },
 ];

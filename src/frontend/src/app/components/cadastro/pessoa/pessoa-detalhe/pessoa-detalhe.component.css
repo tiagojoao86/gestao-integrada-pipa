@@ -48,10 +48,6 @@
   cursor: pointer;
 }
 
-.w-100 {
-  width: 100%;
-}
-
 .w-50 {
   width: calc(50% - 0.5rem);
 }
@@ -60,4 +56,8 @@
   .w-50 {
     width: 100%;
   }
+}
+
+.box-fieldset {
+  padding: 0.1rem;
 }

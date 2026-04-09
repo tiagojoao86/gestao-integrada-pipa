@@ -1,0 +1,45 @@
+<div class="entity-field">
+  <div class="info">
+    <span class="field-label">{{ label }}</span>
+    @if (entityLabel) {
+      <div class="entity-selected">
+        <span>{{ entityLabel }}</span>
+      </div>
+    }
+  </div>
+  <div class="buttons">
+    @if (entityLabel) {
+      <div
+        class="buttons-icon"
+        (click)="remove.emit()"
+        (keyup.enter)="remove.emit()"
+        tabindex="0"
+      >
+        <i>
+          <span
+            class="material-symbols-outlined"
+            i18n-title
+            title="Remover Selecionado"
+            >close</span
+          >
+        </i>
+      </div>
+    } @else {
+      <div
+        class="buttons-icon"
+        (click)="entitySearch.emit()"
+        (keyup.enter)="entitySearch.emit()"
+        tabindex="0"
+      >
+        <i>
+          <span
+            class="material-symbols-outlined"
+            i18n-title
+            title="Selecionar"
+            >search</span
+          >
+        </i>
+      </div>
+    }
+  </div>
+</div>

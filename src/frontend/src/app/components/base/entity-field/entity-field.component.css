@@ -1,0 +1,64 @@
+.entity-field {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: thin;
+  border-color: var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--text-size);
+  width: 100%;
+  height: 48px;
+  display: flex;
+  flex-direction: row;
+
+  .info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    .field-label {
+      font-size: smaller;
+      margin: 0.1rem 0rem 0.4rem 0.4rem;
+      font-weight: 400;
+      color: var(--input-label-color);
+      font-family: var(--input-label-font-family);
+    }
+
+    .entity-selected {
+      font-size: var(--text-size);
+      margin-left: 0.4rem;
+    }
+  }
+
+  .buttons {
+    flex-grow: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    .buttons-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      background-color: var(--secondary-color);
+      color: var(--inverted-text-color);
+      border-top-right-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+      padding: 0rem 0.3rem;
+      border: 1px solid var(--p-datepicker-dropdown-border-color);
+      border-left: none;
+
+      i {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .material-symbols-outlined {
+          font-size: 24px !important;
+        }
+      }
+    }
+  }
+}
