@@ -65,4 +65,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.ATENDIMENTO_TABELA,
     },
   },
+  {
+    path: 'agenda',
+    loadComponent: () =>
+      import('./atendimento/atendimento-list.component').then(
+        (app) => app.AtendimentoListComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO,
+    },
+  },
 ];

@@ -1,0 +1,12 @@
+.box-fieldset {
+  padding: 0.1rem;
+}
+
+.tabela-item-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}

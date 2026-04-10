@@ -53,4 +53,23 @@ public interface TabelaItemRepository extends JpaRepository<TabelaItem, UUID> {
         @Param("procedimentoId") UUID procedimentoId,
         @Param("data") LocalDate data
     );
+
+    /**
+     * Busca qualquer item vigente para um procedimento na data informada,
+     * preferindo tabelas do tipo CONVENIO se hasConvenio=true, caso contrário PARTICULAR.
+     */
+    @Query("""
+        SELECT ti FROM TabelaItem ti
+        WHERE ti.procedimento.id = :procedimentoId
+          AND ti.vigenciaInicio <= :data
+          AND (ti.vigenciaFim IS NULL OR ti.vigenciaFim >= :data)
+          AND ti.deleted = false
+          AND ti.tabela.tipo = CASE WHEN :hasConvenio = true THEN 'CONVENIO' ELSE 'PARTICULAR' END
+        ORDER BY ti.vigenciaInicio DESC
+        """)
+    Optional<TabelaItem> findItemVigenteParaProcedimento(
+        @Param("procedimentoId") UUID procedimentoId,
+        @Param("data") LocalDate data,
+        @Param("hasConvenio") boolean hasConvenio
+    );
 }

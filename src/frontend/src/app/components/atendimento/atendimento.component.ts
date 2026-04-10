@@ -62,6 +62,14 @@ export class AtendimentoComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO)) {
+      modulos.push({
+        name: $localize`Atendimentos`,
+        icon: 'event_note',
+        url: '/atendimento/agenda',
+      });
+    }
+
     if (modulos.length > 0) {
       this.systemModules.push({
         name: $localize`Cadastros`,

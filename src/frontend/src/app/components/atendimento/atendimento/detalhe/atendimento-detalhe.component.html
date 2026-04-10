@@ -1,0 +1,156 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Data/Hora -->
+      <p-iftalabel class="w-25">
+        <p-datepicker
+          inputId="dataHora"
+          formControlName="dataHora"
+          dateFormat="dd/mm/yy"
+          [showTime]="true"
+          hourFormat="24"
+        />
+        <label for="dataHora" i18n>Data / Hora</label>
+        @if (isControlInvalid('dataHora')) {
+          <small i18n>Informe a data e hora.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Status -->
+      <p-iftalabel class="w-25">
+        <p-select
+          inputId="status"
+          formControlName="status"
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="key"
+          class="w-100"
+        />
+        <label for="status" i18n>Status</label>
+      </p-iftalabel>
+
+      <!-- Setor -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="setorLabel"
+          [entityLabel]="setorSelecionado?.nome ?? null"
+          (entitySearch)="pesquisarSetor()"
+          (remove)="limparSetor()"
+        />
+        @if (isControlInvalid('setorId')) {
+          <small i18n>Selecione um setor.</small>
+        }
+      </div>
+
+      <!-- Paciente -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="pacienteLabel"
+          [entityLabel]="pacienteSelecionado?.nome ?? null"
+          (entitySearch)="pesquisarPaciente()"
+          (remove)="limparPaciente()"
+        />
+        @if (isControlInvalid('pacienteId')) {
+          <small i18n>Selecione um paciente.</small>
+        }
+      </div>
+
+      <!-- Responsável -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="responsavelLabel"
+          [entityLabel]="responsavelSelecionado?.nome ?? null"
+          (entitySearch)="pesquisarResponsavel()"
+          (remove)="limparResponsavel()"
+        />
+      </div>
+
+      <!-- Procedimento -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="procedimentoLabel"
+          [entityLabel]="procedimentoSelecionado
+            ? (procedimentoSelecionado.codigo + ' – ' + procedimentoSelecionado.descricao)
+            : null"
+          (entitySearch)="pesquisarProcedimento()"
+          (remove)="limparProcedimento()"
+        />
+        @if (isControlInvalid('procedimentoId')) {
+          <small i18n>Selecione um procedimento.</small>
+        }
+      </div>
+
+      <!-- Profissional Atendimento -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="profAtendimentoLabel"
+          [entityLabel]="profissionalAtendimentoSelecionado?.pessoaNome ?? null"
+          (entitySearch)="pesquisarProfissionalAtendimento()"
+          (remove)="limparProfissionalAtendimento()"
+        />
+        @if (isControlInvalid('profissionalAtendimentoId')) {
+          <small i18n>Selecione o profissional do atendimento.</small>
+        }
+      </div>
+
+      <!-- Profissional Responsável -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="profResponsavelLabel"
+          [entityLabel]="profissionalResponsavelSelecionado?.pessoaNome ?? null"
+          (entitySearch)="pesquisarProfissionalResponsavel()"
+          (remove)="limparProfissionalResponsavel()"
+        />
+        @if (isControlInvalid('profissionalResponsavelId')) {
+          <small i18n>Selecione o profissional responsável.</small>
+        }
+      </div>
+
+      <!-- Convênio -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="convenioLabel"
+          [entityLabel]="convenioSelecionado?.nome ?? null"
+          (entitySearch)="pesquisarConvenio()"
+          (remove)="limparConvenio()"
+        />
+      </div>
+
+      <!-- Categoria do Convênio -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="convenioCategoriaLabel"
+          [entityLabel]="convenioCategoriaSelecionada?.nome ?? null"
+          (entitySearch)="pesquisarConvenioCategoria()"
+          (remove)="limparConvenioCategoria()"
+        />
+      </div>
+
+      <!-- Valor da Tabela (informativo) -->
+      @if (tabelaItemValorInfo) {
+        <div class="w-50 tabela-item-info">
+          <span i18n>Valor da tabela:</span>
+          <strong>{{ tabelaItemValorInfo }}</strong>
+        </div>
+      }
+
+      <!-- Observações -->
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="observacoes"
+          formControlName="observacoes"
+          rows="3"
+          style="width: 100%"
+        ></textarea>
+        <label for="observacoes" i18n>Observações</label>
+      </p-iftalabel>
+
+    </div>
+  </div>
+</gi-app-base>
