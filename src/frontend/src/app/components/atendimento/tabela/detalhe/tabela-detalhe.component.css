@@ -1,0 +1,57 @@
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.checkbox-field label {
+  cursor: pointer;
+}
+
+.section-itens {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.section-itens h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.section-hint {
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
+.item-add-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.item-add-procedimento {
+  flex: 3;
+  min-width: 260px;
+}
+
+.item-add-valor {
+  flex: 1;
+  min-width: 140px;
+}
+
+.item-add-date {
+  flex: 1;
+  min-width: 140px;
+}
+
+.no-itens {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  margin: 0;
+}

@@ -56,4 +56,13 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.ATENDIMENTO_PROCEDIMENTO,
     },
   },
+  {
+    path: 'tabela',
+    loadComponent: () =>
+      import('./tabela/tabela.component').then((app) => app.TabelaComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO_TABELA,
+    },
+  },
 ];

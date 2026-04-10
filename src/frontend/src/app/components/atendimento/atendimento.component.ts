@@ -54,6 +54,14 @@ export class AtendimentoComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_TABELA)) {
+      modulos.push({
+        name: $localize`Tabelas de Preços`,
+        icon: 'price_change',
+        url: '/atendimento/tabela',
+      });
+    }
+
     if (modulos.length > 0) {
       this.systemModules.push({
         name: $localize`Cadastros`,

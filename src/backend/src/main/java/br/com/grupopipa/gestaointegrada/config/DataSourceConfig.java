@@ -38,7 +38,8 @@ public class DataSourceConfig {
         "br.com.grupopipa.gestaointegrada.atendimento.convenio.entity",
         "br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity",
         "br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity",
-        "br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.entity"
+        "br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.entity",
+        "br.com.grupopipa.gestaointegrada.atendimento.tabela.entity"
     };
 
     @Value("${spring.datasource.url}")

@@ -1,0 +1,146 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Nome -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="nomeTabela" formControlName="nome" />
+        <label for="nomeTabela" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Tipo -->
+      <p-iftalabel class="w-25">
+        <p-select
+          inputId="tipoTabela"
+          formControlName="tipo"
+          [options]="tiposTabela"
+          optionLabel="label"
+          optionValue="key"
+          class="w-100"
+        />
+        <label for="tipoTabela" i18n>Tipo</label>
+        @if (isControlInvalid('tipo')) {
+          <small i18n>Selecione o tipo da tabela.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-25">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoTabela" />
+        <label for="ativoTabela" i18n>Ativo</label>
+      </div>
+
+    </div>
+
+    <!-- Itens -->
+    <div class="section-itens">
+      <h4 i18n>Itens (Procedimentos e Valores)</h4>
+      <p class="section-hint" i18n>
+        Cadastre os procedimentos cobertos por esta tabela com seus respectivos valores e vigência.
+      </p>
+
+      @if (canEdit) {
+        <div class="item-add-row">
+          <div class="item-add-procedimento">
+            <gi-entity-field
+              [label]="procedimentoLabel"
+              [entityLabel]="procedimentoSelecionado
+                ? (procedimentoSelecionado.codigo + ' – ' + procedimentoSelecionado.descricao)
+                : null"
+              (entitySearch)="pesquisarProcedimento()"
+              (remove)="limparProcedimento()"
+            />
+          </div>
+          <p-iftalabel class="item-add-valor">
+            <p-inputNumber
+              inputId="valorItemInput"
+              [(ngModel)]="valorInputTemp"
+              [ngModelOptions]="{standalone: true}"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+            />
+            <label for="valorItemInput" i18n>Valor</label>
+          </p-iftalabel>
+          <p-iftalabel class="item-add-date">
+            <p-datepicker
+              inputId="vigenciaInicioInput"
+              [(ngModel)]="vigenciaInicioTemp"
+              [ngModelOptions]="{standalone: true}"
+              dateFormat="dd/mm/yy"
+            />
+            <label for="vigenciaInicioInput" i18n>Vigência Início</label>
+          </p-iftalabel>
+          <p-iftalabel class="item-add-date">
+            <p-datepicker
+              inputId="vigenciaFimInput"
+              [(ngModel)]="vigenciaFimTemp"
+              [ngModelOptions]="{standalone: true}"
+              dateFormat="dd/mm/yy"
+              [showClear]="true"
+            />
+            <label for="vigenciaFimInput" i18n>Vigência Fim</label>
+          </p-iftalabel>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-sm"
+            [title]="'Adicionar'"
+            (click)="adicionarItem()"
+          ></button>
+        </div>
+      }
+
+      @if (itens.length > 0) {
+        <p-table [value]="itens" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th i18n>Cód. Procedimento</th>
+              <th i18n>Descrição</th>
+              <th i18n>Valor</th>
+              <th i18n>Vigência Início</th>
+              <th i18n>Vigência Fim</th>
+              @if (canEdit) { <th style="width: 60px"></th> }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td>{{ item.procedimentoCodigo }}</td>
+              <td>{{ item.procedimentoDescricao }}</td>
+              <td>{{ formatarValor(item.valor) }}</td>
+              <td>{{ item.vigenciaInicio }}</td>
+              <td>{{ item.vigenciaFim ?? '–' }}</td>
+              @if (canEdit) {
+                <td>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-sm p-button-danger p-button-text"
+                    (click)="removerItem(i)"
+                  ></button>
+                </td>
+              }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="canEdit ? 6 : 5" i18n>Nenhum item cadastrado.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <p class="no-itens" i18n>Nenhum item cadastrado.</p>
+      }
+    </div>
+
+  </div>
+</gi-app-base>

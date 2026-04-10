@@ -125,7 +125,15 @@ public enum DatabaseConstraintsEnum {
     // -------- Código Convênio --------
     FK_CODIGO_CONVENIO_CONVENIO("Convênio inválido."),
     FK_CODIGO_CONVENIO_PROCEDIMENTO("Procedimento inválido."),
-    UK_CODIGO_CONVENIO_CONVENIO_PROCEDIMENTO("Este procedimento já possui um código cadastrado para este convênio.");
+    UK_CODIGO_CONVENIO_CONVENIO_PROCEDIMENTO("Este procedimento já possui um código cadastrado para este convênio."),
+
+    // -------- Tabela --------
+    UK_TABELA_NOME("Já existe uma tabela com este nome."),
+
+    // -------- Tabela Item --------
+    FK_TABELA_ITEM_TABELA("Tabela inválida."),
+    FK_TABELA_ITEM_PROCEDIMENTO("Procedimento inválido."),
+    UK_TABELA_ITEM_TABELA_PROCEDIMENTO_INICIO("Já existe um item ativo para este procedimento nesta tabela.");
 
     private final String message;
 
