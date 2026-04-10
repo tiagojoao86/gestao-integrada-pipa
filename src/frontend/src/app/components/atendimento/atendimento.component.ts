@@ -30,6 +30,22 @@ export class AtendimentoComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO)) {
+      modulos.push({
+        name: $localize`Convênios`,
+        icon: 'handshake',
+        url: '/atendimento/convenio',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA)) {
+      modulos.push({
+        name: $localize`Categorias de Convênio`,
+        icon: 'category',
+        url: '/atendimento/convenio-categoria',
+      });
+    }
+
     if (modulos.length > 0) {
       this.systemModules.push({
         name: $localize`Cadastros`,

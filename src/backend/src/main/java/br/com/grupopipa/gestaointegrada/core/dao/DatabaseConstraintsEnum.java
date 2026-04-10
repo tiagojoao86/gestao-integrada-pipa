@@ -108,7 +108,16 @@ public enum DatabaseConstraintsEnum {
 
     // -------- Profissional --------
     FK_PROFISSIONAL_PESSOA("Pessoa inválida."),
-    UK_PROFISSIONAL_PESSOA("Esta pessoa já está cadastrada como profissional.");
+    UK_PROFISSIONAL_PESSOA("Esta pessoa já está cadastrada como profissional."),
+
+    // -------- Convênio --------
+    UK_CONVENIO_NOME("Já existe um convênio com este nome."),
+    UK_CONVENIO_REGISTRO_ANS("Este registro ANS já está cadastrado."),
+    FK_CONVENIO_PESSOA("Pessoa inválida."),
+
+    // -------- Convenio Categoria --------
+    FK_CONVENIO_CATEGORIA_CONVENIO("Convênio inválido."),
+    UK_CONVENIO_CATEGORIA_NOME_CONVENIO("Já existe uma categoria com este nome neste convênio.");
 
     private final String message;
 

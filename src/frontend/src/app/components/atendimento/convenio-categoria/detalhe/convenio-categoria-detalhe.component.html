@@ -1,0 +1,45 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Convênio -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="convenioLabel"
+          [entityLabel]="convenioSelecionado?.nome ?? null"
+          (entitySearch)="pesquisarConvenio()"
+          (remove)="limparConvenio()"
+        />
+        @if (isControlInvalid('convenioId')) {
+          <small i18n>Selecione um convênio.</small>
+        }
+      </div>
+
+      <!-- Nome -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="nomeCategoria" formControlName="nome" />
+        <label for="nomeCategoria" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Código ANS do Plano -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="codigoAnsPlano" formControlName="codigoAnsPlano" />
+        <label for="codigoAnsPlano" i18n>Código ANS do Plano</label>
+      </p-iftalabel>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-50">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoCategoria" />
+        <label for="ativoCategoria" i18n>Ativo</label>
+      </div>
+
+    </div>
+  </div>
+</gi-app-base>

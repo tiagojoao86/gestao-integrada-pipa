@@ -34,7 +34,9 @@ public class DataSourceConfig {
         "br.com.grupopipa.gestaointegrada.cadastro.setor.entity",
         "br.com.grupopipa.gestaointegrada.financeiro.entity",
         "br.com.grupopipa.gestaointegrada.tenant.entity",
-        "br.com.grupopipa.gestaointegrada.atendimento.profissional.entity"
+        "br.com.grupopipa.gestaointegrada.atendimento.profissional.entity",
+        "br.com.grupopipa.gestaointegrada.atendimento.convenio.entity",
+        "br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity"
     };
 
     @Value("${spring.datasource.url}")

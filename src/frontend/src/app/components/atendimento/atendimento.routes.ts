@@ -25,4 +25,24 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.ATENDIMENTO_PROFISSIONAL,
     },
   },
+  {
+    path: 'convenio',
+    loadComponent: () =>
+      import('./convenio/convenio.component').then((app) => app.ConvenioComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO_CONVENIO,
+    },
+  },
+  {
+    path: 'convenio-categoria',
+    loadComponent: () =>
+      import('./convenio-categoria/convenio-categoria.component').then(
+        (app) => app.ConvenioCategoriaComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA,
+    },
+  },
 ];

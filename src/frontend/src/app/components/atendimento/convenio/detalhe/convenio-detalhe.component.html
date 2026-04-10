@@ -1,0 +1,45 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Nome -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="nomeConvenio" formControlName="nome" />
+        <label for="nomeConvenio" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Registro ANS -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="registroAns" formControlName="registroAns" />
+        <label for="registroAns" i18n>Registro ANS</label>
+      </p-iftalabel>
+
+      <!-- Pessoa (CNPJ/Razão Social) -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="pessoaLabel"
+          [entityLabel]="pessoaSelecionada?.nome ?? null"
+          (entitySearch)="pesquisarPessoa()"
+          (remove)="limparPessoa()"
+        />
+        @if (isControlInvalid('pessoaId')) {
+          <small i18n>Selecione uma pessoa.</small>
+        }
+      </div>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-50">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoConvenio" />
+        <label for="ativoConvenio" i18n>Ativo</label>
+      </div>
+
+    </div>
+  </div>
+</gi-app-base>

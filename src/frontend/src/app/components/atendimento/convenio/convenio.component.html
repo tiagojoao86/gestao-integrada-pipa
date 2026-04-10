@@ -1,0 +1,9 @@
+@if (viewMode === 'GRID') {
+  <gi-convenio-grid (openDetail)="openDetail($event)"></gi-convenio-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-convenio-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-convenio-detalhe>
+}
