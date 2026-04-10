@@ -1,0 +1,9 @@
+@if (viewMode === 'GRID') {
+  <gi-procedimento-grid (openDetail)="openDetail($event)"></gi-procedimento-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-procedimento-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-procedimento-detalhe>
+}

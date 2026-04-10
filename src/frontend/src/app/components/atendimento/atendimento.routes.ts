@@ -45,4 +45,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA,
     },
   },
+  {
+    path: 'procedimento',
+    loadComponent: () =>
+      import('./procedimento/procedimento.component').then(
+        (app) => app.ProcedimentoComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO_PROCEDIMENTO,
+    },
+  },
 ];

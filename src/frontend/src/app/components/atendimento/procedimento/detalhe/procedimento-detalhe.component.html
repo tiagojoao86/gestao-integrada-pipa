@@ -1,0 +1,47 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Código -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="codigoProcedimento" formControlName="codigo" />
+        <label for="codigoProcedimento" i18n>Código</label>
+        @if (isControlInvalid('codigo')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Descrição -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="descricaoProcedimento" formControlName="descricao" />
+        <label for="descricaoProcedimento" i18n>Descrição</label>
+        @if (isControlInvalid('descricao')) {
+          <small i18n>Esse campo não pode ser em branco.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Código TISS -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="codigoTiss" formControlName="codigoTiss" />
+        <label for="codigoTiss" i18n>Código TISS</label>
+      </p-iftalabel>
+
+      <!-- Código TUSS -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="codigoTuss" formControlName="codigoTuss" />
+        <label for="codigoTuss" i18n>Código TUSS</label>
+      </p-iftalabel>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-50">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoProcedimento" />
+        <label for="ativoProcedimento" i18n>Ativo</label>
+      </div>
+
+    </div>
+  </div>
+</gi-app-base>

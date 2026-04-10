@@ -46,6 +46,14 @@ export class AtendimentoComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_PROCEDIMENTO)) {
+      modulos.push({
+        name: $localize`Procedimentos`,
+        icon: 'clinical_notes',
+        url: '/atendimento/procedimento',
+      });
+    }
+
     if (modulos.length > 0) {
       this.systemModules.push({
         name: $localize`Cadastros`,
