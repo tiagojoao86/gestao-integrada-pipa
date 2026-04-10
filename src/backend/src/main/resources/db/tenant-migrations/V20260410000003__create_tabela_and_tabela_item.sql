@@ -47,11 +47,19 @@ INSERT INTO modulo (id, chave, nome, grupo)
 SELECT gen_random_uuid(), 'ATENDIMENTO_TABELA', 'Tabela de Preços', 'ATENDIMENTO'
 WHERE NOT EXISTS (SELECT 1 FROM modulo WHERE chave = 'ATENDIMENTO_TABELA');
 
-INSERT INTO perfil_modulo (id, perfil_id, modulo_id, pode_listar, pode_visualizar, pode_editar,
-    pode_deletar, pode_auditar)
-SELECT gen_random_uuid(), p.id, m.id, TRUE, TRUE, TRUE, TRUE, TRUE
-FROM perfil p, modulo m
-WHERE p.admin = TRUE AND m.chave = 'ATENDIMENTO_TABELA'
-AND NOT EXISTS (
+INSERT INTO perfil_modulo (
+    id, perfil_id, modulo_id,
+    pode_listar, pode_visualizar, pode_editar, pode_deletar, pode_auditar,
+    created_at, created_by
+)
+SELECT
+    gen_random_uuid(), p.id, m.id,
+    TRUE, TRUE, TRUE, TRUE, TRUE,
+    CURRENT_TIMESTAMP, 'migration'
+FROM perfil p
+CROSS JOIN modulo m
+WHERE p.nome = 'Administrador Geral'
+  AND m.chave = 'ATENDIMENTO_TABELA'
+  AND NOT EXISTS (
     SELECT 1 FROM perfil_modulo pm WHERE pm.perfil_id = p.id AND pm.modulo_id = m.id
-);
+  );
