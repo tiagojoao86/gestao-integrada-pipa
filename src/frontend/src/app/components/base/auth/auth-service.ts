@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, tap } from 'rxjs';
 import { Response } from '../model/response';
 import { AuthorityDTO } from '../model/authority-dto';
+import { Permissao } from '../enum/permissao.enum';
 import { UsuarioUnidadeNegocioDTO } from '../../cadastro/usuario/model/usuario-unidade-negocio-dto';
 
 interface AuthResponse {
@@ -144,67 +145,36 @@ export class AuthService {
   }
 
   hasAuthorityToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    return authorities.some((auth) => auth.chave === moduleKey);
+    return this.getUserAuthorities().some((auth) => auth.chave === moduleKey);
   }
 
   hasAuthorityToGrupo(grupo: string): boolean {
-    const authorities = this.getUserAuthorities();
-    return authorities.some((auth) => auth.grupo === grupo);
+    return this.getUserAuthorities().some((auth) => auth.grupo === grupo);
   }
 
   hasAuthorityListarToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    const list = authorities.filter((auth) => auth.chave === moduleKey);
-
-    if (list.length > 0) {
-      return list[0].permissoes?.includes('LISTAR') || false;
-    }
-
-    return false;
+    return this.hasPermissao(moduleKey, Permissao.LISTAR);
   }
 
   hasAuthorityEditarToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    const list = authorities.filter((auth) => auth.chave === moduleKey);
-
-    if (list.length > 0) {
-      return list[0].permissoes?.includes('EDITAR') || false;
-    }
-
-    return false;
+    return this.hasPermissao(moduleKey, Permissao.EDITAR);
   }
 
   hasAuthorityVisualizarToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    const list = authorities.filter((auth) => auth.chave === moduleKey);
-
-    if (list.length > 0) {
-      return list[0].permissoes?.includes('VISUALIZAR') || false;
-    }
-
-    return false;
+    return this.hasPermissao(moduleKey, Permissao.VISUALIZAR);
   }
+
   hasAuthorityDeletarToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    const list = authorities.filter((auth) => auth.chave === moduleKey);
-
-    if (list.length > 0) {
-      return list[0].permissoes?.includes('DELETAR') || false;
-    }
-
-    return false;
+    return this.hasPermissao(moduleKey, Permissao.DELETAR);
   }
 
   hasAuthorityAuditarToModulo(moduleKey: string): boolean {
-    const authorities = this.getUserAuthorities();
-    const list = authorities.filter((auth) => auth.chave === moduleKey);
+    return this.hasPermissao(moduleKey, Permissao.AUDITAR);
+  }
 
-    if (list.length > 0) {
-      return list[0].permissoes?.includes('AUDITAR') || false;
-    }
-
-    return false;
+  private hasPermissao(moduleKey: string, permissao: Permissao): boolean {
+    const modulo = this.getUserAuthorities().find((auth) => auth.chave === moduleKey);
+    return modulo?.permissoes?.includes(permissao) ?? false;
   }
 
   // Unidades de Negócio Management

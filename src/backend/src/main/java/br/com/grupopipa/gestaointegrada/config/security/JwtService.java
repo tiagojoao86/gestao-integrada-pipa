@@ -2,7 +2,9 @@ package br.com.grupopipa.gestaointegrada.config.security;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,7 +65,7 @@ public class JwtService {
             long minutes) {
         Instant now = Instant.now();
 
-        String scope = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
+        Map<String, Integer> perms = buildPermsBitmask(authorities);
 
         List<String> unidadeNegocioIdStrings = unidadeNegocioIds != null
                 ? unidadeNegocioIds.stream().map(UUID::toString).collect(Collectors.toList())
@@ -74,11 +76,34 @@ public class JwtService {
                 .issuedAt(now)
                 .expiresAt(now.plusMillis(minutes * 60000))
                 .subject(username)
-                .claim("scope", scope)
+                .claim("perms", perms)
                 .claim("unidade_negocio_ids", unidadeNegocioIdStrings)
                 .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    /**
+     * Converte authorities no formato "MODULO_PERMISSAO" para um mapa de bitmask.
+     * Bits: LISTAR=1, VISUALIZAR=2, EDITAR=4, DELETAR=8, AUDITAR=16
+     */
+    private Map<String, Integer> buildPermsBitmask(Collection<? extends GrantedAuthority> authorities) {
+        Map<String, Integer> perms = new HashMap<>();
+        String[] sufixos = { "_LISTAR", "_VISUALIZAR", "_EDITAR", "_DELETAR", "_AUDITAR" };
+        int[] bits = { 1, 2, 4, 8, 16 };
+
+        for (GrantedAuthority authority : authorities) {
+            String auth = authority.getAuthority();
+            for (int i = 0; i < sufixos.length; i++) {
+                if (auth.endsWith(sufixos[i])) {
+                    String modulo = auth.substring(0, auth.length() - sufixos[i].length());
+                    int bit = bits[i];
+                    perms.merge(modulo, bit, Integer::sum);
+                    break;
+                }
+            }
+        }
+        return perms;
     }
 
     public Set<UUID> getUnidadeNegocioIdsFromToken(String token) {

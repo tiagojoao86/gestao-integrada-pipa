@@ -1,0 +1,7 @@
+export enum Permissao {
+  LISTAR = 'LISTAR',
+  VISUALIZAR = 'VISUALIZAR',
+  EDITAR = 'EDITAR',
+  DELETAR = 'DELETAR',
+  AUDITAR = 'AUDITAR',
+}
