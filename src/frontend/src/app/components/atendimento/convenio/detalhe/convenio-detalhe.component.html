@@ -41,5 +41,76 @@
       </div>
 
     </div>
+
+    <!-- Códigos por Procedimento -->
+    <div class="section-codigos">
+      <h4 i18n>Códigos por Procedimento</h4>
+      <p class="section-hint" i18n>
+        Quando um convênio utiliza códigos próprios para procedimentos, cadastre-os abaixo.
+        Serão usados no faturamento no lugar dos códigos TISS/TUSS.
+      </p>
+
+      @if (canEdit) {
+        <div class="codigo-add-row">
+          <div class="codigo-add-procedimento">
+            <gi-entity-field
+              [label]="procedimentoLabel"
+              [entityLabel]="procedimentoSelecionado ? (procedimentoSelecionado.codigo + ' – ' + procedimentoSelecionado.descricao) : null"
+              (entitySearch)="pesquisarProcedimento()"
+              (remove)="limparProcedimento()"
+            />
+          </div>
+          <p-iftalabel class="codigo-add-input">
+            <input pInputText id="codigoConvenioInput" [(ngModel)]="codigoInputTemp" [ngModelOptions]="{standalone: true}" />
+            <label for="codigoConvenioInput" i18n>Código do convênio</label>
+          </p-iftalabel>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-sm"
+            [title]="'Adicionar'"
+            (click)="adicionarCodigo()"
+          ></button>
+        </div>
+      }
+
+      @if (codigos.length > 0) {
+        <p-table [value]="codigos" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th i18n>Cód. Procedimento</th>
+              <th i18n>Descrição</th>
+              <th i18n>Código do Convênio</th>
+              @if (canEdit) { <th style="width: 60px"></th> }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td>{{ item.procedimentoCodigo }}</td>
+              <td>{{ item.procedimentoDescricao }}</td>
+              <td>{{ item.codigo }}</td>
+              @if (canEdit) {
+                <td>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-trash"
+                    class="p-button-sm p-button-danger p-button-text"
+                    (click)="removerCodigo(i)"
+                  ></button>
+                </td>
+              }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr><td [attr.colspan]="canEdit ? 4 : 3" i18n>Nenhum código cadastrado.</td></tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <p class="no-codigos" i18n>Nenhum código cadastrado.</p>
+      }
+    </div>
+
   </div>
 </gi-app-base>

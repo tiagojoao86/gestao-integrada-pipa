@@ -18,9 +18,12 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ConvenioService } from '../convenio.service';
 import { ConvenioDTO } from '../model/convenio-dto';
+import { CodigoConvenioDTO } from '../model/codigo-convenio-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { RouteConstants } from '../../../base/constants/route-constants';
@@ -34,6 +37,8 @@ import {
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
 import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
 import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
+import { ProcedimentoDTO } from '../../procedimento/model/procedimento-dto';
+import { ProcedimentoService } from '../../procedimento/procedimento.service';
 
 @Component({
   selector: 'gi-convenio-detalhe',
@@ -45,11 +50,13 @@ import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
     FormsModule,
     InputTextModule,
     CheckboxModule,
+    TableModule,
+    ButtonModule,
     EntityFieldComponent,
   ],
   templateUrl: './convenio-detalhe.component.html',
   styleUrl: './convenio-detalhe.component.css',
-  providers: [ConvenioService, PessoaService],
+  providers: [ConvenioService, PessoaService, ProcedimentoService],
 })
 export class ConvenioDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup({});
@@ -61,12 +68,20 @@ export class ConvenioDetalheComponent implements OnInit {
   pessoaSelecionada: PessoaDTO | null = null;
   readonly pessoaLabel = $localize`Pessoa (CNPJ/Razão Social)`;
 
+  // Gestão inline de CodigoConvenio
+  codigos: CodigoConvenioDTO[] = [];
+  procedimentoSelecionado: ProcedimentoDTO | null = null;
+  codigoInputTemp: string = '';
+  readonly procedimentoLabel = $localize`Procedimento`;
+
   titulo = $localize`Convênio: `;
   toolbarActions: ToolbarActionModel[] = [];
+  canEdit = false;
 
   private fb = inject(FormBuilder);
   private service = inject(ConvenioService);
   private pessoaService = inject(PessoaService);
+  private procedimentoService = inject(ProcedimentoService);
   private messages = inject(MessageService);
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
@@ -74,13 +89,13 @@ export class ConvenioDetalheComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
 
-    const canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO);
+    this.canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO);
 
     this.toolbarActions = [
       { action: () => this.goBackFn(), icon: 'close', title: $localize`Cancelar` + ' (esc)', shortcut: 'escape' },
     ];
 
-    if (canEdit) {
+    if (this.canEdit) {
       this.toolbarActions.push({
         action: () => this.save(),
         icon: 'save',
@@ -98,6 +113,7 @@ export class ConvenioDetalheComponent implements OnInit {
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.convenio = response.body!;
         this.titulo += this.convenio.nome;
+        this.codigos = this.convenio.codigos ? [...this.convenio.codigos] : [];
         this.fillForm();
       });
     }
@@ -151,6 +167,67 @@ export class ConvenioDetalheComponent implements OnInit {
     this.form.get('pessoaId')?.setValue('');
   }
 
+  // =========================================================================
+  // Gestão inline de CodigoConvenio
+  // =========================================================================
+
+  pesquisarProcedimento(): void {
+    const searchFields: SearchField[] = [
+      { key: 'codigo', label: $localize`Código` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ];
+    const resultFields: ResultField[] = [
+      { key: 'codigo', label: $localize`Código` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ];
+    const config: EntitySearchConfig<ProcedimentoDTO> = {
+      service: this.procedimentoService,
+      searchFields,
+      resultFields,
+      title: $localize`Selecionar Procedimento`,
+    };
+    this.entitySearchService.search(config).subscribe((result) => {
+      if (!result.cancelled && result.entity) {
+        this.procedimentoSelecionado = result.entity;
+      }
+    });
+  }
+
+  limparProcedimento(): void {
+    this.procedimentoSelecionado = null;
+    this.codigoInputTemp = '';
+  }
+
+  adicionarCodigo(): void {
+    if (!this.procedimentoSelecionado || !this.codigoInputTemp.trim()) {
+      this.messages.erro($localize`Selecione um procedimento e informe o código.`);
+      return;
+    }
+
+    const jaExiste = this.codigos.some(
+      (c) => c.procedimentoId === this.procedimentoSelecionado!.id
+    );
+    if (jaExiste) {
+      this.messages.erro($localize`Este procedimento já possui um código cadastrado.`);
+      return;
+    }
+
+    const novo: CodigoConvenioDTO = new CodigoConvenioDTO();
+    novo.procedimentoId = this.procedimentoSelecionado.id;
+    novo.procedimentoCodigo = this.procedimentoSelecionado.codigo;
+    novo.procedimentoDescricao = this.procedimentoSelecionado.descricao;
+    novo.codigo = this.codigoInputTemp.trim();
+
+    this.codigos = [...this.codigos, novo];
+    this.limparProcedimento();
+  }
+
+  removerCodigo(index: number): void {
+    this.codigos = this.codigos.filter((_, i) => i !== index);
+  }
+
+  // =========================================================================
+
   save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -163,6 +240,7 @@ export class ConvenioDetalheComponent implements OnInit {
     this.convenio.pessoaId = raw.pessoaId;
     this.convenio.registroAns = raw.registroAns || undefined;
     this.convenio.ativo = raw.ativo;
+    this.convenio.codigos = this.codigos;
 
     this.service.save(this.convenio, {
       onSuccess: () => {

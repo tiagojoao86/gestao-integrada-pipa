@@ -120,7 +120,12 @@ public enum DatabaseConstraintsEnum {
     UK_CONVENIO_CATEGORIA_NOME_CONVENIO("Já existe uma categoria com este nome neste convênio."),
 
     // -------- Procedimento --------
-    UK_PROCEDIMENTO_CODIGO("Já existe um procedimento com este código.");
+    UK_PROCEDIMENTO_CODIGO("Já existe um procedimento com este código."),
+
+    // -------- Código Convênio --------
+    FK_CODIGO_CONVENIO_CONVENIO("Convênio inválido."),
+    FK_CODIGO_CONVENIO_PROCEDIMENTO("Procedimento inválido."),
+    UK_CODIGO_CONVENIO_CONVENIO_PROCEDIMENTO("Este procedimento já possui um código cadastrado para este convênio.");
 
     private final String message;
 

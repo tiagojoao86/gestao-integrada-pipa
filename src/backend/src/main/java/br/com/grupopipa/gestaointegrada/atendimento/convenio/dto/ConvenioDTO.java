@@ -1,8 +1,10 @@
 package br.com.grupopipa.gestaointegrada.atendimento.convenio.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+import br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.dto.CodigoConvenioDTO;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +23,8 @@ public class ConvenioDTO implements DTO {
 
     private String registroAns;
     private Boolean ativo;
+
+    private List<CodigoConvenioDTO> codigos;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

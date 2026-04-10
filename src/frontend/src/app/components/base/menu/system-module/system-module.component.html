@@ -1,17 +1,19 @@
 @if (systemModule) {
-<div
-  class="system-module"
-  (click)="goTo(systemModule.url)"
-  (keyup.enter)="goTo(systemModule.url)"
-  tabindex="0"
->
-  <i>
-    <span class="material-icons" style="font-size: 2.5rem">{{
-      systemModule.icon
-    }}</span>
-  </i>
-  <div class="name" [ngClass]="getFontSizeClass()">
-    {{ systemModule.name }}
+  <div
+    class="system-module"
+    (click)="goTo(systemModule.url)"
+    (keyup.enter)="goTo(systemModule.url)"
+    tabindex="0"
+  >
+    <i>
+      <span
+        class="material-icons material-symbols-outlined"
+        style="font-size: 2.5rem"
+        >{{ systemModule.icon }}</span
+      >
+    </i>
+    <div class="name" [ngClass]="getFontSizeClass()">
+      {{ systemModule.name }}
+    </div>
   </div>
-</div>
 }
