@@ -1,4 +1,4 @@
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { TabelaItemDTO } from './tabela-item-dto';
 import { TipoTabela } from './tipo-tabela.enum';
 
@@ -10,7 +10,6 @@ export class TabelaDTO {
   @Expose() ativo?: boolean;
 
   @Expose()
-  @Type(() => TabelaItemDTO)
   itens?: TabelaItemDTO[];
 
   @Expose() createdAt?: Date;

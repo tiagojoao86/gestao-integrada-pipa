@@ -143,9 +143,10 @@ public enum DatabaseConstraintsEnum {
     FK_ATENDIMENTO_CONVENIO_CATEGORIA("Categoria de convênio inválida."),
     FK_ATENDIMENTO_PROF_ATENDIMENTO("Profissional de atendimento inválido."),
     FK_ATENDIMENTO_PROF_RESPONSAVEL("Profissional responsável inválido."),
-    FK_ATENDIMENTO_PROCEDIMENTO("Procedimento inválido."),
-    FK_ATENDIMENTO_TABELA_ITEM("Item de tabela inválido."),
-    CK_ATENDIMENTO_STATUS("Status de atendimento inválido.");
+    // -------- Atendimento Procedimento --------
+    FK_ATEND_PROC_ATENDIMENTO("Atendimento inválido."),
+    FK_ATEND_PROC_PROCEDIMENTO("Procedimento inválido."),
+    FK_ATEND_PROC_TABELA_ITEM("Item de tabela inválido.");
 
     private final String message;
 

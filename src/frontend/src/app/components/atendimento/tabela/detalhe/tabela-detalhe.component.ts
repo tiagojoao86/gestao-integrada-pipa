@@ -27,7 +27,7 @@ import { MessageService } from '../../../base/messages/messages.service';
 import { TabelaService } from '../tabela.service';
 import { TabelaDTO } from '../model/tabela-dto';
 import { TabelaItemDTO } from '../model/tabela-item-dto';
-import { TipoTabela } from '../model/tipo-tabela.enum';
+import { getTiposTabela, TipoTabela } from '../model/tipo-tabela.enum';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { RouteConstants } from '../../../base/constants/route-constants';
@@ -78,7 +78,7 @@ export class TabelaDetalheComponent implements OnInit {
   vigenciaFimTemp: Date | null = null;
   readonly procedimentoLabel = $localize`Procedimento`;
 
-  tiposTabela = TipoTabela.getAll();
+  tiposTabela = getTiposTabela();
 
   titulo = $localize`Tabela de Preços: `;
   toolbarActions: ToolbarActionModel[] = [];

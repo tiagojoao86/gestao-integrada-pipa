@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "procedimento")
+@SuppressWarnings("checkstyle:MagicNumber")
 public class Procedimento extends BaseEntity {
 
     @Column(name = "codigo", length = 30, nullable = false)

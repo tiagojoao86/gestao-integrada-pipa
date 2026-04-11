@@ -38,6 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@SuppressWarnings("checkstyle:MagicNumber")
 public class SecurityConfig {
     @Value("${jwt.public.key}")
     private RSAPublicKey key;

@@ -23,6 +23,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
+import br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.CodigoConvenioService;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.dto.ConvenioDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.dto.ConvenioGridDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
@@ -45,6 +48,9 @@ class ConvenioServiceTest {
 
     @Mock
     private Specifications<Convenio> specifications;
+
+    @Mock
+    private CodigoConvenioService codigoConvenioService;
 
     @InjectMocks
     private ConvenioServiceImpl service;
@@ -96,7 +102,13 @@ class ConvenioServiceTest {
     @DisplayName("Deve criar novo convênio")
     void deveCriarNovoConvenio() {
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
-        when(repository.save(any(Convenio.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.save(any(Convenio.class))).thenAnswer(inv -> {
+            Convenio c = inv.getArgument(0);
+            setId(c, convenioId);
+            return c;
+        });
+        when(repository.findById(convenioId)).thenReturn(Optional.of(entidadeValida));
+        when(codigoConvenioService.findAllByConvenioId(any())).thenReturn(List.of());
 
         ConvenioDTO resultado = service.save(dtoValido);
 
@@ -116,7 +128,13 @@ class ConvenioServiceTest {
     void deveCriarConvenioSemRegistroAns() {
         dtoValido.setRegistroAns(null);
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
-        when(repository.save(any(Convenio.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.save(any(Convenio.class))).thenAnswer(inv -> {
+            Convenio c = inv.getArgument(0);
+            setId(c, convenioId);
+            return c;
+        });
+        when(repository.findById(convenioId)).thenReturn(Optional.of(entidadeValida));
+        when(codigoConvenioService.findAllByConvenioId(any())).thenReturn(List.of());
 
         ConvenioDTO resultado = service.save(dtoValido);
 
@@ -132,9 +150,12 @@ class ConvenioServiceTest {
         dtoValido.setNome("Amil");
         dtoValido.setRegistroAns("654321");
 
+        setId(entidadeValida, convenioId);
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
+        // findById é chamado 2x: CrudServiceImpl.save() + findEntityById após save
         when(repository.findById(convenioId)).thenReturn(Optional.of(entidadeValida));
         when(repository.save(any(Convenio.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(codigoConvenioService.findAllByConvenioId(any())).thenReturn(List.of());
 
         ConvenioDTO resultado = service.save(dtoValido);
 
@@ -142,7 +163,7 @@ class ConvenioServiceTest {
         assertEquals("Amil", resultado.getNome());
         assertEquals("654321", resultado.getRegistroAns());
 
-        verify(repository, times(1)).findById(convenioId);
+        verify(repository, times(2)).findById(convenioId);
         verify(repository, times(1)).save(any(Convenio.class));
     }
 
@@ -298,5 +319,19 @@ class ConvenioServiceTest {
 
         assertNull(dto.getPessoaId());
         assertNull(dto.getPessoaNome());
+    }
+
+    // =========================================================================
+    // Helper
+    // =========================================================================
+
+    private static void setId(Object entity, UUID id) {
+        try {
+            java.lang.reflect.Field idField = entity.getClass().getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(entity, id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

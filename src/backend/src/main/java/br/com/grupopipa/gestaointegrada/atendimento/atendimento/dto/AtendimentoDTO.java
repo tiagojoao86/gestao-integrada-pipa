@@ -1,10 +1,9 @@
 package br.com.grupopipa.gestaointegrada.atendimento.atendimento.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
-import br.com.grupopipa.gestaointegrada.atendimento.atendimento.StatusAtendimento;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,8 @@ import lombok.Setter;
 public class AtendimentoDTO implements DTO {
 
     private UUID id;
-    private LocalDateTime dataHora;
+    private LocalDateTime dataInicio;
+    private LocalDateTime dataFim;
 
     private UUID setorId;
     private String setorNome;
@@ -39,14 +39,8 @@ public class AtendimentoDTO implements DTO {
     private UUID profissionalResponsavelId;
     private String profissionalResponsavelNome;
 
-    private UUID procedimentoId;
-    private String procedimentoCodigo;
-    private String procedimentoDescricao;
+    private List<AtendimentoProcedimentoDTO> procedimentos;
 
-    private UUID tabelaItemId;
-    private BigDecimal tabelaItemValor;
-
-    private StatusAtendimento status;
     private String observacoes;
 
     private LocalDateTime createdAt;

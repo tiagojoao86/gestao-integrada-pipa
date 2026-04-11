@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "codigo_convenio")
+@SuppressWarnings("checkstyle:MagicNumber")
 public class CodigoConvenio extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

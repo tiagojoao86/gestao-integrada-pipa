@@ -5,7 +5,9 @@ import {
   Input,
   OnInit,
   Output,
+  OnDestroy,
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BaseComponent } from '../../../base/base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -18,22 +20,20 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { MessageService } from '../../../base/messages/messages.service';
 import { AtendimentoService } from '../atendimento.service';
 import { AtendimentoDTO } from '../model/atendimento-dto';
-import { StatusAtendimento } from '../model/status-atendimento.enum';
+import { AtendimentoProcedimentoDTO } from '../model/atendimento-procedimento-dto';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
-import {
-  EntitySearchConfig,
-  SearchField,
-  ResultField,
-} from '../../../base/entity-search/entity-search.model';
+import { EntitySearchConfig } from '../../../base/entity-search/entity-search.model';
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
 import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
 import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
@@ -43,10 +43,20 @@ import { ProfissionalDTO } from '../../profissional/model/profissional-dto';
 import { ProfissionalService } from '../../profissional/profissional.service';
 import { ConvenioDTO } from '../../convenio/model/convenio-dto';
 import { ConvenioService } from '../../convenio/convenio.service';
-import { ConvenioCategoriaDTO } from '../../convenio-categoria/model/convenio-categoria-dto';
+import { ConvenioCategoriaGridDTO } from '../../convenio-categoria/model/convenio-categoria-grid-dto';
 import { ConvenioCategoriaService } from '../../convenio-categoria/convenio-categoria.service';
 import { ProcedimentoDTO } from '../../procedimento/model/procedimento-dto';
 import { ProcedimentoService } from '../../procedimento/procedimento.service';
+
+interface ProcedimentoLinha {
+  procedimentoId?: string;
+  procedimentoCodigo?: string;
+  procedimentoDescricao?: string;
+  tabelaItemId?: string;
+  tabelaItemValor?: number;
+  dataInicio: Date;
+  dataFim: Date;
+}
 
 @Component({
   selector: 'gi-atendimento-detalhe',
@@ -58,8 +68,10 @@ import { ProcedimentoService } from '../../procedimento/procedimento.service';
     FormsModule,
     InputTextModule,
     TextareaModule,
-    SelectModule,
     DatePickerModule,
+    TableModule,
+    ButtonModule,
+    SelectModule,
     EntityFieldComponent,
   ],
   templateUrl: './atendimento-detalhe.component.html',
@@ -74,7 +86,7 @@ import { ProcedimentoService } from '../../procedimento/procedimento.service';
     ProcedimentoService,
   ],
 })
-export class AtendimentoDetalheComponent implements OnInit {
+export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   form: FormGroup = new FormGroup({});
   editMode = false;
   atendimento: AtendimentoDTO = new AtendimentoDTO();
@@ -86,22 +98,24 @@ export class AtendimentoDetalheComponent implements OnInit {
   pacienteSelecionado: PessoaDTO | null = null;
   responsavelSelecionado: PessoaDTO | null = null;
   convenioSelecionado: ConvenioDTO | null = null;
-  convenioCategoriaSelecionada: ConvenioCategoriaDTO | null = null;
   profissionalAtendimentoSelecionado: ProfissionalDTO | null = null;
   profissionalResponsavelSelecionado: ProfissionalDTO | null = null;
-  procedimentoSelecionado: ProcedimentoDTO | null = null;
+
+  // Categorias do convênio selecionado
+  categoriasOptions: ConvenioCategoriaGridDTO[] = [];
+
+  private subs = new Subscription();
+
+  // Lista de procedimentos
+  procedimentos: ProcedimentoLinha[] = [];
 
   readonly setorLabel = $localize`Setor`;
   readonly pacienteLabel = $localize`Paciente`;
   readonly responsavelLabel = $localize`Responsável`;
   readonly convenioLabel = $localize`Convênio`;
-  readonly convenioCategoriaLabel = $localize`Categoria do Convênio`;
   readonly profAtendimentoLabel = $localize`Profissional do Atendimento`;
   readonly profResponsavelLabel = $localize`Profissional Responsável`;
-  readonly procedimentoLabel = $localize`Procedimento`;
-
-  statusOptions = StatusAtendimento.getAll();
-  tabelaItemValorInfo: string | null = null;
+  readonly addProcedimentoLabel = $localize`Adicionar Procedimento`;
 
   titulo = $localize`Atendimento: `;
   toolbarActions: ToolbarActionModel[] = [];
@@ -121,6 +135,7 @@ export class AtendimentoDetalheComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.watchDataInicio();
 
     this.canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.ATENDIMENTO);
 
@@ -145,7 +160,7 @@ export class AtendimentoDetalheComponent implements OnInit {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.atendimento = response.body!;
-        this.titulo += new Date(this.atendimento.dataHora!).toLocaleDateString('pt-BR');
+        this.titulo += new Date(this.atendimento.dataInicio!).toLocaleDateString('pt-BR');
         this.restoreSelections();
         this.fillForm();
       });
@@ -153,27 +168,37 @@ export class AtendimentoDetalheComponent implements OnInit {
   }
 
   initForm() {
+    const now = new Date();
     const fb = this.fb.nonNullable;
     this.form = fb.group({
-      dataHora: fb.control<Date | null>(null, [Validators.required]),
+      dataInicio: fb.control<Date | null>(now, [Validators.required]),
+      dataFim: fb.control<Date | null>(this.endOfDay(now), [Validators.required]),
       setorId: fb.control('', [Validators.required]),
       pacienteId: fb.control('', [Validators.required]),
       responsavelId: fb.control(''),
       convenioId: fb.control(''),
-      convenioCategoriaId: fb.control(''),
+      convenioCategoriaId: fb.control({ value: '', disabled: true }),
       profissionalAtendimentoId: fb.control('', [Validators.required]),
       profissionalResponsavelId: fb.control('', [Validators.required]),
-      procedimentoId: fb.control('', [Validators.required]),
-      status: fb.control<StatusAtendimento>(StatusAtendimento.AGENDADO, [Validators.required]),
       observacoes: fb.control(''),
     });
   }
 
+  watchDataInicio() {
+    this.form.get('dataInicio')?.valueChanges.subscribe((val: Date | null) => {
+      if (val) {
+        this.form.get('dataFim')?.setValue(this.endOfDay(val), { emitEvent: false });
+      }
+    });
+  }
+
   fillForm() {
-    if (this.atendimento.dataHora) {
-      this.form.get('dataHora')?.setValue(new Date(this.atendimento.dataHora));
+    if (this.atendimento.dataInicio) {
+      this.form.get('dataInicio')?.setValue(new Date(this.atendimento.dataInicio), { emitEvent: false });
     }
-    this.form.get('status')?.setValue(this.atendimento.status ?? StatusAtendimento.AGENDADO);
+    if (this.atendimento.dataFim) {
+      this.form.get('dataFim')?.setValue(new Date(this.atendimento.dataFim));
+    }
     this.form.get('observacoes')?.setValue(this.atendimento.observacoes ?? '');
     this.form.get('setorId')?.setValue(this.atendimento.setorId ?? '');
     this.form.get('pacienteId')?.setValue(this.atendimento.pacienteId ?? '');
@@ -184,13 +209,18 @@ export class AtendimentoDetalheComponent implements OnInit {
       this.atendimento.profissionalAtendimentoId ?? '');
     this.form.get('profissionalResponsavelId')?.setValue(
       this.atendimento.profissionalResponsavelId ?? '');
-    this.form.get('procedimentoId')?.setValue(this.atendimento.procedimentoId ?? '');
 
-    if (this.atendimento.tabelaItemValor !== undefined && this.atendimento.tabelaItemValor !== null) {
-      this.tabelaItemValorInfo = new Intl.NumberFormat('pt-BR', {
-        style: 'currency', currency: 'BRL'
-      }).format(this.atendimento.tabelaItemValor);
-    }
+    const defaultInicio = this.form.get('dataInicio')?.value ?? new Date();
+    const defaultFim = this.form.get('dataFim')?.value ?? this.endOfDay(defaultInicio);
+    this.procedimentos = (this.atendimento.procedimentos ?? []).map((p) => ({
+      procedimentoId: p.procedimentoId,
+      procedimentoCodigo: p.procedimentoCodigo,
+      procedimentoDescricao: p.procedimentoDescricao,
+      tabelaItemId: p.tabelaItemId,
+      tabelaItemValor: p.tabelaItemValor,
+      dataInicio: p.dataInicio ? new Date(p.dataInicio) : defaultInicio,
+      dataFim: p.dataFim ? new Date(p.dataFim) : defaultFim,
+    }));
   }
 
   restoreSelections() {
@@ -211,12 +241,7 @@ export class AtendimentoDetalheComponent implements OnInit {
       this.convenioSelecionado = {
         id: this.atendimento.convenioId, nome: this.atendimento.convenioNome
       } as ConvenioDTO;
-    }
-    if (this.atendimento.convenioCategoriaId) {
-      this.convenioCategoriaSelecionada = {
-        id: this.atendimento.convenioCategoriaId,
-        nome: this.atendimento.convenioCategoriaNome
-      } as ConvenioCategoriaDTO;
+      this.carregarCategoriasConvenio(this.atendimento.convenioId);
     }
     if (this.atendimento.profissionalAtendimentoId) {
       this.profissionalAtendimentoSelecionado = {
@@ -229,13 +254,6 @@ export class AtendimentoDetalheComponent implements OnInit {
         id: this.atendimento.profissionalResponsavelId,
         pessoaNome: this.atendimento.profissionalResponsavelNome
       } as ProfissionalDTO;
-    }
-    if (this.atendimento.procedimentoId) {
-      this.procedimentoSelecionado = {
-        id: this.atendimento.procedimentoId,
-        codigo: this.atendimento.procedimentoCodigo,
-        descricao: this.atendimento.procedimentoDescricao
-      } as ProcedimentoDTO;
     }
   }
 
@@ -275,14 +293,17 @@ export class AtendimentoDetalheComponent implements OnInit {
       if (!result.cancelled && result.entity) {
         this.pacienteSelecionado = result.entity;
         this.form.get('pacienteId')?.setValue(result.entity.id);
-        // Auto-fill responsavel se paciente tiver responsavel
-        if (result.entity.responsavelId && !this.responsavelSelecionado) {
-          this.responsavelSelecionado = {
-            id: result.entity.responsavelId,
-            nome: result.entity.responsavelNome
-          } as PessoaDTO;
-          this.form.get('responsavelId')?.setValue(result.entity.responsavelId);
-        }
+        // Busca o DTO completo para obter responsavelId/responsavelNome
+        this.pessoaService.findById(result.entity.id!).subscribe((resp) => {
+          const paciente = resp.body;
+          if (paciente?.responsavelId && !this.responsavelSelecionado) {
+            this.responsavelSelecionado = {
+              id: paciente.responsavelId,
+              nome: paciente.responsavelNome,
+            } as PessoaDTO;
+            this.form.get('responsavelId')?.setValue(paciente.responsavelId);
+          }
+        });
       }
     });
   }
@@ -319,31 +340,17 @@ export class AtendimentoDetalheComponent implements OnInit {
       if (!result.cancelled && result.entity) {
         this.convenioSelecionado = result.entity;
         this.form.get('convenioId')?.setValue(result.entity.id);
-        // Limpar categoria ao trocar convênio
-        this.limparConvenioCategoria();
+        this.carregarCategoriasConvenio(result.entity.id!);
       }
     });
   }
 
-  pesquisarConvenioCategoria(): void {
-    if (!this.convenioSelecionado) {
-      this.messages.erro($localize`Selecione um convênio primeiro.`);
-      return;
-    }
-    const config: EntitySearchConfig<ConvenioCategoriaDTO> = {
-      service: this.convenioCategoriaService,
-      searchFields: [{ key: 'nome', label: $localize`Nome` }],
-      resultFields: [
-        { key: 'nome', label: $localize`Nome` },
-        { key: 'convenioNome', label: $localize`Convênio` },
-      ],
-      title: $localize`Selecionar Categoria do Convênio`,
-    };
-    this.entitySearchService.search(config).subscribe((result) => {
-      if (!result.cancelled && result.entity) {
-        this.convenioCategoriaSelecionada = result.entity;
-        this.form.get('convenioCategoriaId')?.setValue(result.entity.id);
-      }
+  private carregarCategoriasConvenio(convenioId: string): void {
+    this.form.get('convenioCategoriaId')?.setValue('');
+    this.categoriasOptions = [];
+    this.convenioCategoriaService.listarPorConvenio(convenioId).subscribe((categorias) => {
+      this.categoriasOptions = categorias;
+      this.form.get('convenioCategoriaId')?.enable();
     });
   }
 
@@ -388,14 +395,40 @@ export class AtendimentoDetalheComponent implements OnInit {
         { key: 'codigo', label: $localize`Código` },
         { key: 'descricao', label: $localize`Descrição` },
       ],
-      title: $localize`Selecionar Procedimento`,
+      title: $localize`Adicionar Procedimento`,
     };
     this.entitySearchService.search(config).subscribe((result) => {
       if (!result.cancelled && result.entity) {
-        this.procedimentoSelecionado = result.entity;
-        this.form.get('procedimentoId')?.setValue(result.entity.id);
+        this.adicionarProcedimento(result.entity);
       }
     });
+  }
+
+  adicionarProcedimento(procedimento: ProcedimentoDTO): void {
+    const dataInicio: Date = this.form.get('dataInicio')?.value ?? new Date();
+    const dataFim: Date = this.form.get('dataFim')?.value ?? this.endOfDay(dataInicio);
+    this.procedimentos = [...this.procedimentos, {
+      procedimentoId: procedimento.id,
+      procedimentoCodigo: procedimento.codigo,
+      procedimentoDescricao: procedimento.descricao,
+      dataInicio: new Date(dataInicio),
+      dataFim: new Date(dataFim),
+    }];
+  }
+
+  removerProcedimento(index: number): void {
+    this.procedimentos = this.procedimentos.filter((_, i) => i !== index);
+  }
+
+  formatarValor(valor: number | undefined): string {
+    if (valor == null) return '—';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+  }
+
+  private endOfDay(date: Date): Date {
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 0);
+    return end;
   }
 
   // =========================================================================
@@ -414,11 +447,9 @@ export class AtendimentoDetalheComponent implements OnInit {
   limparConvenio(): void {
     this.convenioSelecionado = null;
     this.form.get('convenioId')?.setValue('');
-    this.limparConvenioCategoria();
-  }
-  limparConvenioCategoria(): void {
-    this.convenioCategoriaSelecionada = null;
     this.form.get('convenioCategoriaId')?.setValue('');
+    this.form.get('convenioCategoriaId')?.disable();
+    this.categoriasOptions = [];
   }
   limparProfissionalAtendimento(): void {
     this.profissionalAtendimentoSelecionado = null;
@@ -427,10 +458,6 @@ export class AtendimentoDetalheComponent implements OnInit {
   limparProfissionalResponsavel(): void {
     this.profissionalResponsavelSelecionado = null;
     this.form.get('profissionalResponsavelId')?.setValue('');
-  }
-  limparProcedimento(): void {
-    this.procedimentoSelecionado = null;
-    this.form.get('procedimentoId')?.setValue('');
   }
 
   // =========================================================================
@@ -441,10 +468,17 @@ export class AtendimentoDetalheComponent implements OnInit {
       this.messages.erro($localize`Existem campos inválidos.`);
       return;
     }
+    if (this.procedimentos.length === 0) {
+      this.messages.erro($localize`Informe ao menos um procedimento.`);
+      return;
+    }
 
     const raw = this.form.getRawValue();
-    const dataHora: Date = raw.dataHora;
-    this.atendimento.dataHora = dataHora ? dataHora.toISOString() : undefined;
+    const dataInicio: Date = raw.dataInicio;
+    const dataFim: Date = raw.dataFim;
+
+    this.atendimento.dataInicio = dataInicio ? dataInicio.toISOString() : undefined;
+    this.atendimento.dataFim = dataFim ? dataFim.toISOString() : undefined;
     this.atendimento.setorId = raw.setorId || undefined;
     this.atendimento.pacienteId = raw.pacienteId || undefined;
     this.atendimento.responsavelId = raw.responsavelId || undefined;
@@ -452,8 +486,16 @@ export class AtendimentoDetalheComponent implements OnInit {
     this.atendimento.convenioCategoriaId = raw.convenioCategoriaId || undefined;
     this.atendimento.profissionalAtendimentoId = raw.profissionalAtendimentoId || undefined;
     this.atendimento.profissionalResponsavelId = raw.profissionalResponsavelId || undefined;
-    this.atendimento.procedimentoId = raw.procedimentoId || undefined;
-    this.atendimento.status = raw.status;
+    this.atendimento.procedimentos = this.procedimentos.map((p) => {
+      const dto = new AtendimentoProcedimentoDTO();
+      dto.procedimentoId = p.procedimentoId;
+      dto.procedimentoCodigo = p.procedimentoCodigo;
+      dto.procedimentoDescricao = p.procedimentoDescricao;
+      dto.tabelaItemId = p.tabelaItemId;
+      dto.dataInicio = p.dataInicio.toISOString();
+      dto.dataFim = p.dataFim.toISOString();
+      return dto;
+    });
     this.atendimento.observacoes = raw.observacoes || undefined;
 
     this.service.save(this.atendimento, {
@@ -467,6 +509,10 @@ export class AtendimentoDetalheComponent implements OnInit {
   isControlInvalid(campo: string): boolean {
     const fc: AbstractControl | null = this.form.get(campo);
     return fc !== null && fc.invalid && (fc.touched || fc.dirty);
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   goBackFn = () => {

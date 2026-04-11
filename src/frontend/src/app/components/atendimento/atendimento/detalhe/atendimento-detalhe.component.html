@@ -6,32 +6,34 @@
   <div body-content>
     <div class="form" [formGroup]="form">
 
-      <!-- Data/Hora -->
+      <!-- Data de Início -->
       <p-iftalabel class="w-25">
         <p-datepicker
-          inputId="dataHora"
-          formControlName="dataHora"
+          inputId="dataInicio"
+          formControlName="dataInicio"
           dateFormat="dd/mm/yy"
           [showTime]="true"
           hourFormat="24"
         />
-        <label for="dataHora" i18n>Data / Hora</label>
-        @if (isControlInvalid('dataHora')) {
-          <small i18n>Informe a data e hora.</small>
+        <label for="dataInicio" i18n>Data de Início</label>
+        @if (isControlInvalid('dataInicio')) {
+          <small i18n>Informe a data de início.</small>
         }
       </p-iftalabel>
 
-      <!-- Status -->
+      <!-- Data de Fim -->
       <p-iftalabel class="w-25">
-        <p-select
-          inputId="status"
-          formControlName="status"
-          [options]="statusOptions"
-          optionLabel="label"
-          optionValue="key"
-          class="w-100"
+        <p-datepicker
+          inputId="dataFim"
+          formControlName="dataFim"
+          dateFormat="dd/mm/yy"
+          [showTime]="true"
+          hourFormat="24"
         />
-        <label for="status" i18n>Status</label>
+        <label for="dataFim" i18n>Data de Fim</label>
+        @if (isControlInvalid('dataFim')) {
+          <small i18n>Informe a data de fim.</small>
+        }
       </p-iftalabel>
 
       <!-- Setor -->
@@ -68,21 +70,6 @@
           (entitySearch)="pesquisarResponsavel()"
           (remove)="limparResponsavel()"
         />
-      </div>
-
-      <!-- Procedimento -->
-      <div class="w-50 box-fieldset">
-        <gi-entity-field
-          [label]="procedimentoLabel"
-          [entityLabel]="procedimentoSelecionado
-            ? (procedimentoSelecionado.codigo + ' – ' + procedimentoSelecionado.descricao)
-            : null"
-          (entitySearch)="pesquisarProcedimento()"
-          (remove)="limparProcedimento()"
-        />
-        @if (isControlInvalid('procedimentoId')) {
-          <small i18n>Selecione um procedimento.</small>
-        }
       </div>
 
       <!-- Profissional Atendimento -->
@@ -122,22 +109,18 @@
       </div>
 
       <!-- Categoria do Convênio -->
-      <div class="w-50 box-fieldset">
-        <gi-entity-field
-          [label]="convenioCategoriaLabel"
-          [entityLabel]="convenioCategoriaSelecionada?.nome ?? null"
-          (entitySearch)="pesquisarConvenioCategoria()"
-          (remove)="limparConvenioCategoria()"
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="convenioCategoriaId"
+          formControlName="convenioCategoriaId"
+          [options]="categoriasOptions"
+          optionLabel="nome"
+          optionValue="id"
+          [showClear]="true"
+          styleClass="w-full"
         />
-      </div>
-
-      <!-- Valor da Tabela (informativo) -->
-      @if (tabelaItemValorInfo) {
-        <div class="w-50 tabela-item-info">
-          <span i18n>Valor da tabela:</span>
-          <strong>{{ tabelaItemValorInfo }}</strong>
-        </div>
-      }
+        <label for="convenioCategoriaId" i18n>Categoria do Convênio</label>
+      </p-iftalabel>
 
       <!-- Observações -->
       <p-iftalabel class="w-100">
@@ -152,5 +135,70 @@
       </p-iftalabel>
 
     </div>
+
+    <!-- Procedimentos -->
+    <div class="procedimentos-section">
+      <div class="procedimentos-header">
+        <span class="procedimentos-title" i18n>Procedimentos</span>
+        <div class="box-fieldset procedimento-add-field">
+          <gi-entity-field
+            [label]="addProcedimentoLabel"
+            [entityLabel]="null"
+            (entitySearch)="pesquisarProcedimento()"
+          />
+        </div>
+      </div>
+
+      @if (procedimentos.length === 0) {
+        <div class="procedimentos-empty" i18n>Nenhum procedimento adicionado.</div>
+      } @else {
+        <p-table [value]="procedimentos" styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th i18n>Código</th>
+              <th i18n>Descrição</th>
+              <th i18n>Data de Início</th>
+              <th i18n>Data de Fim</th>
+              <th i18n>Valor (tabela)</th>
+              <th style="width: 3rem"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td>{{ item.procedimentoCodigo }}</td>
+              <td>{{ item.procedimentoDescricao }}</td>
+              <td>
+                <p-datepicker
+                  [(ngModel)]="item.dataInicio"
+                  dateFormat="dd/mm/yy"
+                  [showTime]="true"
+                  hourFormat="24"
+                  styleClass="proc-datepicker"
+                />
+              </td>
+              <td>
+                <p-datepicker
+                  [(ngModel)]="item.dataFim"
+                  dateFormat="dd/mm/yy"
+                  [showTime]="true"
+                  hourFormat="24"
+                  styleClass="proc-datepicker"
+                />
+              </td>
+              <td>{{ formatarValor(item.tabelaItemValor) }}</td>
+              <td>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  (onClick)="removerProcedimento(i)"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    </div>
+
   </div>
 </gi-app-base>

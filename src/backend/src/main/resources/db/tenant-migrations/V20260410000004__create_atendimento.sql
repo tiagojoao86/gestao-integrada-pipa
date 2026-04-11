@@ -2,7 +2,8 @@ DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'atendimento') THEN
     CREATE TABLE atendimento (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      data_hora TIMESTAMP NOT NULL,
+      data_inicio TIMESTAMP NOT NULL,
+      data_fim TIMESTAMP NOT NULL,
       setor_id UUID NOT NULL,
       paciente_id UUID NOT NULL,
       responsavel_id UUID,
@@ -10,9 +11,6 @@ DO $$ BEGIN
       convenio_categoria_id UUID,
       profissional_atendimento_id UUID NOT NULL,
       profissional_responsavel_id UUID NOT NULL,
-      procedimento_id UUID NOT NULL,
-      tabela_item_id UUID,
-      status VARCHAR(20) NOT NULL DEFAULT 'AGENDADO',
       observacoes TEXT,
       deleted BOOLEAN NOT NULL DEFAULT FALSE,
       deleted_at TIMESTAMP,
@@ -30,16 +28,29 @@ DO $$ BEGIN
       CONSTRAINT fk_atendimento_prof_atendimento
         FOREIGN KEY (profissional_atendimento_id) REFERENCES profissional(id),
       CONSTRAINT fk_atendimento_prof_responsavel
-        FOREIGN KEY (profissional_responsavel_id) REFERENCES profissional(id),
-      CONSTRAINT fk_atendimento_procedimento FOREIGN KEY (procedimento_id) REFERENCES procedimento(id),
-      CONSTRAINT fk_atendimento_tabela_item FOREIGN KEY (tabela_item_id) REFERENCES tabela_item(id),
-      CONSTRAINT ck_atendimento_status
-        CHECK (status IN ('AGENDADO','REALIZADO','CANCELADO','FALTOU'))
+        FOREIGN KEY (profissional_responsavel_id) REFERENCES profissional(id)
     );
     CREATE INDEX idx_atendimento_deleted ON atendimento (deleted);
-    CREATE INDEX idx_atendimento_data_hora ON atendimento (data_hora);
+    CREATE INDEX idx_atendimento_data_inicio ON atendimento (data_inicio);
     CREATE INDEX idx_atendimento_paciente ON atendimento (paciente_id);
     CREATE INDEX idx_atendimento_profissional_atendimento ON atendimento (profissional_atendimento_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'atendimento_procedimento') THEN
+    CREATE TABLE atendimento_procedimento (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      atendimento_id UUID NOT NULL,
+      procedimento_id UUID NOT NULL,
+      tabela_item_id UUID,
+      data_inicio TIMESTAMP NOT NULL,
+      data_fim TIMESTAMP NOT NULL,
+      CONSTRAINT fk_atend_proc_atendimento FOREIGN KEY (atendimento_id) REFERENCES atendimento(id),
+      CONSTRAINT fk_atend_proc_procedimento FOREIGN KEY (procedimento_id) REFERENCES procedimento(id),
+      CONSTRAINT fk_atend_proc_tabela_item FOREIGN KEY (tabela_item_id) REFERENCES tabela_item(id)
+    );
+    CREATE INDEX idx_atend_proc_atendimento ON atendimento_procedimento (atendimento_id);
   END IF;
 END $$;
 

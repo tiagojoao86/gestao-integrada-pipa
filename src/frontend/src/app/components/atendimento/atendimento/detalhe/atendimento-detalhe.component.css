@@ -2,11 +2,35 @@
   padding: 0.1rem;
 }
 
-.tabela-item-info {
+.procedimentos-section {
+  margin-top: 1.5rem;
+}
+
+.procedimentos-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  font-size: 0.9rem;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.procedimentos-title {
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.procedimento-add-field {
+  flex: 1;
+  max-width: 400px;
+}
+
+.procedimentos-empty {
+  padding: 1rem 0;
   color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+:host ::ng-deep .proc-datepicker .p-datepicker-input {
+  width: 11rem;
+  font-size: 0.85rem;
 }

@@ -3,7 +3,7 @@ import { BaseComponent } from '../../../base/base.component';
 import { TabelaService } from '../tabela.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { TabelaGridDTO } from '../model/tabela-grid-dto';
-import { TipoTabela } from '../model/tipo-tabela.enum';
+import { getTipoTabelaLabel } from '../model/tipo-tabela.enum';
 import { AuthService } from '../../../base/auth/auth-service';
 import { DialogService } from '../../../base/dialog/dialog.service';
 import { DialogResult } from '../../../base/dialog/dialog.model';
@@ -62,7 +62,7 @@ export class TabelaGridComponent {
     {
       name: 'tipo',
       label: $localize`Tipo`,
-      getValue: (e: TabelaGridDTO) => e.tipo ? TipoTabela.getLabel(e.tipo) : '',
+      getValue: (e: TabelaGridDTO) => e.tipo ? getTipoTabelaLabel(e.tipo) : '',
     },
     {
       name: 'ativo',
@@ -100,7 +100,7 @@ export class TabelaGridComponent {
       this.tableActions.push({
         icon: 'edit_note',
         title: $localize`Editar`,
-        action: (e: TabelaGridDTO) => this.openDetail.emit(e.id),
+        action: (e: TabelaGridDTO) => this.openDetail.emit(e.id!),
       });
     }
 
@@ -116,7 +116,7 @@ export class TabelaGridComponent {
             )
             .subscribe((result) => {
               if (result === DialogResult.YES) {
-                this.service.delete(e.id).subscribe(() => this.listar());
+                this.service.delete(e.id!).subscribe(() => this.listar());
               }
             });
         },
@@ -128,7 +128,7 @@ export class TabelaGridComponent {
         icon: 'eye_tracking',
         iconType: 'material-symbols-outlined',
         title: $localize`Visualizar auditoria`,
-        action: (e: TabelaGridDTO) => this.loadAuditInfo(e.id),
+        action: (e: TabelaGridDTO) => this.loadAuditInfo(e.id!),
       });
     }
 

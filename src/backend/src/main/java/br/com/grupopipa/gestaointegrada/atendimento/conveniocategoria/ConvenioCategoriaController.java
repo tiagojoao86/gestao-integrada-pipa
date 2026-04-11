@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.dto.Conven
 import br.com.grupopipa.gestaointegrada.core.controller.BaseController;
 import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -57,5 +60,11 @@ public class ConvenioCategoriaController
     @PreAuthorize("hasAuthority('ATENDIMENTO_CONVENIO_CATEGORIA_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         return super.getAuditInfo(id);
+    }
+
+    @GetMapping("/por-convenio/{convenioId}")
+    @PreAuthorize("hasAuthority('ATENDIMENTO_CONVENIO_CATEGORIA_LISTAR')")
+    public List<ConvenioCategoriaGridDTO> listarPorConvenio(@PathVariable UUID convenioId) {
+        return service.listarPorConvenio(convenioId);
     }
 }

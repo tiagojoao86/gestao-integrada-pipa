@@ -1,10 +1,11 @@
 import { Exclude, Expose } from 'class-transformer';
-import { StatusAtendimento } from './status-atendimento.enum';
+import { AtendimentoProcedimentoDTO } from './atendimento-procedimento-dto';
 
 @Exclude()
 export class AtendimentoDTO {
   @Expose() id?: string;
-  @Expose() dataHora?: string;
+  @Expose() dataInicio?: string;
+  @Expose() dataFim?: string;
 
   @Expose() setorId?: string;
   @Expose() setorNome?: string;
@@ -27,14 +28,8 @@ export class AtendimentoDTO {
   @Expose() profissionalResponsavelId?: string;
   @Expose() profissionalResponsavelNome?: string;
 
-  @Expose() procedimentoId?: string;
-  @Expose() procedimentoCodigo?: string;
-  @Expose() procedimentoDescricao?: string;
+  @Expose() procedimentos?: AtendimentoProcedimentoDTO[];
 
-  @Expose() tabelaItemId?: string;
-  @Expose() tabelaItemValor?: number;
-
-  @Expose() status?: StatusAtendimento;
   @Expose() observacoes?: string;
 
   @Expose() createdAt?: Date;

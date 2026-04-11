@@ -20,7 +20,7 @@ module.exports = tseslint.config(
           decorators: true,
         },
         // 2. Garante que o ESLint carregue as configurações de tipagem
-        project: "./tsconfig.json",
+        project: ["./tsconfig.json", "./tsconfig.spec.json"],
       },
       // NOTA: O parser do TypeScript já é injetado pelo angular.configs.tsRecommended
     },

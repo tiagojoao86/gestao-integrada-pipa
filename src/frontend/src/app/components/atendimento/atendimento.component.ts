@@ -66,7 +66,7 @@ export class AtendimentoComponent implements OnInit {
       modulos.push({
         name: $localize`Atendimentos`,
         icon: 'event_note',
-        url: '/atendimento/agenda',
+        url: '/atendimento/atendimento',
       });
     }
 

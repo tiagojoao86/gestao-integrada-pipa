@@ -66,7 +66,7 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'agenda',
+    path: 'atendimento',
     loadComponent: () =>
       import('./atendimento/atendimento-list.component').then(
         (app) => app.AtendimentoListComponent

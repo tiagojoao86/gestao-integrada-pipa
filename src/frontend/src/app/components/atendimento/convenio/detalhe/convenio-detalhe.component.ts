@@ -71,7 +71,7 @@ export class ConvenioDetalheComponent implements OnInit {
   // Gestão inline de CodigoConvenio
   codigos: CodigoConvenioDTO[] = [];
   procedimentoSelecionado: ProcedimentoDTO | null = null;
-  codigoInputTemp: string = '';
+  codigoInputTemp = '';
   readonly procedimentoLabel = $localize`Procedimento`;
 
   titulo = $localize`Convênio: `;

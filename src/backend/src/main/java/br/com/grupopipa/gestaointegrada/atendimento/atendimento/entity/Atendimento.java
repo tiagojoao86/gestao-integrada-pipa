@@ -1,37 +1,40 @@
 package br.com.grupopipa.gestaointegrada.atendimento.atendimento.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import br.com.grupopipa.gestaointegrada.atendimento.atendimento.StatusAtendimento;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
-import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.entity.Profissional;
-import br.com.grupopipa.gestaointegrada.atendimento.tabela.entity.TabelaItem;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "atendimento")
 public class Atendimento extends BaseEntity {
 
-    @Column(name = "data_hora", nullable = false)
-    private LocalDateTime dataHora;
+    @Column(name = "data_inicio", nullable = false)
+    private LocalDateTime dataInicio;
+
+    @Column(name = "data_fim", nullable = false)
+    private LocalDateTime dataFim;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "setor_id", nullable = false,
@@ -68,25 +71,17 @@ public class Atendimento extends BaseEntity {
         foreignKey = @ForeignKey(name = "fk_atendimento_prof_responsavel"))
     private Profissional profissionalResponsavel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "procedimento_id", nullable = false,
-        foreignKey = @ForeignKey(name = "fk_atendimento_procedimento"))
-    private Procedimento procedimento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tabela_item_id",
-        foreignKey = @ForeignKey(name = "fk_atendimento_tabela_item"))
-    private TabelaItem tabelaItem;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
-    private StatusAtendimento status;
-
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
+    @BatchSize(size = 20)
+    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true,
+        fetch = FetchType.LAZY)
+    private List<AtendimentoProcedimento> procedimentos = new ArrayList<>();
+
     private Atendimento(ValidatedData data) {
-        this.dataHora = data.dataHora;
+        this.dataInicio = data.dataInicio;
+        this.dataFim = data.dataFim;
         this.setor = data.setor;
         this.paciente = data.paciente;
         this.responsavel = data.responsavel;
@@ -94,9 +89,6 @@ public class Atendimento extends BaseEntity {
         this.convenioCategoria = data.convenioCategoria;
         this.profissionalAtendimento = data.profissionalAtendimento;
         this.profissionalResponsavel = data.profissionalResponsavel;
-        this.procedimento = data.procedimento;
-        this.tabelaItem = data.tabelaItem;
-        this.status = data.status;
         this.observacoes = data.observacoes;
     }
 
@@ -108,7 +100,8 @@ public class Atendimento extends BaseEntity {
     // =========================================================================
 
     private static class ValidatedData {
-        final LocalDateTime dataHora;
+        final LocalDateTime dataInicio;
+        final LocalDateTime dataFim;
         final Setor setor;
         final Pessoa paciente;
         final Pessoa responsavel;
@@ -116,13 +109,11 @@ public class Atendimento extends BaseEntity {
         final ConvenioCategoria convenioCategoria;
         final Profissional profissionalAtendimento;
         final Profissional profissionalResponsavel;
-        final Procedimento procedimento;
-        final TabelaItem tabelaItem;
-        final StatusAtendimento status;
         final String observacoes;
 
         ValidatedData(
-            LocalDateTime dataHora,
+            LocalDateTime dataInicio,
+            LocalDateTime dataFim,
             Setor setor,
             Pessoa paciente,
             Pessoa responsavel,
@@ -130,12 +121,10 @@ public class Atendimento extends BaseEntity {
             ConvenioCategoria convenioCategoria,
             Profissional profissionalAtendimento,
             Profissional profissionalResponsavel,
-            Procedimento procedimento,
-            TabelaItem tabelaItem,
-            StatusAtendimento status,
             String observacoes
         ) {
-            this.dataHora = dataHora;
+            this.dataInicio = dataInicio;
+            this.dataFim = dataFim;
             this.setor = setor;
             this.paciente = paciente;
             this.responsavel = responsavel;
@@ -143,15 +132,13 @@ public class Atendimento extends BaseEntity {
             this.convenioCategoria = convenioCategoria;
             this.profissionalAtendimento = profissionalAtendimento;
             this.profissionalResponsavel = profissionalResponsavel;
-            this.procedimento = procedimento;
-            this.tabelaItem = tabelaItem;
-            this.status = status;
             this.observacoes = observacoes;
         }
     }
 
     private static ValidatedData validate(
-        LocalDateTime dataHora,
+        LocalDateTime dataInicio,
+        LocalDateTime dataFim,
         Setor setor,
         Pessoa paciente,
         Pessoa responsavel,
@@ -159,29 +146,25 @@ public class Atendimento extends BaseEntity {
         ConvenioCategoria convenioCategoria,
         Profissional profissionalAtendimento,
         Profissional profissionalResponsavel,
-        Procedimento procedimento,
-        TabelaItem tabelaItem,
-        StatusAtendimento status,
         String observacoes
     ) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
-        Validator.of(dataHora, "dataHora", violations).notNull();
+        Validator.of(dataInicio, "dataInicio", violations).notNull();
+        Validator.of(dataFim, "dataFim", violations).notNull();
         Validator.of(setor, "setor", violations).notNull();
         Validator.of(paciente, "paciente", violations).notNull();
         Validator.of(profissionalAtendimento, "profissionalAtendimento", violations).notNull();
         Validator.of(profissionalResponsavel, "profissionalResponsavel", violations).notNull();
-        Validator.of(procedimento, "procedimento", violations).notNull();
-        Validator.of(status, "status", violations).notNull();
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("atendimento", violations);
         }
         return new ValidatedData(
-            dataHora, setor, paciente, responsavel,
+            dataInicio, dataFim, setor, paciente, responsavel,
             convenio, convenioCategoria,
             profissionalAtendimento, profissionalResponsavel,
-            procedimento, tabelaItem, status, observacoes
+            observacoes
         );
     }
 
@@ -190,7 +173,8 @@ public class Atendimento extends BaseEntity {
     // =========================================================================
 
     public static class Builder {
-        private LocalDateTime dataHora;
+        private LocalDateTime dataInicio;
+        private LocalDateTime dataFim;
         private Setor setor;
         private Pessoa paciente;
         private Pessoa responsavel;
@@ -198,13 +182,15 @@ public class Atendimento extends BaseEntity {
         private ConvenioCategoria convenioCategoria;
         private Profissional profissionalAtendimento;
         private Profissional profissionalResponsavel;
-        private Procedimento procedimento;
-        private TabelaItem tabelaItem;
-        private StatusAtendimento status = StatusAtendimento.AGENDADO;
         private String observacoes;
 
-        public Builder dataHora(LocalDateTime dataHora) {
-            this.dataHora = dataHora;
+        public Builder dataInicio(LocalDateTime dataInicio) {
+            this.dataInicio = dataInicio;
+            return this;
+        }
+
+        public Builder dataFim(LocalDateTime dataFim) {
+            this.dataFim = dataFim;
             return this;
         }
 
@@ -228,33 +214,18 @@ public class Atendimento extends BaseEntity {
             return this;
         }
 
-        public Builder convenioCategoria(ConvenioCategoria convenioCategoria) {
-            this.convenioCategoria = convenioCategoria;
+        public Builder convenioCategoria(ConvenioCategoria cc) {
+            this.convenioCategoria = cc;
             return this;
         }
 
-        public Builder profissionalAtendimento(Profissional profissionalAtendimento) {
-            this.profissionalAtendimento = profissionalAtendimento;
+        public Builder profissionalAtendimento(Profissional p) {
+            this.profissionalAtendimento = p;
             return this;
         }
 
-        public Builder profissionalResponsavel(Profissional profissionalResponsavel) {
-            this.profissionalResponsavel = profissionalResponsavel;
-            return this;
-        }
-
-        public Builder procedimento(Procedimento procedimento) {
-            this.procedimento = procedimento;
-            return this;
-        }
-
-        public Builder tabelaItem(TabelaItem tabelaItem) {
-            this.tabelaItem = tabelaItem;
-            return this;
-        }
-
-        public Builder status(StatusAtendimento status) {
-            this.status = status;
+        public Builder profissionalResponsavel(Profissional p) {
+            this.profissionalResponsavel = p;
             return this;
         }
 
@@ -265,10 +236,10 @@ public class Atendimento extends BaseEntity {
 
         public Atendimento build() {
             ValidatedData data = validate(
-                dataHora, setor, paciente, responsavel,
+                dataInicio, dataFim, setor, paciente, responsavel,
                 convenio, convenioCategoria,
                 profissionalAtendimento, profissionalResponsavel,
-                procedimento, tabelaItem, status, observacoes
+                observacoes
             );
             return new Atendimento(data);
         }
@@ -279,7 +250,8 @@ public class Atendimento extends BaseEntity {
     // =========================================================================
 
     public void atualizar(
-        LocalDateTime dataHora,
+        LocalDateTime dataInicio,
+        LocalDateTime dataFim,
         Setor setor,
         Pessoa paciente,
         Pessoa responsavel,
@@ -287,18 +259,16 @@ public class Atendimento extends BaseEntity {
         ConvenioCategoria convenioCategoria,
         Profissional profissionalAtendimento,
         Profissional profissionalResponsavel,
-        Procedimento procedimento,
-        TabelaItem tabelaItem,
-        StatusAtendimento status,
         String observacoes
     ) {
         ValidatedData data = validate(
-            dataHora, setor, paciente, responsavel,
+            dataInicio, dataFim, setor, paciente, responsavel,
             convenio, convenioCategoria,
             profissionalAtendimento, profissionalResponsavel,
-            procedimento, tabelaItem, status, observacoes
+            observacoes
         );
-        this.dataHora = data.dataHora;
+        this.dataInicio = data.dataInicio;
+        this.dataFim = data.dataFim;
         this.setor = data.setor;
         this.paciente = data.paciente;
         this.responsavel = data.responsavel;
@@ -306,18 +276,24 @@ public class Atendimento extends BaseEntity {
         this.convenioCategoria = data.convenioCategoria;
         this.profissionalAtendimento = data.profissionalAtendimento;
         this.profissionalResponsavel = data.profissionalResponsavel;
-        this.procedimento = data.procedimento;
-        this.tabelaItem = data.tabelaItem;
-        this.status = data.status;
         this.observacoes = data.observacoes;
+    }
+
+    public void syncProcedimentos(List<AtendimentoProcedimento> novos) {
+        this.procedimentos.clear();
+        this.procedimentos.addAll(novos);
     }
 
     // =========================================================================
     // Getters
     // =========================================================================
 
-    public LocalDateTime getDataHora() {
-        return dataHora;
+    public LocalDateTime getDataInicio() {
+        return dataInicio;
+    }
+
+    public LocalDateTime getDataFim() {
+        return dataFim;
     }
 
     public Setor getSetor() {
@@ -348,19 +324,11 @@ public class Atendimento extends BaseEntity {
         return profissionalResponsavel;
     }
 
-    public Procedimento getProcedimento() {
-        return procedimento;
-    }
-
-    public TabelaItem getTabelaItem() {
-        return tabelaItem;
-    }
-
-    public StatusAtendimento getStatus() {
-        return status;
-    }
-
     public String getObservacoes() {
         return observacoes;
+    }
+
+    public List<AtendimentoProcedimento> getProcedimentos() {
+        return procedimentos;
     }
 }

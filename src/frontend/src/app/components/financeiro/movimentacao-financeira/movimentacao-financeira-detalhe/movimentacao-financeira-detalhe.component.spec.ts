@@ -19,7 +19,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
   let component: MovimentacaoFinanceiraDetalheComponent;
   let fixture: ComponentFixture<MovimentacaoFinanceiraDetalheComponent>;
   let movimentacaoService: jest.Mocked<MovimentacaoFinanceiraService>;
-  let contaService: jest.Mocked<ContaBancariaService>;
+  let _contaService: jest.Mocked<ContaBancariaService>;
   let messageService: jest.Mocked<MessageService>;
 
   const authServiceMock = {
@@ -99,7 +99,7 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
     fixture = TestBed.createComponent(MovimentacaoFinanceiraDetalheComponent);
     component = fixture.componentInstance;
     movimentacaoService = movimentacaoServiceMock;
-    contaService = contaServiceMock;
+    _contaService = contaServiceMock;
     messageService = messageServiceMock;
   });
 

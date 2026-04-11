@@ -6,6 +6,45 @@ import {
   TransformFnParams,
 } from 'class-transformer';
 
+export class TipoPessoa {
+  static readonly FISICA: TipoPessoa = new TipoPessoa(
+    'FISICA',
+    $localize`Pessoa Física`
+  );
+  static readonly JURIDICA: TipoPessoa = new TipoPessoa(
+    'JURIDICA',
+    $localize`Pessoa Jurídica`
+  );
+
+  private key: string;
+  private label: string;
+
+  private constructor(key: string, label: string) {
+    this.key = key;
+    this.label = label;
+  }
+
+  static getList(): TipoPessoa[] {
+    return [TipoPessoa.FISICA, TipoPessoa.JURIDICA];
+  }
+
+  static getKeys(): string[] {
+    return [TipoPessoa.FISICA.key, TipoPessoa.JURIDICA.key];
+  }
+
+  getKey(): string {
+    return this.key;
+  }
+
+  getLabel(): string {
+    return this.label;
+  }
+
+  public static getByKey(key: string): TipoPessoa | undefined {
+    return TipoPessoa.getList().find((tipo) => tipo.key === key);
+  }
+}
+
 @Exclude()
 export class PessoaDTO {
   @Expose()
@@ -143,44 +182,5 @@ export class PessoaDTO {
     this.updatedBy = updatedBy;
     this.responsavelId = responsavelId;
     this.responsavelNome = responsavelNome;
-  }
-}
-
-export class TipoPessoa {
-  static readonly FISICA: TipoPessoa = new TipoPessoa(
-    'FISICA',
-    $localize`Pessoa Física`
-  );
-  static readonly JURIDICA: TipoPessoa = new TipoPessoa(
-    'JURIDICA',
-    $localize`Pessoa Jurídica`
-  );
-
-  private key: string;
-  private label: string;
-
-  private constructor(key: string, label: string) {
-    this.key = key;
-    this.label = label;
-  }
-
-  static getList(): TipoPessoa[] {
-    return [TipoPessoa.FISICA, TipoPessoa.JURIDICA];
-  }
-
-  static getKeys(): string[] {
-    return [TipoPessoa.FISICA.key, TipoPessoa.JURIDICA.key];
-  }
-
-  getKey(): string {
-    return this.key;
-  }
-
-  getLabel(): string {
-    return this.label;
-  }
-
-  public static getByKey(key: string): TipoPessoa | undefined {
-    return TipoPessoa.getList().find((tipo) => tipo.key === key);
   }
 }

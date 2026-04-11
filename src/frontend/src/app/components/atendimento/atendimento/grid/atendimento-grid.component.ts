@@ -3,7 +3,6 @@ import { BaseComponent } from '../../../base/base.component';
 import { AtendimentoService } from '../atendimento.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
 import { AtendimentoGridDTO } from '../model/atendimento-grid-dto';
-import { StatusAtendimento } from '../model/status-atendimento.enum';
 import { AuthService } from '../../../base/auth/auth-service';
 import { DialogService } from '../../../base/dialog/dialog.service';
 import { DialogResult } from '../../../base/dialog/dialog.model';
@@ -55,10 +54,10 @@ export class AtendimentoGridComponent {
 
   columns: ColumnModel<AtendimentoGridDTO>[] = [
     {
-      name: 'dataHora',
-      label: $localize`Data/Hora`,
-      getValue: (e: AtendimentoGridDTO) => e.dataHora
-        ? new Date(e.dataHora).toLocaleString('pt-BR') : '',
+      name: 'dataInicio',
+      label: $localize`Data de Início`,
+      getValue: (e: AtendimentoGridDTO) => e.dataInicio
+        ? new Date(e.dataInicio).toLocaleString('pt-BR') : '',
     },
     {
       name: 'pacienteNome',
@@ -71,19 +70,16 @@ export class AtendimentoGridComponent {
       getValue: (e: AtendimentoGridDTO) => e.profissionalAtendimentoNome ?? '',
     },
     {
-      name: 'procedimentoCodigo',
-      label: $localize`Procedimento`,
-      getValue: (e: AtendimentoGridDTO) => e.procedimentoCodigo ?? '',
+      name: 'procedimentosCount',
+      label: $localize`Procedimentos`,
+      getValue: (e: AtendimentoGridDTO) => e.procedimentosCount != null
+        ? `${e.procedimentosCount}`
+        : '0',
     },
     {
       name: 'convenioNome',
       label: $localize`Convênio`,
       getValue: (e: AtendimentoGridDTO) => e.convenioNome ?? $localize`Particular`,
-    },
-    {
-      name: 'status',
-      label: $localize`Status`,
-      getValue: (e: AtendimentoGridDTO) => e.status ? StatusAtendimento.getLabel(e.status) : '',
     },
   ];
 
@@ -91,9 +87,8 @@ export class AtendimentoGridComponent {
   toolbarActions: ToolbarActionModel[] = [];
 
   filtros: FilterProperty[] = [
-    { property: 'dataHora', label: $localize`Data`, filterType: FilterType.DATE },
+    { property: 'dataInicio', label: $localize`Data de Início`, filterType: FilterType.DATE },
     { property: 'pacienteNome', label: $localize`Paciente`, filterType: FilterType.TEXT },
-    { property: 'status', label: $localize`Status`, filterType: FilterType.TEXT },
   ];
 
   request = new PageRequest(
@@ -117,7 +112,7 @@ export class AtendimentoGridComponent {
       this.tableActions.push({
         icon: 'edit_note',
         title: $localize`Editar`,
-        action: (e: AtendimentoGridDTO) => this.openDetail.emit(e.id),
+        action: (e: AtendimentoGridDTO) => this.openDetail.emit(e.id!),
       });
     }
 
@@ -133,7 +128,7 @@ export class AtendimentoGridComponent {
             )
             .subscribe((result) => {
               if (result === DialogResult.YES) {
-                this.service.delete(e.id).subscribe(() => this.listar());
+                this.service.delete(e.id!).subscribe(() => this.listar());
               }
             });
         },
@@ -145,7 +140,7 @@ export class AtendimentoGridComponent {
         icon: 'eye_tracking',
         iconType: 'material-symbols-outlined',
         title: $localize`Visualizar auditoria`,
-        action: (e: AtendimentoGridDTO) => this.loadAuditInfo(e.id),
+        action: (e: AtendimentoGridDTO) => this.loadAuditInfo(e.id!),
       });
     }
 

@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 @Service
+@SuppressWarnings("checkstyle:MagicNumber")
 public class JwtService {
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;

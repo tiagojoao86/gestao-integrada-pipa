@@ -5,6 +5,7 @@ import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
 import { AtendimentoDTO } from './model/atendimento-dto';
 import { AtendimentoGridDTO } from './model/atendimento-grid-dto';
+import { AtendimentoProcedimentoDTO } from './model/atendimento-procedimento-dto';
 
 @Injectable()
 export class AtendimentoService extends BaseService<AtendimentoDTO, AtendimentoGridDTO> {
@@ -19,7 +20,14 @@ export class AtendimentoService extends BaseService<AtendimentoDTO, AtendimentoG
   }
 
   protected override convertToDto(body: unknown): AtendimentoDTO {
-    return plainToInstance(AtendimentoDTO, body as object) as AtendimentoDTO;
+    const dto = plainToInstance(AtendimentoDTO, body as object) as AtendimentoDTO;
+    const raw = body as { procedimentos?: unknown[] };
+    if (raw?.procedimentos) {
+      dto.procedimentos = raw.procedimentos.map(
+        (p) => plainToInstance(AtendimentoProcedimentoDTO, p as object) as AtendimentoProcedimentoDTO
+      );
+    }
+    return dto;
   }
 
   protected override convertToGrid(item: AtendimentoGridDTO): AtendimentoGridDTO {

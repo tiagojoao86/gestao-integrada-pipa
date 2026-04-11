@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -81,6 +82,14 @@ public class ConvenioCategoriaServiceImpl
                 .createdAt(entity.getCreatedAt())
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    @Override
+    public List<ConvenioCategoriaGridDTO> listarPorConvenio(UUID convenioId) {
+        return repository.findAllByConvenioIdAndDeletedFalseOrderByNomeAsc(convenioId)
+                .stream()
+                .map(this::buildGridDTOFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

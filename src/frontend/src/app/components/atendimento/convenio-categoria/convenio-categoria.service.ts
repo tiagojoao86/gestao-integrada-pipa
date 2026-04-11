@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
@@ -31,5 +32,12 @@ export class ConvenioCategoriaService extends BaseService<ConvenioCategoriaDTO, 
       enableCircularCheck: true,
       exposeDefaultValues: true,
     }) as ConvenioCategoriaDTO;
+  }
+
+  listarPorConvenio(convenioId: string): Observable<ConvenioCategoriaGridDTO[]> {
+    return this.httpClient.get<ConvenioCategoriaGridDTO[]>(
+      this.getUrl(`/por-convenio/${convenioId}`),
+      { headers: this.getHeaders() }
+    );
   }
 }
