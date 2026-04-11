@@ -1,3 +1,10 @@
+@if (showPessoaDetalhe) {
+  <gi-pessoa-detalhe
+    [detailId]="'add'"
+    (closeDetail)="fecharPessoaDetalhe()"
+    (pessoaSalva)="onPessoaSalva($event)"
+  />
+} @else {
 <gi-app-base
   [title]="titulo"
   [actions]="toolbarActions"
@@ -16,6 +23,17 @@
         />
         @if (isControlInvalid('pessoaId')) {
           <small i18n>Selecione uma pessoa.</small>
+        }
+        @if (canCadastrarPessoa && !editMode) {
+          <button
+            pButton
+            type="button"
+            icon="pi pi-user-plus"
+            class="p-button-sm p-button-outlined p-button-secondary"
+            [title]="'Cadastrar nova pessoa'"
+            aria-label="Cadastrar nova pessoa"
+            (click)="abrirCadastroPessoa()"
+          ></button>
         }
       </div>
 
@@ -86,3 +104,4 @@
     </div>
   </div>
 </gi-app-base>
+}

@@ -19,6 +19,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ButtonModule } from 'primeng/button';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ProfissionalService } from '../profissional.service';
 import { ProfissionalDTO } from '../model/profissional-dto';
@@ -37,6 +38,7 @@ import {
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
 import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
 import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
+import { PessoaDetalheComponent } from '../../../cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component';
 
 @Component({
   selector: 'gi-profissional-detalhe',
@@ -50,6 +52,8 @@ import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
     SelectModule,
     CheckboxModule,
     EntityFieldComponent,
+    ButtonModule,
+    PessoaDetalheComponent,
   ],
   templateUrl: './profissional-detalhe.component.html',
   styleUrl: './profissional-detalhe.component.css',
@@ -70,6 +74,8 @@ export class ProfissionalDetalheComponent implements OnInit {
 
   titulo = $localize`Profissional: `;
   toolbarActions: ToolbarActionModel[] = [];
+  canCadastrarPessoa = false;
+  showPessoaDetalhe = false;
 
   private fb = inject(FormBuilder);
   private service = inject(ProfissionalService);
@@ -83,6 +89,9 @@ export class ProfissionalDetalheComponent implements OnInit {
 
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       SystemModuleKey.ATENDIMENTO_PROFISSIONAL
+    );
+    this.canCadastrarPessoa = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.CADASTRO_PESSOA
     );
 
     this.toolbarActions = [
@@ -175,6 +184,19 @@ export class ProfissionalDetalheComponent implements OnInit {
   limparPessoa(): void {
     this.pessoaSelecionada = null;
     this.form.get('pessoaId')?.setValue('');
+  }
+
+  abrirCadastroPessoa(): void {
+    this.showPessoaDetalhe = true;
+  }
+
+  fecharPessoaDetalhe(): void {
+    this.showPessoaDetalhe = false;
+  }
+
+  onPessoaSalva(pessoa: { id: string; nome: string }): void {
+    this.pessoaSelecionada = { id: pessoa.id, nome: pessoa.nome } as PessoaDTO;
+    this.form.get('pessoaId')?.setValue(pessoa.id);
   }
 
   save() {

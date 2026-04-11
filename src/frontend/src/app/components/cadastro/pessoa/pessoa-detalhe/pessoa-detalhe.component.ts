@@ -63,6 +63,7 @@ export class PessoaDetalheComponent implements OnInit {
   pessoa: PessoaDTO = {} as PessoaDTO;
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
+  @Output() pessoaSalva = new EventEmitter<{ id: string; nome: string }>();
 
   private service: PessoaService = inject(PessoaService);
   private messages: MessageService = inject(MessageService);
@@ -228,6 +229,7 @@ export class PessoaDetalheComponent implements OnInit {
       onSuccess: (data: PessoaDTO) => {
         this.pessoa = data;
         this.messages.sucesso($localize`Pessoa salva com sucesso.`);
+        this.pessoaSalva.emit({ id: data.id!, nome: data.nome });
         this.goBackFn();
       },
     });
