@@ -35,8 +35,9 @@ import {
   ResultField,
 } from '../../../base/entity-search/entity-search.model';
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
-import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
+import { PessoaDTO, TipoPessoa } from '../../../cadastro/pessoa/model/pessoa-dto';
 import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
+import { PessoaDetalheComponent } from '../../../cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component';
 import { ProcedimentoDTO } from '../../procedimento/model/procedimento-dto';
 import { ProcedimentoService } from '../../procedimento/procedimento.service';
 
@@ -53,6 +54,7 @@ import { ProcedimentoService } from '../../procedimento/procedimento.service';
     TableModule,
     ButtonModule,
     EntityFieldComponent,
+    PessoaDetalheComponent,
   ],
   templateUrl: './convenio-detalhe.component.html',
   styleUrl: './convenio-detalhe.component.css',
@@ -64,6 +66,7 @@ export class ConvenioDetalheComponent implements OnInit {
   convenio: ConvenioDTO = new ConvenioDTO();
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
+  @Output() convenioSalvo = new EventEmitter<{ id: string; nome: string }>();
 
   pessoaSelecionada: PessoaDTO | null = null;
   readonly pessoaLabel = $localize`Pessoa (CNPJ/Razão Social)`;
@@ -77,6 +80,8 @@ export class ConvenioDetalheComponent implements OnInit {
   titulo = $localize`Convênio: `;
   toolbarActions: ToolbarActionModel[] = [];
   canEdit = false;
+  canCadastrarPessoa = false;
+  showPessoaDetalhe = false;
 
   private fb = inject(FormBuilder);
   private service = inject(ConvenioService);
@@ -90,6 +95,7 @@ export class ConvenioDetalheComponent implements OnInit {
     this.initForm();
 
     this.canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO);
+    this.canCadastrarPessoa = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.CADASTRO_PESSOA);
 
     this.toolbarActions = [
       { action: () => this.goBackFn(), icon: 'close', title: $localize`Cancelar` + ' (esc)', shortcut: 'escape' },
@@ -101,6 +107,14 @@ export class ConvenioDetalheComponent implements OnInit {
         icon: 'save',
         title: $localize`Salvar` + ' (enter)',
         shortcut: 'enter',
+      });
+    }
+
+    if (this.canCadastrarPessoa && this.detailId === RouteConstants.P_ADD) {
+      this.toolbarActions.unshift({
+        action: () => this.abrirCadastroPessoa(),
+        icon: 'person_add',
+        title: $localize`Cadastrar nova pessoa`,
       });
     }
 
@@ -165,6 +179,23 @@ export class ConvenioDetalheComponent implements OnInit {
   limparPessoa(): void {
     this.pessoaSelecionada = null;
     this.form.get('pessoaId')?.setValue('');
+  }
+
+  abrirCadastroPessoa(): void {
+    this.showPessoaDetalhe = true;
+  }
+
+  fecharPessoaDetalhe(): void {
+    this.showPessoaDetalhe = false;
+  }
+
+  onPessoaSalva(pessoa: { id: string; nome: string; tipoPessoa: string }): void {
+    if (pessoa.tipoPessoa !== TipoPessoa.JURIDICA.getKey()) {
+      this.messages.erro($localize`Apenas pessoas jurídicas podem ser cadastradas como convênio.`);
+      return;
+    }
+    this.pessoaSelecionada = { id: pessoa.id, nome: pessoa.nome } as PessoaDTO;
+    this.form.get('pessoaId')?.setValue(pessoa.id);
   }
 
   // =========================================================================
@@ -243,8 +274,9 @@ export class ConvenioDetalheComponent implements OnInit {
     this.convenio.codigos = this.codigos;
 
     this.service.save(this.convenio, {
-      onSuccess: () => {
+      onSuccess: (data: ConvenioDTO) => {
         this.messages.sucesso($localize`Convênio salvo com sucesso.`);
+        this.convenioSalvo.emit({ id: data.id!, nome: data.nome ?? '' });
         this.goBackFn();
       },
     });

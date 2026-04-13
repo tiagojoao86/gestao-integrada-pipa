@@ -43,6 +43,7 @@ public class ProfissionalServiceImpl
                     .banco(dto.getBanco())
                     .conta(dto.getConta())
                     .chavePix(dto.getChavePix())
+                    .uf(dto.getUf())
                     .ativo(dto.getAtivo())
                     .build();
         }
@@ -55,6 +56,7 @@ public class ProfissionalServiceImpl
                 dto.getBanco(),
                 dto.getConta(),
                 dto.getChavePix(),
+                dto.getUf(),
                 dto.getAtivo());
 
         return entity;
@@ -88,6 +90,7 @@ public class ProfissionalServiceImpl
                 .banco(entity.getBanco())
                 .conta(entity.getConta())
                 .chavePix(entity.getChavePix())
+                .uf(entity.getUf())
                 .ativo(entity.getAtivo())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

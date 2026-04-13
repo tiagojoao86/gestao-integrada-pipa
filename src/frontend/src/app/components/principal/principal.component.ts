@@ -66,11 +66,11 @@ export class PrincipalComponent implements OnInit {
   }
 
   buildMenu() {
-    if (this.authService.hasAuthorityToGrupo(SystemModuleKey.CADASTROS)) {
+    if (this.authService.hasAuthorityToGrupo('ATENDIMENTO')) {
       this.menu.push({
-        name: $localize`Cadastros`,
-        icon: 'widgets',
-        url: '/cadastro',
+        name: $localize`Atendimento`,
+        icon: 'child_care',
+        url: '/atendimento',
       });
     }
 
@@ -90,11 +90,11 @@ export class PrincipalComponent implements OnInit {
       });
     }
 
-    if (this.authService.hasAuthorityToGrupo('ATENDIMENTO')) {
+    if (this.authService.hasAuthorityToGrupo(SystemModuleKey.CADASTROS)) {
       this.menu.push({
-        name: $localize`Atendimento`,
-        icon: 'child_care',
-        url: '/atendimento',
+        name: $localize`Cadastros`,
+        icon: 'widgets',
+        url: '/cadastro',
       });
     }
   }

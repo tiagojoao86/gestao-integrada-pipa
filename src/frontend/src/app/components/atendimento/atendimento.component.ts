@@ -20,60 +20,20 @@ export class AtendimentoComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const modulos: SystemModule[] = [];
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_PROFISSIONAL)) {
-      modulos.push({
-        name: $localize`Profissionais`,
-        icon: 'medical_services',
-        url: '/atendimento/profissional',
-      });
-    }
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO)) {
-      modulos.push({
-        name: $localize`Convênios`,
-        icon: 'handshake',
-        url: '/atendimento/convenio',
-      });
-    }
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA)) {
-      modulos.push({
-        name: $localize`Categorias de Convênio`,
-        icon: 'category',
-        url: '/atendimento/convenio-categoria',
-      });
-    }
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_PROCEDIMENTO)) {
-      modulos.push({
-        name: $localize`Procedimentos`,
-        icon: 'clinical_notes',
-        url: '/atendimento/procedimento',
-      });
-    }
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_TABELA)) {
-      modulos.push({
-        name: $localize`Tabelas de Preços`,
-        icon: 'price_change',
-        url: '/atendimento/tabela',
-      });
-    }
+    const atendimentos: SystemModule[] = [];
 
     if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO)) {
-      modulos.push({
+      atendimentos.push({
         name: $localize`Atendimentos`,
         icon: 'event_note',
         url: '/atendimento/atendimento',
       });
     }
 
-    if (modulos.length > 0) {
+    if (atendimentos.length > 0) {
       this.systemModules.push({
-        name: $localize`Cadastros`,
-        systemModules: modulos,
+        name: $localize`Atendimento`,
+        systemModules: atendimentos,
       });
     }
   }

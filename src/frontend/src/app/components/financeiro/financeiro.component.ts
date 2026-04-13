@@ -21,56 +21,6 @@ export class FinanceiroComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const cadastrosModules: SystemModule[] = [];
-
-    if (
-      this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_CONTA_BANCARIA
-      )
-    ) {
-      cadastrosModules.push({
-        name: $localize`Contas Bancárias`,
-        icon: 'account_balance',
-        url: '/financeiro/conta-bancaria',
-      });
-    }
-
-    if (
-      this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA
-      )
-    ) {
-      cadastrosModules.push({
-        name: $localize`Categorias de Título`,
-        icon: 'category',
-        url: '/financeiro/titulo-categoria',
-      });
-    }
-
-    if (
-      this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_CENTRO_CUSTO
-      )
-    ) {
-      cadastrosModules.push({
-        name: $localize`Centros de Custo`,
-        icon: 'paid',
-        url: '/financeiro/centro-custo',
-      });
-    }
-
-    if (
-      this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_CONDICAO_PAGAMENTO
-      )
-    ) {
-      cadastrosModules.push({
-        name: $localize`Condições de Pagamento`,
-        icon: 'schedule',
-        url: '/financeiro/condicao-pagamento',
-      });
-    }
-
     const financeiroModules: SystemModule[] = [];
 
     if (
@@ -101,13 +51,6 @@ export class FinanceiroComponent implements OnInit {
       this.systemModuleGroups.push({
         name: $localize`Operações`,
         systemModules: financeiroModules,
-      });
-    }
-
-    if (cadastrosModules.length > 0) {
-      this.systemModuleGroups.push({
-        name: $localize`Cadastros`,
-        systemModules: cadastrosModules,
       });
     }
   }

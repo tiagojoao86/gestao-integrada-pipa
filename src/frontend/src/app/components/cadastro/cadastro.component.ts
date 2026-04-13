@@ -95,5 +95,95 @@ export class CadastroComponent implements OnInit {
         systemModules: systemModulesGeral,
       });
     }
+
+    const atendimentoModules: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_PROFISSIONAL)) {
+      atendimentoModules.push({
+        name: $localize`Profissionais`,
+        icon: 'medical_services',
+        url: '/atendimento/profissional',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO)) {
+      atendimentoModules.push({
+        name: $localize`Convênios`,
+        icon: 'handshake',
+        url: '/atendimento/convenio',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA)) {
+      atendimentoModules.push({
+        name: $localize`Categorias de Convênio`,
+        icon: 'category',
+        url: '/atendimento/convenio-categoria',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_PROCEDIMENTO)) {
+      atendimentoModules.push({
+        name: $localize`Procedimentos`,
+        icon: 'clinical_notes',
+        url: '/atendimento/procedimento',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_TABELA)) {
+      atendimentoModules.push({
+        name: $localize`Tabelas de Preços`,
+        icon: 'price_change',
+        url: '/atendimento/tabela',
+      });
+    }
+
+    if (atendimentoModules.length > 0) {
+      this.systemModules.push({
+        name: $localize`Atendimento`,
+        systemModules: atendimentoModules,
+      });
+    }
+
+    const financeiroModules: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.FINANCEIRO_CONTA_BANCARIA)) {
+      financeiroModules.push({
+        name: $localize`Contas Bancárias`,
+        icon: 'account_balance',
+        url: '/financeiro/conta-bancaria',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.FINANCEIRO_TITULO_CATEGORIA)) {
+      financeiroModules.push({
+        name: $localize`Categorias de Título`,
+        icon: 'category',
+        url: '/financeiro/titulo-categoria',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.FINANCEIRO_CENTRO_CUSTO)) {
+      financeiroModules.push({
+        name: $localize`Centros de Custo`,
+        icon: 'paid',
+        url: '/financeiro/centro-custo',
+      });
+    }
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.FINANCEIRO_CONDICAO_PAGAMENTO)) {
+      financeiroModules.push({
+        name: $localize`Condições de Pagamento`,
+        icon: 'schedule',
+        url: '/financeiro/condicao-pagamento',
+      });
+    }
+
+    if (financeiroModules.length > 0) {
+      this.systemModules.push({
+        name: $localize`Financeiro`,
+        systemModules: financeiroModules,
+      });
+    }
   }
 }

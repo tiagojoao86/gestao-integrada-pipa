@@ -1,3 +1,10 @@
+@if (showConvenioDetalhe) {
+  <gi-convenio-detalhe
+    [detailId]="'add'"
+    (closeDetail)="fecharConvenioDetalhe()"
+    (convenioSalvo)="onConvenioSalvo($event)"
+  />
+} @else {
 <gi-app-base
   [title]="titulo"
   [actions]="toolbarActions"
@@ -43,3 +50,4 @@
     </div>
   </div>
 </gi-app-base>
+}

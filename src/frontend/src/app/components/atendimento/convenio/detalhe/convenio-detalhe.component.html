@@ -1,3 +1,10 @@
+@if (showPessoaDetalhe) {
+  <gi-pessoa-detalhe
+    [detailId]="'add'"
+    (closeDetail)="fecharPessoaDetalhe()"
+    (pessoaSalva)="onPessoaSalva($event)"
+  />
+} @else {
 <gi-app-base
   [title]="titulo"
   [actions]="toolbarActions"
@@ -115,3 +122,4 @@
 
   </div>
 </gi-app-base>
+}

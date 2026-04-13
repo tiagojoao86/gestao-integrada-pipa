@@ -24,17 +24,6 @@
         @if (isControlInvalid('pessoaId')) {
           <small i18n>Selecione uma pessoa.</small>
         }
-        @if (canCadastrarPessoa && !editMode) {
-          <button
-            pButton
-            type="button"
-            icon="pi pi-user-plus"
-            class="p-button-sm p-button-outlined p-button-secondary"
-            [title]="'Cadastrar nova pessoa'"
-            aria-label="Cadastrar nova pessoa"
-            (click)="abrirCadastroPessoa()"
-          ></button>
-        }
       </div>
 
       <!-- Conselho e Código -->
@@ -54,12 +43,27 @@
         }
       </p-iftalabel>
 
-      <p-iftalabel class="w-33">
+      <p-iftalabel class="w-25">
         <input pInputText id="codigoConselho" formControlName="codigoConselho" />
         <label for="codigoConselho" i18n>Código do Conselho</label>
         @if (isControlInvalid('codigoConselho')) {
           <small i18n>Esse campo é obrigatório.</small>
         }
+      </p-iftalabel>
+
+      <!-- UF do Conselho -->
+      <p-iftalabel class="w-25">
+        <p-select
+          inputId="uf"
+          formControlName="uf"
+          [options]="ufs"
+          [showClear]="true"
+          appendTo="body"
+        >
+          <ng-template let-item pTemplate="item">{{ item.getLabel() }}</ng-template>
+          <ng-template let-item pTemplate="selectedItem">{{ item.getKey() }}</ng-template>
+        </p-select>
+        <label for="uf" i18n>UF</label>
       </p-iftalabel>
 
       <!-- Tipo de Remuneração -->

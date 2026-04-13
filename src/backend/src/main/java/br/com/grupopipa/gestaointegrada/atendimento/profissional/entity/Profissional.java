@@ -48,6 +48,9 @@ public class Profissional extends BaseEntity {
     @Column(name = "chave_pix", length = 150)
     private String chavePix;
 
+    @Column(name = "uf", length = 2)
+    private String uf;
+
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
@@ -59,6 +62,7 @@ public class Profissional extends BaseEntity {
         this.banco = data.banco;
         this.conta = data.conta;
         this.chavePix = data.chavePix;
+        this.uf = data.uf;
         this.ativo = data.ativo != null ? data.ativo : true;
     }
 
@@ -77,6 +81,7 @@ public class Profissional extends BaseEntity {
         final String banco;
         final String conta;
         final String chavePix;
+        final String uf;
         final Boolean ativo;
 
         ValidatedData(
@@ -87,6 +92,7 @@ public class Profissional extends BaseEntity {
             String banco,
             String conta,
             String chavePix,
+            String uf,
             Boolean ativo
         ) {
             this.pessoa = pessoa;
@@ -96,6 +102,7 @@ public class Profissional extends BaseEntity {
             this.banco = banco;
             this.conta = conta;
             this.chavePix = chavePix;
+            this.uf = uf;
             this.ativo = ativo;
         }
     }
@@ -108,6 +115,7 @@ public class Profissional extends BaseEntity {
         String banco,
         String conta,
         String chavePix,
+        String uf,
         Boolean ativo
     ) {
         Set<BeanValidationMessage> violations = new HashSet<>();
@@ -134,7 +142,7 @@ public class Profissional extends BaseEntity {
         }
 
         return new ValidatedData(
-            pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, ativo
+            pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, uf, ativo
         );
     }
 
@@ -150,6 +158,7 @@ public class Profissional extends BaseEntity {
         private String banco;
         private String conta;
         private String chavePix;
+        private String uf;
         private Boolean ativo = true;
 
         public Builder pessoa(Pessoa pessoa) {
@@ -187,6 +196,11 @@ public class Profissional extends BaseEntity {
             return this;
         }
 
+        public Builder uf(String uf) {
+            this.uf = uf;
+            return this;
+        }
+
         public Builder ativo(Boolean ativo) {
             this.ativo = ativo;
             return this;
@@ -194,7 +208,7 @@ public class Profissional extends BaseEntity {
 
         public Profissional build() {
             ValidatedData data = validate(
-                pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, ativo
+                pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, uf, ativo
             );
             return new Profissional(data);
         }
@@ -212,11 +226,12 @@ public class Profissional extends BaseEntity {
         String bancoArg,
         String contaArg,
         String chavePixArg,
+        String ufArg,
         Boolean ativoArg
     ) {
         ValidatedData data = validate(
             pessoaArg, conselhoArg, codigoConselhoArg, tipoRemuneracaoArg,
-            bancoArg, contaArg, chavePixArg, ativoArg
+            bancoArg, contaArg, chavePixArg, ufArg, ativoArg
         );
         this.pessoa = data.pessoa;
         this.conselho = data.conselho;
@@ -225,6 +240,7 @@ public class Profissional extends BaseEntity {
         this.banco = data.banco;
         this.conta = data.conta;
         this.chavePix = data.chavePix;
+        this.uf = data.uf;
         if (data.ativo != null) {
             this.ativo = data.ativo;
         }
@@ -257,6 +273,10 @@ public class Profissional extends BaseEntity {
 
     public String getChavePix() {
         return chavePix;
+    }
+
+    public String getUf() {
+        return uf;
     }
 
     public Boolean getAtivo() {

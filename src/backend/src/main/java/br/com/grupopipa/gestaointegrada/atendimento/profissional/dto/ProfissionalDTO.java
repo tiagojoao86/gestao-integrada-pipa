@@ -25,6 +25,7 @@ public class ProfissionalDTO implements DTO {
     private String banco;
     private String conta;
     private String chavePix;
+    private String uf;
 
     private Boolean ativo;
 

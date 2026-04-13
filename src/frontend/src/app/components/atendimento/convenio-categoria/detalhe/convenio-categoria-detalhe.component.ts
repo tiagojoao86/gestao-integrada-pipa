@@ -34,6 +34,7 @@ import {
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
 import { ConvenioDTO } from '../../convenio/model/convenio-dto';
 import { ConvenioService } from '../../convenio/convenio.service';
+import { ConvenioDetalheComponent } from '../../convenio/detalhe/convenio-detalhe.component';
 
 @Component({
   selector: 'gi-convenio-categoria-detalhe',
@@ -46,6 +47,7 @@ import { ConvenioService } from '../../convenio/convenio.service';
     InputTextModule,
     CheckboxModule,
     EntityFieldComponent,
+    ConvenioDetalheComponent,
   ],
   templateUrl: './convenio-categoria-detalhe.component.html',
   styleUrl: './convenio-categoria-detalhe.component.css',
@@ -63,6 +65,8 @@ export class ConvenioCategoriaDetalheComponent implements OnInit {
 
   titulo = $localize`Categoria de Convênio: `;
   toolbarActions: ToolbarActionModel[] = [];
+  canCadastrarConvenio = false;
+  showConvenioDetalhe = false;
 
   private fb = inject(FormBuilder);
   private service = inject(ConvenioCategoriaService);
@@ -76,6 +80,9 @@ export class ConvenioCategoriaDetalheComponent implements OnInit {
 
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       SystemModuleKey.ATENDIMENTO_CONVENIO_CATEGORIA
+    );
+    this.canCadastrarConvenio = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.ATENDIMENTO_CONVENIO
     );
 
     this.toolbarActions = [
@@ -93,6 +100,14 @@ export class ConvenioCategoriaDetalheComponent implements OnInit {
         icon: 'save',
         title: $localize`Salvar` + ' (enter)',
         shortcut: 'enter',
+      });
+    }
+
+    if (this.canCadastrarConvenio && this.detailId === RouteConstants.P_ADD) {
+      this.toolbarActions.unshift({
+        action: () => this.abrirCadastroConvenio(),
+        icon: 'handshake',
+        title: $localize`Cadastrar novo convênio`,
       });
     }
 
@@ -159,6 +174,19 @@ export class ConvenioCategoriaDetalheComponent implements OnInit {
   limparConvenio(): void {
     this.convenioSelecionado = null;
     this.form.get('convenioId')?.setValue('');
+  }
+
+  abrirCadastroConvenio(): void {
+    this.showConvenioDetalhe = true;
+  }
+
+  fecharConvenioDetalhe(): void {
+    this.showConvenioDetalhe = false;
+  }
+
+  onConvenioSalvo(convenio: { id: string; nome: string }): void {
+    this.convenioSelecionado = { id: convenio.id, nome: convenio.nome } as ConvenioDTO;
+    this.form.get('convenioId')?.setValue(convenio.id);
   }
 
   save() {
