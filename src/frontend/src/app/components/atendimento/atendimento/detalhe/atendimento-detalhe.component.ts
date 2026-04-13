@@ -52,6 +52,8 @@ interface ProcedimentoLinha {
   procedimentoId?: string;
   procedimentoCodigo?: string;
   procedimentoDescricao?: string;
+  convenioId?: string;
+  convenioNome?: string;
   tabelaItemId?: string;
   tabelaItemValor?: number;
   dataInicio: Date;
@@ -216,6 +218,8 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
       procedimentoId: p.procedimentoId,
       procedimentoCodigo: p.procedimentoCodigo,
       procedimentoDescricao: p.procedimentoDescricao,
+      convenioId: p.convenioId,
+      convenioNome: p.convenioNome,
       tabelaItemId: p.tabelaItemId,
       tabelaItemValor: p.tabelaItemValor,
       dataInicio: p.dataInicio ? new Date(p.dataInicio) : defaultInicio,
@@ -411,9 +415,33 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
       procedimentoId: procedimento.id,
       procedimentoCodigo: procedimento.codigo,
       procedimentoDescricao: procedimento.descricao,
+      convenioId: this.convenioSelecionado?.id,
+      convenioNome: this.convenioSelecionado?.nome,
       dataInicio: new Date(dataInicio),
       dataFim: new Date(dataFim),
     }];
+  }
+
+  pesquisarConvenioProcedimento(index: number): void {
+    const config: EntitySearchConfig<ConvenioDTO> = {
+      service: this.convenioService,
+      searchFields: [{ key: 'nome', label: $localize`Nome` }],
+      resultFields: [{ key: 'nome', label: $localize`Nome` }],
+      title: $localize`Selecionar Convênio do Procedimento`,
+    };
+    this.entitySearchService.search(config).subscribe((result) => {
+      if (!result.cancelled && result.entity) {
+        this.procedimentos = this.procedimentos.map((p, i) =>
+          i === index ? { ...p, convenioId: result.entity!.id, convenioNome: result.entity!.nome } : p
+        );
+      }
+    });
+  }
+
+  limparConvenioProcedimento(index: number): void {
+    this.procedimentos = this.procedimentos.map((p, i) =>
+      i === index ? { ...p, convenioId: undefined, convenioNome: undefined } : p
+    );
   }
 
   removerProcedimento(index: number): void {
@@ -491,6 +519,8 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
       dto.procedimentoId = p.procedimentoId;
       dto.procedimentoCodigo = p.procedimentoCodigo;
       dto.procedimentoDescricao = p.procedimentoDescricao;
+      dto.convenioId = p.convenioId;
+      dto.convenioNome = p.convenioNome;
       dto.tabelaItemId = p.tabelaItemId;
       dto.dataInicio = p.dataInicio.toISOString();
       dto.dataFim = p.dataFim.toISOString();

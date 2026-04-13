@@ -157,6 +157,7 @@
             <tr>
               <th i18n>Código</th>
               <th i18n>Descrição</th>
+              <th i18n>Convênio</th>
               <th i18n>Data de Início</th>
               <th i18n>Data de Fim</th>
               <th i18n>Valor (tabela)</th>
@@ -167,6 +168,14 @@
             <tr>
               <td>{{ item.procedimentoCodigo }}</td>
               <td>{{ item.procedimentoDescricao }}</td>
+              <td>
+                <gi-entity-field
+                  [label]="convenioLabel"
+                  [entityLabel]="item.convenioNome ?? null"
+                  (entitySearch)="pesquisarConvenioProcedimento(i)"
+                  (remove)="limparConvenioProcedimento(i)"
+                />
+              </td>
               <td>
                 <p-datepicker
                   [(ngModel)]="item.dataInicio"

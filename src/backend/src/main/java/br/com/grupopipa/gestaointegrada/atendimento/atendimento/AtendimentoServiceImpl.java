@@ -133,6 +133,8 @@ public class AtendimentoServiceImpl
                             ? ap.getProcedimento().getCodigo() : null)
                         .procedimentoDescricao(ap.getProcedimento() != null
                             ? ap.getProcedimento().getDescricao() : null)
+                        .convenioId(ap.getConvenio() != null ? ap.getConvenio().getId() : null)
+                        .convenioNome(ap.getConvenio() != null ? ap.getConvenio().getNome() : null)
                         .tabelaItemId(ap.getTabelaItem() != null ? ap.getTabelaItem().getId() : null)
                         .tabelaItemValor(ap.getTabelaItem() != null ? ap.getTabelaItem().getValor() : null)
                         .dataInicio(ap.getDataInicio())
@@ -260,17 +262,20 @@ public class AtendimentoServiceImpl
             Atendimento atendimento,
             LocalDateTime dataInicio,
             LocalDateTime dataFim,
-            Convenio convenio) {
+            Convenio convenioAtendimento) {
         List<AtendimentoProcedimento> result = new ArrayList<>();
         for (AtendimentoProcedimentoDTO dto : dtos) {
             Procedimento procedimento = procedimentoRepository.findById(dto.getProcedimentoId())
                     .orElse(null);
+            Convenio convenioProc = dto.getConvenioId() != null
+                    ? convenioRepository.findById(dto.getConvenioId()).orElse(convenioAtendimento)
+                    : convenioAtendimento;
             TabelaItem tabelaItem = resolverTabelaItem(
-                dto.getTabelaItemId(), procedimento, dataInicio, convenio);
+                dto.getTabelaItemId(), procedimento, dataInicio, convenioProc);
             LocalDateTime procInicio = dto.getDataInicio() != null ? dto.getDataInicio() : dataInicio;
             LocalDateTime procFim = dto.getDataFim() != null ? dto.getDataFim() : dataFim;
             result.add(new AtendimentoProcedimento(
-                atendimento, procedimento, tabelaItem, procInicio, procFim));
+                atendimento, procedimento, convenioProc, tabelaItem, procInicio, procFim));
         }
         return result;
     }

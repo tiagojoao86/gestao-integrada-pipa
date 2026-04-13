@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.atendimento.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.atendimento.tabela.entity.TabelaItem;
 import jakarta.persistence.Column;
@@ -36,6 +37,11 @@ public class AtendimentoProcedimento {
     private Procedimento procedimento;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "convenio_id",
+        foreignKey = @ForeignKey(name = "fk_atend_proc_convenio"))
+    private Convenio convenio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tabela_item_id",
         foreignKey = @ForeignKey(name = "fk_atend_proc_tabela_item"))
     private TabelaItem tabelaItem;
@@ -52,11 +58,13 @@ public class AtendimentoProcedimento {
     public AtendimentoProcedimento(
             Atendimento atendimento,
             Procedimento procedimento,
+            Convenio convenio,
             TabelaItem tabelaItem,
             LocalDateTime dataInicio,
             LocalDateTime dataFim) {
         this.atendimento = atendimento;
         this.procedimento = procedimento;
+        this.convenio = convenio;
         this.tabelaItem = tabelaItem;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
@@ -72,6 +80,10 @@ public class AtendimentoProcedimento {
 
     public Procedimento getProcedimento() {
         return procedimento;
+    }
+
+    public Convenio getConvenio() {
+        return convenio;
     }
 
     public TabelaItem getTabelaItem() {

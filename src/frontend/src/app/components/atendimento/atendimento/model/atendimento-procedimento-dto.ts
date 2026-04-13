@@ -6,6 +6,8 @@ export class AtendimentoProcedimentoDTO {
   @Expose() procedimentoId?: string;
   @Expose() procedimentoCodigo?: string;
   @Expose() procedimentoDescricao?: string;
+  @Expose() convenioId?: string;
+  @Expose() convenioNome?: string;
   @Expose() tabelaItemId?: string;
   @Expose() tabelaItemValor?: number;
   @Expose() dataInicio?: string;

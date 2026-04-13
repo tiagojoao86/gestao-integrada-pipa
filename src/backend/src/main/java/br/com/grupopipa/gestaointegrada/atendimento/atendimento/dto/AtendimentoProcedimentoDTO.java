@@ -17,6 +17,8 @@ public class AtendimentoProcedimentoDTO {
     private UUID procedimentoId;
     private String procedimentoCodigo;
     private String procedimentoDescricao;
+    private UUID convenioId;
+    private String convenioNome;
     private UUID tabelaItemId;
     private BigDecimal tabelaItemValor;
     private LocalDateTime dataInicio;

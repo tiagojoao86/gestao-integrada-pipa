@@ -146,7 +146,8 @@ public enum DatabaseConstraintsEnum {
     // -------- Atendimento Procedimento --------
     FK_ATEND_PROC_ATENDIMENTO("Atendimento inválido."),
     FK_ATEND_PROC_PROCEDIMENTO("Procedimento inválido."),
-    FK_ATEND_PROC_TABELA_ITEM("Item de tabela inválido.");
+    FK_ATEND_PROC_TABELA_ITEM("Item de tabela inválido."),
+    FK_ATEND_PROC_CONVENIO("Convênio inválido.");
 
     private final String message;
 
