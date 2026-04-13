@@ -76,27 +76,16 @@
       </p-iftalabel>
 
       <!-- Pessoa -->
-      <p-iftalabel class="w-33">
-        <p-iconfield>
-          <p-inputicon class="pi pi-search" />
-          <p-autoComplete
-            inputId="pessoa"
-            [suggestions]="pessoaSuggestions"
-            (completeMethod)="searchPessoas($event)"
-            optionLabel="nome"
-            (onSelect)="onPessoaSelect($event.value)"
-            [(ngModel)]="pessoaInput"
-            [ngModelOptions]="{ standalone: true }"
-            [forceSelection]="true"
-            [minLength]="1"
-          >
-            <ng-template let-item pTemplate="item">
-              <div>{{ item.nome }}</div>
-            </ng-template>
-          </p-autoComplete>
-        </p-iconfield>
-        <label for="pessoa" i18n>Pessoa</label>
-      </p-iftalabel>
+      <div class="w-33 box-fieldset">
+        <gi-entity-field
+          [label]="pessoaLabel"
+          [entityLabel]="pessoaSelecionada?.nome ?? null"
+          [searchConfig]="pessoaSearchConfig"
+          (entitySearch)="pesquisarPessoa()"
+          (entitySelected)="onPessoaSelected($event)"
+          (remove)="limparPessoa()"
+        />
+      </div>
 
       <!-- Categoria -->
       <p-iftalabel class="w-33">

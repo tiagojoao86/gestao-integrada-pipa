@@ -20,13 +20,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from '../../../base/messages/messages.service';
@@ -38,6 +35,11 @@ import {
 } from '../titulo-setor-rateio/titulo-setor-rateio.component';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
+import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
+import type { EntitySearchConfig } from '../../../base/entity-search/entity-search.model';
+import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
+import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
 
 @Component({
   selector: 'gi-titulo-detalhe',
@@ -47,20 +49,18 @@ import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuari
     ReactiveFormsModule,
     FormsModule,
     InputTextModule,
-    AutoCompleteModule,
     InputNumberModule,
     DatePickerModule,
     SelectModule,
     TextareaModule,
-    IconFieldModule,
-    InputIconModule,
     CheckboxModule,
     MessageModule,
     TituloSetorRateioComponent,
+    EntityFieldComponent,
   ],
   templateUrl: './titulo-detalhe.component.html',
   styleUrl: './titulo-detalhe.component.css',
-  providers: [TituloService],
+  providers: [TituloService, PessoaService],
 })
 export class TituloDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
@@ -71,13 +71,26 @@ export class TituloDetalheComponent implements OnInit {
 
   private service: TituloService = inject(TituloService);
   private messages: MessageService = inject(MessageService);
+  private pessoaService: PessoaService = inject(PessoaService);
+  private entitySearchService: EntitySearchService = inject(EntitySearchService);
 
   tituloTela = $localize`Título: `;
 
-  // Autocomplete data
-  allPessoas: { id: string; nome: string }[] = [];
-  pessoaSuggestions: { id: string; nome: string }[] = [];
-  pessoaInput: { id: string; nome: string } | null = null;
+  pessoaSelecionada: PessoaDTO | null = null;
+  readonly pessoaLabel = $localize`Pessoa`;
+
+  readonly pessoaSearchConfig: EntitySearchConfig<PessoaDTO> = {
+    service: this.pessoaService,
+    searchFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+      { key: 'cnpj', label: $localize`CNPJ` },
+    ],
+    resultFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+  };
 
   allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
   
@@ -108,7 +121,6 @@ export class TituloDetalheComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadPessoas();
     this.loadUnidadesNegocio();
     this.loadCategorias();
     this.loadCondicoesPagamento();
@@ -220,12 +232,9 @@ export class TituloDetalheComponent implements OnInit {
       .get('condicaoPagamento')
       ?.setValue(this.titulo.condicaoPagamentoId || null);
 
-    // Set autocomplete inputs
     if (this.titulo.pessoaId) {
-      this.pessoaInput = {
-        id: this.titulo.pessoaId,
-        nome: this.titulo.pessoaNome || '',
-      };
+      this.pessoaSelecionada = { id: this.titulo.pessoaId, nome: this.titulo.pessoaNome } as PessoaDTO;
+      this.titulo.pessoaId = this.titulo.pessoaId;
     }
 
     // Load setores
@@ -239,10 +248,38 @@ export class TituloDetalheComponent implements OnInit {
     // planoContas removed
   }
 
-  loadPessoas() {
-    this.service.listarPessoasDisponiveis().subscribe((pessoas) => {
-      this.allPessoas = pessoas;
+  pesquisarPessoa(): void {
+    const config: EntitySearchConfig<PessoaDTO> = {
+      service: this.pessoaService,
+      searchFields: [
+        { key: 'nome', label: $localize`Nome` },
+        { key: 'cpf', label: $localize`CPF` },
+        { key: 'cnpj', label: $localize`CNPJ` },
+      ],
+      resultFields: [
+        { key: 'nome', label: $localize`Nome` },
+        { key: 'cpf', label: $localize`CPF` },
+      ],
+      title: $localize`Selecionar Pessoa`,
+    };
+    this.entitySearchService.search(config).subscribe((result) => {
+      if (!result.cancelled && result.entity) {
+        this.onPessoaSelected(result.entity);
+      }
     });
+  }
+
+  onPessoaSelected(entity: unknown): void {
+    const pessoa = entity as PessoaDTO;
+    this.pessoaSelecionada = pessoa;
+    this.titulo.pessoaId = pessoa.id;
+    this.titulo.pessoaNome = pessoa.nome;
+  }
+
+  limparPessoa(): void {
+    this.pessoaSelecionada = null;
+    this.titulo.pessoaId = '';
+    this.titulo.pessoaNome = undefined;
   }
 
   loadUnidadesNegocio(setDefault = false) {
@@ -283,19 +320,6 @@ export class TituloDetalheComponent implements OnInit {
     this.service.listarCondicoesPagamentoDisponiveis().subscribe((condicoes) => {
       this.allCondicoesPagamento = condicoes;
     });
-  }
-
-  searchPessoas(event: { query: string }) {
-    const q = event.query ? String(event.query).toLowerCase() : '';
-    this.pessoaSuggestions = this.allPessoas.filter((p) => {
-      const nome = p?.nome ? String(p.nome).toLowerCase() : '';
-      return nome.includes(q);
-    });
-  }
-
-  onPessoaSelect(pessoa: { id: string; nome: string }) {
-    this.titulo.pessoaId = pessoa.id;
-    this.titulo.pessoaNome = pessoa.nome;
   }
 
   onSetoresChange(setores: TituloSetorRateio[]) {

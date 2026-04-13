@@ -9,6 +9,9 @@ import { of } from 'rxjs';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { TituloDTO } from '../model/titulo-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
+import { PessoaDTO } from '../../../cadastro/pessoa/model/pessoa-dto';
+import { PessoaService } from '../../../cadastro/pessoa/pessoa.service';
+import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
 
 describe('TituloDetalheComponent', () => {
   let component: TituloDetalheComponent;
@@ -16,16 +19,24 @@ describe('TituloDetalheComponent', () => {
   let tituloService: jest.Mocked<TituloService>;
   let messageService: jest.Mocked<MessageService>;
   let authService: jest.Mocked<AuthService>;
+  let entitySearchService: jest.Mocked<EntitySearchService>;
 
   beforeEach(async () => {
     // Criar mocks dos serviços
     const tituloServiceMock = {
       findById: jest.fn(),
       save: jest.fn(),
-      listarPessoasDisponiveis: jest.fn(),
       listarUnidadesDisponiveis: jest.fn(),
       listarCategoriasDisponiveis: jest.fn(),
       listarCondicoesPagamentoDisponiveis: jest.fn(),
+    };
+
+    const entitySearchServiceMock = {
+      search: jest.fn(),
+    };
+
+    const pessoaServiceMock = {
+      list: jest.fn(),
     };
 
     const messageServiceMock = {
@@ -47,11 +58,15 @@ describe('TituloDetalheComponent', () => {
         provideHttpClientTesting(),
         { provide: MessageService, useValue: messageServiceMock },
         { provide: AuthService, useValue: authServiceMock },
+        { provide: EntitySearchService, useValue: entitySearchServiceMock },
       ],
     })
       .overrideComponent(TituloDetalheComponent, {
         set: {
-          providers: [{ provide: TituloService, useValue: tituloServiceMock }],
+          providers: [
+            { provide: TituloService, useValue: tituloServiceMock },
+            { provide: PessoaService, useValue: pessoaServiceMock },
+          ],
         },
       })
       .compileComponents();
@@ -65,6 +80,7 @@ describe('TituloDetalheComponent', () => {
       MessageService
     ) as jest.Mocked<MessageService>;
     authService = TestBed.inject(AuthService) as jest.Mocked<AuthService>;
+    entitySearchService = TestBed.inject(EntitySearchService) as jest.Mocked<EntitySearchService>;
 
     // Setup padrão
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
@@ -74,7 +90,6 @@ describe('TituloDetalheComponent', () => {
       unidadeNegocioCodigo: '001',
       isDefault: true,
     });
-    tituloServiceMock.listarPessoasDisponiveis.mockReturnValue(of([]));
     tituloServiceMock.listarUnidadesDisponiveis.mockReturnValue(of([]));
     tituloServiceMock.listarCategoriasDisponiveis.mockReturnValue(of([]));
     tituloServiceMock.listarCondicoesPagamentoDisponiveis.mockReturnValue(of([]));
@@ -135,23 +150,6 @@ describe('TituloDetalheComponent', () => {
       expect(component.allCategorias[0].nome).toBe('Despesa Operacional');
     });
 
-    it('deve carregar pessoas disponíveis para autocomplete', async () => {
-      // Arrange
-      const mockPessoas = [
-        { id: 'pessoa-1', nome: 'João Silva' },
-        { id: 'pessoa-2', nome: 'Maria Santos' },
-      ];
-      tituloService.listarPessoasDisponiveis.mockReturnValue(of(mockPessoas));
-
-      // Act
-      component.loadPessoas();
-      await fixture.whenStable();
-
-      // Assert
-      expect(component.allPessoas).toEqual(mockPessoas);
-      expect(component.allPessoas.length).toBe(2);
-    });
-
     it('deve carregar unidades de negócio disponíveis', () => {
       // Arrange
       const mockUnidades = [
@@ -189,35 +187,34 @@ describe('TituloDetalheComponent', () => {
     });
   });
 
-  describe('Autocomplete de Pessoa', () => {
-    beforeEach(() => {
-      component.allPessoas = [
-        { id: '1', nome: 'João Silva' },
-        { id: '2', nome: 'Maria Santos' },
-        { id: '3', nome: 'José Oliveira' },
-      ];
-    });
+  describe('Seleção de Pessoa (gi-entity-field)', () => {
+    it('deve definir pessoaSelecionada ao selecionar pessoa', () => {
+      const pessoa = { id: 'pessoa-123', nome: 'João Silva' } as PessoaDTO;
 
-    it('deve filtrar pessoas por nome', () => {
-      component.searchPessoas({ query: 'maria' });
+      component.onPessoaSelected(pessoa);
 
-      expect(component.pessoaSuggestions.length).toBe(1);
-      expect(component.pessoaSuggestions[0].nome).toBe('Maria Santos');
-    });
-
-    it('deve filtrar parcialmente', () => {
-      component.searchPessoas({ query: 'jo' });
-
-      expect(component.pessoaSuggestions.length).toBe(2); // João e José
-    });
-
-    it('deve definir pessoa ao selecionar no autocomplete', () => {
-      const pessoa = { id: 'pessoa-123', nome: 'João Silva' };
-
-      component.onPessoaSelect(pessoa);
-
+      expect(component.pessoaSelecionada).toBe(pessoa);
       expect(component.titulo.pessoaId).toBe('pessoa-123');
       expect(component.titulo.pessoaNome).toBe('João Silva');
+    });
+
+    it('deve limpar pessoaSelecionada ao chamar limparPessoa()', () => {
+      component.pessoaSelecionada = { id: 'pessoa-1', nome: 'Teste' } as PessoaDTO;
+      component.titulo.pessoaId = 'pessoa-1';
+      component.titulo.pessoaNome = 'Teste';
+
+      component.limparPessoa();
+
+      expect(component.pessoaSelecionada).toBeNull();
+      expect(component.titulo.pessoaId).toBe('');
+      expect(component.titulo.pessoaNome).toBeUndefined();
+    });
+
+    it('deve ter pessoaSearchConfig configurado com campos corretos', () => {
+      expect(component.pessoaSearchConfig).toBeDefined();
+      expect(component.pessoaSearchConfig.searchFields.length).toBeGreaterThan(0);
+      const keys = component.pessoaSearchConfig.searchFields.map((f) => f.key);
+      expect(keys).toContain('nome');
     });
   });
 
