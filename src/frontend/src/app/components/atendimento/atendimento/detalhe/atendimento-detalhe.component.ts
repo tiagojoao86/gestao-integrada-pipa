@@ -135,6 +135,114 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
 
+  readonly setorSearchConfig: EntitySearchConfig<SetorDTO> = {
+    service: this.setorService,
+    searchFields: [{ key: 'nome', label: $localize`Nome` }],
+    resultFields: [{ key: 'nome', label: $localize`Nome` }],
+  };
+
+  readonly pacienteSearchConfig: EntitySearchConfig<PessoaDTO> = {
+    service: this.pessoaService,
+    searchFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+    resultFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+  };
+
+  readonly responsavelSearchConfig: EntitySearchConfig<PessoaDTO> = {
+    service: this.pessoaService,
+    searchFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+    resultFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+  };
+
+  readonly convenioSearchConfig: EntitySearchConfig<ConvenioDTO> = {
+    service: this.convenioService,
+    searchFields: [{ key: 'nome', label: $localize`Nome` }],
+    resultFields: [{ key: 'nome', label: $localize`Nome` }],
+  };
+
+  readonly profissionalAtendimentoSearchConfig: EntitySearchConfig<ProfissionalDTO> = {
+    service: this.profissionalService,
+    searchFields: [{ key: 'pessoaNome', label: $localize`Nome` }],
+    resultFields: [{ key: 'pessoaNome', label: $localize`Nome` }],
+  };
+
+  readonly profissionalResponsavelSearchConfig: EntitySearchConfig<ProfissionalDTO> = {
+    service: this.profissionalService,
+    searchFields: [{ key: 'pessoaNome', label: $localize`Nome` }],
+    resultFields: [{ key: 'pessoaNome', label: $localize`Nome` }],
+  };
+
+  readonly procedimentoSearchConfig: EntitySearchConfig<ProcedimentoDTO> = {
+    service: this.procedimentoService,
+    searchFields: [
+      { key: 'codigo', label: $localize`Código` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ],
+    resultFields: [
+      { key: 'codigo', label: $localize`Código` },
+      { key: 'descricao', label: $localize`Descrição` },
+    ],
+  };
+
+  onSetorSelected(entity: unknown): void {
+    const setor = entity as SetorDTO;
+    this.setorSelecionado = setor;
+    this.form.get('setorId')?.setValue(setor.id);
+  }
+
+  onPacienteSelected(entity: unknown): void {
+    const paciente = entity as PessoaDTO;
+    this.pacienteSelecionado = paciente;
+    this.form.get('pacienteId')?.setValue(paciente.id);
+    this.pessoaService.findById(paciente.id!).subscribe((resp) => {
+      const p = resp.body;
+      if (p?.responsavelId && !this.responsavelSelecionado) {
+        this.responsavelSelecionado = { id: p.responsavelId, nome: p.responsavelNome } as PessoaDTO;
+        this.form.get('responsavelId')?.setValue(p.responsavelId);
+      }
+    });
+  }
+
+  onResponsavelSelected(entity: unknown): void {
+    const responsavel = entity as PessoaDTO;
+    this.responsavelSelecionado = responsavel;
+    this.form.get('responsavelId')?.setValue(responsavel.id);
+  }
+
+  onConvenioSelected(entity: unknown): void {
+    const convenio = entity as ConvenioDTO;
+    this.convenioSelecionado = convenio;
+    this.form.get('convenioId')?.setValue(convenio.id);
+    this.carregarCategoriasConvenio(convenio.id!);
+  }
+
+  onProfissionalAtendimentoSelected(entity: unknown): void {
+    const prof = entity as ProfissionalDTO;
+    this.profissionalAtendimentoSelecionado = prof;
+    this.form.get('profissionalAtendimentoId')?.setValue(prof.id);
+  }
+
+  onProfissionalResponsavelSelected(entity: unknown): void {
+    const prof = entity as ProfissionalDTO;
+    this.profissionalResponsavelSelecionado = prof;
+    this.form.get('profissionalResponsavelId')?.setValue(prof.id);
+  }
+
+  onProcedimentoAutoCompleteSelected(entity: unknown): void {
+    this.adicionarProcedimento(entity as ProcedimentoDTO);
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.watchDataInicio();
@@ -436,6 +544,13 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
         );
       }
     });
+  }
+
+  onConvenioProcedimentoAutoCompleteSelected(entity: unknown, index: number): void {
+    const convenio = entity as ConvenioDTO;
+    this.procedimentos = this.procedimentos.map((p, i) =>
+      i === index ? { ...p, convenioId: convenio.id, convenioNome: convenio.nome } : p
+    );
   }
 
   limparConvenioProcedimento(index: number): void {

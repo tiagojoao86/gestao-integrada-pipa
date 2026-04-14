@@ -41,7 +41,9 @@
         <gi-entity-field
           [label]="setorLabel"
           [entityLabel]="setorSelecionado?.nome ?? null"
+          [searchConfig]="setorSearchConfig"
           (entitySearch)="pesquisarSetor()"
+          (entitySelected)="onSetorSelected($event)"
           (remove)="limparSetor()"
         />
         @if (isControlInvalid('setorId')) {
@@ -54,7 +56,9 @@
         <gi-entity-field
           [label]="pacienteLabel"
           [entityLabel]="pacienteSelecionado?.nome ?? null"
+          [searchConfig]="pacienteSearchConfig"
           (entitySearch)="pesquisarPaciente()"
+          (entitySelected)="onPacienteSelected($event)"
           (remove)="limparPaciente()"
         />
         @if (isControlInvalid('pacienteId')) {
@@ -67,7 +71,9 @@
         <gi-entity-field
           [label]="responsavelLabel"
           [entityLabel]="responsavelSelecionado?.nome ?? null"
+          [searchConfig]="responsavelSearchConfig"
           (entitySearch)="pesquisarResponsavel()"
+          (entitySelected)="onResponsavelSelected($event)"
           (remove)="limparResponsavel()"
         />
       </div>
@@ -77,7 +83,9 @@
         <gi-entity-field
           [label]="profAtendimentoLabel"
           [entityLabel]="profissionalAtendimentoSelecionado?.pessoaNome ?? null"
+          [searchConfig]="profissionalAtendimentoSearchConfig"
           (entitySearch)="pesquisarProfissionalAtendimento()"
+          (entitySelected)="onProfissionalAtendimentoSelected($event)"
           (remove)="limparProfissionalAtendimento()"
         />
         @if (isControlInvalid('profissionalAtendimentoId')) {
@@ -90,7 +98,9 @@
         <gi-entity-field
           [label]="profResponsavelLabel"
           [entityLabel]="profissionalResponsavelSelecionado?.pessoaNome ?? null"
+          [searchConfig]="profissionalResponsavelSearchConfig"
           (entitySearch)="pesquisarProfissionalResponsavel()"
+          (entitySelected)="onProfissionalResponsavelSelected($event)"
           (remove)="limparProfissionalResponsavel()"
         />
         @if (isControlInvalid('profissionalResponsavelId')) {
@@ -103,7 +113,9 @@
         <gi-entity-field
           [label]="convenioLabel"
           [entityLabel]="convenioSelecionado?.nome ?? null"
+          [searchConfig]="convenioSearchConfig"
           (entitySearch)="pesquisarConvenio()"
+          (entitySelected)="onConvenioSelected($event)"
           (remove)="limparConvenio()"
         />
       </div>
@@ -144,7 +156,9 @@
           <gi-entity-field
             [label]="addProcedimentoLabel"
             [entityLabel]="null"
+            [searchConfig]="procedimentoSearchConfig"
             (entitySearch)="pesquisarProcedimento()"
+            (entitySelected)="onProcedimentoAutoCompleteSelected($event)"
           />
         </div>
       </div>
@@ -172,7 +186,9 @@
                 <gi-entity-field
                   [label]="convenioLabel"
                   [entityLabel]="item.convenioNome ?? null"
+                  [searchConfig]="convenioSearchConfig"
                   (entitySearch)="pesquisarConvenioProcedimento(i)"
+                  (entitySelected)="onConvenioProcedimentoAutoCompleteSelected($event, i)"
                   (remove)="limparConvenioProcedimento(i)"
                 />
               </td>

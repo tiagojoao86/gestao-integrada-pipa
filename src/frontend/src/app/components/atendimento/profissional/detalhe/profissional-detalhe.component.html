@@ -18,7 +18,9 @@
         <gi-entity-field
           [label]="pessoaLabel"
           [entityLabel]="pessoaSelecionada?.nome ?? null"
+          [searchConfig]="pessoaSearchConfig"
           (entitySearch)="pesquisarPessoa()"
+          (entitySelected)="onPessoaAutoCompleteSelected($event)"
           (remove)="limparPessoa()"
         />
         @if (isControlInvalid('pessoaId')) {

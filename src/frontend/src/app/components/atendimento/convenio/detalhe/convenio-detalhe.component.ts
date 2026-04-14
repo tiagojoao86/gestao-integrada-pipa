@@ -91,6 +91,28 @@ export class ConvenioDetalheComponent implements OnInit {
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
 
+  readonly pessoaSearchConfig: EntitySearchConfig<PessoaDTO> = {
+    service: this.pessoaService,
+    searchFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cnpj', label: $localize`CNPJ` },
+    ],
+    resultFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cnpj', label: $localize`CNPJ` },
+    ],
+  };
+
+  onPessoaAutoCompleteSelected(entity: unknown): void {
+    const pessoa = entity as PessoaDTO;
+    if (pessoa.tipoPessoa?.getKey() !== TipoPessoa.JURIDICA.getKey()) {
+      this.messages.erro($localize`Apenas pessoas jurídicas podem ser cadastradas como convênio.`);
+      return;
+    }
+    this.pessoaSelecionada = pessoa;
+    this.form.get('pessoaId')?.setValue(pessoa.id);
+  }
+
   ngOnInit(): void {
     this.initForm();
 

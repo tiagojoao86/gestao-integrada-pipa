@@ -75,6 +75,18 @@ export class ConvenioCategoriaDetalheComponent implements OnInit {
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
 
+  readonly convenioSearchConfig: EntitySearchConfig<ConvenioDTO> = {
+    service: this.convenioService,
+    searchFields: [{ key: 'nome', label: $localize`Nome` }],
+    resultFields: [{ key: 'nome', label: $localize`Nome` }],
+  };
+
+  onConvenioAutoCompleteSelected(entity: unknown): void {
+    const convenio = entity as ConvenioDTO;
+    this.convenioSelecionado = convenio;
+    this.form.get('convenioId')?.setValue(convenio.id);
+  }
+
   ngOnInit(): void {
     this.initForm();
 

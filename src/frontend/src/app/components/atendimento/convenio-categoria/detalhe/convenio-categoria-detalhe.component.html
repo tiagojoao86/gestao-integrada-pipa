@@ -18,7 +18,9 @@
         <gi-entity-field
           [label]="convenioLabel"
           [entityLabel]="convenioSelecionado?.nome ?? null"
+          [searchConfig]="convenioSearchConfig"
           (entitySearch)="pesquisarConvenio()"
+          (entitySelected)="onConvenioAutoCompleteSelected($event)"
           (remove)="limparConvenio()"
         />
         @if (isControlInvalid('convenioId')) {

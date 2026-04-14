@@ -81,6 +81,28 @@ export class ProfissionalDetalheComponent implements OnInit {
   private service = inject(ProfissionalService);
   private pessoaService = inject(PessoaService);
   private messages = inject(MessageService);
+
+  readonly pessoaSearchConfig: EntitySearchConfig<PessoaDTO> = {
+    service: this.pessoaService,
+    searchFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+    resultFields: [
+      { key: 'nome', label: $localize`Nome` },
+      { key: 'cpf', label: $localize`CPF` },
+    ],
+  };
+
+  onPessoaAutoCompleteSelected(entity: unknown): void {
+    const pessoa = entity as PessoaDTO;
+    if (pessoa.tipoPessoa?.getKey() !== TipoPessoa.FISICA.getKey()) {
+      this.messages.erro($localize`Apenas pessoas físicas podem ser cadastradas como profissional.`);
+      return;
+    }
+    this.pessoaSelecionada = pessoa;
+    this.form.get('pessoaId')?.setValue(pessoa.id);
+  }
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
 
