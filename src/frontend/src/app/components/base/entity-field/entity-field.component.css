@@ -14,6 +14,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 
     .field-label {
       font-size: smaller;
@@ -26,6 +27,9 @@
     .entity-selected {
       font-size: var(--text-size);
       margin-left: 0.4rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
@@ -61,4 +65,21 @@
       }
     }
   }
+}
+
+/* Estiliza o autocomplete para se integrar ao entity-field */
+:host ::ng-deep p-autocomplete {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep p-autocomplete input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 0.4rem !important;
+  height: 26px !important;
+  font-size: var(--text-size) !important;
+  background: transparent !important;
+  width: 100% !important;
 }
