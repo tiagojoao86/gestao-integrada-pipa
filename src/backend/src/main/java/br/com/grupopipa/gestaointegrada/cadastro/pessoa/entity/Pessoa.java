@@ -250,9 +250,6 @@ public class Pessoa extends BaseEntity {
         if (tipoPessoa == null) {
             violations.add(new BeanValidationMessage("tipoPessoa", "Tipo de pessoa é obrigatório"));
         } else if (tipoPessoa == TipoPessoa.FISICA) {
-            if (cpf == null) {
-                violations.add(new BeanValidationMessage("cpf", "CPF é obrigatório para Pessoa Física"));
-            }
             if (cnpj != null) {
                 violations.add(
                         new BeanValidationMessage("cnpj", "CNPJ não deve ser informado para Pessoa Física"));
@@ -309,7 +306,9 @@ public class Pessoa extends BaseEntity {
         CPF cpfValidado = null;
         CNPJ cnpjValidado = null;
         if (this.tipoPessoa == TipoPessoa.FISICA) {
-            cpfValidado = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            if (cpfStr != null && !cpfStr.isBlank()) {
+                cpfValidado = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            }
         } else {
             cnpjValidado = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
         }

@@ -55,7 +55,9 @@ public class PessoaValidator {
         CPF cpf = null;
         CNPJ cnpj = null;
         if (tipoPessoa == TipoPessoa.FISICA) {
-            cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            if (cpfStr != null && !cpfStr.isBlank()) {
+                cpf = ValidationUtils.validateAndGet(() -> new CPF(cpfStr), violations);
+            }
         } else if (tipoPessoa == TipoPessoa.JURIDICA) {
             cnpj = ValidationUtils.validateAndGet(() -> new CNPJ(cnpjStr), violations);
         }
