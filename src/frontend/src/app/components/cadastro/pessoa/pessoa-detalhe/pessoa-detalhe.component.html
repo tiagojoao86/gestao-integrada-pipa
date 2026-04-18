@@ -161,7 +161,7 @@
           [(ngModel)]="logradouroModel"
           [ngModelOptions]="{ standalone: true }"
           [suggestions]="logradouroSuggestions"
-          [field]="'logradouro'"
+          optionLabel="logradouro"
           (completeMethod)="buscarLogradouros($event)"
           (onSelect)="onLogradouroSelected($event.value)"
           [showEmptyMessage]="true"
