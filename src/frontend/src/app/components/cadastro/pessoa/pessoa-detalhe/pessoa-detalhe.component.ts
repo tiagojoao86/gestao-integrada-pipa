@@ -28,6 +28,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { InputMaskModule } from 'primeng/inputmask';
+import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
 import {
@@ -36,7 +38,7 @@ import {
   ResultField,
 } from '../../../base/entity-search/entity-search.model';
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
-import { CepService } from '../../../base/cep/cep.service';
+import { CepService, LogradouroResponse } from '../../../base/cep/cep.service';
 
 @Component({
   selector: 'gi-pessoa-detalhe',
@@ -52,6 +54,8 @@ import { CepService } from '../../../base/cep/cep.service';
     DatePickerModule,
     TextareaModule,
     InputMaskModule,
+    SelectModule,
+    AutoCompleteModule,
     EntityFieldComponent,
   ],
   templateUrl: './pessoa-detalhe.component.html',
@@ -79,10 +83,46 @@ export class PessoaDetalheComponent implements OnInit {
   responsavelSelecionado: PessoaDTO | null = null;
   readonly responsavelLabel = $localize`Responsável`;
 
+  readonly ufOptions = [
+    { label: 'AC - Acre', value: 'AC' },
+    { label: 'AL - Alagoas', value: 'AL' },
+    { label: 'AM - Amazonas', value: 'AM' },
+    { label: 'AP - Amapá', value: 'AP' },
+    { label: 'BA - Bahia', value: 'BA' },
+    { label: 'CE - Ceará', value: 'CE' },
+    { label: 'DF - Distrito Federal', value: 'DF' },
+    { label: 'ES - Espírito Santo', value: 'ES' },
+    { label: 'GO - Goiás', value: 'GO' },
+    { label: 'MA - Maranhão', value: 'MA' },
+    { label: 'MG - Minas Gerais', value: 'MG' },
+    { label: 'MS - Mato Grosso do Sul', value: 'MS' },
+    { label: 'MT - Mato Grosso', value: 'MT' },
+    { label: 'PA - Pará', value: 'PA' },
+    { label: 'PB - Paraíba', value: 'PB' },
+    { label: 'PE - Pernambuco', value: 'PE' },
+    { label: 'PI - Piauí', value: 'PI' },
+    { label: 'PR - Paraná', value: 'PR' },
+    { label: 'RJ - Rio de Janeiro', value: 'RJ' },
+    { label: 'RN - Rio Grande do Norte', value: 'RN' },
+    { label: 'RO - Rondônia', value: 'RO' },
+    { label: 'RR - Roraima', value: 'RR' },
+    { label: 'RS - Rio Grande do Sul', value: 'RS' },
+    { label: 'SC - Santa Catarina', value: 'SC' },
+    { label: 'SE - Sergipe', value: 'SE' },
+    { label: 'SP - São Paulo', value: 'SP' },
+    { label: 'TO - Tocantins', value: 'TO' },
+  ];
+
+  allCidades: string[] = [];
+  cidadeSuggestions: string[] = [];
+  cidadeModel: string = '';
+
+  logradouroSuggestions: LogradouroResponse[] = [];
+  logradouroModel: LogradouroResponse | string | null = null;
+
   ngOnInit(): void {
     this.initForm();
 
-    // configure actions based on permission
     const canEdit = this.auth.hasAuthorityEditarToModulo(
       SystemModuleKey.CADASTRO_PESSOA
     );
@@ -122,7 +162,6 @@ export class PessoaDetalheComponent implements OnInit {
         this.pessoa = response.body!;
         this.titulo += this.pessoa.nome;
         this.fillForm();
-        // Desabilita o campo tipoPessoa em modo edição
         this.form.get('tipoPessoa')?.disable();
       });
     }
@@ -148,11 +187,9 @@ export class PessoaDetalheComponent implements OnInit {
 
     // Endereço
     this.form.addControl('enderecoCep', fb.control(null));
-    this.form.addControl('enderecoLogradouro', fb.control(null));
     this.form.addControl('enderecoNumero', fb.control(null));
     this.form.addControl('enderecoComplemento', fb.control(null));
     this.form.addControl('enderecoBairro', fb.control(null));
-    this.form.addControl('enderecoCidade', fb.control(null));
     this.form.addControl('enderecoUf', fb.control(null));
   }
 
@@ -181,17 +218,76 @@ export class PessoaDetalheComponent implements OnInit {
 
     // Responsável
     if (this.pessoa.responsavelId) {
-      this.responsavelSelecionado = { id: this.pessoa.responsavelId, nome: this.pessoa.responsavelNome } as PessoaDTO;
+      this.responsavelSelecionado = {
+        id: this.pessoa.responsavelId,
+        nome: this.pessoa.responsavelNome,
+      } as PessoaDTO;
     }
 
     // Endereço
     this.form.get('enderecoCep')?.setValue(this.pessoa.enderecoCep ?? null);
-    this.form.get('enderecoLogradouro')?.setValue(this.pessoa.enderecoLogradouro ?? null);
     this.form.get('enderecoNumero')?.setValue(this.pessoa.enderecoNumero ?? null);
     this.form.get('enderecoComplemento')?.setValue(this.pessoa.enderecoComplemento ?? null);
     this.form.get('enderecoBairro')?.setValue(this.pessoa.enderecoBairro ?? null);
-    this.form.get('enderecoCidade')?.setValue(this.pessoa.enderecoCidade ?? null);
     this.form.get('enderecoUf')?.setValue(this.pessoa.enderecoUf ?? null);
+    this.cidadeModel = this.pessoa.enderecoCidade ?? '';
+    this.logradouroModel = this.pessoa.enderecoLogradouro ?? '';
+
+    if (this.pessoa.enderecoUf) {
+      this.loadCidades(this.pessoa.enderecoUf);
+    }
+  }
+
+  onUfChanged(): void {
+    this.cidadeModel = '';
+    this.logradouroModel = '';
+    this.allCidades = [];
+    this.cidadeSuggestions = [];
+    this.logradouroSuggestions = [];
+    const uf = this.form.get('enderecoUf')?.value;
+    if (uf) {
+      this.loadCidades(uf);
+    }
+  }
+
+  loadCidades(uf: string): void {
+    this.cepService.listarCidades(uf).subscribe({
+      next: (cidades) => {
+        this.allCidades = cidades;
+      },
+    });
+  }
+
+  buscarCidades(event: { query: string }): void {
+    const q = event.query.toLowerCase();
+    this.cidadeSuggestions = this.allCidades.filter((c) =>
+      c.toLowerCase().startsWith(q)
+    );
+  }
+
+  onCidadeSelected(): void {
+    this.logradouroModel = '';
+    this.logradouroSuggestions = [];
+  }
+
+  buscarLogradouros(event: { query: string }): void {
+    const uf = this.form.get('enderecoUf')?.value;
+    const cidade = this.cidadeModel;
+    if (!uf || !cidade || event.query.length < 3) {
+      this.logradouroSuggestions = [];
+      return;
+    }
+    this.cepService.buscarLogradouros(uf, cidade, event.query).subscribe({
+      next: (resultados) => {
+        this.logradouroSuggestions = resultados;
+      },
+    });
+  }
+
+  onLogradouroSelected(event: LogradouroResponse): void {
+    this.form.get('enderecoComplemento')?.setValue(event.complemento || null);
+    this.form.get('enderecoBairro')?.setValue(event.bairro || null);
+    this.form.get('enderecoCep')?.setValue(event.cep || null);
   }
 
   isFisica(): boolean {
@@ -209,11 +305,14 @@ export class PessoaDetalheComponent implements OnInit {
     }
     this.cepService.consultar(cep).subscribe({
       next: (resp) => {
-        this.form.get('enderecoLogradouro')?.setValue(resp.logradouro || null);
+        this.logradouroModel = resp.logradouro || '';
         this.form.get('enderecoComplemento')?.setValue(resp.complemento || null);
         this.form.get('enderecoBairro')?.setValue(resp.bairro || null);
-        this.form.get('enderecoCidade')?.setValue(resp.cidade || null);
+        this.cidadeModel = resp.cidade || '';
         this.form.get('enderecoUf')?.setValue(resp.uf || null);
+        if (resp.uf) {
+          this.loadCidades(resp.uf);
+        }
       },
       error: () => {
         this.messages.erro($localize`CEP não encontrado.`);
@@ -222,7 +321,6 @@ export class PessoaDetalheComponent implements OnInit {
   }
 
   onTipoPessoaChange() {
-    // Limpa campos ao trocar tipo
     if (this.isFisica()) {
       this.form.get('cnpj')?.setValue(null);
       this.form.get('razaoSocial')?.setValue(null);
@@ -250,7 +348,6 @@ export class PessoaDetalheComponent implements OnInit {
       this.pessoa.cpf = this.form.value.cpf;
       this.pessoa.dataNascimento = this.form.value.dataNascimento;
       this.pessoa.responsavelId = this.responsavelSelecionado?.id ?? undefined;
-      // Limpa campos de PJ
       this.pessoa.cnpj = undefined;
       this.pessoa.razaoSocial = undefined;
       this.pessoa.inscricaoEstadual = undefined;
@@ -258,28 +355,37 @@ export class PessoaDetalheComponent implements OnInit {
       this.pessoa.cnpj = this.form.value.cnpj;
       this.pessoa.razaoSocial = this.form.value.razaoSocial;
       this.pessoa.inscricaoEstadual = this.form.value.inscricaoEstadual;
-      // Limpa campos de PF e responsável (não se aplica a PJ)
       this.pessoa.cpf = undefined;
       this.pessoa.dataNascimento = undefined;
       this.pessoa.responsavelId = undefined;
     }
 
     this.pessoa.enderecoCep = this.form.value.enderecoCep || undefined;
-    this.pessoa.enderecoLogradouro = this.form.value.enderecoLogradouro || undefined;
     this.pessoa.enderecoNumero = this.form.value.enderecoNumero || undefined;
     this.pessoa.enderecoComplemento = this.form.value.enderecoComplemento || undefined;
     this.pessoa.enderecoBairro = this.form.value.enderecoBairro || undefined;
-    this.pessoa.enderecoCidade = this.form.value.enderecoCidade || undefined;
     this.pessoa.enderecoUf = this.form.value.enderecoUf || undefined;
+    this.pessoa.enderecoCidade = this.cidadeModel || undefined;
+    this.pessoa.enderecoLogradouro = this.extractLogradouro();
 
     this.service.save(this.pessoa, {
       onSuccess: (data: PessoaDTO) => {
         this.pessoa = data;
         this.messages.sucesso($localize`Pessoa salva com sucesso.`);
-        this.pessoaSalva.emit({ id: data.id!, nome: data.nome, tipoPessoa: data.tipoPessoa?.getKey() ?? '' });
+        this.pessoaSalva.emit({
+          id: data.id!,
+          nome: data.nome,
+          tipoPessoa: data.tipoPessoa?.getKey() ?? '',
+        });
         this.goBackFn();
       },
     });
+  }
+
+  private extractLogradouro(): string | undefined {
+    if (!this.logradouroModel) return undefined;
+    if (typeof this.logradouroModel === 'string') return this.logradouroModel || undefined;
+    return (this.logradouroModel as LogradouroResponse).logradouro || undefined;
   }
 
   pesquisarResponsavel(): void {

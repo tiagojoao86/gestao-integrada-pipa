@@ -156,7 +156,18 @@
       </p-iftalabel>
 
       <p-iftalabel class="w-45">
-        <input pInputText id="enderecoLogradouro" formControlName="enderecoLogradouro" />
+        <p-autocomplete
+          inputId="enderecoLogradouro"
+          [(ngModel)]="logradouroModel"
+          [ngModelOptions]="{ standalone: true }"
+          [suggestions]="logradouroSuggestions"
+          [field]="'logradouro'"
+          (completeMethod)="buscarLogradouros($event)"
+          (onSelect)="onLogradouroSelected($event.value)"
+          [showEmptyMessage]="true"
+          emptyMessage="Nenhum resultado"
+          i18n-emptyMessage
+        />
         <label for="enderecoLogradouro" i18n>Logradouro</label>
       </p-iftalabel>
 
@@ -175,13 +186,33 @@
         <label for="enderecoBairro" i18n>Bairro</label>
       </p-iftalabel>
 
-      <p-iftalabel class="w-50">
-        <input pInputText id="enderecoCidade" formControlName="enderecoCidade" />
+      <p-iftalabel class="w-45">
+        <p-autocomplete
+          inputId="enderecoCidade"
+          [(ngModel)]="cidadeModel"
+          [ngModelOptions]="{ standalone: true }"
+          [suggestions]="cidadeSuggestions"
+          (completeMethod)="buscarCidades($event)"
+          (onSelect)="onCidadeSelected()"
+          [showEmptyMessage]="true"
+          emptyMessage="Nenhuma cidade encontrada"
+          i18n-emptyMessage
+        />
         <label for="enderecoCidade" i18n>Cidade</label>
       </p-iftalabel>
 
-      <p-iftalabel class="w-10">
-        <input pInputText id="enderecoUf" formControlName="enderecoUf" maxlength="2" />
+      <p-iftalabel class="w-15">
+        <p-select
+          inputId="enderecoUf"
+          formControlName="enderecoUf"
+          [options]="ufOptions"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+          [showClear]="true"
+          (onChange)="onUfChanged()"
+        />
         <label for="enderecoUf" i18n>UF</label>
       </p-iftalabel>
 

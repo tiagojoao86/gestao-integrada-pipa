@@ -11,6 +11,15 @@ export interface CepResponse {
   uf: string;
 }
 
+export interface LogradouroResponse {
+  cep: string;
+  logradouro: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CepService {
   private readonly baseUrl = '/api/cep';
@@ -19,5 +28,14 @@ export class CepService {
   consultar(cep: string): Observable<CepResponse> {
     const cepNormalizado = cep.replace(/\D/g, '');
     return this.http.get<CepResponse>(`${this.baseUrl}/${cepNormalizado}`);
+  }
+
+  listarCidades(uf: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/cidades/${uf}`);
+  }
+
+  buscarLogradouros(uf: string, cidade: string, q: string): Observable<LogradouroResponse[]> {
+    const params = { cidade, q };
+    return this.http.get<LogradouroResponse[]>(`${this.baseUrl}/logradouros/${uf}`, { params });
   }
 }
