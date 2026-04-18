@@ -98,6 +98,13 @@ export class PessoaDTO {
       data.responsavelId,
       data.responsavelNome
     );
+    instance.enderecoCep = data.enderecoCep;
+    instance.enderecoLogradouro = data.enderecoLogradouro;
+    instance.enderecoNumero = data.enderecoNumero;
+    instance.enderecoComplemento = data.enderecoComplemento;
+    instance.enderecoBairro = data.enderecoBairro;
+    instance.enderecoCidade = data.enderecoCidade;
+    instance.enderecoUf = data.enderecoUf;
     return instance;
   }
 
