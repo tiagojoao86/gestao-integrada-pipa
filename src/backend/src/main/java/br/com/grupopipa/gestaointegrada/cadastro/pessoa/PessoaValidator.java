@@ -64,8 +64,9 @@ public class PessoaValidator {
             throw new BeanValidationException("Pessoa", violations);
         }
 
+        String cepNormalizado = enderecoCEP != null ? enderecoCEP.replaceAll("[^0-9]", "") : null;
         Endereco endereco = new Endereco(
-                enderecoCEP, enderecoLogradouro, enderecoNumero,
+                cepNormalizado, enderecoLogradouro, enderecoNumero,
                 enderecoComplemento, enderecoBairro, enderecoCidade, enderecoUF);
 
         return new ValidatedData(tipoPessoa, nome, email, telefone, cpf, dataNascimento,

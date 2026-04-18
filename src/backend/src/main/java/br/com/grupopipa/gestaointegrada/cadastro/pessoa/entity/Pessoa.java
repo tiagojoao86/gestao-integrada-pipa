@@ -342,7 +342,8 @@ public class Pessoa extends BaseEntity {
             String bairro,
             String cidade,
             String uf) {
-        this.endereco = new Endereco(cep, logradouro, numero, complemento, bairro, cidade, uf);
+        String cepNormalizado = cep != null ? cep.replaceAll("[^0-9]", "") : null;
+        this.endereco = new Endereco(cepNormalizado, logradouro, numero, complemento, bairro, cidade, uf);
     }
 
     public void adicionarObservacao(String observacao) {
