@@ -139,6 +139,52 @@
         </div>
       }
 
+      <!-- Endereço -->
+      <div class="w-100 section-divider">
+        <span class="section-title" i18n>Endereço</span>
+      </div>
+
+      <p-iftalabel class="w-20">
+        <p-inputMask
+          id="enderecoCep"
+          formControlName="enderecoCep"
+          mask="99999-999"
+          [autoClear]="false"
+          (onBlur)="buscarCep()"
+        />
+        <label for="enderecoCep" i18n>CEP</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-45">
+        <input pInputText id="enderecoLogradouro" formControlName="enderecoLogradouro" />
+        <label for="enderecoLogradouro" i18n>Logradouro</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-15">
+        <input pInputText id="enderecoNumero" formControlName="enderecoNumero" />
+        <label for="enderecoNumero" i18n>Número</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-20">
+        <input pInputText id="enderecoComplemento" formControlName="enderecoComplemento" />
+        <label for="enderecoComplemento" i18n>Complemento</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-33">
+        <input pInputText id="enderecoBairro" formControlName="enderecoBairro" />
+        <label for="enderecoBairro" i18n>Bairro</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-45">
+        <input pInputText id="enderecoCidade" formControlName="enderecoCidade" />
+        <label for="enderecoCidade" i18n>Cidade</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-12">
+        <input pInputText id="enderecoUf" formControlName="enderecoUf" maxlength="2" />
+        <label for="enderecoUf" i18n>UF</label>
+      </p-iftalabel>
+
       <!-- Observações -->
       <p-iftalabel class="w-100">
         <textarea

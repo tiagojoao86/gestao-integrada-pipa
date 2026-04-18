@@ -15,6 +15,7 @@ import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CPF;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
+import br.com.grupopipa.gestaointegrada.core.valueobject.Endereco;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
 import jakarta.persistence.AttributeOverride;
@@ -74,6 +75,9 @@ public class Pessoa extends BaseEntity {
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
+    @Embedded
+    private Endereco endereco;
+
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
 
@@ -93,6 +97,7 @@ public class Pessoa extends BaseEntity {
         this.inscricaoEstadual = data.inscricaoEstadual;
         this.observacoes = data.observacoes;
         this.ativa = data.ativa != null ? data.ativa : true;
+        this.endereco = data.endereco;
     }
 
     protected Pessoa() {
@@ -119,6 +124,13 @@ public class Pessoa extends BaseEntity {
         private String observacoes;
         private Boolean ativa = true;
         private Pessoa responsavelObj;
+        private String enderecoCEP;
+        private String enderecoLogradouro;
+        private String enderecoNumero;
+        private String enderecoComplemento;
+        private String enderecoBairro;
+        private String enderecoCidade;
+        private String enderecoUF;
 
         public Builder tipoPessoa(TipoPessoa tipoPessoa) {
             this.tipoPessoa = tipoPessoa;
@@ -180,9 +192,46 @@ public class Pessoa extends BaseEntity {
             return this;
         }
 
+        public Builder enderecoCEP(String cep) {
+            this.enderecoCEP = cep;
+            return this;
+        }
+
+        public Builder enderecoLogradouro(String logradouro) {
+            this.enderecoLogradouro = logradouro;
+            return this;
+        }
+
+        public Builder enderecoNumero(String numero) {
+            this.enderecoNumero = numero;
+            return this;
+        }
+
+        public Builder enderecoComplemento(String complemento) {
+            this.enderecoComplemento = complemento;
+            return this;
+        }
+
+        public Builder enderecoBairro(String bairro) {
+            this.enderecoBairro = bairro;
+            return this;
+        }
+
+        public Builder enderecoCidade(String cidade) {
+            this.enderecoCidade = cidade;
+            return this;
+        }
+
+        public Builder enderecoUF(String uf) {
+            this.enderecoUF = uf;
+            return this;
+        }
+
         public Pessoa build() {
             PessoaValidator.ValidatedData data = PessoaValidator.validate(tipoPessoa, nome, email, telefone, cpf,
-                    dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
+                    dataNascimento, cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa,
+                    enderecoCEP, enderecoLogradouro, enderecoNumero, enderecoComplemento,
+                    enderecoBairro, enderecoCidade, enderecoUF);
             Pessoa pessoa = new Pessoa(data);
             pessoa.setResponsavel(this.responsavelObj);
             return pessoa;
@@ -285,6 +334,17 @@ public class Pessoa extends BaseEntity {
         this.responsavel = responsavelArg;
     }
 
+    public void atualizarEndereco(
+            String cep,
+            String logradouro,
+            String numero,
+            String complemento,
+            String bairro,
+            String cidade,
+            String uf) {
+        this.endereco = new Endereco(cep, logradouro, numero, complemento, bairro, cidade, uf);
+    }
+
     public void adicionarObservacao(String observacao) {
         if (this.observacoes == null) {
             this.observacoes = observacao;
@@ -356,6 +416,34 @@ public class Pessoa extends BaseEntity {
 
     public boolean isPessoaJuridica() {
         return tipoPessoa == TipoPessoa.JURIDICA;
+    }
+
+    public String getEnderecoCep() {
+        return endereco != null ? endereco.getCep() : null;
+    }
+
+    public String getEnderecoLogradouro() {
+        return endereco != null ? endereco.getLogradouro() : null;
+    }
+
+    public String getEnderecoNumero() {
+        return endereco != null ? endereco.getNumero() : null;
+    }
+
+    public String getEnderecoComplemento() {
+        return endereco != null ? endereco.getComplemento() : null;
+    }
+
+    public String getEnderecoBairro() {
+        return endereco != null ? endereco.getBairro() : null;
+    }
+
+    public String getEnderecoCidade() {
+        return endereco != null ? endereco.getCidade() : null;
+    }
+
+    public String getEnderecoUF() {
+        return endereco != null ? endereco.getUf() : null;
     }
 
     public Pessoa getResponsavel() {

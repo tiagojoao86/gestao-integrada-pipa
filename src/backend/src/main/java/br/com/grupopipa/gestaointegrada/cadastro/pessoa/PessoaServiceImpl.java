@@ -50,6 +50,14 @@ public class PessoaServiceImpl
                 builder.ativa(dto.getAtiva());
             }
 
+            builder.enderecoCEP(dto.getEnderecoCep())
+                    .enderecoLogradouro(dto.getEnderecoLogradouro())
+                    .enderecoNumero(dto.getEnderecoNumero())
+                    .enderecoComplemento(dto.getEnderecoComplemento())
+                    .enderecoBairro(dto.getEnderecoBairro())
+                    .enderecoCidade(dto.getEnderecoCidade())
+                    .enderecoUF(dto.getEnderecoUf());
+
             return builder.build();
         }
 
@@ -63,6 +71,15 @@ public class PessoaServiceImpl
                 dto.getRazaoSocial(),
                 dto.getInscricaoEstadual(),
                 responsavel);
+
+        entity.atualizarEndereco(
+                dto.getEnderecoCep(),
+                dto.getEnderecoLogradouro(),
+                dto.getEnderecoNumero(),
+                dto.getEnderecoComplemento(),
+                dto.getEnderecoBairro(),
+                dto.getEnderecoCidade(),
+                dto.getEnderecoUf());
 
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
@@ -97,6 +114,13 @@ public class PessoaServiceImpl
                 .inscricaoEstadual(entity.getInscricaoEstadual())
                 .observacoes(entity.getObservacoes())
                 .ativa(entity.getAtiva())
+                .enderecoCep(entity.getEnderecoCep())
+                .enderecoLogradouro(entity.getEnderecoLogradouro())
+                .enderecoNumero(entity.getEnderecoNumero())
+                .enderecoComplemento(entity.getEnderecoComplemento())
+                .enderecoBairro(entity.getEnderecoBairro())
+                .enderecoCidade(entity.getEnderecoCidade())
+                .enderecoUf(entity.getEnderecoUF())
                 .responsavelId(entity.getResponsavelId())
                 .responsavelNome(entity.getResponsavelNome())
                 .createdAt(entity.getCreatedAt())

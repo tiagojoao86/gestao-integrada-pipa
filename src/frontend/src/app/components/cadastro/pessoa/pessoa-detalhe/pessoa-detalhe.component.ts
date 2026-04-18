@@ -36,6 +36,7 @@ import {
   ResultField,
 } from '../../../base/entity-search/entity-search.model';
 import { EntityFieldComponent } from '../../../base/entity-field/entity-field.component';
+import { CepService } from '../../../base/cep/cep.service';
 
 @Component({
   selector: 'gi-pessoa-detalhe',
@@ -68,6 +69,7 @@ export class PessoaDetalheComponent implements OnInit {
   private service: PessoaService = inject(PessoaService);
   private messages: MessageService = inject(MessageService);
   private entitySearchService: EntitySearchService = inject(EntitySearchService);
+  private cepService: CepService = inject(CepService);
 
   titulo = $localize`Pessoa: `;
 
@@ -143,6 +145,15 @@ export class PessoaDetalheComponent implements OnInit {
     this.form.addControl('cnpj', fb.control(null));
     this.form.addControl('razaoSocial', fb.control(null));
     this.form.addControl('inscricaoEstadual', fb.control(null));
+
+    // Endereço
+    this.form.addControl('enderecoCep', fb.control(null));
+    this.form.addControl('enderecoLogradouro', fb.control(null));
+    this.form.addControl('enderecoNumero', fb.control(null));
+    this.form.addControl('enderecoComplemento', fb.control(null));
+    this.form.addControl('enderecoBairro', fb.control(null));
+    this.form.addControl('enderecoCidade', fb.control(null));
+    this.form.addControl('enderecoUf', fb.control(null));
   }
 
   fillForm() {
@@ -172,6 +183,15 @@ export class PessoaDetalheComponent implements OnInit {
     if (this.pessoa.responsavelId) {
       this.responsavelSelecionado = { id: this.pessoa.responsavelId, nome: this.pessoa.responsavelNome } as PessoaDTO;
     }
+
+    // Endereço
+    this.form.get('enderecoCep')?.setValue(this.pessoa.enderecoCep ?? null);
+    this.form.get('enderecoLogradouro')?.setValue(this.pessoa.enderecoLogradouro ?? null);
+    this.form.get('enderecoNumero')?.setValue(this.pessoa.enderecoNumero ?? null);
+    this.form.get('enderecoComplemento')?.setValue(this.pessoa.enderecoComplemento ?? null);
+    this.form.get('enderecoBairro')?.setValue(this.pessoa.enderecoBairro ?? null);
+    this.form.get('enderecoCidade')?.setValue(this.pessoa.enderecoCidade ?? null);
+    this.form.get('enderecoUf')?.setValue(this.pessoa.enderecoUf ?? null);
   }
 
   isFisica(): boolean {
@@ -180,6 +200,25 @@ export class PessoaDetalheComponent implements OnInit {
 
   isJuridica(): boolean {
     return this.form.get('tipoPessoa')?.value === TipoPessoa.JURIDICA;
+  }
+
+  buscarCep(): void {
+    const cep: string = (this.form.get('enderecoCep')?.value ?? '').replace(/\D/g, '');
+    if (cep.length !== 8) {
+      return;
+    }
+    this.cepService.consultar(cep).subscribe({
+      next: (resp) => {
+        this.form.get('enderecoLogradouro')?.setValue(resp.logradouro || null);
+        this.form.get('enderecoComplemento')?.setValue(resp.complemento || null);
+        this.form.get('enderecoBairro')?.setValue(resp.bairro || null);
+        this.form.get('enderecoCidade')?.setValue(resp.cidade || null);
+        this.form.get('enderecoUf')?.setValue(resp.uf || null);
+      },
+      error: () => {
+        this.messages.erro($localize`CEP não encontrado.`);
+      },
+    });
   }
 
   onTipoPessoaChange() {
@@ -224,6 +263,14 @@ export class PessoaDetalheComponent implements OnInit {
       this.pessoa.dataNascimento = undefined;
       this.pessoa.responsavelId = undefined;
     }
+
+    this.pessoa.enderecoCep = this.form.value.enderecoCep || undefined;
+    this.pessoa.enderecoLogradouro = this.form.value.enderecoLogradouro || undefined;
+    this.pessoa.enderecoNumero = this.form.value.enderecoNumero || undefined;
+    this.pessoa.enderecoComplemento = this.form.value.enderecoComplemento || undefined;
+    this.pessoa.enderecoBairro = this.form.value.enderecoBairro || undefined;
+    this.pessoa.enderecoCidade = this.form.value.enderecoCidade || undefined;
+    this.pessoa.enderecoUf = this.form.value.enderecoUf || undefined;
 
     this.service.save(this.pessoa, {
       onSuccess: (data: PessoaDTO) => {

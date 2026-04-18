@@ -140,6 +140,11 @@ public class TenantFilter implements Filter {
             return true;
         }
 
+        // Consulta de CEP (proxy público, sem tenant)
+        if (path.startsWith("/cep/")) {
+            return true;
+        }
+
         // Autenticação EXIGE tenant (usuário pertence a um tenant)
         return false;
     }

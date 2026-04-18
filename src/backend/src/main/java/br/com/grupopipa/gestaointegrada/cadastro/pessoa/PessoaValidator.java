@@ -10,6 +10,7 @@ import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CNPJ;
 import br.com.grupopipa.gestaointegrada.core.valueobject.CPF;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Email;
+import br.com.grupopipa.gestaointegrada.core.valueobject.Endereco;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import br.com.grupopipa.gestaointegrada.core.valueobject.PhoneNumber;
 
@@ -33,7 +34,14 @@ public class PessoaValidator {
             String razaoSocial,
             String inscricaoEstadual,
             String observacoes,
-            Boolean ativa) {
+            Boolean ativa,
+            String enderecoCEP,
+            String enderecoLogradouro,
+            String enderecoNumero,
+            String enderecoComplemento,
+            String enderecoBairro,
+            String enderecoCidade,
+            String enderecoUF) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (tipoPessoa == null) {
@@ -56,8 +64,12 @@ public class PessoaValidator {
             throw new BeanValidationException("Pessoa", violations);
         }
 
+        Endereco endereco = new Endereco(
+                enderecoCEP, enderecoLogradouro, enderecoNumero,
+                enderecoComplemento, enderecoBairro, enderecoCidade, enderecoUF);
+
         return new ValidatedData(tipoPessoa, nome, email, telefone, cpf, dataNascimento,
-                cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa);
+                cnpj, razaoSocial, inscricaoEstadual, observacoes, ativa, endereco);
     }
 
     /**
@@ -76,6 +88,7 @@ public class PessoaValidator {
         public final String inscricaoEstadual;
         public final String observacoes;
         public final Boolean ativa;
+        public final Endereco endereco;
 
         ValidatedData(
                 TipoPessoa tipoPessoa,
@@ -88,7 +101,8 @@ public class PessoaValidator {
                 String razaoSocial,
                 String inscricaoEstadual,
                 String observacoes,
-                Boolean ativa) {
+                Boolean ativa,
+                Endereco endereco) {
             this.tipoPessoa = tipoPessoa;
             this.nome = nome;
             this.email = email;
@@ -100,6 +114,7 @@ public class PessoaValidator {
             this.inscricaoEstadual = inscricaoEstadual;
             this.observacoes = observacoes;
             this.ativa = ativa;
+            this.endereco = endereco;
         }
     }
 }

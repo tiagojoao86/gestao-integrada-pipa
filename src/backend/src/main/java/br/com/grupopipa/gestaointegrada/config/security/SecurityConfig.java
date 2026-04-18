@@ -51,7 +51,8 @@ public class SecurityConfig {
         "/authenticate/refresh",
         "/admin/tenants", // Admin endpoints (protegidos por X-Admin-Token)
         "/admin/tenants/**",
-        "/health" // Health check endpoint
+        "/health", // Health check endpoint
+        "/cep/**"  // Proxy de consulta de CEP (público, sem tenant)
     };
 
     @Bean

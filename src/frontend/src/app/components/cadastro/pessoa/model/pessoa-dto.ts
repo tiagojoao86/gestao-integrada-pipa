@@ -129,6 +129,22 @@ export class PessoaDTO {
   @Expose()
   tipoPessoa: TipoPessoa;
 
+  // Endereço
+  @Expose()
+  enderecoCep?: string;
+  @Expose()
+  enderecoLogradouro?: string;
+  @Expose()
+  enderecoNumero?: string;
+  @Expose()
+  enderecoComplemento?: string;
+  @Expose()
+  enderecoBairro?: string;
+  @Expose()
+  enderecoCidade?: string;
+  @Expose()
+  enderecoUf?: string;
+
   // Responsável (para menores/incapazes)
   @Expose()
   responsavelId?: string;
