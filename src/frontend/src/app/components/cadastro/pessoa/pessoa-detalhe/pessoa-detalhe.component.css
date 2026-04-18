@@ -85,27 +85,3 @@
   white-space: nowrap;
 }
 
-.w-12 {
-  width: calc(12% - 0.5rem);
-}
-
-.w-15 {
-  width: calc(15% - 0.5rem);
-}
-
-.w-20 {
-  width: calc(20% - 0.5rem);
-}
-
-.w-45 {
-  width: calc(45% - 0.5rem);
-}
-
-@media (max-width: 768px) {
-  .w-12,
-  .w-15,
-  .w-20,
-  .w-45 {
-    width: 100%;
-  }
-}

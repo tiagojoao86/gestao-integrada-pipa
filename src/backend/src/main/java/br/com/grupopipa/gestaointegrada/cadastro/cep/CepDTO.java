@@ -1,7 +1,7 @@
 package br.com.grupopipa.gestaointegrada.cadastro.cep;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * DTO de resposta do endpoint de consulta de CEP.
@@ -15,7 +15,7 @@ public class CepDTO {
     private String complemento;
     private String bairro;
 
-    @JsonProperty("localidade")
+    @JsonAlias("localidade")
     private String cidade;
 
     private String uf;
