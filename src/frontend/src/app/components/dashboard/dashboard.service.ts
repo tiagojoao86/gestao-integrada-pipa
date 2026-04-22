@@ -12,6 +12,16 @@ export interface DFCItemDTO {
 
 export type RegimeDFC = 'COMPETENCIA' | 'CAIXA';
 
+export interface AtendimentoMesItemDTO {
+  mes: string;
+  total: number;
+}
+
+export interface SetorLookupItemDTO {
+  id: string;
+  nome: string;
+}
+
 export interface DFCDetalheItemDTO {
   mes: string;
   tipo: 'RECEITA' | 'DESPESA';
@@ -85,6 +95,32 @@ export class DashboardService {
       .set('regime', regime);
     return this.httpClient.get<DFCDetalheItemDTO[]>(
       this.getUrl('/financeiro/fluxo-caixa-detalhe'),
+      { params }
+    );
+  }
+
+  getSetoresByUnidades(unidadeIds: string[] = []): Observable<SetorLookupItemDTO[]> {
+    let params = new HttpParams();
+    unidadeIds.forEach((id) => (params = params.append('unidadeIds', id)));
+    return this.httpClient.get<SetorLookupItemDTO[]>(
+      this.getUrl('/atendimento/setores'),
+      { params }
+    );
+  }
+
+  getAtendimentosPorMes(
+    dataInicio: Date,
+    dataFim: Date,
+    unidadeIds: string[] = [],
+    setorIds: string[] = []
+  ): Observable<AtendimentoMesItemDTO[]> {
+    let params = new HttpParams()
+      .set('dataInicio', this.formatDate(dataInicio))
+      .set('dataFim', this.formatDate(dataFim));
+    unidadeIds.forEach((id) => (params = params.append('unidadeIds', id)));
+    setorIds.forEach((id) => (params = params.append('setorIds', id)));
+    return this.httpClient.get<AtendimentoMesItemDTO[]>(
+      this.getUrl('/atendimento/por-mes'),
       { params }
     );
   }

@@ -1,0 +1,92 @@
+/* ---- Filtros ---- */
+
+.apm-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+:host ::ng-deep .apm-filters p-datepicker .p-datepicker {
+  width: 160px;
+}
+
+:host ::ng-deep .apm-multiselect {
+  min-width: 220px;
+  max-width: 380px;
+}
+
+/* ---- Painel ---- */
+
+:host ::ng-deep .p-panel .p-panel-content {
+  background-color: #ffffff;
+  color: #333333;
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-panel .p-panel-header {
+  background-color: #f4f6f8;
+  color: #333333;
+}
+
+:host ::ng-deep .apm-panel {
+  margin-bottom: 1rem;
+}
+
+/* ---- Gráfico ---- */
+
+.apm-chart {
+  height: 380px;
+  width: 100%;
+}
+
+/* ---- Tabela ---- */
+
+.apm-table-wrapper {
+  overflow-x: auto;
+}
+
+.apm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 320px;
+}
+
+.apm-table thead tr {
+  background-color: #1a5276;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.apm-table th,
+.apm-table td {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #d4d4d4;
+}
+
+.col-mes {
+  text-align: left;
+  min-width: 100px;
+}
+
+.col-total,
+.col-acumulado {
+  text-align: right;
+  min-width: 110px;
+}
+
+.apm-table tbody tr:nth-child(even) {
+  background-color: #f4f8fc;
+}
+
+.apm-table tbody tr:hover {
+  background-color: #e3eef8;
+}
+
+.apm-table tfoot tr.total-row td {
+  background-color: #dbe9f8;
+  font-weight: 700;
+  border-top: 2px solid #1a5276;
+}

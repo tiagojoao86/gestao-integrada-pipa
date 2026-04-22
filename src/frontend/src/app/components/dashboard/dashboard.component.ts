@@ -45,5 +45,26 @@ export class DashboardComponent implements OnInit {
         systemModules: financeiroModules,
       });
     }
+
+    const atendimentoModules: SystemModule[] = [];
+
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.DASHBOARD_ATENDIMENTO_POR_MES
+      )
+    ) {
+      atendimentoModules.push({
+        name: $localize`Atendimentos por Mês`,
+        icon: 'event_note',
+        url: '/dashboard/atendimento-por-mes',
+      });
+    }
+
+    if (atendimentoModules.length > 0) {
+      this.systemModuleGroups.push({
+        name: $localize`Atendimento`,
+        systemModules: atendimentoModules,
+      });
+    }
   }
 }

@@ -1,0 +1,98 @@
+<gi-app-base [title]="title" [hideFooter]="true">
+  <div body-content>
+
+    <!-- Filtros -->
+    <form [formGroup]="form" class="apm-filters">
+      <p-datepicker
+        formControlName="dataInicio"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+      ></p-datepicker>
+
+      <p-datepicker
+        formControlName="dataFim"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+      ></p-datepicker>
+
+      @if (unidadeOptions.length > 1) {
+        <p-multiselect
+          formControlName="unidades"
+          [options]="unidadeOptions"
+          optionLabel="label"
+          optionValue="value"
+          i18n-placeholder
+          placeholder="Unidades de Negócio"
+          [showToggleAll]="true"
+          [filter]="true"
+          display="chip"
+          styleClass="apm-multiselect"
+          (onChange)="onUnidadesChange()"
+        ></p-multiselect>
+      }
+
+      @if (setorOptions.length > 1) {
+        <p-multiselect
+          formControlName="setores"
+          [options]="setorOptions"
+          optionLabel="label"
+          optionValue="value"
+          i18n-placeholder
+          placeholder="Setores"
+          [showToggleAll]="true"
+          [filter]="true"
+          display="chip"
+          styleClass="apm-multiselect"
+        ></p-multiselect>
+      }
+
+      <p-button
+        i18n-label
+        label="Filtrar"
+        icon="pi pi-filter"
+        (onClick)="filtrar()"
+      ></p-button>
+    </form>
+
+    <!-- Gráfico de Evolução -->
+    <p-panel i18n-header header="Evolução" [toggleable]="true" [collapsed]="false" styleClass="apm-panel">
+      <div
+        echarts
+        [options]="chartOptions"
+        class="apm-chart"
+      ></div>
+    </p-panel>
+
+    <!-- Tabela Resumo -->
+    <p-panel i18n-header header="Resumo por Mês" [toggleable]="true" [collapsed]="false" styleClass="apm-panel">
+      <div class="apm-table-wrapper">
+        <table class="apm-table">
+          <thead>
+            <tr>
+              <th class="col-mes" i18n>Mês</th>
+              <th class="col-total" i18n>Atendimentos</th>
+              <th class="col-acumulado" i18n>Acumulado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (mes of mesesLabels; track mes; let i = $index) {
+              <tr>
+                <td class="col-mes">{{ mes }}</td>
+                <td class="col-total">{{ totaisPorMes[i] }}</td>
+                <td class="col-acumulado">{{ acumuladoPorMes[i] }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td class="col-mes" i18n>Total</td>
+              <td class="col-total">{{ totalGeral }}</td>
+              <td class="col-acumulado">{{ totalGeral }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </p-panel>
+
+  </div>
+</gi-app-base>

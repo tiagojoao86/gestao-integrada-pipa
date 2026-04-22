@@ -23,4 +23,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.DASHBOARD_FINANCEIRO_FLUXO_CAIXA,
     },
   },
+  {
+    path: 'atendimento-por-mes',
+    loadComponent: () =>
+      import('./atendimento-por-mes/atendimento-por-mes.component').then(
+        (app) => app.AtendimentoPorMesComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.DASHBOARD_ATENDIMENTO_POR_MES,
+    },
+  },
 ];

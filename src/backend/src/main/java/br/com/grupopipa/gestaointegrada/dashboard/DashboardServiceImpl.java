@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.grupopipa.gestaointegrada.atendimento.atendimento.AtendimentoRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
 import br.com.grupopipa.gestaointegrada.core.Session;
 import br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloRepository;
 
@@ -22,9 +25,16 @@ import br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloRepository;
 public class DashboardServiceImpl implements DashboardService {
 
     private final TituloRepository tituloRepository;
+    private final AtendimentoRepository atendimentoRepository;
+    private final SetorRepository setorRepository;
 
-    public DashboardServiceImpl(TituloRepository tituloRepository) {
+    public DashboardServiceImpl(
+            TituloRepository tituloRepository,
+            AtendimentoRepository atendimentoRepository,
+            SetorRepository setorRepository) {
         this.tituloRepository = tituloRepository;
+        this.atendimentoRepository = atendimentoRepository;
+        this.setorRepository = setorRepository;
     }
 
     @Override
@@ -63,5 +73,68 @@ public class DashboardServiceImpl implements DashboardService {
                         .total(p.getTotal() != null ? p.getTotal() : BigDecimal.ZERO)
                         .build())
                 .toList();
+    }
+
+    @Override
+    public List<SetorLookupItemDTO> getSetoresByUnidades(List<UUID> unidadeIds) {
+        Set<UUID> allowed = Session.getUnidadeNegocioIds();
+        Set<UUID> filteredUnidades = resolveUnidadeIds(unidadeIds, allowed);
+        if (filteredUnidades.isEmpty()) {
+            return List.of();
+        }
+        return setorRepository.findByUnidadeIds(filteredUnidades).stream()
+                .map(p -> SetorLookupItemDTO.builder().id(p.getId()).nome(p.getNome()).build())
+                .toList();
+    }
+
+    @Override
+    public List<AtendimentoMesItemDTO> getAtendimentosPorMes(
+            LocalDate dataInicio, LocalDate dataFim, List<UUID> unidadeIds, List<UUID> setorIds) {
+        Set<UUID> allowed = Session.getUnidadeNegocioIds();
+        Set<UUID> filteredUnidades = resolveUnidadeIds(unidadeIds, allowed);
+        Set<UUID> filteredSetores = resolveSetorIds(setorIds, filteredUnidades);
+        if (filteredSetores.isEmpty()) {
+            return List.of();
+        }
+        return atendimentoRepository
+                .findAtendimentosPorMes(dataInicio, dataFim, filteredSetores)
+                .stream()
+                .map(p -> AtendimentoMesItemDTO.builder()
+                        .mes(p.getMes())
+                        .total(p.getTotal() != null ? p.getTotal() : 0L)
+                        .build())
+                .toList();
+    }
+
+    private Set<UUID> resolveUnidadeIds(List<UUID> requested, Set<UUID> allowed) {
+        if (requested == null || requested.isEmpty()) {
+            return allowed;
+        }
+        if (allowed.isEmpty()) {
+            return Set.copyOf(requested);
+        }
+        Set<UUID> intersection = requested.stream()
+                .filter(allowed::contains)
+                .collect(Collectors.toSet());
+        return intersection.isEmpty() ? allowed : intersection;
+    }
+
+    private Set<UUID> resolveSetorIds(List<UUID> requested, Set<UUID> filteredUnidades) {
+        if (filteredUnidades.isEmpty()) {
+            return Set.of();
+        }
+        Set<UUID> allSetores = setorRepository.findByUnidadeIds(filteredUnidades).stream()
+                .map(SetorRepository.SetorLookupProjection::getId)
+                .collect(Collectors.toSet());
+        if (allSetores.isEmpty()) {
+            return Set.of();
+        }
+        if (requested == null || requested.isEmpty()) {
+            return allSetores;
+        }
+        Set<UUID> intersection = requested.stream()
+                .filter(allSetores::contains)
+                .collect(Collectors.toSet());
+        return intersection.isEmpty() ? allSetores : intersection;
     }
 }

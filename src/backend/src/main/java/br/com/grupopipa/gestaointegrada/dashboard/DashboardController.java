@@ -4,6 +4,7 @@ import static br.com.grupopipa.gestaointegrada.dashboard.DashboardConstants.R_DA
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,22 @@ public class DashboardController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
             @RequestParam(defaultValue = "COMPETENCIA") RegimeDFC regime) {
         return ResponseEntity.ok(service.getFluxoCaixaDetalhe(dataInicio, dataFim, regime));
+    }
+
+    @GetMapping("/atendimento/setores")
+    @PreAuthorize("hasAuthority('DASHBOARD_ATENDIMENTO_POR_MES_LISTAR')")
+    public ResponseEntity<List<SetorLookupItemDTO>> getSetoresByUnidades(
+            @RequestParam(required = false) List<UUID> unidadeIds) {
+        return ResponseEntity.ok(service.getSetoresByUnidades(unidadeIds));
+    }
+
+    @GetMapping("/atendimento/por-mes")
+    @PreAuthorize("hasAuthority('DASHBOARD_ATENDIMENTO_POR_MES_LISTAR')")
+    public ResponseEntity<List<AtendimentoMesItemDTO>> getAtendimentosPorMes(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+            @RequestParam(required = false) List<UUID> unidadeIds,
+            @RequestParam(required = false) List<UUID> setorIds) {
+        return ResponseEntity.ok(service.getAtendimentosPorMes(dataInicio, dataFim, unidadeIds, setorIds));
     }
 }
