@@ -512,3 +512,63 @@ p-datepicker {
   width: var(--icon-size) !important;
   height: var(--icon-size) !important;
 }
+
+.p-multiselect {
+  background-color: var(--inverted-text-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+
+  .p-multiselect-label {
+    color: var(--text-color) !important;
+    font-size: var(--text-size) !important;
+  }
+
+  .p-multiselect-dropdown {
+    color: var(--text-color) !important;
+  }
+}
+
+.p-multiselect:not(.p-disabled).p-focus {
+  border-color: var(--secondary-color) !important;
+  border-width: 2px !important;
+}
+
+.p-multiselect-overlay {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-multiselect-header {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+.p-multiselect-filter {
+  background-color: var(--inverted-text-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  font-size: var(--text-size) !important;
+}
+
+.p-multiselect-option {
+  color: var(--text-color) !important;
+  font-size: var(--text-size) !important;
+}
+
+.p-multiselect-option:not(.p-disabled).p-focus {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+}
+
+.p-multiselect-option.p-selected {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+}
+
+.p-multiselect-chip-item .p-chip {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+  font-size: var(--text-size) !important;
+}

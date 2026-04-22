@@ -59,7 +59,7 @@
 }
 
 .box-fieldset {
-  padding: 0.1rem;
+  padding: 0.2rem;
 }
 
 .section-divider {
@@ -70,7 +70,7 @@
 }
 
 .section-divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background-color: var(--p-surface-200);
@@ -84,4 +84,3 @@
   color: var(--p-text-muted-color);
   white-space: nowrap;
 }
-
