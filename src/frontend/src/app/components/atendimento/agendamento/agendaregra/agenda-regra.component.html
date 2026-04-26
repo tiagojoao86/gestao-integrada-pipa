@@ -1,0 +1,144 @@
+<section class="regras-section">
+
+  <div class="regras-header">
+    <h3 i18n>Regras de Horário</h3>
+    @if (!mostrarFormulario) {
+      <button pButton type="button" icon="pi pi-plus" class="p-button-sm"
+        i18n-label label="Nova Regra" (click)="novaRegra()"></button>
+    }
+  </div>
+
+  <!-- Alerta de conflitos -->
+  @if (conflitos.length > 0) {
+    <p-message severity="warn" styleClass="regras-conflito-alerta">
+      <span i18n>{{ conflitos.length }} conflito(s) de horário detectado(s) entre as regras desta agenda.</span>
+    </p-message>
+  }
+
+  <!-- Formulário de edição -->
+  @if (mostrarFormulario) {
+    <div class="regra-form form" [formGroup]="form">
+
+      <!-- Linha 1: Datas e Horários (4 × w-25) -->
+      <p-iftalabel class="w-25">
+        <p-datepicker inputId="dataInicio" [(ngModel)]="dataInicioTemp"
+          [ngModelOptions]="{standalone: true}"
+          dateFormat="dd/mm/yy" appendTo="body" />
+        <label for="dataInicio" i18n>Data Início *</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-datepicker inputId="dataFim" [(ngModel)]="dataFimTemp"
+          [ngModelOptions]="{standalone: true}"
+          dateFormat="dd/mm/yy" [showClear]="true" appendTo="body" />
+        <label for="dataFim" i18n>Data Fim</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-datepicker inputId="horaInicio" [(ngModel)]="horaInicioTemp"
+          [ngModelOptions]="{standalone: true}"
+          [timeOnly]="true" appendTo="body" />
+        <label for="horaInicio" i18n>Hora Início *</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-datepicker inputId="horaFim" [(ngModel)]="horaFimTemp"
+          [ngModelOptions]="{standalone: true}"
+          [timeOnly]="true" appendTo="body" />
+        <label for="horaFim" i18n>Hora Fim *</label>
+      </p-iftalabel>
+
+      <!-- Linha 2: Duração + Dias da Semana -->
+      <div class="form-row regra-duracao-dias">
+
+        <p-iftalabel class="w-25">
+          <p-inputnumber inputId="duracao" formControlName="duracaoSessaoMinutos"
+            [min]="1" [max]="480" suffix=" min" />
+          <label for="duracao" i18n>Duração (min) *</label>
+        </p-iftalabel>
+
+        <div class="dias-container">
+          <span class="dias-label" i18n>Dias (vazio = todos):</span>
+          <div class="dias-checkboxes">
+            @for (dia of diasSemanaOptions; track dia.key) {
+              <div class="dia-item">
+                <p-checkbox
+                  [(ngModel)]="diasSelecionados"
+                  [ngModelOptions]="{standalone: true}"
+                  [value]="dia.key"
+                  [inputId]="'dia-' + dia.key"
+                />
+                <label [for]="'dia-' + dia.key">{{ dia.label }}</label>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Linha 3: Convênios e Procedimentos (2 × w-50) -->
+      <p-iftalabel class="w-50">
+        <p-multiselect inputId="convenios" formControlName="convenioIds"
+          [options]="convenioOptions" optionLabel="nome" optionValue="id"
+          [showClear]="true" [filter]="true" appendTo="body" />
+        <label for="convenios" i18n>Convênios (opcional)</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-50">
+        <p-multiselect inputId="procedimentos" formControlName="procedimentoIds"
+          [options]="procedimentoOptions" optionLabel="descricao" optionValue="id"
+          [showClear]="true" [filter]="true" appendTo="body" />
+        <label for="procedimentos" i18n>Procedimentos (opcional)</label>
+      </p-iftalabel>
+
+      <!-- Ações do formulário -->
+      <div class="regra-form-actions w-100">
+        <button pButton type="button" icon="pi pi-times" class="p-button-secondary p-button-sm"
+          i18n-label label="Cancelar" (click)="cancelar()"></button>
+        <button pButton type="button" icon="pi pi-check" class="p-button-sm"
+          i18n-label label="Salvar Regra" (click)="salvar()"></button>
+      </div>
+
+    </div>
+  }
+
+  <!-- Lista de regras -->
+  @if (regras.length > 0) {
+    <p-table [value]="regras" styleClass="p-datatable-sm regras-table">
+      <ng-template pTemplate="header">
+        <tr>
+          <th i18n>Período</th>
+          <th i18n>Horário</th>
+          <th i18n>Duração</th>
+          <th i18n>Dias</th>
+          <th i18n>Convênios</th>
+          <th i18n>Procedimentos</th>
+          <th style="width: 80px"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-regra>
+        <tr [class.conflito-row]="temConflito(regra.id)">
+          <td>
+            {{ formatarData(regra.dataInicio) }}
+            @if (regra.dataFim) { <span> – {{ formatarData(regra.dataFim) }}</span> }
+            @if (!regra.dataFim) { <span i18n> (sem fim)</span> }
+          </td>
+          <td>{{ regra.horaInicio }} – {{ regra.horaFim }}</td>
+          <td>{{ regra.duracaoSessaoMinutos }} min</td>
+          <td>{{ regra.diasSemanaFormatado }}</td>
+          <td>{{ regra.qtdConvenios }}</td>
+          <td>{{ regra.qtdProcedimentos }}</td>
+          <td>
+            <button pButton type="button" icon="pi pi-pencil"
+              class="p-button-text p-button-sm" (click)="editarRegra(regra.id)"></button>
+            <button pButton type="button" icon="pi pi-trash"
+              class="p-button-text p-button-danger p-button-sm" (click)="excluir(regra.id)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else if (!mostrarFormulario) {
+    <p class="no-regras" i18n>Nenhuma regra configurada. Clique em "Nova Regra" para começar.</p>
+  }
+
+</section>

@@ -147,7 +147,19 @@ public enum DatabaseConstraintsEnum {
     FK_ATEND_PROC_ATENDIMENTO("Atendimento inválido."),
     FK_ATEND_PROC_PROCEDIMENTO("Procedimento inválido."),
     FK_ATEND_PROC_TABELA_ITEM("Item de tabela inválido."),
-    FK_ATEND_PROC_CONVENIO("Convênio inválido.");
+    FK_ATEND_PROC_CONVENIO("Convênio inválido."),
+
+    // ========================================
+    // MÓDULO AGENDAMENTO
+    // ========================================
+
+    // -------- Agenda --------
+    FK_AGENDA_PROFISSIONAL("Profissional inválido."),
+    FK_AGENDA_SETOR("Setor inválido."),
+    // -------- AgendaRegra --------
+    FK_AGENDA_REGRA_AGENDA("Agenda inválida."),
+    FK_AGENDA_REGRA_CONV_CONVENIO("Convênio inválido."),
+    FK_AGENDA_REGRA_PROC_PROCEDIMENTO("Procedimento inválido.");
 
     private final String message;
 

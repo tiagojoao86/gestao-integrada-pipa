@@ -76,4 +76,13 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.ATENDIMENTO,
     },
   },
+  {
+    path: 'agendamento/agenda',
+    loadComponent: () =>
+      import('./agendamento/agenda/agenda.component').then((app) => app.AgendaComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.AGENDAMENTO_AGENDA,
+    },
+  },
 ];

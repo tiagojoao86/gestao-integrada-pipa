@@ -74,30 +74,40 @@ src/frontend/src/app/
 
 ### Entidade (Backend)
 
+A validação **sempre** fica em uma classe separada `*Validator.java` — NUNCA como inner class da entidade.
+
 ```java
-@Entity
-@Table(name = "minha_entidade")
-public class MinhaEntidade extends BaseEntity {
-    @Embedded
-    private Nome nome;  // Value Object
+// MinhaEntidadeValidator.java (classe separada, no mesmo pacote pai da entidade)
+public class MinhaEntidadeValidator {
+    private MinhaEntidadeValidator() {}
 
-    private MinhaEntidade(Nome nome) { this.nome = nome; }
-    protected MinhaEntidade() {} // JPA
-
-    private static class ValidatedData {
-        final Nome nome;
-        ValidatedData(Nome nome) { this.nome = nome; }
-    }
-
-    private static ValidatedData validate(String nomeStr) {
+    public static ValidatedData validate(String nomeStr) {
         Set<BeanValidationMessage> violations = new HashSet<>();
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
         if (!violations.isEmpty()) throw new BeanValidationException("minhaEntidade", violations);
         return new ValidatedData(nome);
     }
 
+    public static class ValidatedData {
+        public final Nome nome;
+        ValidatedData(Nome nome) { this.nome = nome; }
+    }
+}
+```
+
+```java
+// MinhaEntidade.java
+@Entity
+@Table(name = "minha_entidade")
+public class MinhaEntidade extends BaseEntity {
+    @Embedded
+    private Nome nome;  // Value Object
+
+    private MinhaEntidade(MinhaEntidadeValidator.ValidatedData data) { this.nome = data.nome; }
+    protected MinhaEntidade() {} // JPA
+
     public void atualizar(String nomeStr) {
-        ValidatedData data = validate(nomeStr);
+        MinhaEntidadeValidator.ValidatedData data = MinhaEntidadeValidator.validate(nomeStr);
         this.nome = data.nome;
     }
 
@@ -107,8 +117,7 @@ public class MinhaEntidade extends BaseEntity {
         private String nome;
         public Builder nome(String nome) { this.nome = nome; return this; }
         public MinhaEntidade build() {
-            ValidatedData data = validate(this.nome);
-            return new MinhaEntidade(data.nome);
+            return new MinhaEntidade(MinhaEntidadeValidator.validate(this.nome));
         }
     }
 }

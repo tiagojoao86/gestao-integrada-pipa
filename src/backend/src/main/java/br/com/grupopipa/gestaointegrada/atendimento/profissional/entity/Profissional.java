@@ -1,13 +1,9 @@
 package br.com.grupopipa.gestaointegrada.atendimento.profissional.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import br.com.grupopipa.gestaointegrada.atendimento.profissional.ProfissionalValidator;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.TipoRemuneracao;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -54,7 +50,7 @@ public class Profissional extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
-    private Profissional(ValidatedData data) {
+    private Profissional(ProfissionalValidator.ValidatedData data) {
         this.pessoa = data.pessoa;
         this.conselho = data.conselho;
         this.codigoConselho = data.codigoConselho;
@@ -67,83 +63,6 @@ public class Profissional extends BaseEntity {
     }
 
     protected Profissional() {
-    }
-
-    // =========================================================================
-    // ValidatedData
-    // =========================================================================
-
-    private static class ValidatedData {
-        final Pessoa pessoa;
-        final String conselho;
-        final String codigoConselho;
-        final TipoRemuneracao tipoRemuneracao;
-        final String banco;
-        final String conta;
-        final String chavePix;
-        final String uf;
-        final Boolean ativo;
-
-        ValidatedData(
-            Pessoa pessoa,
-            String conselho,
-            String codigoConselho,
-            TipoRemuneracao tipoRemuneracao,
-            String banco,
-            String conta,
-            String chavePix,
-            String uf,
-            Boolean ativo
-        ) {
-            this.pessoa = pessoa;
-            this.conselho = conselho;
-            this.codigoConselho = codigoConselho;
-            this.tipoRemuneracao = tipoRemuneracao;
-            this.banco = banco;
-            this.conta = conta;
-            this.chavePix = chavePix;
-            this.uf = uf;
-            this.ativo = ativo;
-        }
-    }
-
-    private static ValidatedData validate(
-        Pessoa pessoa,
-        String conselho,
-        String codigoConselho,
-        TipoRemuneracao tipoRemuneracao,
-        String banco,
-        String conta,
-        String chavePix,
-        String uf,
-        Boolean ativo
-    ) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        if (pessoa == null) {
-            violations.add(new BeanValidationMessage("pessoa", "Pessoa é obrigatória."));
-        }
-        if (conselho == null || conselho.isBlank()) {
-            violations.add(new BeanValidationMessage("conselho", "Conselho é obrigatório."));
-        }
-        if (codigoConselho == null || codigoConselho.isBlank()) {
-            violations.add(
-                new BeanValidationMessage("codigoConselho", "Código do conselho é obrigatório.")
-            );
-        }
-        if (tipoRemuneracao == null) {
-            violations.add(
-                new BeanValidationMessage("tipoRemuneracao", "Tipo de remuneração é obrigatório.")
-            );
-        }
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("profissional", violations);
-        }
-
-        return new ValidatedData(
-            pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, uf, ativo
-        );
     }
 
     // =========================================================================
@@ -207,10 +126,8 @@ public class Profissional extends BaseEntity {
         }
 
         public Profissional build() {
-            ValidatedData data = validate(
-                pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, uf, ativo
-            );
-            return new Profissional(data);
+            return new Profissional(ProfissionalValidator.validate(
+                pessoa, conselho, codigoConselho, tipoRemuneracao, banco, conta, chavePix, uf, ativo));
         }
     }
 
@@ -219,20 +136,18 @@ public class Profissional extends BaseEntity {
     // =========================================================================
 
     public void atualizar(
-        Pessoa pessoaArg,
-        String conselhoArg,
-        String codigoConselhoArg,
-        TipoRemuneracao tipoRemuneracaoArg,
-        String bancoArg,
-        String contaArg,
-        String chavePixArg,
-        String ufArg,
-        Boolean ativoArg
-    ) {
-        ValidatedData data = validate(
+            Pessoa pessoaArg,
+            String conselhoArg,
+            String codigoConselhoArg,
+            TipoRemuneracao tipoRemuneracaoArg,
+            String bancoArg,
+            String contaArg,
+            String chavePixArg,
+            String ufArg,
+            Boolean ativoArg) {
+        ProfissionalValidator.ValidatedData data = ProfissionalValidator.validate(
             pessoaArg, conselhoArg, codigoConselhoArg, tipoRemuneracaoArg,
-            bancoArg, contaArg, chavePixArg, ufArg, ativoArg
-        );
+            bancoArg, contaArg, chavePixArg, ufArg, ativoArg);
         this.pessoa = data.pessoa;
         this.conselho = data.conselho;
         this.codigoConselho = data.codigoConselho;
@@ -246,7 +161,10 @@ public class Profissional extends BaseEntity {
         }
     }
 
+    // =========================================================================
     // Getters
+    // =========================================================================
+
     public Pessoa getPessoa() {
         return pessoa;
     }

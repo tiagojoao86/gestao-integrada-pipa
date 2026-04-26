@@ -1,0 +1,8 @@
+@if (viewMode === 'GRID') {
+  <gi-agenda-grid (openDetail)="openDetail($event)"></gi-agenda-grid>
+} @else {
+  <gi-agenda-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-agenda-detalhe>
+}

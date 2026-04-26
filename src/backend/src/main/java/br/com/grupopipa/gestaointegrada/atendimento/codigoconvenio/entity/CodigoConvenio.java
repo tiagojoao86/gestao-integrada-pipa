@@ -1,14 +1,9 @@
 package br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.CodigoConvenioValidator;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,42 +35,13 @@ public class CodigoConvenio extends BaseEntity {
     @Column(name = "codigo", length = 30, nullable = false)
     private String codigo;
 
-    private CodigoConvenio(ValidatedData data) {
+    private CodigoConvenio(CodigoConvenioValidator.ValidatedData data) {
         this.convenio = data.convenio;
         this.procedimento = data.procedimento;
         this.codigo = data.codigo;
     }
 
     protected CodigoConvenio() {
-    }
-
-    // =========================================================================
-    // Validation
-    // =========================================================================
-
-    private static class ValidatedData {
-        final Convenio convenio;
-        final Procedimento procedimento;
-        final String codigo;
-
-        ValidatedData(Convenio convenio, Procedimento procedimento, String codigo) {
-            this.convenio = convenio;
-            this.procedimento = procedimento;
-            this.codigo = codigo;
-        }
-    }
-
-    private static ValidatedData validate(Convenio convenio, Procedimento procedimento, String codigo) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(convenio, "convenio", violations).notNull();
-        Validator.of(procedimento, "procedimento", violations).notNull();
-        Validator.of(codigo, "codigo", violations).notNull().maxLength(30);
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("codigoConvenio", violations);
-        }
-        return new ValidatedData(convenio, procedimento, codigo);
     }
 
     // =========================================================================
@@ -103,8 +69,8 @@ public class CodigoConvenio extends BaseEntity {
         }
 
         public CodigoConvenio build() {
-            ValidatedData data = validate(convenio, procedimento, codigo);
-            return new CodigoConvenio(data);
+            return new CodigoConvenio(
+                CodigoConvenioValidator.validate(convenio, procedimento, codigo));
         }
     }
 
@@ -113,12 +79,9 @@ public class CodigoConvenio extends BaseEntity {
     // =========================================================================
 
     public void atualizar(String novoCodigo) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-        Validator.of(novoCodigo, "codigo", violations).notNull().maxLength(30);
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("codigoConvenio", violations);
-        }
-        this.codigo = novoCodigo;
+        CodigoConvenioValidator.ValidatedData data =
+            CodigoConvenioValidator.validate(this.convenio, this.procedimento, novoCodigo);
+        this.codigo = data.codigo;
     }
 
     // =========================================================================

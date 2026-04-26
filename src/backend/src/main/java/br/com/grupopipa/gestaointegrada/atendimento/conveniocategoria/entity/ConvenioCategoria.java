@@ -1,15 +1,9 @@
 package br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
+import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.ConvenioCategoriaValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -39,7 +33,7 @@ public class ConvenioCategoria extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
-    private ConvenioCategoria(ValidatedData data) {
+    private ConvenioCategoria(ConvenioCategoriaValidator.ValidatedData data) {
         this.convenio = data.convenio;
         this.nome = data.nome;
         this.codigoAnsPlano = data.codigoAnsPlano;
@@ -47,43 +41,6 @@ public class ConvenioCategoria extends BaseEntity {
     }
 
     protected ConvenioCategoria() {
-    }
-
-    // =========================================================================
-    // ValidatedData
-    // =========================================================================
-
-    private static class ValidatedData {
-        final Convenio convenio;
-        final Nome nome;
-        final String codigoAnsPlano;
-        final Boolean ativo;
-
-        ValidatedData(Convenio convenio, Nome nome, String codigoAnsPlano, Boolean ativo) {
-            this.convenio = convenio;
-            this.nome = nome;
-            this.codigoAnsPlano = codigoAnsPlano;
-            this.ativo = ativo;
-        }
-    }
-
-    private static ValidatedData validate(
-        Convenio convenio,
-        String nomeStr,
-        String codigoAnsPlano,
-        Boolean ativo
-    ) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(convenio, "convenio", violations).notNull();
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Validator.of(codigoAnsPlano, "codigoAnsPlano", violations).maxLength(20);
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("convenioCategoria", violations);
-        }
-
-        return new ValidatedData(convenio, nome, codigoAnsPlano, ativo);
     }
 
     // =========================================================================
@@ -117,8 +74,8 @@ public class ConvenioCategoria extends BaseEntity {
         }
 
         public ConvenioCategoria build() {
-            ValidatedData data = validate(convenio, nome, codigoAnsPlano, ativo);
-            return new ConvenioCategoria(data);
+            return new ConvenioCategoria(
+                ConvenioCategoriaValidator.validate(convenio, nome, codigoAnsPlano, ativo));
         }
     }
 
@@ -127,7 +84,8 @@ public class ConvenioCategoria extends BaseEntity {
     // =========================================================================
 
     public void atualizar(Convenio convenioArg, String nomeStr, String codigoAnsPlanoArg, Boolean ativoArg) {
-        ValidatedData data = validate(convenioArg, nomeStr, codigoAnsPlanoArg, ativoArg);
+        ConvenioCategoriaValidator.ValidatedData data =
+            ConvenioCategoriaValidator.validate(convenioArg, nomeStr, codigoAnsPlanoArg, ativoArg);
         this.convenio = data.convenio;
         this.nome = data.nome;
         this.codigoAnsPlano = data.codigoAnsPlano;
@@ -136,7 +94,10 @@ public class ConvenioCategoria extends BaseEntity {
         }
     }
 
+    // =========================================================================
     // Getters
+    // =========================================================================
+
     public Convenio getConvenio() {
         return convenio;
     }

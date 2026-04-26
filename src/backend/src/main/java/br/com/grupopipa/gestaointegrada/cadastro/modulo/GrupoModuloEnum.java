@@ -4,5 +4,6 @@ public enum GrupoModuloEnum {
     CADASTROS,
     FINANCEIRO,
     DASHBOARDS,
-    ATENDIMENTO;
+    ATENDIMENTO,
+    AGENDAMENTO;
 }

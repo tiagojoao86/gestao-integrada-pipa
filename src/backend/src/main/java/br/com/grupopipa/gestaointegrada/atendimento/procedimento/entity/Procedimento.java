@@ -1,12 +1,7 @@
 package br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -31,7 +26,7 @@ public class Procedimento extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
-    private Procedimento(ValidatedData data) {
+    private Procedimento(ProcedimentoValidator.ValidatedData data) {
         this.codigo = data.codigo;
         this.codigoTiss = data.codigoTiss;
         this.codigoTuss = data.codigoTuss;
@@ -40,41 +35,6 @@ public class Procedimento extends BaseEntity {
     }
 
     protected Procedimento() {
-    }
-
-    // =========================================================================
-    // Validation
-    // =========================================================================
-
-    private static class ValidatedData {
-        final String codigo;
-        final String codigoTiss;
-        final String codigoTuss;
-        final String descricao;
-        final Boolean ativo;
-
-        ValidatedData(String codigo, String codigoTiss, String codigoTuss, String descricao, Boolean ativo) {
-            this.codigo = codigo;
-            this.codigoTiss = codigoTiss;
-            this.codigoTuss = codigoTuss;
-            this.descricao = descricao;
-            this.ativo = ativo;
-        }
-    }
-
-    private static ValidatedData validate(
-            String codigo, String codigoTiss, String codigoTuss, String descricao, Boolean ativo) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(codigo, "codigo", violations).notNull().maxLength(30);
-        Validator.of(descricao, "descricao", violations).notNull().maxLength(200);
-        Validator.of(codigoTiss, "codigoTiss", violations).maxLength(20);
-        Validator.of(codigoTuss, "codigoTuss", violations).maxLength(20);
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("procedimento", violations);
-        }
-        return new ValidatedData(codigo, codigoTiss, codigoTuss, descricao, ativo);
     }
 
     // =========================================================================
@@ -114,8 +74,8 @@ public class Procedimento extends BaseEntity {
         }
 
         public Procedimento build() {
-            ValidatedData data = validate(codigo, codigoTiss, codigoTuss, descricao, ativo);
-            return new Procedimento(data);
+            return new Procedimento(
+                ProcedimentoValidator.validate(codigo, codigoTiss, codigoTuss, descricao, ativo));
         }
     }
 
@@ -126,7 +86,8 @@ public class Procedimento extends BaseEntity {
     public void atualizar(
             String codigoArg, String codigoTissArg, String codigoTussArg,
             String descricaoArg, Boolean ativoArg) {
-        ValidatedData data = validate(codigoArg, codigoTissArg, codigoTussArg, descricaoArg, ativoArg);
+        ProcedimentoValidator.ValidatedData data =
+            ProcedimentoValidator.validate(codigoArg, codigoTissArg, codigoTussArg, descricaoArg, ativoArg);
         this.codigo = data.codigo;
         this.codigoTiss = data.codigoTiss;
         this.codigoTuss = data.codigoTuss;

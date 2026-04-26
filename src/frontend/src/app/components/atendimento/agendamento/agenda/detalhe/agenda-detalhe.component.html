@@ -1,0 +1,56 @@
+<gi-app-base [title]="titulo" [actions]="toolbarActions" [goBackFn]="goBackFn.bind(this)">
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Nome -->
+      <p-iftalabel class="w-50">
+        <input pInputText id="nome" formControlName="nome" />
+        <label for="nome" i18n>Nome</label>
+        @if (isInvalid('nome')) {
+          <small class="p-error" i18n>Nome é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Profissional -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="profissionalLabel"
+          [entityLabel]="profissionalSelecionado?.pessoaNome ?? null"
+          [searchConfig]="profissionalSearchConfig"
+          (entitySearch)="pesquisarProfissional()"
+          (entitySelected)="onProfissionalSelected($event)"
+          (remove)="limparProfissional()"
+        />
+        @if (isInvalid('profissionalId')) {
+          <small class="p-error" i18n>Profissional é obrigatório.</small>
+        }
+      </div>
+
+      <!-- Setor -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="setorLabel"
+          [entityLabel]="setorSelecionado?.nome ?? null"
+          [searchConfig]="setorSearchConfig"
+          (entitySearch)="pesquisarSetor()"
+          (entitySelected)="onSetorSelected($event)"
+          (remove)="limparSetor()"
+        />
+        @if (isInvalid('setorId')) {
+          <small class="p-error" i18n>Setor é obrigatório.</small>
+        }
+      </div>
+
+      <!-- Ativo -->
+      <div class="checkbox-field w-50">
+        <p-checkbox formControlName="ativo" [binary]="true" inputId="ativoAgenda" />
+        <label for="ativoAgenda" i18n>Ativo</label>
+      </div>
+
+    </div>
+
+    @if (detailId && detailId !== 'add') {
+      <gi-agenda-regra [agendaId]="detailId.toString()"></gi-agenda-regra>
+    }
+  </div>
+</gi-app-base>

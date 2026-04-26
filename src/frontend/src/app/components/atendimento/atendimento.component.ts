@@ -20,21 +20,39 @@ export class AtendimentoComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const atendimentos: SystemModule[] = [];
+    this.buildGrupoAtendimento();
+    this.buildGrupoAgendamento();
+  }
+
+  private buildGrupoAtendimento(): void {
+    const modulos: SystemModule[] = [];
 
     if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO)) {
-      atendimentos.push({
+      modulos.push({
         name: $localize`Atendimentos`,
         icon: 'event_note',
         url: '/atendimento/atendimento',
       });
     }
 
-    if (atendimentos.length > 0) {
-      this.systemModules.push({
-        name: $localize`Atendimento`,
-        systemModules: atendimentos,
+    if (modulos.length > 0) {
+      this.systemModules.push({ name: $localize`Atendimento`, systemModules: modulos });
+    }
+  }
+
+  private buildGrupoAgendamento(): void {
+    const modulos: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.AGENDAMENTO_AGENDA)) {
+      modulos.push({
+        name: $localize`Agendas`,
+        icon: 'calendar_month',
+        url: '/atendimento/agendamento/agenda',
       });
+    }
+
+    if (modulos.length > 0) {
+      this.systemModules.push({ name: $localize`Agendamento`, systemModules: modulos });
     }
   }
 }

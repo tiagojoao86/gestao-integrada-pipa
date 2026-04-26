@@ -45,3 +45,4 @@ target/
 
 #Others
 caixa-pipa-para-analise.xlsx
+.playwright-mcp/

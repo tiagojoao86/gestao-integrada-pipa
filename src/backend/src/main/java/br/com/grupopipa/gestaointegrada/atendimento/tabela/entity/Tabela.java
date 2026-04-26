@@ -1,14 +1,8 @@
 package br.com.grupopipa.gestaointegrada.atendimento.tabela.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import br.com.grupopipa.gestaointegrada.atendimento.tabela.TabelaValidator;
 import br.com.grupopipa.gestaointegrada.atendimento.tabela.TipoTabela;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.ValidationUtils;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -31,41 +25,13 @@ public class Tabela extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
-    private Tabela(ValidatedData data) {
+    private Tabela(TabelaValidator.ValidatedData data) {
         this.nome = data.nome;
         this.tipo = data.tipo;
         this.ativo = data.ativo != null ? data.ativo : true;
     }
 
     protected Tabela() {
-    }
-
-    // =========================================================================
-    // Validation
-    // =========================================================================
-
-    private static class ValidatedData {
-        final Nome nome;
-        final TipoTabela tipo;
-        final Boolean ativo;
-
-        ValidatedData(Nome nome, TipoTabela tipo, Boolean ativo) {
-            this.nome = nome;
-            this.tipo = tipo;
-            this.ativo = ativo;
-        }
-    }
-
-    private static ValidatedData validate(String nomeStr, TipoTabela tipo, Boolean ativo) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Validator.of(tipo, "tipo", violations).notNull();
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("tabela", violations);
-        }
-        return new ValidatedData(nome, tipo, ativo);
     }
 
     // =========================================================================
@@ -93,8 +59,7 @@ public class Tabela extends BaseEntity {
         }
 
         public Tabela build() {
-            ValidatedData data = validate(nome, tipo, ativo);
-            return new Tabela(data);
+            return new Tabela(TabelaValidator.validate(nome, tipo, ativo));
         }
     }
 
@@ -103,7 +68,7 @@ public class Tabela extends BaseEntity {
     // =========================================================================
 
     public void atualizar(String nomeStr, TipoTabela tipo, Boolean ativo) {
-        ValidatedData data = validate(nomeStr, tipo, ativo);
+        TabelaValidator.ValidatedData data = TabelaValidator.validate(nomeStr, tipo, ativo);
         this.nome = data.nome;
         this.tipo = data.tipo;
         if (data.ativo != null) {

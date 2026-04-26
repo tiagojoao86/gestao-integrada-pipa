@@ -2,19 +2,15 @@ package br.com.grupopipa.gestaointegrada.atendimento.atendimento.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.atendimento.atendimento.AtendimentoValidator;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.entity.Profissional;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
-import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
-import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -79,7 +75,7 @@ public class Atendimento extends BaseEntity {
         fetch = FetchType.LAZY)
     private List<AtendimentoProcedimento> procedimentos = new ArrayList<>();
 
-    private Atendimento(ValidatedData data) {
+    private Atendimento(AtendimentoValidator.ValidatedData data) {
         this.dataInicio = data.dataInicio;
         this.dataFim = data.dataFim;
         this.setor = data.setor;
@@ -93,79 +89,6 @@ public class Atendimento extends BaseEntity {
     }
 
     protected Atendimento() {
-    }
-
-    // =========================================================================
-    // Validation
-    // =========================================================================
-
-    private static class ValidatedData {
-        final LocalDateTime dataInicio;
-        final LocalDateTime dataFim;
-        final Setor setor;
-        final Pessoa paciente;
-        final Pessoa responsavel;
-        final Convenio convenio;
-        final ConvenioCategoria convenioCategoria;
-        final Profissional profissionalAtendimento;
-        final Profissional profissionalResponsavel;
-        final String observacoes;
-
-        ValidatedData(
-            LocalDateTime dataInicio,
-            LocalDateTime dataFim,
-            Setor setor,
-            Pessoa paciente,
-            Pessoa responsavel,
-            Convenio convenio,
-            ConvenioCategoria convenioCategoria,
-            Profissional profissionalAtendimento,
-            Profissional profissionalResponsavel,
-            String observacoes
-        ) {
-            this.dataInicio = dataInicio;
-            this.dataFim = dataFim;
-            this.setor = setor;
-            this.paciente = paciente;
-            this.responsavel = responsavel;
-            this.convenio = convenio;
-            this.convenioCategoria = convenioCategoria;
-            this.profissionalAtendimento = profissionalAtendimento;
-            this.profissionalResponsavel = profissionalResponsavel;
-            this.observacoes = observacoes;
-        }
-    }
-
-    private static ValidatedData validate(
-        LocalDateTime dataInicio,
-        LocalDateTime dataFim,
-        Setor setor,
-        Pessoa paciente,
-        Pessoa responsavel,
-        Convenio convenio,
-        ConvenioCategoria convenioCategoria,
-        Profissional profissionalAtendimento,
-        Profissional profissionalResponsavel,
-        String observacoes
-    ) {
-        Set<BeanValidationMessage> violations = new HashSet<>();
-
-        Validator.of(dataInicio, "dataInicio", violations).notNull();
-        Validator.of(dataFim, "dataFim", violations).notNull();
-        Validator.of(setor, "setor", violations).notNull();
-        Validator.of(paciente, "paciente", violations).notNull();
-        Validator.of(profissionalAtendimento, "profissionalAtendimento", violations).notNull();
-        Validator.of(profissionalResponsavel, "profissionalResponsavel", violations).notNull();
-
-        if (!violations.isEmpty()) {
-            throw new BeanValidationException("atendimento", violations);
-        }
-        return new ValidatedData(
-            dataInicio, dataFim, setor, paciente, responsavel,
-            convenio, convenioCategoria,
-            profissionalAtendimento, profissionalResponsavel,
-            observacoes
-        );
     }
 
     // =========================================================================
@@ -235,13 +158,11 @@ public class Atendimento extends BaseEntity {
         }
 
         public Atendimento build() {
-            ValidatedData data = validate(
+            return new Atendimento(AtendimentoValidator.validate(
                 dataInicio, dataFim, setor, paciente, responsavel,
                 convenio, convenioCategoria,
                 profissionalAtendimento, profissionalResponsavel,
-                observacoes
-            );
-            return new Atendimento(data);
+                observacoes));
         }
     }
 
@@ -250,23 +171,21 @@ public class Atendimento extends BaseEntity {
     // =========================================================================
 
     public void atualizar(
-        LocalDateTime dataInicio,
-        LocalDateTime dataFim,
-        Setor setor,
-        Pessoa paciente,
-        Pessoa responsavel,
-        Convenio convenio,
-        ConvenioCategoria convenioCategoria,
-        Profissional profissionalAtendimento,
-        Profissional profissionalResponsavel,
-        String observacoes
-    ) {
-        ValidatedData data = validate(
+            LocalDateTime dataInicio,
+            LocalDateTime dataFim,
+            Setor setor,
+            Pessoa paciente,
+            Pessoa responsavel,
+            Convenio convenio,
+            ConvenioCategoria convenioCategoria,
+            Profissional profissionalAtendimento,
+            Profissional profissionalResponsavel,
+            String observacoes) {
+        AtendimentoValidator.ValidatedData data = AtendimentoValidator.validate(
             dataInicio, dataFim, setor, paciente, responsavel,
             convenio, convenioCategoria,
             profissionalAtendimento, profissionalResponsavel,
-            observacoes
-        );
+            observacoes);
         this.dataInicio = data.dataInicio;
         this.dataFim = data.dataFim;
         this.setor = data.setor;

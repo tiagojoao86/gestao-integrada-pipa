@@ -1,0 +1,101 @@
+.regras-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.regras-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.regras-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.regra-form {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Faz p-multiselect preencher o p-iftalabel container */
+p-multiselect {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+p-multiselect ::ng-deep .p-multiselect-label-container {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Linha 2: duração + dias da semana */
+.regra-duracao-dias {
+  align-items: stretch;
+}
+
+.dias-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding-left: 0.75rem;
+}
+
+.dias-label {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  line-height: 1.2;
+}
+
+.dias-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dia-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.regra-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.regras-table {
+  margin-top: 0.5rem;
+}
+
+.conflito-row td {
+  background-color: color-mix(in srgb, var(--yellow-100) 30%, transparent);
+}
+
+.no-regras {
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.regras-conflito-alerta {
+  margin-bottom: 1rem;
+  display: block;
+}
