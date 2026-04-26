@@ -1,0 +1,156 @@
+<gi-app-base [title]="titulo" [actions]="toolbarActions" [goBackFn]="goBackFn.bind(this)">
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      @if (somenteLeitura) {
+        <div class="w-100" style="margin-bottom: 0.5rem;">
+          <p-message severity="warn" i18n-text text="Data passada — apenas visualização." />
+        </div>
+      }
+
+      <!-- Calendar mode: slot pre-filled from calendar view -->
+      @if (calendarMode) {
+        <div class="calendar-slot-header w-100">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ formatarSlotHeader() }}</span>
+        </div>
+      }
+
+      <!-- Agenda selector (hidden in calendar mode) -->
+      @if (!calendarMode) {
+        <div class="w-50 box-fieldset">
+          <gi-entity-field
+            [label]="agendaLabel"
+            [entityLabel]="agendaSelecionada?.nome ?? null"
+            [searchConfig]="agendaSearchConfig"
+            (entitySearch)="pesquisarAgenda()"
+            (entitySelected)="onAgendaSelected($event)"
+            (remove)="limparAgenda()"
+          />
+          @if (isInvalid('agendaId')) {
+            <small class="p-error" i18n>Agenda é obrigatória.</small>
+          }
+        </div>
+      }
+
+      <!-- Paciente -->
+      <div [class]="calendarMode ? 'w-100 box-fieldset' : 'w-50 box-fieldset'">
+        <gi-entity-field
+          [label]="pacienteLabel"
+          [entityLabel]="pacienteSelecionado?.nome ?? null"
+          [searchConfig]="pacienteSearchConfig"
+          (entitySearch)="pesquisarPaciente()"
+          (entitySelected)="onPacienteSelected($event)"
+          (remove)="limparPaciente()"
+        />
+        @if (isInvalid('pacienteId')) {
+          <small class="p-error" i18n>Paciente é obrigatório.</small>
+        }
+      </div>
+
+      <!-- Period + Buscar Slots (hidden in calendar mode) -->
+      @if (!calendarMode) {
+        <div class="periodo-slots w-100">
+          <div class="periodo-slot-field">
+            <p-datepicker
+              [(ngModel)]="dataInicio"
+              [ngModelOptions]="{standalone: true}"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              placeholder="Data início"
+              styleClass="w-100"
+            />
+          </div>
+          <div class="periodo-slot-field">
+            <p-datepicker
+              [(ngModel)]="dataFim"
+              [ngModelOptions]="{standalone: true}"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              placeholder="Data fim"
+              styleClass="w-100"
+            />
+          </div>
+          <button
+            type="button"
+            class="buscar-slots-btn"
+            (click)="buscarSlots()"
+            [disabled]="carregandoSlots"
+          >
+            <span class="material-symbols-outlined">search</span>
+            <span i18n>Buscar Slots</span>
+          </button>
+        </div>
+
+        <!-- Slots grid (only in non-calendar mode) -->
+        @if (slots.length > 0) {
+          <div class="slots-container w-100">
+            <span class="slots-titulo" i18n>Horários disponíveis — clique para selecionar</span>
+            <div class="slots-grid">
+              @for (slot of slots; track slot.dataHoraInicio) {
+                <div
+                  [class]="getSlotClass(slot)"
+                  (click)="toggleSlot(slot)"
+                  [title]="slot.livre ? 'Livre' : 'Ocupado'"
+                >
+                  {{ formatarSlot(slot) }}
+                </div>
+              }
+            </div>
+            @if (slotsSelecionados.length > 0) {
+              <span class="slots-count">
+                {{ slotsSelecionados.length }} horário(s) selecionado(s)
+              </span>
+            }
+          </div>
+        }
+      }
+
+      <!-- Conflitos de paciente -->
+      @if (conflitos.length > 0) {
+        <div class="w-100" style="margin-bottom: 0.5rem;">
+          <p-message
+            severity="warn"
+            [text]="'Atenção: o paciente possui ' + conflitos.length + ' agendamento(s) neste período.'"
+          />
+        </div>
+      }
+
+      <!-- Convênio | Procedimento -->
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="convenioLabel"
+          [entityLabel]="convenioSelecionado?.nome ?? null"
+          [searchConfig]="convenioSearchConfig"
+          (entitySearch)="pesquisarConvenio()"
+          (entitySelected)="onConvenioSelected($event)"
+          (remove)="limparConvenio()"
+        />
+      </div>
+
+      <div class="w-50 box-fieldset">
+        <gi-entity-field
+          [label]="procedimentoLabel"
+          [entityLabel]="procedimentoSelecionado?.descricao ?? null"
+          [searchConfig]="procedimentoSearchConfig"
+          (entitySearch)="pesquisarProcedimento()"
+          (entitySelected)="onProcedimentoSelected($event)"
+          (remove)="limparProcedimento()"
+        />
+      </div>
+
+      <!-- Observação -->
+      <p-iftalabel class="w-100">
+        <textarea
+          pTextarea
+          id="observacao"
+          formControlName="observacao"
+          rows="3"
+          style="width:100%"
+        ></textarea>
+        <label for="observacao" i18n>Observação</label>
+      </p-iftalabel>
+
+    </div>
+  </div>
+</gi-app-base>

@@ -1,0 +1,121 @@
+.calendar-slot-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background-color: var(--item-transparency);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.calendar-slot-header .material-symbols-outlined {
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+}
+
+.periodo-slots {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0 0.75rem 0;
+  flex-wrap: nowrap;
+}
+
+.periodo-slot-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.buscar-slots-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--text-size);
+  font-family: inherit;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.buscar-slots-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.buscar-slots-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buscar-slots-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.slots-container {
+  padding: 0.5rem 0 0.75rem 0;
+}
+
+.slots-titulo {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  color: var(--input-label-color);
+  font-size: 0.85rem;
+}
+
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.slot {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  user-select: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.slot--livre {
+  background-color: var(--content);
+  border-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.slot--livre:hover {
+  background-color: rgba(61, 104, 159, 0.08);
+}
+
+.slot--selecionado {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+}
+
+.slot--ocupado {
+  background-color: var(--item-transparency);
+  border-color: transparent;
+  color: var(--input-label-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.slots-count {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+  font-weight: 500;
+}

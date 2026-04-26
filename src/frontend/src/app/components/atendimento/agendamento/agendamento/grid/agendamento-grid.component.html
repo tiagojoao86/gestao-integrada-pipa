@@ -1,0 +1,27 @@
+<gi-app-base [title]="titulo" [actions]="toolbarActions" [hideFooter]="false">
+  <div body-content>
+    <gi-filter-component
+      [filters]="filterProperties"
+      [hidden]="hideFilters"
+      (filterEvent)="filter($event)"
+      (cancelEvent)="closeFilter()"
+    ></gi-filter-component>
+
+    <gi-table-component
+      [columns]="columns"
+      [data]="rows"
+      [actions]="tableActions"
+    ></gi-table-component>
+  </div>
+
+  <div footer-content>
+    @if (showAuditInfo && auditInfoData) {
+      <gi-audit-info [auditData]="auditInfoData" (closeEvent)="closeAuditInfo()"></gi-audit-info>
+    }
+    <gi-pagination-component
+      [itemsPerPage]="itensPorPagina"
+      [totalElements]="totalElements"
+      (paginationEvent)="paginate($event)"
+    ></gi-pagination-component>
+  </div>
+</gi-app-base>

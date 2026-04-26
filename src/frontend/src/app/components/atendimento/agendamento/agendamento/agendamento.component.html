@@ -1,0 +1,89 @@
+@if (viewMode === 'CALENDAR') {
+  <gi-app-base [title]="titulo" [actions]="toolbarActions" [goBackFn]="goBackFn.bind(this)">
+    <div body-content>
+
+      <div class="calendario-controles">
+        <div class="controle-campo">
+          <p-select
+            [(ngModel)]="agendaSelecionada"
+            [options]="agendas"
+            optionLabel="nome"
+            [placeholder]="agendaPlaceholder"
+            (onChange)="onAgendaChange()"
+            styleClass="w-100"
+          />
+        </div>
+        <div class="controle-campo controle-data">
+          <div class="data-nav">
+            <button type="button" class="nav-btn" (click)="diaAnterior()">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <p-datepicker
+              [(ngModel)]="dataSelecionada"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              (ngModelChange)="onDataChange()"
+              styleClass="w-100"
+            />
+            <button type="button" class="nav-btn" (click)="proximoDia()">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      @if (carregandoSlots) {
+        <div class="slots-estado">
+          <p-progress-spinner styleClass="spinner-sm" />
+        </div>
+      } @else if (!agendaSelecionada) {
+        <div class="slots-estado">
+          <span class="material-symbols-outlined slots-estado-icone">calendar_month</span>
+          <p class="slots-estado-texto" i18n>Selecione uma agenda para ver os horários disponíveis.</p>
+        </div>
+      } @else if (slots.length === 0) {
+        <div class="slots-estado">
+          <span class="material-symbols-outlined slots-estado-icone">event_busy</span>
+          <p class="slots-estado-texto" i18n>Nenhum horário configurado para esta data.</p>
+        </div>
+      } @else {
+        <div class="slots-info">
+          <span class="slots-info-livre" i18n>{{ slotsLivres }} livre(s)</span>
+          <span class="slots-info-sep">·</span>
+          <span class="slots-info-ocupado" i18n>{{ slotsOcupados }} ocupado(s)</span>
+        </div>
+        <div class="slots-grid">
+          @for (slot of slots; track slot.dataHoraInicio) {
+            <div
+              [class]="getSlotClass(slot)"
+              (click)="onSlotClick(slot)"
+            >
+              <span class="slot-hora">{{ formatarHora(slot.dataHoraInicio) }}</span>
+              <div class="slot-info">
+                @if (slot.livre) {
+                  <span class="slot-label" i18n>Livre</span>
+                } @else {
+                  <span class="slot-paciente">{{ slot.pacienteNome }}</span>
+                  @if (getSlotDetalhe(slot)) {
+                    <span class="slot-detalhe">{{ getSlotDetalhe(slot) }}</span>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </gi-app-base>
+} @else {
+  <gi-agendar
+    [detailId]="agendamentoId ?? 'add'"
+    [agendaIdPre]="agendaSelecionada?.id ?? null"
+    [agendaNomePre]="agendaSelecionada?.nome ?? null"
+    [slotInicio]="slotSelecionado?.dataHoraInicio ?? null"
+    [slotFim]="slotSelecionado?.dataHoraFim ?? null"
+    [somenteLeitura]="isDataPassada"
+    (closeDetail)="voltarParaCalendario()"
+  />
+}

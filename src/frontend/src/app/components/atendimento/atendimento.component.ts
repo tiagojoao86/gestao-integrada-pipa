@@ -51,6 +51,14 @@ export class AtendimentoComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.AGENDAMENTO_AGENDAMENTO)) {
+      modulos.push({
+        name: $localize`Agendamentos`,
+        icon: 'event_available',
+        url: '/atendimento/agendamento/agendamento',
+      });
+    }
+
     if (modulos.length > 0) {
       this.systemModules.push({ name: $localize`Agendamento`, systemModules: modulos });
     }

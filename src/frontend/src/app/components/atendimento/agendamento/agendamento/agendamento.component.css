@@ -1,0 +1,188 @@
+.calendario-controles {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  padding: 0.5rem 0 1rem 0;
+  flex-wrap: wrap;
+}
+
+.controle-campo {
+  flex: 1;
+  min-width: 0;
+}
+
+.controle-data {
+  max-width: 260px;
+}
+
+.data-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nav-btn:hover {
+  background-color: var(--item-transparency);
+}
+
+.nav-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+
+@keyframes slot-destaque {
+  0%, 100% { background-color: var(--content); color: var(--text-color); }
+  40%, 60%  { background-color: var(--secondary-color); color: var(--inverted-text-color); }
+}
+
+.slot--destaque {
+  animation: slot-destaque 1.6s ease-in-out;
+}
+
+.slots-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 0.75rem;
+  color: var(--input-label-color);
+}
+
+.slots-estado-icone {
+  font-size: 2.5rem;
+  opacity: 0.4;
+}
+
+.slots-estado-texto {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.slots-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.slots-info-livre {
+  color: var(--secondary-color);
+  font-weight: 500;
+}
+
+.slots-info-sep {
+  color: var(--input-label-color);
+}
+
+.slots-info-ocupado {
+  color: var(--input-label-color);
+}
+
+.slots-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  max-width: 480px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--border-radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.slot-hora {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 42px;
+}
+
+.slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.slot-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.slot-paciente {
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slot-detalhe {
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
+
+.slot--passado {
+  background-color: var(--surface-50, #f8f8f8);
+  border-color: var(--surface-300, #d1d5db);
+  color: var(--input-label-color);
+}
+
+.slot--passado:hover {
+  background-color: var(--surface-100, #f0f0f0);
+}
+
+.slot--livre {
+  background-color: var(--content);
+  border-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.slot--livre:hover {
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+}
+
+.slot--ocupado {
+  background-color: var(--item-transparency);
+  border-color: var(--secondary-color);
+  color: var(--text-color);
+  opacity: 0.9;
+}
+
+.slot--ocupado:hover {
+  opacity: 1;
+  background-color: rgba(61, 104, 159, 0.08);
+}
