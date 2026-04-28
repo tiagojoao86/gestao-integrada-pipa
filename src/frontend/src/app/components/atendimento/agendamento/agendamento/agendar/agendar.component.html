@@ -91,7 +91,9 @@
                 <div
                   [class]="getSlotClass(slot)"
                   (click)="toggleSlot(slot)"
+                  (keyup.enter)="toggleSlot(slot)"
                   [title]="slot.livre ? 'Livre' : 'Ocupado'"
+                  tabindex="0"
                 >
                   {{ formatarSlot(slot) }}
                 </div>

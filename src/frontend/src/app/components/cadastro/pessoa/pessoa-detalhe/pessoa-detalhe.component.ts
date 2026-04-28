@@ -115,7 +115,7 @@ export class PessoaDetalheComponent implements OnInit {
 
   allCidades: string[] = [];
   cidadeSuggestions: string[] = [];
-  cidadeModel: string = '';
+  cidadeModel = '';
 
   logradouroSuggestions: LogradouroResponse[] = [];
   logradouroModel: LogradouroResponse | string | null = null;

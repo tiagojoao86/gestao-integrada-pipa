@@ -468,6 +468,7 @@ router-outlet + * {
 
 .p-datepicker-dropdown {
   background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
 }
 
 .p-textarea {

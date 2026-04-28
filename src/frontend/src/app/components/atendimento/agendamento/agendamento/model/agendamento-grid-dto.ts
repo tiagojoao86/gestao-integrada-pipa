@@ -4,11 +4,13 @@ import { Exclude, Expose } from 'class-transformer';
 export class AgendamentoGridDTO {
   @Expose() id?: string;
   @Expose() agendaNome?: string;
+  @Expose() profissionalNome?: string;
   @Expose() pacienteNome?: string;
   @Expose() convenioNome?: string;
   @Expose() procedimentoNome?: string;
   @Expose() status?: string;
   @Expose() primeiraData?: string;
+  @Expose() primeiraDataHora?: string;
   @Expose() qtdHorarios?: number;
   @Expose() deleted?: boolean;
   @Expose() createdAt?: string;

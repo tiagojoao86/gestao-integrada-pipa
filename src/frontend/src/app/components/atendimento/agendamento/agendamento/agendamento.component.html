@@ -1,79 +1,346 @@
-@if (viewMode === 'CALENDAR') {
-  <gi-app-base [title]="titulo" [actions]="toolbarActions" [goBackFn]="goBackFn.bind(this)">
+@if (viewMode === "CALENDAR") {
+  <gi-app-base
+    [title]="titulo"
+    [actions]="toolbarActions"
+    [goBackFn]="goBackFn.bind(this)"
+  >
     <div body-content>
-
+      <!-- ── Controles ──────────────────────────────────────────────────── -->
       <div class="calendario-controles">
-        <div class="controle-campo">
-          <p-select
-            [(ngModel)]="agendaSelecionada"
-            [options]="agendas"
-            optionLabel="nome"
-            [placeholder]="agendaPlaceholder"
-            (onChange)="onAgendaChange()"
-            styleClass="w-100"
-          />
+        <div class="visao-switcher">
+          <button
+            type="button"
+            [class]="
+              visaoMode === 'PROFISSIONAL'
+                ? 'switcher-btn active'
+                : 'switcher-btn'
+            "
+            (click)="onVisaoChange('PROFISSIONAL')"
+          >
+            <span class="material-symbols-outlined">person_pin</span>
+            <span i18n>Profissional</span>
+          </button>
+          <button
+            type="button"
+            [class]="
+              visaoMode === 'PACIENTE' ? 'switcher-btn active' : 'switcher-btn'
+            "
+            (click)="onVisaoChange('PACIENTE')"
+          >
+            <span class="material-symbols-outlined">personal_injury</span>
+            <span i18n>Paciente</span>
+          </button>
         </div>
-        <div class="controle-campo controle-data">
-          <div class="data-nav">
-            <button type="button" class="nav-btn" (click)="diaAnterior()">
-              <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <p-datepicker
-              [(ngModel)]="dataSelecionada"
-              dateFormat="dd/mm/yy"
-              [showIcon]="true"
-              (ngModelChange)="onDataChange()"
+
+        @if (visaoMode === "PROFISSIONAL") {
+          <div class="periodo-switcher">
+            @for (p of ["1D", "7D", "30D"]; track p) {
+              <button
+                type="button"
+                [class]="
+                  periodoMode === p ? 'switcher-btn active' : 'switcher-btn'
+                "
+                (click)="
+                  onPeriodoChange(p === '1D' ? '1D' : p === '7D' ? '7D' : '30D')
+                "
+              >
+                {{ p }}
+              </button>
+            }
+          </div>
+
+          <p-iftalabel class="controle-campo">
+            <p-select
+              inputId="agendaSelecionada"
+              [(ngModel)]="agendaSelecionada"
+              [options]="agendas"
+              optionLabel="nome"
+              (onChange)="onAgendaChange()"
               styleClass="w-100"
             />
-            <button type="button" class="nav-btn" (click)="proximoDia()">
-              <span class="material-symbols-outlined">chevron_right</span>
-            </button>
+            <label for="agendaSelecionada" i18n>Agenda</label>
+          </p-iftalabel>
+
+          <div class="controle-campo controle-data">
+            <div class="data-nav">
+              <p-button (click)="diaAnterior()">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </p-button>
+              <p-iftalabel class="flex-1">
+                <p-datepicker
+                  inputId="dataSelecionada"
+                  [(ngModel)]="dataSelecionada"
+                  dateFormat="dd/mm/yy"
+                  [showIcon]="true"
+                  (ngModelChange)="onDataChange()"
+                  styleClass="w-100"
+                />
+                <label for="dataSelecionada" i18n>Data</label>
+              </p-iftalabel>
+              <p-button (click)="proximoDia()">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </p-button>
+            </div>
           </div>
-        </div>
+        }
+
+        @if (visaoMode === "PACIENTE") {
+          <div class="controle-campo controle-campo--paciente">
+            <gi-entity-field
+              [label]="pacienteLabel"
+              [entityLabel]="pacienteSelecionado?.nome ?? null"
+              [searchConfig]="pacienteSearchConfig"
+              (entitySearch)="pesquisarPaciente()"
+              (entitySelected)="onPacienteSelected($event)"
+              (remove)="limparPaciente()"
+            />
+          </div>
+          <p-iftalabel class="controle-campo controle-data">
+            <p-datepicker
+              inputId="dataInicioPaciente"
+              [(ngModel)]="dataInicioPaciente"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              styleClass="w-100"
+            />
+            <label for="dataInicioPaciente" i18n>Data início</label>
+          </p-iftalabel>
+          <p-iftalabel class="controle-campo controle-data">
+            <p-datepicker
+              inputId="dataFimPaciente"
+              [(ngModel)]="dataFimPaciente"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              styleClass="w-100"
+            />
+            <label for="dataFimPaciente" i18n>Data fim</label>
+          </p-iftalabel>
+          <p-button (click)="carregarAgendamentosPaciente()">
+            <span class="material-symbols-outlined">search</span>
+          </p-button>
+        }
       </div>
 
-      @if (carregandoSlots) {
-        <div class="slots-estado">
-          <p-progress-spinner styleClass="spinner-sm" />
-        </div>
-      } @else if (!agendaSelecionada) {
-        <div class="slots-estado">
-          <span class="material-symbols-outlined slots-estado-icone">calendar_month</span>
-          <p class="slots-estado-texto" i18n>Selecione uma agenda para ver os horários disponíveis.</p>
-        </div>
-      } @else if (slots.length === 0) {
-        <div class="slots-estado">
-          <span class="material-symbols-outlined slots-estado-icone">event_busy</span>
-          <p class="slots-estado-texto" i18n>Nenhum horário configurado para esta data.</p>
-        </div>
-      } @else {
-        <div class="slots-info">
-          <span class="slots-info-livre" i18n>{{ slotsLivres }} livre(s)</span>
-          <span class="slots-info-sep">·</span>
-          <span class="slots-info-ocupado" i18n>{{ slotsOcupados }} ocupado(s)</span>
-        </div>
-        <div class="slots-grid">
-          @for (slot of slots; track slot.dataHoraInicio) {
-            <div
-              [class]="getSlotClass(slot)"
-              (click)="onSlotClick(slot)"
+      <!-- ── Visão Profissional ─────────────────────────────────────────── -->
+      @if (visaoMode === "PROFISSIONAL") {
+        @if (carregandoSlots || carregandoMultiplos) {
+          <div class="slots-estado">
+            <p-progress-spinner styleClass="spinner-sm" />
+          </div>
+        } @else if (!agendaSelecionada) {
+          <div class="slots-estado">
+            <span class="material-symbols-outlined slots-estado-icone"
+              >calendar_month</span
             >
-              <span class="slot-hora">{{ formatarHora(slot.dataHoraInicio) }}</span>
-              <div class="slot-info">
-                @if (slot.livre) {
-                  <span class="slot-label" i18n>Livre</span>
-                } @else {
-                  <span class="slot-paciente">{{ slot.pacienteNome }}</span>
-                  @if (getSlotDetalhe(slot)) {
-                    <span class="slot-detalhe">{{ getSlotDetalhe(slot) }}</span>
+            <p class="slots-estado-texto" i18n>
+              Selecione uma agenda para ver os horários disponíveis.
+            </p>
+          </div>
+        } @else if (periodoMode === "1D") {
+          @if (slots.length === 0) {
+            <div class="slots-estado">
+              <span class="material-symbols-outlined slots-estado-icone"
+                >event_busy</span
+              >
+              <p class="slots-estado-texto" i18n>
+                Nenhum horário configurado para esta data.
+              </p>
+            </div>
+          } @else {
+            <div class="slots-info">
+              <span class="slots-info-livre" i18n
+                >{{ slotsLivres }} livre(s)</span
+              >
+              <span class="slots-info-sep">·</span>
+              <span class="slots-info-ocupado" i18n
+                >{{ slotsOcupados }} ocupado(s)</span
+              >
+            </div>
+            <div class="slots-grid">
+              @for (slot of slots; track slot.dataHoraInicio) {
+                <div [class]="getSlotClass(slot)" (click)="onSlotClick(slot)" (keyup.enter)="onSlotClick(slot)" tabindex="0">
+                  <span class="slot-hora">{{
+                    formatarHora(slot.dataHoraInicio)
+                  }}</span>
+                  <div class="slot-info">
+                    @if (slot.livre) {
+                      <span class="slot-label" i18n>Livre</span>
+                    } @else {
+                      <span class="slot-paciente">{{ slot.pacienteNome }}</span>
+                      @if (getSlotDetalhe(slot)) {
+                        <span class="slot-detalhe">{{
+                          getSlotDetalhe(slot)
+                        }}</span>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        } @else if (periodoMode === "7D") {
+          @if (colunas7d.length === 0) {
+            <div class="slots-estado">
+              <span class="material-symbols-outlined slots-estado-icone"
+                >calendar_view_week</span
+              >
+              <p class="slots-estado-texto" i18n>
+                Nenhum slot encontrado neste período.
+              </p>
+            </div>
+          } @else {
+            <div class="slots-info">
+              <span class="slots-info-livre">{{ slotsLivres7D }} livre(s)</span>
+              <span class="slots-info-sep">·</span>
+              <span class="slots-info-ocupado"
+                >{{ slotsOcupados7D }} ocupado(s)</span
+              >
+            </div>
+            <div class="grid-7d">
+              @for (col of colunas7d; track col.dataStr) {
+                <div
+                  [class]="col.isHoje ? 'grid-7d-col col-hoje' : 'grid-7d-col'"
+                >
+                  <div
+                    [class]="
+                      isDataPassadaStr(col.dataStr)
+                        ? 'grid-7d-header passado'
+                        : 'grid-7d-header'
+                    "
+                  >
+                    {{ col.label }}
+                  </div>
+                  <div class="grid-7d-slots">
+                    @if (col.slots.length === 0) {
+                      <div class="grid-7d-vazio">—</div>
+                    }
+                    @for (slot of col.slots; track slot.dataHoraInicio) {
+                      <div
+                        [class]="getSlotClass7D(slot, col.dataStr)"
+                        (click)="onSlotClick7D(slot, col)"
+                        (keyup.enter)="onSlotClick7D(slot, col)"
+                        tabindex="0"
+                      >
+                        <span class="slot-hora">{{
+                          formatarHora(slot.dataHoraInicio)
+                        }}</span>
+                        @if (!slot.livre) {
+                          <span class="slot-paciente-compact">{{
+                            slot.pacienteNome
+                          }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        } @else if (periodoMode === "30D") {
+          <div class="grid-30d-dow-header">
+            @for (dow of diasSemanaAbrev; track dow) {
+              <div class="grid-30d-dow">{{ dow }}</div>
+            }
+          </div>
+          <div class="grid-30d">
+            @for (celula of celulas30d; track $index) {
+              <div
+                [class]="getCelula30dClass(celula)"
+                (click)="onDiaClick30D(celula)"
+                (keyup.enter)="onDiaClick30D(celula)"
+                tabindex="0"
+              >
+                @if (celula.data) {
+                  <div class="celula-dia">{{ celula.dia }}</div>
+                  @if (celula.livres > 0 || celula.ocupados > 0) {
+                    <div class="celula-resumo">
+                      <span class="celula-livre-count"
+                        >L: {{ celula.livres }}</span
+                      >
+                      <span class="celula-sep"> / </span>
+                      <span class="celula-ocupado-count"
+                        >O: {{ celula.ocupados }}</span
+                      >
+                    </div>
                   }
                 }
               </div>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       }
 
+      <!-- ── Visão Paciente ─────────────────────────────────────────────── -->
+      @if (visaoMode === "PACIENTE") {
+        @if (carregandoPaciente) {
+          <div class="slots-estado">
+            <p-progress-spinner styleClass="spinner-sm" />
+          </div>
+        } @else if (!pacienteSelecionado) {
+          <div class="slots-estado">
+            <span class="material-symbols-outlined slots-estado-icone"
+              >person_search</span
+            >
+            <p class="slots-estado-texto" i18n>
+              Selecione um paciente para ver os agendamentos.
+            </p>
+          </div>
+        } @else if (agendamentosPacienteAgrupados.length === 0) {
+          <div class="slots-estado">
+            <span class="material-symbols-outlined slots-estado-icone"
+              >event_busy</span
+            >
+            <p class="slots-estado-texto" i18n>
+              Nenhum agendamento encontrado neste período.
+            </p>
+          </div>
+        } @else {
+          @for (grupo of agendamentosPacienteAgrupados; track grupo.dataStr) {
+            <div class="paciente-grupo">
+              <div class="paciente-grupo-header">
+                {{ grupo.diaSemana }}, {{ grupo.dataFormatada }}
+              </div>
+              @for (ag of grupo.agendamentos; track ag.id) {
+                <div class="paciente-card">
+                  <div class="paciente-card-hora">
+                    {{ formatarHora(ag.primeiraDataHora) }}
+                  </div>
+                  <div class="paciente-card-info">
+                    <span class="paciente-card-agenda">{{
+                      ag.agendaNome
+                    }}</span>
+                    @if (ag.profissionalNome) {
+                      <span class="paciente-card-prof">{{
+                        ag.profissionalNome
+                      }}</span>
+                    }
+                    @if (ag.procedimentoNome) {
+                      <span class="paciente-card-detalhe">{{
+                        ag.procedimentoNome
+                      }}</span>
+                    }
+                    @if (ag.convenioNome) {
+                      <span class="paciente-card-detalhe">{{
+                        ag.convenioNome
+                      }}</span>
+                    }
+                  </div>
+                  <div [class]="getStatusClass(ag.status)">{{ ag.status }}</div>
+                  @if (ag.status === "AGENDADO") {
+                    <button
+                      type="button"
+                      class="cancelar-btn"
+                      (click)="cancelarAgendamento(ag)"
+                    >
+                      <span class="material-symbols-outlined">cancel</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      }
     </div>
   </gi-app-base>
 } @else {

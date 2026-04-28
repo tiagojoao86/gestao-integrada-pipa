@@ -81,6 +81,15 @@ public class AgendamentoController
         return Response.ok(service.listarConflitosParaPaciente(pacienteId, dataInicio, dataFim));
     }
 
+    @GetMapping("/visao-paciente")
+    @PreAuthorize("hasAuthority('AGENDAMENTO_AGENDAMENTO_LISTAR')")
+    public Response visaoPaciente(
+            @RequestParam UUID pessoaId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        return Response.ok(service.listarPorPaciente(pessoaId, dataInicio, dataFim));
+    }
+
     @PatchMapping("/cancelar/{id}")
     @PreAuthorize("hasAuthority('AGENDAMENTO_AGENDAMENTO_EDITAR')")
     public Response cancelar(@PathVariable UUID id) {

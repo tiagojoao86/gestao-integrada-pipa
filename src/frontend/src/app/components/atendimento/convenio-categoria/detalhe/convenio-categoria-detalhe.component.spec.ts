@@ -107,7 +107,7 @@ describe('ConvenioCategoriaDetalheComponent', () => {
     it('deve configurar toolbar com ações de cancelar e salvar quando tem permissão', () => {
       authService.hasAuthorityEditarToModulo.mockReturnValue(true);
 
-      component.detailId = 'add';
+      component.detailId = 'cat-1';
       component.ngOnInit();
 
       expect(component.toolbarActions.length).toBe(2);

@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -125,6 +126,19 @@ public class AgendamentoServiceImpl
     }
 
     @Override
+    public List<AgendamentoGridDTO> listarPorPaciente(UUID pessoaId, LocalDate dataInicio, LocalDate dataFim) {
+        LocalDateTime inicio = dataInicio.atStartOfDay();
+        LocalDateTime fim = dataFim.plusDays(1).atStartOfDay();
+        return repository.findByPacienteAndPeriodo(pessoaId, inicio, fim).stream()
+            .sorted(Comparator.comparing(a -> a.getHorarios().stream()
+                .map(AgendamentoHorario::getDataHoraInicio)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.MAX)))
+            .map(this::buildGridDTOFromEntity)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public AgendamentoDTO cancelar(UUID id) {
         Agendamento entity = findEntityById(id);
@@ -173,19 +187,27 @@ public class AgendamentoServiceImpl
 
     @Override
     protected AgendamentoGridDTO buildGridDTOFromEntity(Agendamento e) {
-        LocalDate primeiraData = e.getHorarios().stream()
-            .map(h -> h.getDataHoraInicio().toLocalDate())
-            .min(LocalDate::compareTo)
+        LocalDateTime primeiraDataHora = e.getHorarios().stream()
+            .map(AgendamentoHorario::getDataHoraInicio)
+            .min(LocalDateTime::compareTo)
             .orElse(null);
+
+        String profissionalNome = null;
+        if (e.getAgenda() != null && e.getAgenda().getProfissional() != null
+                && e.getAgenda().getProfissional().getPessoa() != null) {
+            profissionalNome = e.getAgenda().getProfissional().getPessoa().getNome();
+        }
 
         return AgendamentoGridDTO.builder()
             .id(e.getId())
             .agendaNome(e.getAgenda() != null ? e.getAgenda().getNome() : null)
+            .profissionalNome(profissionalNome)
             .pacienteNome(e.getPaciente() != null ? e.getPaciente().getNome() : null)
             .convenioNome(e.getConvenio() != null ? e.getConvenio().getNome() : null)
             .procedimentoNome(e.getProcedimento() != null ? e.getProcedimento().getDescricao() : null)
             .status(e.getStatus() != null ? e.getStatus().name() : null)
-            .primeiraData(primeiraData)
+            .primeiraData(primeiraDataHora != null ? primeiraDataHora.toLocalDate() : null)
+            .primeiraDataHora(primeiraDataHora)
             .qtdHorarios(e.getHorarios().size())
             .deleted(e.getDeleted())
             .createdAt(e.getCreatedAt())

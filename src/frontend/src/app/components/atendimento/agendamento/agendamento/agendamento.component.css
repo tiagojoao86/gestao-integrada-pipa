@@ -1,24 +1,88 @@
+/* ── Controles ───────────────��──────────────────────────────────────────── */
+
 .calendario-controles {
   display: flex;
   flex-direction: row;
-  gap: 0.75rem;
-  padding: 0.5rem 0 1rem 0;
+  gap: 0.1rem;
+  padding: 0.5rem 0 0.5rem 0;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .controle-campo {
   flex: 1;
-  min-width: 0;
+  min-width: 160px;
+  margin-right: 0.5rem;
+}
+
+.controle-campo--paciente {
+  flex: 2;
+  min-width: 220px;
 }
 
 .controle-data {
   max-width: 260px;
 }
 
+/* ── Switchers ─────────────────────���──────────────────────��─────────────── */
+
+.visao-switcher {
+  margin-right: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 44px;
+}
+
+.periodo-switcher {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 44px;
+  margin-right: 0.5rem;
+}
+
+.switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--secondary-color);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  white-space: nowrap;
+}
+
+.switcher-btn + .switcher-btn {
+  border-left: 1px solid var(--secondary-color);
+}
+
+.switcher-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+}
+
+.switcher-btn .material-symbols-outlined {
+  font-size: 28px;
+}
+
+/* ── Date nav ──────────────────────────────────────────────────────��────── */
+
 .data-nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
 }
 
 .nav-btn {
@@ -39,20 +103,17 @@
 .nav-btn:hover {
   background-color: var(--item-transparency);
 }
-
 .nav-btn .material-symbols-outlined {
   font-size: 1.25rem;
 }
 
+/* ── Data-nav iftalabel stretch ──────────────────────────────────────────── */
 
-@keyframes slot-destaque {
-  0%, 100% { background-color: var(--content); color: var(--text-color); }
-  40%, 60%  { background-color: var(--secondary-color); color: var(--inverted-text-color); }
+.data-nav .flex-1 {
+  flex: 1;
 }
 
-.slot--destaque {
-  animation: slot-destaque 1.6s ease-in-out;
-}
+/* ── Estado vazio ──────────────────────────────��────────────────────────── */
 
 .slots-estado {
   display: flex;
@@ -68,11 +129,12 @@
   font-size: 2.5rem;
   opacity: 0.4;
 }
-
 .slots-estado-texto {
   margin: 0;
   font-size: 0.9rem;
 }
+
+/* ── Contador ───────────────────────��───────────────────────��───────────── */
 
 .slots-info {
   display: flex;
@@ -86,14 +148,14 @@
   color: var(--secondary-color);
   font-weight: 500;
 }
-
 .slots-info-sep {
   color: var(--input-label-color);
 }
-
 .slots-info-ocupado {
   color: var(--input-label-color);
 }
+
+/* ── Slots 1D ─────────────────────────��────────────────────────────���────── */
 
 .slots-grid {
   display: flex;
@@ -185,4 +247,323 @@
 .slot--ocupado:hover {
   opacity: 1;
   background-color: rgba(61, 104, 159, 0.08);
+}
+
+@keyframes slot-destaque {
+  0%,
+  100% {
+    background-color: var(--content);
+    color: var(--text-color);
+  }
+  40%,
+  60% {
+    background-color: var(--secondary-color);
+    color: var(--inverted-text-color);
+  }
+}
+
+.slot--destaque {
+  animation: slot-destaque 1.6s ease-in-out;
+}
+
+/* ── Slots 7D ───────────────────────────────────────────────────────────── */
+
+.grid-7d {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.grid-7d-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.col-hoje .grid-7d-header {
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.grid-7d-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.35rem 0.25rem;
+  background-color: var(--item-transparency);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  white-space: nowrap;
+}
+
+.grid-7d-header.passado {
+  opacity: 0.5;
+}
+
+.grid-7d-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 0;
+}
+
+.grid-7d-vazio {
+  text-align: center;
+  color: var(--input-label-color);
+  font-size: 0.8rem;
+  padding: 0.5rem 0;
+}
+
+.slot--compact {
+  padding: 0.3rem 0.45rem;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  border-width: 1px;
+}
+
+.slot--compact .slot-hora {
+  font-size: 0.78rem;
+  min-width: 34px;
+}
+
+.slot-paciente-compact {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Calendário 30D ─────────────────────────────���───────────────────────── */
+
+.grid-30d-dow-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.grid-30d-dow {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--input-label-color);
+  padding: 0.2rem 0;
+}
+
+.grid-30d {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding-bottom: 1rem;
+}
+
+.celula-30d {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  min-height: 52px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.celula-vazia {
+  cursor: default;
+  background: transparent;
+  border-color: transparent;
+}
+
+.celula-sem-slots {
+  background-color: var(--content);
+  border-color: transparent;
+  color: var(--input-label-color);
+}
+
+.celula-com-slots {
+  background-color: var(--content);
+  border-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.celula-com-slots:hover {
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+}
+
+.celula-com-slots:hover .celula-livre-count,
+.celula-com-slots:hover .celula-ocupado-count {
+  color: inherit;
+}
+
+.celula-hoje {
+  background-color: var(--secondary-color);
+  color: var(--inverted-text-color);
+  border-color: var(--secondary-color);
+  font-weight: 700;
+}
+
+.celula-passada {
+  background-color: var(--surface-50, #f8f8f8);
+  border-color: transparent;
+  color: var(--input-label-color);
+  opacity: 0.6;
+}
+
+.celula-dia {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.celula-resumo {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.celula-livre-count {
+  color: var(--secondary-color);
+}
+.celula-sep {
+  color: var(--input-label-color);
+  font-weight: 400;
+}
+.celula-ocupado-count {
+  color: var(--input-label-color);
+}
+
+.celula-hoje .celula-livre-count,
+.celula-hoje .celula-sep,
+.celula-hoje .celula-ocupado-count {
+  color: var(--inverted-text-color);
+  opacity: 0.9;
+}
+
+/* ── Visão paciente ──────────────────────────────────────────────────────── */
+
+.paciente-grupo {
+  margin-bottom: 1.25rem;
+}
+
+.paciente-grupo-header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--input-label-color);
+  padding: 0.2rem 0 0.5rem 0;
+  border-bottom: 1px solid var(--item-transparency);
+  margin-bottom: 0.4rem;
+}
+
+.paciente-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background-color: var(--content);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--item-transparency);
+  margin-bottom: 0.35rem;
+}
+
+.paciente-card-hora {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.paciente-card-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.paciente-card-agenda {
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paciente-card-prof {
+  font-size: 0.78rem;
+  color: var(--input-label-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paciente-card-detalhe {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paciente-card-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status--agendado {
+  background-color: rgba(61, 104, 159, 0.12);
+  color: var(--secondary-color);
+}
+
+.status--realizado {
+  background-color: rgba(34, 134, 87, 0.12);
+  color: #228657;
+}
+
+.status--cancelado {
+  background-color: rgba(200, 60, 60, 0.1);
+  color: #c83c3c;
+  text-decoration: line-through;
+}
+
+.cancelar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--input-label-color);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.cancelar-btn:hover {
+  color: #c83c3c;
+  background-color: rgba(200, 60, 60, 0.08);
+}
+
+.cancelar-btn .material-symbols-outlined {
+  font-size: 1.1rem;
 }

@@ -17,6 +17,8 @@ public interface AgendamentoService
     List<AgendamentoDTO> listarConflitosParaPaciente(
             UUID pacienteId, LocalDate dataInicio, LocalDate dataFim);
 
+    List<AgendamentoGridDTO> listarPorPaciente(UUID pessoaId, LocalDate dataInicio, LocalDate dataFim);
+
     AgendamentoDTO cancelar(UUID id);
     AgendamentoDTO realizar(UUID id);
 }

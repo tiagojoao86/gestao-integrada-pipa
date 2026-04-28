@@ -37,4 +37,17 @@ public interface AgendamentoRepository
         @Param("inicio") LocalDateTime inicio,
         @Param("fim") LocalDateTime fim
     );
+
+    @Query("SELECT DISTINCT a FROM Agendamento a LEFT JOIN FETCH a.horarios "
+        + "WHERE a.paciente.id = :pessoaId "
+        + "AND (a.deleted IS NULL OR a.deleted = FALSE) "
+        + "AND EXISTS (SELECT h FROM AgendamentoHorario h "
+        + "  WHERE h.agendamento = a "
+        + "  AND h.dataHoraInicio >= :inicio "
+        + "  AND h.dataHoraInicio < :fim)")
+    List<Agendamento> findByPacienteAndPeriodo(
+        @Param("pessoaId") UUID pessoaId,
+        @Param("inicio") LocalDateTime inicio,
+        @Param("fim") LocalDateTime fim
+    );
 }

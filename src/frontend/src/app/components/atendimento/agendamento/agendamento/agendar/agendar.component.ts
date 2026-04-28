@@ -52,7 +52,7 @@ export class AgendarComponent implements OnInit {
   @Input() agendaNomePre: string | null = null;
   @Input() slotInicio: string | null = null;
   @Input() slotFim: string | null = null;
-  @Input() somenteLeitura: boolean = false;
+  @Input() somenteLeitura = false;
   @Output() closeDetail = new EventEmitter<void>();
 
   form!: FormGroup;

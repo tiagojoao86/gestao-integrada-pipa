@@ -115,7 +115,7 @@ describe('ProfissionalDetalheComponent', () => {
     it('deve configurar toolbar com ações de cancelar e salvar quando tem permissão', () => {
       authService.hasAuthorityEditarToModulo.mockReturnValue(true);
 
-      component.detailId = 'add';
+      component.detailId = 'prof-1';
       component.ngOnInit();
 
       expect(component.toolbarActions.length).toBe(2);

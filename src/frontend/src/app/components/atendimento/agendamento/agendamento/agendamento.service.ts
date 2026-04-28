@@ -45,6 +45,15 @@ export class AgendamentoService extends BaseService<AgendamentoDTO, AgendamentoG
     );
   }
 
+  listarPorPaciente(
+    pessoaId: string, dataInicio: string, dataFim: string
+  ): Observable<Response<AgendamentoGridDTO[]>> {
+    return this.httpClient.get<Response<AgendamentoGridDTO[]>>(
+      this.getUrl('/visao-paciente'),
+      { headers: this.getHeaders(), params: { pessoaId, dataInicio, dataFim } }
+    );
+  }
+
   cancelar(id: string): Observable<Response<AgendamentoDTO>> {
     return this.httpClient.patch<Response<AgendamentoDTO>>(
       this.getUrl('/cancelar/' + id),

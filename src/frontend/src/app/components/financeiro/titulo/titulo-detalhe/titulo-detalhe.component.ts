@@ -234,7 +234,6 @@ export class TituloDetalheComponent implements OnInit {
 
     if (this.titulo.pessoaId) {
       this.pessoaSelecionada = { id: this.titulo.pessoaId, nome: this.titulo.pessoaNome } as PessoaDTO;
-      this.titulo.pessoaId = this.titulo.pessoaId;
     }
 
     // Load setores

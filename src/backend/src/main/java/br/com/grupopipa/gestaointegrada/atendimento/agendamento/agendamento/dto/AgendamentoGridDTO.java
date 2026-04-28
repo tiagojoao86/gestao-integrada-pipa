@@ -14,11 +14,13 @@ public class AgendamentoGridDTO implements GridDTO {
 
     private UUID id;
     private String agendaNome;
+    private String profissionalNome;
     private String pacienteNome;
     private String convenioNome;
     private String procedimentoNome;
     private String status;
     private LocalDate primeiraData;
+    private LocalDateTime primeiraDataHora;
     private int qtdHorarios;
     private Boolean deleted;
     private LocalDateTime createdAt;

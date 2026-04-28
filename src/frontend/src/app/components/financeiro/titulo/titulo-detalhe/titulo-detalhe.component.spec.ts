@@ -19,7 +19,7 @@ describe('TituloDetalheComponent', () => {
   let tituloService: jest.Mocked<TituloService>;
   let messageService: jest.Mocked<MessageService>;
   let authService: jest.Mocked<AuthService>;
-  let entitySearchService: jest.Mocked<EntitySearchService>;
+  let _entitySearchService: jest.Mocked<EntitySearchService>;
 
   beforeEach(async () => {
     // Criar mocks dos serviços
@@ -80,7 +80,7 @@ describe('TituloDetalheComponent', () => {
       MessageService
     ) as jest.Mocked<MessageService>;
     authService = TestBed.inject(AuthService) as jest.Mocked<AuthService>;
-    entitySearchService = TestBed.inject(EntitySearchService) as jest.Mocked<EntitySearchService>;
+    _entitySearchService = TestBed.inject(EntitySearchService) as jest.Mocked<EntitySearchService>;
 
     // Setup padrão
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);

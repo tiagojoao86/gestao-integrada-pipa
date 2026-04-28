@@ -2,8 +2,10 @@ package br.com.grupopipa.gestaointegrada.atendimento.agendamento.agenda;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agenda.dto.AgendaDTO;
@@ -13,8 +15,10 @@ import br.com.grupopipa.gestaointegrada.atendimento.profissional.ProfissionalRep
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.entity.Profissional;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.entity.Setor;
+import br.com.grupopipa.gestaointegrada.core.Session;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
+import jakarta.persistence.criteria.JoinType;
 
 @Service
 public class AgendaServiceImpl
@@ -107,6 +111,21 @@ public class AgendaServiceImpl
                 .createdAt(entity.getCreatedAt())
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    @Override
+    protected Specification<Agenda> addUnidadeNegocioFilterIfApplicable(Specification<Agenda> specification) {
+        Set<UUID> unidadesPermitidas = Session.getUnidadeNegocioIds();
+        if (unidadesPermitidas == null || unidadesPermitidas.isEmpty()) {
+            return specification;
+        }
+        Specification<Agenda> setorSpec = (root, query, cb) ->
+                root.join("setor", JoinType.INNER)
+                        .join("centroCusto", JoinType.INNER)
+                        .get("unidadeNegocio")
+                        .get("id")
+                        .in(unidadesPermitidas);
+        return specification != null ? specification.and(setorSpec) : setorSpec;
     }
 
     @Override
