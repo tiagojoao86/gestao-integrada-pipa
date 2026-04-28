@@ -147,7 +147,7 @@ public class PessoaServiceImpl
 
     @Override
     protected List<String> getPropertiesToFilter() {
-        return List.of("nome", "ativa", "createdAt", "tipoPessoa", "cpf", "cnpj");
+        return List.of("nome", "ativa", "createdAt", "tipoPessoa", "cpf", "cnpj", "dataNascimento");
     }
 
     @Override

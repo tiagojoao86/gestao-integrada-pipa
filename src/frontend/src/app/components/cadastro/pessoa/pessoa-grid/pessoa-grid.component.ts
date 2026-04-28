@@ -132,6 +132,11 @@ export class PessoaGridComponent {
       ],
     },
     {
+      property: 'dataNascimento',
+      label: $localize`Data de Nascimento`,
+      filterType: FilterType.DATE,
+    },
+    {
       property: 'createdAt',
       label: $localize`Criado em`,
       filterType: FilterType.DATE,

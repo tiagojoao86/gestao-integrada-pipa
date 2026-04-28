@@ -25,6 +25,7 @@ import { DatePicker } from 'primeng/datepicker';
 })
 export class FilterComponent implements OnInit {
   readonly FilterType = FilterType;
+  readonly dateFormat = getBrowserDateFormat();
 
   @Input() filters: FilterProperty[] = [];
   selectedFilters: FilterProperty[] = [];
@@ -189,4 +190,22 @@ export enum FilterType {
 export interface FilterOptions {
   key: string;
   label: string;
+}
+
+function getBrowserDateFormat(): string {
+  const testDate = new Date(2013, 11, 31);
+  const parts = new Intl.DateTimeFormat(navigator.language, {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  }).formatToParts(testDate);
+
+  return parts
+    .map((part) => {
+      if (part.type === 'day') return 'dd';
+      if (part.type === 'month') return 'mm';
+      if (part.type === 'year') return 'yy';
+      return part.value;
+    })
+    .join('');
 }

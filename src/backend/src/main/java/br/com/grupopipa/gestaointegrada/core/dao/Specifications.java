@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.core.dao;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -71,6 +72,10 @@ public class Specifications<T extends BaseEntity> {
             return criteriaBuilder.between(propertyExpression, startOfDay, endOfDay);
         }
 
+        if (targetType.equals(LocalDate.class)) {
+            return criteriaBuilder.equal(root.get(property), value);
+        }
+
         if (targetType.equals(Boolean.class)) {
             return criteriaBuilder.equal(root.get(property), value);
         }
@@ -116,6 +121,10 @@ public class Specifications<T extends BaseEntity> {
             Comparable startOfDay = getStartOfDay(value);
             Comparable endOfDay = getEndOfDay(value);
             return criteriaBuilder.not(criteriaBuilder.between(propertyExpression, startOfDay, endOfDay));
+        }
+
+        if (targetType.equals(LocalDate.class)) {
+            return criteriaBuilder.notEqual(root.get(property), value);
         }
 
         Expression<?> propertyExpression = targetType.equals(Boolean.class) ? root.get(property)
@@ -270,6 +279,10 @@ public class Specifications<T extends BaseEntity> {
             } else if (targetType.equals(Boolean.class) || targetType.equals(boolean.class)) {
                 return Boolean.parseBoolean(stringValue);
             } else if (targetType.equals(LocalDate.class)) {
+                if (stringValue.contains("T")) {
+                    return OffsetDateTime.parse(stringValue, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                            .toLocalDate();
+                }
                 return LocalDate.parse(stringValue, DateTimeFormatter.ISO_LOCAL_DATE);
             } else if (targetType.equals(LocalDateTime.class)) {
                 return LocalDateTime.parse(stringValue, DateTimeFormatter.ISO_DATE_TIME);

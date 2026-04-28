@@ -47,6 +47,7 @@
             class="w-full"
             [style]="{ width: '100%' }"
             [formControlName]="filter.property"
+            [dateFormat]="dateFormat"
           />
           } @if ( filter.filterType === FilterType.SELECT || filter.filterType
           === FilterType.BOOLEAN ) {

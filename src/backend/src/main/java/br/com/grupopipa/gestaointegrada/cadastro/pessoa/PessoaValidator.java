@@ -49,8 +49,16 @@ public class PessoaValidator {
         }
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Email email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-        PhoneNumber telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+
+        Email email = null;
+        if (emailStr != null && !emailStr.isBlank()) {
+            email = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
+        }
+
+        PhoneNumber telefone = null;
+        if (telefoneStr != null && !telefoneStr.isBlank()) {
+            telefone = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+        }
 
         CPF cpf = null;
         CNPJ cnpj = null;

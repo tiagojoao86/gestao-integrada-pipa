@@ -300,8 +300,16 @@ public class Pessoa extends BaseEntity {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Nome nomeValidado = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Email emailValidado = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
-        PhoneNumber telefoneValidado = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+
+        Email emailValidado = null;
+        if (emailStr != null && !emailStr.isBlank()) {
+            emailValidado = ValidationUtils.validateAndGet(() -> new Email(emailStr), violations);
+        }
+
+        PhoneNumber telefoneValidado = null;
+        if (telefoneStr != null && !telefoneStr.isBlank()) {
+            telefoneValidado = ValidationUtils.validateAndGet(() -> new PhoneNumber(telefoneStr), violations);
+        }
 
         CPF cpfValidado = null;
         CNPJ cnpjValidado = null;
