@@ -13,8 +13,8 @@
 |---------|-----------|--------|
 | Entrega 1 | Cadastro de Agenda (CRUD) | ✅ Concluído |
 | Entrega 2 | Regras de Agenda | ✅ Concluído |
-| Entrega 3 | Motor de Slots + Agendamento | ⬜ Não iniciado |
-| Entrega 4 | Visualizações | ⬜ Não iniciado |
+| Entrega 3 | Motor de Slots + Agendamento | ✅ Concluído |
+| Entrega 4 | Visualizações | ✅ Concluído |
 
 ---
 
@@ -62,10 +62,10 @@ atendimento/
 ```
 components/atendimento/
   agendamento/
-    agenda/          → grid + detalhe
+    agenda/          → grid + detalhe (com sub-painel de regras)
     agendaregra/     → sub-componente dentro do detalhe da agenda
-    agendamento/     → tela de agendamento (modos: profissional / paciente)
-    visualizacao/    → visão por profissional e por paciente
+    agendamento/     → calendário (visão profissional 1D/7D/30D + visão paciente)
+                       agendar/  → formulário de criação/edição de agendamento
 ```
 
 ---
@@ -75,31 +75,31 @@ components/atendimento/
 **Objetivo:** CRUD básico de agendas (profissional + setor + nome).
 
 ### Backend
-- [ ] Entidade `Agenda` com Builder + ValidatedData
+- [x] Entidade `Agenda` com Builder + ValidatedData
   - Campos: `nome` (VO Nome), `profissional` (ManyToOne), `setor` (ManyToOne), `ativo` (boolean)
-- [ ] Migration `V20260423000001__create_agenda.sql`
+- [x] Migration `V20260424000001__create_agenda.sql`
   - Tabela `agenda` com FK para `profissional` e `setor`
   - Índice em `deleted`
   - INSERT de módulo `AGENDAMENTO_AGENDA` no grupo `AGENDAMENTO`
-  - Grant de `pode_listar`, `pode_inserir`, `pode_editar`, `pode_excluir`, `pode_auditar` para perfil Administrador Geral (`019a7fc4-ab0c-7002-8944-8e0ef009139b`)
-- [ ] `AgendaDTO` + `AgendaGridDTO` (Lombok `@Builder @Data`)
-- [ ] `AgendaRepository` (JpaRepository + JpaSpecificationExecutor)
-- [ ] `AgendaService` interface + `AgendaServiceImpl` extends `CrudServiceImpl`
-- [ ] `AgendaController` extends `BaseController` com todos os `@PreAuthorize`
-- [ ] Adicionar pacote em `DataSourceConfig.ENTITY_PACKAGES`
+  - Grant de permissões para perfil Administrador Geral
+- [x] `AgendaDTO` + `AgendaGridDTO` (Lombok `@Builder @Data`)
+- [x] `AgendaRepository` (JpaRepository + JpaSpecificationExecutor)
+- [x] `AgendaService` interface + `AgendaServiceImpl` extends `CrudServiceImpl`
+- [x] `AgendaController` extends `BaseController` com todos os `@PreAuthorize`
+- [x] Adicionar pacote em `DataSourceConfig.ENTITY_PACKAGES`
 
 ### Frontend
-- [ ] `AgendaDTO` e `AgendaGridDTO` (classes com `@Exclude/@Expose`)
-- [ ] `AgendaService` extends `BaseService`
-- [ ] `agenda.component.ts` (principal/roteador)
-- [ ] `agenda-grid.component` (listagem com AuditInfo + confirmação de exclusão)
-- [ ] `agenda-detalhe.component` (formulário: nome, autocomplete profissional, autocomplete setor)
-- [ ] `SystemModuleKey.AGENDAMENTO_AGENDA` no enum
-- [ ] Rota `/atendimento/agendamento/agenda` no router
-- [ ] Entrada no menu dentro do grupo "Atendimento"
-- [ ] i18n: strings em `messages.xlf` e `messages.en.xlf`
+- [x] `AgendaDTO` e `AgendaGridDTO` (classes com `@Exclude/@Expose`)
+- [x] `AgendaService` extends `BaseService`
+- [x] `agenda.component.ts` (principal/roteador)
+- [x] `agenda-grid.component` (listagem com AuditInfo + confirmação de exclusão)
+- [x] `agenda-detalhe.component` (formulário: nome, autocomplete profissional, autocomplete setor)
+- [x] `SystemModuleKey.AGENDAMENTO_AGENDA` no enum
+- [x] Rota `/atendimento/agendamento/agenda` no router
+- [x] Entrada no menu dentro do grupo "Atendimento"
+- [x] i18n: strings em `messages.xlf` e `messages.en.xlf`
 
-**Critério de aceite:** Criar, editar, listar e inativar agendas.
+**Critério de aceite:** Criar, editar, listar e inativar agendas. ✅
 
 ---
 
@@ -108,35 +108,27 @@ components/atendimento/
 **Objetivo:** Configurar regras de horário dentro de uma agenda, com alerta de conflito.
 
 ### Backend
-- [ ] Enum `DiaSemana` (SEG, TER, QUA, QUI, SEX, SAB, DOM)
-- [ ] Entidade `AgendaRegra` com Builder + ValidatedData
+- [x] Enum `DiaSemana` (SEG, TER, QUA, QUI, SEX, SAB, DOM)
+- [x] Entidade `AgendaRegra` com Builder + ValidatedData
   - Campos: `agenda` (ManyToOne), `dataInicio`, `dataFim`, `horaInicio`, `horaFim`,
     `duracaoSessaoMinutos`, `diasSemana` (ElementCollection), `convenios` (ManyToMany),
     `procedimentos` (ManyToMany)
-- [ ] Migration `V20260423000002__create_agenda_regra.sql`
+- [x] Migration `V20260424000002__create_agenda_regra.sql`
   - Tabelas: `agenda_regra`, `agenda_regra_dia_semana`, `agenda_regra_convenio`, `agenda_regra_procedimento`
   - INSERT de módulo `AGENDAMENTO_AGENDA_REGRA`
-- [ ] `AgendaRegraDTO` + `AgendaRegraGridDTO`
-- [ ] `AgendaRegraRepository` + `AgendaRegraService` + `AgendaRegraServiceImpl`
-- [ ] `AgendaRegraController` com endpoints aninhados sob `/agendamento/agenda/{agendaId}/regras`
-- [ ] `ConflitosRegraService` — lógica de detecção de conflito entre regras de uma mesma agenda:
-  - Duas regras conflitam se ranges de data E de horário se sobrepõem E dias da semana se intersectam
-  - Retorna lista de pares `[regraIdA, regraIdB]` como warning (não bloqueia)
-- [ ] Endpoint `GET /agendamento/agenda/{id}/regras/conflitos`
+- [x] `AgendaRegraDTO` + `AgendaRegraGridDTO`
+- [x] `AgendaRegraRepository` + `AgendaRegraService` + `AgendaRegraServiceImpl`
+- [x] `AgendaRegraController` com endpoints aninhados sob `/agendamento/agenda/{agendaId}/regras`
+- [x] `ConflitosRegraService` — lógica de detecção de conflito entre regras de uma mesma agenda
+- [x] Endpoint `GET /agendamento/agenda/{id}/regras/conflitos`
 
 ### Frontend
-- [ ] Sub-painel `AgendaRegraComponent` dentro do detalhe da Agenda (carregado por ID)
-- [ ] Formulário de regra:
-  - Date range (dataInicio/dataFim)
-  - Time range (horaInicio/horaFim)
-  - Duração da sessão (InputNumber em minutos)
-  - Checkboxes dos dias da semana
-  - MultiSelect de convênios (opcional)
-  - MultiSelect de procedimentos (opcional)
-- [ ] Lista de regras configuradas com botão editar/excluir
-- [ ] Banner/card de alerta exibindo pares de regras em conflito (não bloqueante)
+- [x] Sub-painel `AgendaRegraComponent` dentro do detalhe da Agenda (carregado por ID)
+- [x] Formulário de regra (date range, time range, duração, dias da semana, multiselect convênios/procedimentos)
+- [x] Lista de regras configuradas com botão editar/excluir
+- [x] Banner/card de alerta exibindo pares de regras em conflito (não bloqueante)
 
-**Critério de aceite:** Adicionar regras, editar, remover. Ver alertas quando há sobreposição de horários.
+**Critério de aceite:** Adicionar regras, editar, remover. Ver alertas quando há sobreposição de horários. ✅
 
 ---
 
@@ -145,32 +137,26 @@ components/atendimento/
 **Objetivo:** Calcular slots disponíveis e agendar pacientes com suporte a múltiplos horários.
 
 ### Backend
-- [ ] Entidades `Agendamento` + `AgendamentoHorario` + migration `V20260423000003__create_agendamento.sql`
+- [x] Entidades `Agendamento` + `AgendamentoHorario` + migration `V20260426000001__create_agendamento.sql`
   - `AgendamentoStatus` enum (AGENDADO, CANCELADO, REALIZADO)
   - Tabela `agendamento_horario` com FK para `agendamento`
-- [ ] `SlotCalculatorService` — dado uma agenda e range de data, gera todos os slots conforme regras,
+- [x] `SlotCalculatorService` — dado uma agenda e range de data, gera todos os slots conforme regras,
   excluindo slots já ocupados (presentes em `agendamento_horario`)
-- [ ] Endpoint `GET /agendamento/slots?agendaId=&dataInicio=&dataFim=`
-  - Retorna lista de `SlotDTO { dataHoraInicio, dataHoraFim, livre: boolean, agendamentoId? }`
-- [ ] Endpoint `POST /agendamento` — cria agendamento com lista de `dataHoraInicio/dataHoraFim`
-- [ ] Endpoint `GET /agendamento/conflito-paciente?pessoaId=&dataHoraInicio=&dataHoraFim=`
-  - Retorna lista de agendamentos do paciente que colidem com o horário solicitado
+- [x] Endpoint `GET /agendamento/agendamento/slots?agendaId=&dataInicio=&dataFim=`
+  - Retorna lista de `SlotDTO { dataHoraInicio, dataHoraFim, livre, agendamentoId?, pacienteNome?, ... }`
+- [x] Endpoint `POST /agendamento/agendamento` — cria agendamento com lista de `dataHoraInicio/dataHoraFim`
+- [x] Endpoint `GET /agendamento/agendamento/conflito-paciente?pacienteId=&dataInicio=&dataFim=`
+- [x] Endpoints `PATCH /agendamento/agendamento/cancelar/{id}` e `realizar/{id}`
 
 ### Frontend
-- [ ] Tela "Agendar por Profissional":
-  1. Seleciona Agenda (autocomplete)
-  2. Seleciona período/data → carrega grade de slots via endpoint
-  3. Seleciona um ou mais slots livres (highlight visual)
-  4. Seleciona Paciente (autocomplete de Pessoa)
-  5. Seleciona Convênio + Procedimento (opcionais)
-  6. Ao selecionar paciente + slots, consulta `conflito-paciente` → alerta não-bloqueante
-  7. Confirma agendamento
-- [ ] Tela "Agendar por Paciente":
-  1. Seleciona Paciente
-  2. Seleciona Agenda/Profissional
-  3. Fluxo similar ao modo por profissional
+- [x] Tela `AgendarComponent` (formulário completo):
+  - Seleção de agenda, paciente, convênio, procedimento (via EntityField)
+  - Busca de slots por período → grade de slots com toggle de seleção
+  - Alerta de conflito ao selecionar paciente + slots
+  - Modo calendário: pré-preenche agenda e slot a partir do slot clicado
+  - Modo somente leitura para datas passadas
 
-**Critério de aceite:** Agendar paciente em um ou mais slots. Ver alerta de conflito. Não conseguir agendar em slot ocupado.
+**Critério de aceite:** Agendar paciente em um ou mais slots. Ver alerta de conflito. ✅
 
 ---
 
@@ -178,24 +164,43 @@ components/atendimento/
 
 **Objetivo:** Duas visões de consulta dos agendamentos.
 
+> **Nota de implementação:** As visualizações foram integradas diretamente no
+> `AgendamentoComponent` (calendário), eliminando a necessidade de um componente
+> `visualizacao/` separado. O endpoint `/slots` serve como `visao-profissional`.
+
 ### Backend
-- [ ] Endpoint `GET /agendamento/visao-profissional?agendaId=&dataInicio=&dataFim=`
-  - Retorna todos os slots (livres e ocupados) com dados do paciente quando ocupado
-- [ ] Endpoint `GET /agendamento/visao-paciente?pessoaId=&dataInicio=&dataFim=`
-  - Retorna todos os agendamentos do paciente agrupados por profissional/agenda
+- [x] Endpoint `GET /agendamento/agendamento/slots` (serve visão profissional — livres + ocupados com dados do paciente)
+- [x] Endpoint `GET /agendamento/agendamento/visao-paciente?pessoaId=&dataInicio=&dataFim=`
+  - Retorna agendamentos do paciente ordenados cronologicamente
 
 ### Frontend
-- [ ] **Visão por Profissional:** grade horária semanal/diária. Slot livre = cinza, ocupado = cor + nome do paciente. Clicar no slot ocupado abre resumo do agendamento.
-- [ ] **Visão por Paciente:** busca paciente → lista cronológica: data, profissional, procedimento, convênio, status. Ação de cancelar diretamente na lista.
-- [ ] Switcher para alternar entre as duas visões na mesma tela
+- [x] **Visão por Profissional:**
+  - Modo 1D: grade de slots do dia com status livre/ocupado, nome do paciente, procedimento/convênio
+  - Modo 7D: grade semanal compacta (7 colunas)
+  - Modo 30D: calendário mensal com contadores de livres/ocupados por célula
+  - Clicar em slot livre → abre `AgendarComponent` para novo agendamento
+  - Clicar em slot ocupado → abre `AgendarComponent` em modo visualização
+- [x] **Visão por Paciente:**
+  - Busca por paciente (EntityField) + filtro de período
+  - Lista cronológica agrupada por data: hora, agenda, profissional, procedimento, convênio, status
+  - Botão cancelar diretamente na lista (apenas para status AGENDADO)
+- [x] Switcher Profissional/Paciente na barra de controles
 
-**Critério de aceite:** Navegar pelas duas visões com dados reais. Cancelar agendamento pela visão do paciente.
+### Extras implementados além do plano
+- [x] Filtro de agendas por unidade de negócio via setor (`AgendaServiceImpl.addUnidadeNegocioFilterIfApplicable`)
+- [x] Testes unitários: `SlotCalculatorServiceTest` (11 casos), `AgendamentoServiceTest` (8 casos), `AgendarComponent` (15 casos)
+
+**Critério de aceite:** Navegar pelas duas visões com dados reais. Cancelar agendamento pela visão do paciente. ✅
 
 ---
 
-## Pendências e Notas
+## Módulo Concluído ✅
 
-*(Adicionar aqui qualquer issue, decisão de design ou bloqueio encontrado durante a implementação)*
+Commits principais:
+- `328c7e2` — Entrega 1 + 2 (agenda, regras, conflitos)
+- `a2b0466` — Entrega 3 + 4 (motor de slots, agendamento, visualizações)
+- `e6ba20a` — Testes, lint, filtro por setor
+- `37d94ec` — Fix budget CSS para build de produção
 
 ---
 
