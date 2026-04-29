@@ -1,5 +1,19 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { BaseComponent } from '../../../../base/base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -22,6 +36,7 @@ import { AgendaDTO } from '../../agenda/model/agenda-dto';
 import { AgendaService } from '../../agenda/agenda.service';
 import { PessoaDTO } from '../../../../cadastro/pessoa/model/pessoa-dto';
 import { PessoaService } from '../../../../cadastro/pessoa/pessoa.service';
+import { PessoaDetalheComponent } from '../../../../cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component';
 import { ConvenioDTO } from '../../../convenio/model/convenio-dto';
 import { ConvenioService } from '../../../convenio/convenio.service';
 import { ProcedimentoDTO } from '../../../procedimento/model/procedimento-dto';
@@ -41,8 +56,15 @@ import { ProcedimentoService } from '../../../procedimento/procedimento.service'
     MessageModule,
     ButtonModule,
     EntityFieldComponent,
+    PessoaDetalheComponent,
   ],
-  providers: [AgendamentoService, AgendaService, PessoaService, ConvenioService, ProcedimentoService],
+  providers: [
+    AgendamentoService,
+    AgendaService,
+    PessoaService,
+    ConvenioService,
+    ProcedimentoService,
+  ],
   templateUrl: './agendar.component.html',
   styleUrl: './agendar.component.css',
 })
@@ -60,6 +82,7 @@ export class AgendarComponent implements OnInit {
   titulo = $localize`Agendamento: `;
   toolbarActions: ToolbarActionModel[] = [];
   canEdit = false;
+  showPessoaDetalhe = false;
 
   agendaSelecionada: AgendaDTO | null = null;
   pacienteSelecionado: PessoaDTO | null = null;
@@ -98,7 +121,7 @@ export class AgendarComponent implements OnInit {
       service: this.agendaService,
       searchFields: [{ key: 'nome', label: $localize`Nome` }],
       resultFields: [
-        { key: 'nome',             label: $localize`Nome` },
+        { key: 'nome', label: $localize`Nome` },
         { key: 'profissionalNome', label: $localize`Profissional` },
       ],
     };
@@ -107,22 +130,24 @@ export class AgendarComponent implements OnInit {
       service: this.pessoaService,
       searchFields: [{ key: 'nome', label: $localize`Nome` }],
       resultFields: [
-        { key: 'nome',      label: $localize`Nome` },
+        { key: 'nome', label: $localize`Nome` },
         { key: 'documento', label: $localize`Documento` },
       ],
     };
 
     this.convenioSearchConfig = {
-      service: this.convenioService as unknown as EntitySearchConfig<ConvenioDTO>['service'],
+      service: this
+        .convenioService as unknown as EntitySearchConfig<ConvenioDTO>['service'],
       searchFields: [{ key: 'nome', label: $localize`Nome` }],
       resultFields: [{ key: 'nome', label: $localize`Nome` }],
     };
 
     this.procedimentoSearchConfig = {
-      service: this.procedimentoService as unknown as EntitySearchConfig<ProcedimentoDTO>['service'],
+      service: this
+        .procedimentoService as unknown as EntitySearchConfig<ProcedimentoDTO>['service'],
       searchFields: [{ key: 'descricao', label: $localize`Descrição` }],
       resultFields: [
-        { key: 'codigo',    label: $localize`Código` },
+        { key: 'codigo', label: $localize`Código` },
         { key: 'descricao', label: $localize`Descrição` },
       ],
     };
@@ -150,7 +175,10 @@ export class AgendarComponent implements OnInit {
   }
 
   private preencherDoCalendario(): void {
-    this.agendaSelecionada = { id: this.agendaIdPre!, nome: this.agendaNomePre ?? '' } as AgendaDTO;
+    this.agendaSelecionada = {
+      id: this.agendaIdPre!,
+      nome: this.agendaNomePre ?? '',
+    } as AgendaDTO;
     this.form.get('agendaId')?.setValue(this.agendaIdPre);
     const slot = new SlotDTO();
     slot.dataHoraInicio = this.slotInicio!;
@@ -162,16 +190,26 @@ export class AgendarComponent implements OnInit {
   formatarSlotHeader(): string {
     if (!this.slotInicio) return '';
     const inicio = new Date(this.slotInicio);
-    const data = inicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const horaInicio = inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const data = inicio.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const horaInicio = inicio.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     if (!this.slotFim) return `${data} ${horaInicio}`;
-    const horaFim = new Date(this.slotFim).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const horaFim = new Date(this.slotFim).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     return `${data} ${horaInicio} – ${horaFim}`;
   }
 
   private initForm(): void {
     this.form = this.fb.nonNullable.group({
-      agendaId:   ['', Validators.required],
+      agendaId: ['', Validators.required],
       pacienteId: ['', Validators.required],
       convenioId: [''],
       procedimentoId: [''],
@@ -180,12 +218,19 @@ export class AgendarComponent implements OnInit {
   }
 
   private checkPermissions(): void {
-    this.canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.AGENDAMENTO_AGENDAMENTO);
+    this.canEdit = this.auth.hasAuthorityEditarToModulo(
+      SystemModuleKey.AGENDAMENTO_AGENDAMENTO,
+    );
   }
 
   private createToolbarActions(): void {
     this.toolbarActions = [
-      { action: () => this.goBackFn(), icon: 'close', title: $localize`Cancelar (esc)`, shortcut: 'escape' },
+      {
+        action: () => this.goBackFn(),
+        icon: 'close',
+        title: $localize`Cancelar (esc)`,
+        shortcut: 'escape',
+      },
     ];
     if (this.canEdit && !this.somenteLeitura) {
       this.toolbarActions.push({
@@ -193,6 +238,13 @@ export class AgendarComponent implements OnInit {
         icon: 'save',
         title: $localize`Salvar (enter)`,
         shortcut: 'enter',
+      });
+    }
+    if (this.canEdit && this.detailId === RouteConstants.P_ADD) {
+      this.toolbarActions.unshift({
+        action: () => this.abrirCadastroPaciente(),
+        icon: 'person_add',
+        title: $localize`Cadastrar novo paciente`,
       });
     }
   }
@@ -207,21 +259,30 @@ export class AgendarComponent implements OnInit {
 
   private fillForm(): void {
     this.form.patchValue({
-      agendaId:      this.dto.agendaId ?? '',
-      pacienteId:    this.dto.pacienteId ?? '',
-      convenioId:    this.dto.convenioId ?? '',
+      agendaId: this.dto.agendaId ?? '',
+      pacienteId: this.dto.pacienteId ?? '',
+      convenioId: this.dto.convenioId ?? '',
       procedimentoId: this.dto.procedimentoId ?? '',
-      observacao:    this.dto.observacao ?? '',
+      observacao: this.dto.observacao ?? '',
     });
 
     if (this.dto.agendaId) {
-      this.agendaSelecionada = { id: this.dto.agendaId, nome: this.dto.agendaNome } as AgendaDTO;
+      this.agendaSelecionada = {
+        id: this.dto.agendaId,
+        nome: this.dto.agendaNome,
+      } as AgendaDTO;
     }
     if (this.dto.pacienteId) {
-      this.pacienteSelecionado = { id: this.dto.pacienteId, nome: this.dto.pacienteNome } as PessoaDTO;
+      this.pacienteSelecionado = {
+        id: this.dto.pacienteId,
+        nome: this.dto.pacienteNome,
+      } as PessoaDTO;
     }
     if (this.dto.convenioId) {
-      this.convenioSelecionado = { id: this.dto.convenioId, nome: this.dto.convenioNome } as ConvenioDTO;
+      this.convenioSelecionado = {
+        id: this.dto.convenioId,
+        nome: this.dto.convenioNome,
+      } as ConvenioDTO;
     }
     if (this.dto.procedimentoId) {
       this.procedimentoSelecionado = {
@@ -241,20 +302,32 @@ export class AgendarComponent implements OnInit {
         });
       } else {
         const primeiro = new Date(this.dto.horariosInicio[0]);
-        const ultimo = new Date(this.dto.horariosInicio[this.dto.horariosInicio.length - 1]);
-        this.dataInicio = new Date(primeiro.getFullYear(), primeiro.getMonth(), primeiro.getDate());
-        this.dataFim = new Date(ultimo.getFullYear(), ultimo.getMonth(), ultimo.getDate());
+        const ultimo = new Date(
+          this.dto.horariosInicio[this.dto.horariosInicio.length - 1],
+        );
+        this.dataInicio = new Date(
+          primeiro.getFullYear(),
+          primeiro.getMonth(),
+          primeiro.getDate(),
+        );
+        this.dataFim = new Date(
+          ultimo.getFullYear(),
+          ultimo.getMonth(),
+          ultimo.getDate(),
+        );
         this.buscarSlots();
       }
     }
   }
 
   pesquisarAgenda(): void {
-    this.entitySearchService.search(this.agendaSearchConfig).subscribe((result) => {
-      if (!result.cancelled && result.entity) {
-        this.onAgendaSelected(result.entity);
-      }
-    });
+    this.entitySearchService
+      .search(this.agendaSearchConfig)
+      .subscribe((result) => {
+        if (!result.cancelled && result.entity) {
+          this.onAgendaSelected(result.entity);
+        }
+      });
   }
 
   onAgendaSelected(entity: unknown): void {
@@ -273,11 +346,13 @@ export class AgendarComponent implements OnInit {
   }
 
   pesquisarPaciente(): void {
-    this.entitySearchService.search(this.pacienteSearchConfig).subscribe((result) => {
-      if (!result.cancelled && result.entity) {
-        this.onPacienteSelected(result.entity);
-      }
-    });
+    this.entitySearchService
+      .search(this.pacienteSearchConfig)
+      .subscribe((result) => {
+        if (!result.cancelled && result.entity) {
+          this.onPacienteSelected(result.entity);
+        }
+      });
   }
 
   onPacienteSelected(entity: unknown): void {
@@ -294,11 +369,13 @@ export class AgendarComponent implements OnInit {
   }
 
   pesquisarConvenio(): void {
-    this.entitySearchService.search(this.convenioSearchConfig).subscribe((result) => {
-      if (!result.cancelled && result.entity) {
-        this.onConvenioSelected(result.entity);
-      }
-    });
+    this.entitySearchService
+      .search(this.convenioSearchConfig)
+      .subscribe((result) => {
+        if (!result.cancelled && result.entity) {
+          this.onConvenioSelected(result.entity);
+        }
+      });
   }
 
   onConvenioSelected(entity: unknown): void {
@@ -313,11 +390,13 @@ export class AgendarComponent implements OnInit {
   }
 
   pesquisarProcedimento(): void {
-    this.entitySearchService.search(this.procedimentoSearchConfig).subscribe((result) => {
-      if (!result.cancelled && result.entity) {
-        this.onProcedimentoSelected(result.entity);
-      }
-    });
+    this.entitySearchService
+      .search(this.procedimentoSearchConfig)
+      .subscribe((result) => {
+        if (!result.cancelled && result.entity) {
+          this.onProcedimentoSelected(result.entity);
+        }
+      });
   }
 
   onProcedimentoSelected(entity: unknown): void {
@@ -334,7 +413,9 @@ export class AgendarComponent implements OnInit {
   buscarSlots(): void {
     const agendaId = this.form.get('agendaId')?.value;
     if (!agendaId || !this.dataInicio || !this.dataFim) {
-      this.messages.alerta($localize`Selecione uma agenda e o período para buscar os slots.`);
+      this.messages.alerta(
+        $localize`Selecione uma agenda e o período para buscar os slots.`,
+      );
       return;
     }
     this.carregandoSlots = true;
@@ -345,7 +426,10 @@ export class AgendarComponent implements OnInit {
       next: (response) => {
         this.slots = response.body ?? [];
         this.carregandoSlots = false;
-        if (this.detailId !== RouteConstants.P_ADD && this.dto.horariosInicio?.length) {
+        if (
+          this.detailId !== RouteConstants.P_ADD &&
+          this.dto.horariosInicio?.length
+        ) {
           this.preSelectSlots();
         }
       },
@@ -358,14 +442,14 @@ export class AgendarComponent implements OnInit {
   private preSelectSlots(): void {
     const iniciosSalvos = new Set(this.dto.horariosInicio ?? []);
     this.slotsSelecionados = this.slots.filter(
-      (s) => s.dataHoraInicio && iniciosSalvos.has(s.dataHoraInicio)
+      (s) => s.dataHoraInicio && iniciosSalvos.has(s.dataHoraInicio),
     );
   }
 
   toggleSlot(slot: SlotDTO): void {
     if (!slot.livre && !this.isSlotSelecionado(slot)) return;
     const idx = this.slotsSelecionados.findIndex(
-      (s) => s.dataHoraInicio === slot.dataHoraInicio
+      (s) => s.dataHoraInicio === slot.dataHoraInicio,
     );
     if (idx >= 0) {
       this.slotsSelecionados.splice(idx, 1);
@@ -376,7 +460,9 @@ export class AgendarComponent implements OnInit {
   }
 
   isSlotSelecionado(slot: SlotDTO): boolean {
-    return this.slotsSelecionados.some((s) => s.dataHoraInicio === slot.dataHoraInicio);
+    return this.slotsSelecionados.some(
+      (s) => s.dataHoraInicio === slot.dataHoraInicio,
+    );
   }
 
   private verificarConflitos(): void {
@@ -391,16 +477,26 @@ export class AgendarComponent implements OnInit {
     if (datas.length === 0) return;
     const minData = datas.reduce((a, b) => (a < b ? a : b));
     const maxData = datas.reduce((a, b) => (a > b ? a : b));
-    this.service.conflitoPaciente(pacienteId, minData, maxData).subscribe((response) => {
-      this.conflitos = (response.body ?? []).filter((ag) => ag.id !== this.detailId);
-    });
+    this.service
+      .conflitoPaciente(pacienteId, minData, maxData)
+      .subscribe((response) => {
+        this.conflitos = (response.body ?? []).filter(
+          (ag) => ag.id !== this.detailId,
+        );
+      });
   }
 
   formatarSlot(slot: SlotDTO): string {
     if (!slot.dataHoraInicio) return '';
     const dt = new Date(slot.dataHoraInicio);
-    const data = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    const hora = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const data = dt.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+    });
+    const hora = dt.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     return `${data} ${hora}`;
   }
 
@@ -444,7 +540,7 @@ export class AgendarComponent implements OnInit {
     this.dto.observacao = raw.observacao || undefined;
 
     const sorted = [...this.slotsSelecionados].sort((a, b) =>
-      (a.dataHoraInicio ?? '').localeCompare(b.dataHoraInicio ?? '')
+      (a.dataHoraInicio ?? '').localeCompare(b.dataHoraInicio ?? ''),
     );
     this.dto.horariosInicio = sorted.map((s) => s.dataHoraInicio!);
     this.dto.horariosFim = sorted.map((s) => s.dataHoraFim!);
@@ -460,6 +556,24 @@ export class AgendarComponent implements OnInit {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  abrirCadastroPaciente(): void {
+    this.showPessoaDetalhe = true;
+  }
+
+  fecharPessoaDetalhe(): void {
+    this.showPessoaDetalhe = false;
+  }
+
+  onPacienteSalvo(pessoa: { id: string; nome: string }): void {
+    this.pacienteSelecionado = {
+      id: pessoa.id,
+      nome: pessoa.nome,
+    } as PessoaDTO;
+    this.form.get('pacienteId')?.setValue(pessoa.id);
+    this.showPessoaDetalhe = false;
+    this.verificarConflitos();
   }
 
   goBackFn = (): void => {

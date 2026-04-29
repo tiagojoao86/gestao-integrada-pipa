@@ -109,15 +109,16 @@ describe('AgendarComponent', () => {
       expect(component.form.get('observacao')).toBeTruthy();
     });
 
-    it('deve configurar toolbar com cancelar e salvar quando tem permissão', () => {
+    it('deve configurar toolbar com cancelar, salvar e cadastrar paciente quando tem permissão', () => {
       authService.hasAuthorityEditarToModulo.mockReturnValue(true);
 
       component.detailId = 'add';
       component.ngOnInit();
 
-      expect(component.toolbarActions.length).toBe(2);
+      expect(component.toolbarActions.length).toBe(3);
       expect(component.toolbarActions[0].icon).toBe('close');
       expect(component.toolbarActions[1].icon).toBe('save');
+      expect(component.toolbarActions[2].icon).toBe('person_add');
     });
 
     it('deve configurar toolbar apenas com cancelar quando sem permissão', () => {
@@ -130,15 +131,16 @@ describe('AgendarComponent', () => {
       expect(component.toolbarActions[0].icon).toBe('close');
     });
 
-    it('deve configurar toolbar sem salvar quando somenteLeitura', () => {
+    it('deve configurar toolbar sem salvar mas com cadastrar paciente quando somenteLeitura', () => {
       authService.hasAuthorityEditarToModulo.mockReturnValue(true);
 
       component.detailId = 'add';
       component.somenteLeitura = true;
       component.ngOnInit();
 
-      expect(component.toolbarActions.length).toBe(1);
+      expect(component.toolbarActions.length).toBe(2);
       expect(component.toolbarActions[0].icon).toBe('close');
+      expect(component.toolbarActions[1].icon).toBe('person_add');
     });
 
     it('deve preencher agenda e slot ao iniciar em modo calendário', () => {
