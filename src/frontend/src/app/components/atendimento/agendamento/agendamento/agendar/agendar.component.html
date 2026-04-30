@@ -138,7 +138,8 @@
       </div>
 
       <div class="w-50 box-fieldset">
-        <p-iftalabel>
+        <div class="categoria-field">
+          <span class="categoria-label" i18n>{{ categoriaLabel }}</span>
           <p-select
             id="categoriaId"
             formControlName="categoriaId"
@@ -146,10 +147,9 @@
             optionLabel="nome"
             optionValue="id"
             [showClear]="true"
-            class="w-100"
+            [placeholder]="convenioSelecionado ? '' : ''"
           />
-          <label for="categoriaId" i18n>{{ categoriaLabel }}</label>
-        </p-iftalabel>
+        </div>
       </div>
 
       <!-- Procedimento -->

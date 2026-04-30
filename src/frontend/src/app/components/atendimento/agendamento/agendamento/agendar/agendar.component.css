@@ -2,6 +2,44 @@
   padding: 0.2rem;
 }
 
+/* Alinha o p-select de categoria com gi-entity-field (height 46px) */
+.categoria-field {
+  box-sizing: border-box;
+  border: thin solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  height: 46px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 0.4rem;
+  overflow: hidden;
+}
+
+.categoria-label {
+  font-size: smaller;
+  font-weight: 400;
+  color: var(--input-label-color);
+  font-family: var(--input-label-font-family);
+  line-height: 1;
+  margin-bottom: 0.15rem;
+}
+
+:host ::ng-deep .categoria-field .p-select {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: 22px;
+  min-height: unset;
+  background: transparent !important;
+}
+
+:host ::ng-deep .categoria-field .p-select-label {
+  padding: 0 !important;
+  font-size: var(--text-size) !important;
+  line-height: 22px;
+}
+
 .calendar-slot-header {
   display: flex;
   align-items: center;
