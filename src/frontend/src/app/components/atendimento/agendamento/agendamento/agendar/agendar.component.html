@@ -126,29 +126,30 @@
       }
 
       <!-- Convênio | Categoria -->
-      <div class="w-50 box-fieldset">
-        <gi-entity-field
-          [label]="convenioLabel"
-          [entityLabel]="convenioSelecionado?.nome ?? null"
-          [searchConfig]="convenioSearchConfig"
-          (entitySearch)="pesquisarConvenio()"
-          (entitySelected)="onConvenioSelected($event)"
-          (remove)="limparConvenio()"
-        />
-      </div>
-
-      <div class="w-50 box-fieldset">
-        <div class="categoria-field">
-          <span class="categoria-label" i18n>{{ categoriaLabel }}</span>
-          <p-select
-            id="categoriaId"
-            formControlName="categoriaId"
-            [options]="categorias"
-            optionLabel="nome"
-            optionValue="id"
-            [showClear]="true"
-            [placeholder]="convenioSelecionado ? '' : ''"
+      <div class="convenio-row w-100">
+        <div class="convenio-row__field">
+          <gi-entity-field
+            [label]="convenioLabel"
+            [entityLabel]="convenioSelecionado?.nome ?? null"
+            [searchConfig]="convenioSearchConfig"
+            (entitySearch)="pesquisarConvenio()"
+            (entitySelected)="onConvenioSelected($event)"
+            (remove)="limparConvenio()"
           />
+        </div>
+        <div class="convenio-row__field">
+          <p-iftalabel>
+            <p-select
+              id="categoriaId"
+              formControlName="categoriaId"
+              [options]="categorias"
+              optionLabel="nome"
+              optionValue="id"
+              [showClear]="true"
+              class="w-100"
+            />
+            <label for="categoriaId">{{ categoriaLabel }}</label>
+          </p-iftalabel>
         </div>
       </div>
 
