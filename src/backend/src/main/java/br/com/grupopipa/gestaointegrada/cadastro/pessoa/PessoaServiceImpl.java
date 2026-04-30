@@ -132,7 +132,9 @@ public class PessoaServiceImpl
 
     @Override
     protected PessoaGridDTO buildGridDTOFromEntity(Pessoa entity) {
-        String documento = entity.isPessoaFisica() ? entity.getCpf() : entity.getCnpj();
+        String documento = entity.isPessoaFisica()
+                ? formatCpf(entity.getCpf())
+                : formatCnpj(entity.getCnpj());
 
         return PessoaGridDTO.builder()
                 .id(entity.getId())
@@ -143,6 +145,18 @@ public class PessoaServiceImpl
                 .createdAt(entity.getCreatedAt())
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    private static String formatCpf(String cpf) {
+        if (cpf == null || cpf.length() != 11) return cpf;
+        return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "."
+                + cpf.substring(6, 9) + "-" + cpf.substring(9);
+    }
+
+    private static String formatCnpj(String cnpj) {
+        if (cnpj == null || cnpj.length() != 14) return cnpj;
+        return cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "."
+                + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12);
     }
 
     @Override

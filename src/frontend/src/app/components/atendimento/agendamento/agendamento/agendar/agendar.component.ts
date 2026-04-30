@@ -128,10 +128,13 @@ export class AgendarComponent implements OnInit {
 
     this.pacienteSearchConfig = {
       service: this.pessoaService,
-      searchFields: [{ key: 'nome', label: $localize`Nome` }],
-      resultFields: [
+      searchFields: [
         { key: 'nome', label: $localize`Nome` },
-        { key: 'documento', label: $localize`Documento` },
+        { key: 'cpf',  label: $localize`CPF` },
+      ],
+      resultFields: [
+        { key: 'nome',      label: $localize`Nome` },
+        { key: 'documento', label: $localize`CPF/CNPJ` },
       ],
     };
 
@@ -241,7 +244,7 @@ export class AgendarComponent implements OnInit {
       });
     }
     if (this.canEdit && this.detailId === RouteConstants.P_ADD) {
-      this.toolbarActions.unshift({
+      this.toolbarActions.push({
         action: () => this.abrirCadastroPaciente(),
         icon: 'person_add',
         title: $localize`Cadastrar novo paciente`,
