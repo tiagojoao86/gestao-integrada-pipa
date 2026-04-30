@@ -219,12 +219,12 @@ export class AgendarComponent implements OnInit {
   }
 
   private initForm(): void {
-    this.form = this.fb.nonNullable.group({
+    this.form = this.fb.group({
       agendaId: ['', Validators.required],
       pacienteId: ['', Validators.required],
-      convenioId: [''],
-      categoriaId: [''],
-      procedimentoId: [''],
+      convenioId: [null as string | null],
+      categoriaId: [{ value: null as string | null, disabled: true }],
+      procedimentoId: [null as string | null],
       observacao: ['', Validators.maxLength(1000)],
     });
   }
@@ -273,9 +273,9 @@ export class AgendarComponent implements OnInit {
     this.form.patchValue({
       agendaId: this.dto.agendaId ?? '',
       pacienteId: this.dto.pacienteId ?? '',
-      convenioId: this.dto.convenioId ?? '',
-      categoriaId: this.dto.categoriaId ?? '',
-      procedimentoId: this.dto.procedimentoId ?? '',
+      convenioId: this.dto.convenioId ?? null,
+      categoriaId: this.dto.categoriaId ?? null,
+      procedimentoId: this.dto.procedimentoId ?? null,
       observacao: this.dto.observacao ?? '',
     });
 
@@ -296,7 +296,7 @@ export class AgendarComponent implements OnInit {
         id: this.dto.convenioId,
         nome: this.dto.convenioNome,
       } as ConvenioDTO;
-      this.carregarCategorias(this.dto.convenioId);
+      this.carregarCategorias(this.dto.convenioId, this.dto.categoriaId);
     }
     if (this.dto.procedimentoId) {
       this.procedimentoSelecionado = {
@@ -395,22 +395,29 @@ export class AgendarComponent implements OnInit {
   onConvenioSelected(entity: unknown): void {
     const convenio = entity as ConvenioDTO;
     this.convenioSelecionado = convenio;
-    this.form.get('convenioId')?.setValue(convenio.id ?? '');
-    this.form.get('categoriaId')?.setValue('');
+    this.form.get('convenioId')?.setValue(convenio.id ?? null);
+    this.form.get('categoriaId')?.setValue(null);
     this.carregarCategorias(convenio.id!);
   }
 
   limparConvenio(): void {
     this.convenioSelecionado = null;
-    this.form.get('convenioId')?.setValue('');
-    this.form.get('categoriaId')?.setValue('');
+    this.form.get('convenioId')?.setValue(null);
+    this.form.get('categoriaId')?.setValue(null);
+    this.form.get('categoriaId')?.disable();
     this.categorias = [];
   }
 
-  private carregarCategorias(convenioId: string): void {
+  private carregarCategorias(convenioId: string, categoriaIdPreSelecionada?: string): void {
     this.convenioCategoriaService.listarPorConvenio(convenioId).subscribe({
       next: (cats) => {
         this.categorias = cats.filter((c) => !c.deleted);
+        if (this.categorias.length > 0) {
+          this.form.get('categoriaId')?.enable();
+        }
+        if (categoriaIdPreSelecionada) {
+          this.form.get('categoriaId')?.setValue(categoriaIdPreSelecionada);
+        }
       },
       error: () => {
         this.categorias = [];
