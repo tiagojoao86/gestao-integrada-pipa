@@ -28,7 +28,7 @@
         <div class="w-50 box-fieldset">
           <gi-entity-field
             [label]="agendaLabel"
-            [entityLabel]="agendaSelecionada?.nome ?? null"
+            [entityLabel]="agendaDisplayLabel"
             [searchConfig]="agendaSearchConfig"
             (entitySearch)="pesquisarAgenda()"
             (entitySelected)="onAgendaSelected($event)"

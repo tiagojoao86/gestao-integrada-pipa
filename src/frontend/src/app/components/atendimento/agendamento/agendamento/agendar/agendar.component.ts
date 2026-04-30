@@ -77,6 +77,7 @@ export class AgendarComponent implements OnInit {
   @Input() detailId: string | number | null = null;
   @Input() agendaIdPre: string | null = null;
   @Input() agendaNomePre: string | null = null;
+  @Input() agendaProfissionalNomePre: string | null = null;
   @Input() slotInicio: string | null = null;
   @Input() slotFim: string | null = null;
   @Input() somenteLeitura = false;
@@ -168,6 +169,14 @@ export class AgendarComponent implements OnInit {
     return this.slotInicio != null;
   }
 
+  get agendaDisplayLabel(): string | null {
+    if (!this.agendaSelecionada) return null;
+    const prof = this.agendaSelecionada.profissionalNome;
+    return prof
+      ? `${this.agendaSelecionada.nome} (${prof})`
+      : (this.agendaSelecionada.nome ?? null);
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.checkPermissions();
@@ -175,7 +184,11 @@ export class AgendarComponent implements OnInit {
 
     if (this.detailId === RouteConstants.P_ADD) {
       if (this.calendarMode) {
-        this.titulo += this.agendaNomePre ?? $localize`Novo`;
+        const nomeTitulo = this.agendaNomePre ?? $localize`Novo`;
+        const profTitulo = this.agendaProfissionalNomePre
+          ? ` (${this.agendaProfissionalNomePre})`
+          : '';
+        this.titulo += nomeTitulo + profTitulo;
         this.preencherDoCalendario();
       } else {
         this.titulo += $localize`Novo`;
@@ -189,6 +202,7 @@ export class AgendarComponent implements OnInit {
     this.agendaSelecionada = {
       id: this.agendaIdPre!,
       nome: this.agendaNomePre ?? '',
+      profissionalNome: this.agendaProfissionalNomePre ?? undefined,
     } as AgendaDTO;
     this.form.get('agendaId')?.setValue(this.agendaIdPre);
     const slot = new SlotDTO();
