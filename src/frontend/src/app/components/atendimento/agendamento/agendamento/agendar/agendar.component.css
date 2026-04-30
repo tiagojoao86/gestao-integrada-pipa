@@ -1,3 +1,7 @@
+.box-fieldset {
+  padding: 0.2rem;
+}
+
 .calendar-slot-header {
   display: flex;
   align-items: center;
