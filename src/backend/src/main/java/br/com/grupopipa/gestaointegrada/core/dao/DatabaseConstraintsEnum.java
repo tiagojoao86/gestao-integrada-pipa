@@ -164,6 +164,7 @@ public enum DatabaseConstraintsEnum {
     FK_AGENDAMENTO_AGENDA("Agenda inválida."),
     FK_AGENDAMENTO_PACIENTE("Paciente inválido."),
     FK_AGENDAMENTO_CONVENIO("Convênio inválido."),
+    FK_AGENDAMENTO_CATEGORIA("Categoria inválida."),
     FK_AGENDAMENTO_PROCEDIMENTO("Procedimento inválido."),
     CHK_AGENDAMENTO_STATUS("Status de agendamento inválido."),
     FK_AGENDAMENTO_HORARIO_AGENDAMENTO("Agendamento inválido.");

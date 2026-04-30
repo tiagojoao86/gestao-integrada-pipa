@@ -9,6 +9,8 @@ export class AgendamentoDTO {
   @Expose() pacienteNome?: string;
   @Expose() convenioId?: string;
   @Expose() convenioNome?: string;
+  @Expose() categoriaId?: string;
+  @Expose() categoriaNome?: string;
   @Expose() procedimentoId?: string;
   @Expose() procedimentoNome?: string;
   @Expose() observacao?: string;

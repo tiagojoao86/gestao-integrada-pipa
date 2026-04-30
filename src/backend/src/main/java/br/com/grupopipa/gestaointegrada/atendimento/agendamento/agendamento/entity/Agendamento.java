@@ -6,6 +6,7 @@ import java.util.List;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agenda.entity.Agenda;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.AgendamentoValidator;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
+import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
@@ -50,6 +51,13 @@ public class Agendamento extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
+        name = "categoria_id",
+        foreignKey = @ForeignKey(name = "fk_agendamento_categoria")
+    )
+    private ConvenioCategoria categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
         name = "procedimento_id",
         foreignKey = @ForeignKey(name = "fk_agendamento_procedimento")
     )
@@ -70,6 +78,7 @@ public class Agendamento extends BaseEntity {
         this.agenda = data.agenda;
         this.paciente = data.paciente;
         this.convenio = data.convenio;
+        this.categoria = data.categoria;
         this.procedimento = data.procedimento;
         this.observacao = data.observacao;
     }
@@ -85,6 +94,7 @@ public class Agendamento extends BaseEntity {
         private Agenda agenda;
         private Pessoa paciente;
         private Convenio convenio;
+        private ConvenioCategoria categoria;
         private Procedimento procedimento;
         private String observacao;
 
@@ -103,6 +113,11 @@ public class Agendamento extends BaseEntity {
             return this;
         }
 
+        public Builder categoria(ConvenioCategoria categoria) {
+            this.categoria = categoria;
+            return this;
+        }
+
         public Builder procedimento(Procedimento procedimento) {
             this.procedimento = procedimento;
             return this;
@@ -115,7 +130,8 @@ public class Agendamento extends BaseEntity {
 
         public Agendamento build() {
             return new Agendamento(
-                AgendamentoValidator.validate(agenda, paciente, convenio, procedimento, observacao));
+                AgendamentoValidator.validate(agenda, paciente, convenio, categoria,
+                                             procedimento, observacao));
         }
     }
 
@@ -124,12 +140,14 @@ public class Agendamento extends BaseEntity {
     // =========================================================================
 
     public void atualizar(Agenda agenda, Pessoa paciente, Convenio convenio,
-            Procedimento procedimento, String observacao) {
+            ConvenioCategoria categoria, Procedimento procedimento, String observacao) {
         AgendamentoValidator.ValidatedData data =
-            AgendamentoValidator.validate(agenda, paciente, convenio, procedimento, observacao);
+            AgendamentoValidator.validate(agenda, paciente, convenio, categoria,
+                                         procedimento, observacao);
         this.agenda = data.agenda;
         this.paciente = data.paciente;
         this.convenio = data.convenio;
+        this.categoria = data.categoria;
         this.procedimento = data.procedimento;
         this.observacao = data.observacao;
     }
@@ -164,6 +182,10 @@ public class Agendamento extends BaseEntity {
 
     public Convenio getConvenio() {
         return convenio;
+    }
+
+    public ConvenioCategoria getCategoria() {
+        return categoria;
     }
 
     public Procedimento getProcedimento() {

@@ -125,7 +125,7 @@
         </div>
       }
 
-      <!-- Convênio | Procedimento -->
+      <!-- Convênio | Categoria -->
       <div class="w-50 box-fieldset">
         <gi-entity-field
           [label]="convenioLabel"
@@ -137,6 +137,24 @@
         />
       </div>
 
+      <div class="w-50 box-fieldset">
+        @if (convenioSelecionado && categorias.length > 0) {
+          <p-iftalabel>
+            <p-select
+              id="categoriaId"
+              formControlName="categoriaId"
+              [options]="categorias"
+              optionLabel="nome"
+              optionValue="id"
+              [showClear]="true"
+              class="w-100"
+            />
+            <label for="categoriaId" i18n>{{ categoriaLabel }}</label>
+          </p-iftalabel>
+        }
+      </div>
+
+      <!-- Procedimento -->
       <div class="w-50 box-fieldset">
         <gi-entity-field
           [label]="procedimentoLabel"

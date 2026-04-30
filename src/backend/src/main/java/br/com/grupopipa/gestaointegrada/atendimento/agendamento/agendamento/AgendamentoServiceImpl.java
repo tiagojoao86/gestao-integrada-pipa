@@ -20,6 +20,8 @@ import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.enti
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.entity.AgendamentoHorario;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.ConvenioRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
+import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.ConvenioCategoriaRepository;
+import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
@@ -37,6 +39,7 @@ public class AgendamentoServiceImpl
     private final AgendaRepository agendaRepository;
     private final PessoaRepository pessoaRepository;
     private final ConvenioRepository convenioRepository;
+    private final ConvenioCategoriaRepository convenioCategoriaRepository;
     private final ProcedimentoRepository procedimentoRepository;
     private final SlotCalculatorService slotCalculatorService;
 
@@ -46,12 +49,14 @@ public class AgendamentoServiceImpl
             AgendaRepository agendaRepository,
             PessoaRepository pessoaRepository,
             ConvenioRepository convenioRepository,
+            ConvenioCategoriaRepository convenioCategoriaRepository,
             ProcedimentoRepository procedimentoRepository,
             SlotCalculatorService slotCalculatorService) {
         super(repository, specifications);
         this.agendaRepository = agendaRepository;
         this.pessoaRepository = pessoaRepository;
         this.convenioRepository = convenioRepository;
+        this.convenioCategoriaRepository = convenioCategoriaRepository;
         this.procedimentoRepository = procedimentoRepository;
         this.slotCalculatorService = slotCalculatorService;
     }
@@ -78,6 +83,8 @@ public class AgendamentoServiceImpl
             .agenda(buscarAgenda(dto.getAgendaId()))
             .paciente(buscarPaciente(dto.getPacienteId()))
             .convenio(dto.getConvenioId() != null ? buscarConvenio(dto.getConvenioId()) : null)
+            .categoria(
+                dto.getCategoriaId() != null ? buscarCategoria(dto.getCategoriaId()) : null)
             .procedimento(
                 dto.getProcedimentoId() != null ? buscarProcedimento(dto.getProcedimentoId()) : null)
             .observacao(dto.getObservacao())
@@ -89,6 +96,7 @@ public class AgendamentoServiceImpl
             buscarAgenda(dto.getAgendaId()),
             buscarPaciente(dto.getPacienteId()),
             dto.getConvenioId() != null ? buscarConvenio(dto.getConvenioId()) : null,
+            dto.getCategoriaId() != null ? buscarCategoria(dto.getCategoriaId()) : null,
             dto.getProcedimentoId() != null ? buscarProcedimento(dto.getProcedimentoId()) : null,
             dto.getObservacao()
         );
@@ -172,6 +180,8 @@ public class AgendamentoServiceImpl
             .pacienteNome(e.getPaciente() != null ? e.getPaciente().getNome() : null)
             .convenioId(e.getConvenio() != null ? e.getConvenio().getId() : null)
             .convenioNome(e.getConvenio() != null ? e.getConvenio().getNome() : null)
+            .categoriaId(e.getCategoria() != null ? e.getCategoria().getId() : null)
+            .categoriaNome(e.getCategoria() != null ? e.getCategoria().getNome() : null)
             .procedimentoId(e.getProcedimento() != null ? e.getProcedimento().getId() : null)
             .procedimentoNome(e.getProcedimento() != null ? e.getProcedimento().getDescricao() : null)
             .observacao(e.getObservacao())
@@ -204,6 +214,7 @@ public class AgendamentoServiceImpl
             .profissionalNome(profissionalNome)
             .pacienteNome(e.getPaciente() != null ? e.getPaciente().getNome() : null)
             .convenioNome(e.getConvenio() != null ? e.getConvenio().getNome() : null)
+            .categoriaNome(e.getCategoria() != null ? e.getCategoria().getNome() : null)
             .procedimentoNome(e.getProcedimento() != null ? e.getProcedimento().getDescricao() : null)
             .status(e.getStatus() != null ? e.getStatus().name() : null)
             .primeiraData(primeiraDataHora != null ? primeiraDataHora.toLocalDate() : null)
@@ -237,6 +248,11 @@ public class AgendamentoServiceImpl
     private Convenio buscarConvenio(UUID id) {
         return convenioRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Convênio não encontrado."));
+    }
+
+    private ConvenioCategoria buscarCategoria(UUID id) {
+        return convenioCategoriaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
     }
 
     private Procedimento buscarProcedimento(UUID id) {

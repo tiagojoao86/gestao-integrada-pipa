@@ -21,6 +21,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MessageModule } from 'primeng/message';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { AgendamentoService } from '../agendamento.service';
 import { AgendamentoDTO } from '../model/agendamento-dto';
 import { SlotDTO } from '../model/slot-dto';
@@ -39,6 +40,8 @@ import { PessoaService } from '../../../../cadastro/pessoa/pessoa.service';
 import { PessoaDetalheComponent } from '../../../../cadastro/pessoa/pessoa-detalhe/pessoa-detalhe.component';
 import { ConvenioDTO } from '../../../convenio/model/convenio-dto';
 import { ConvenioService } from '../../../convenio/convenio.service';
+import { ConvenioCategoriaService } from '../../../convenio-categoria/convenio-categoria.service';
+import { ConvenioCategoriaGridDTO } from '../../../convenio-categoria/model/convenio-categoria-grid-dto';
 import { ProcedimentoDTO } from '../../../procedimento/model/procedimento-dto';
 import { ProcedimentoService } from '../../../procedimento/procedimento.service';
 
@@ -55,6 +58,7 @@ import { ProcedimentoService } from '../../../procedimento/procedimento.service'
     DatePickerModule,
     MessageModule,
     ButtonModule,
+    SelectModule,
     EntityFieldComponent,
     PessoaDetalheComponent,
   ],
@@ -63,6 +67,7 @@ import { ProcedimentoService } from '../../../procedimento/procedimento.service'
     AgendaService,
     PessoaService,
     ConvenioService,
+    ConvenioCategoriaService,
     ProcedimentoService,
   ],
   templateUrl: './agendar.component.html',
@@ -87,6 +92,7 @@ export class AgendarComponent implements OnInit {
   agendaSelecionada: AgendaDTO | null = null;
   pacienteSelecionado: PessoaDTO | null = null;
   convenioSelecionado: ConvenioDTO | null = null;
+  categorias: ConvenioCategoriaGridDTO[] = [];
   procedimentoSelecionado: ProcedimentoDTO | null = null;
 
   dataInicio: Date | null = null;
@@ -99,6 +105,7 @@ export class AgendarComponent implements OnInit {
   readonly agendaLabel = $localize`Agenda`;
   readonly pacienteLabel = $localize`Paciente`;
   readonly convenioLabel = $localize`Convênio (opcional)`;
+  readonly categoriaLabel = $localize`Categoria`;
   readonly procedimentoLabel = $localize`Procedimento (opcional)`;
 
   readonly agendaSearchConfig: EntitySearchConfig<AgendaDTO>;
@@ -111,6 +118,7 @@ export class AgendarComponent implements OnInit {
   private agendaService = inject(AgendaService);
   private pessoaService = inject(PessoaService);
   private convenioService = inject(ConvenioService);
+  private convenioCategoriaService = inject(ConvenioCategoriaService);
   private procedimentoService = inject(ProcedimentoService);
   private messages = inject(MessageService);
   private auth = inject(AuthService);
@@ -215,6 +223,7 @@ export class AgendarComponent implements OnInit {
       agendaId: ['', Validators.required],
       pacienteId: ['', Validators.required],
       convenioId: [''],
+      categoriaId: [''],
       procedimentoId: [''],
       observacao: ['', Validators.maxLength(1000)],
     });
@@ -265,6 +274,7 @@ export class AgendarComponent implements OnInit {
       agendaId: this.dto.agendaId ?? '',
       pacienteId: this.dto.pacienteId ?? '',
       convenioId: this.dto.convenioId ?? '',
+      categoriaId: this.dto.categoriaId ?? '',
       procedimentoId: this.dto.procedimentoId ?? '',
       observacao: this.dto.observacao ?? '',
     });
@@ -286,6 +296,7 @@ export class AgendarComponent implements OnInit {
         id: this.dto.convenioId,
         nome: this.dto.convenioNome,
       } as ConvenioDTO;
+      this.carregarCategorias(this.dto.convenioId);
     }
     if (this.dto.procedimentoId) {
       this.procedimentoSelecionado = {
@@ -385,11 +396,26 @@ export class AgendarComponent implements OnInit {
     const convenio = entity as ConvenioDTO;
     this.convenioSelecionado = convenio;
     this.form.get('convenioId')?.setValue(convenio.id ?? '');
+    this.form.get('categoriaId')?.setValue('');
+    this.carregarCategorias(convenio.id!);
   }
 
   limparConvenio(): void {
     this.convenioSelecionado = null;
     this.form.get('convenioId')?.setValue('');
+    this.form.get('categoriaId')?.setValue('');
+    this.categorias = [];
+  }
+
+  private carregarCategorias(convenioId: string): void {
+    this.convenioCategoriaService.listarPorConvenio(convenioId).subscribe({
+      next: (cats) => {
+        this.categorias = cats.filter((c) => !c.deleted);
+      },
+      error: () => {
+        this.categorias = [];
+      },
+    });
   }
 
   pesquisarProcedimento(): void {
@@ -539,6 +565,7 @@ export class AgendarComponent implements OnInit {
     this.dto.agendaId = raw.agendaId || undefined;
     this.dto.pacienteId = raw.pacienteId || undefined;
     this.dto.convenioId = raw.convenioId || undefined;
+    this.dto.categoriaId = raw.categoriaId || undefined;
     this.dto.procedimentoId = raw.procedimentoId || undefined;
     this.dto.observacao = raw.observacao || undefined;
 

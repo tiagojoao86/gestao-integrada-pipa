@@ -5,6 +5,7 @@ import java.util.Set;
 
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agenda.entity.Agenda;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
+import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
@@ -17,7 +18,7 @@ public class AgendamentoValidator {
 
     public static ValidatedData validate(
             Agenda agenda, Pessoa paciente, Convenio convenio,
-            Procedimento procedimento, String observacao) {
+            ConvenioCategoria categoria, Procedimento procedimento, String observacao) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (agenda == null) {
@@ -31,21 +32,23 @@ public class AgendamentoValidator {
             throw new BeanValidationException("agendamento", violations);
         }
 
-        return new ValidatedData(agenda, paciente, convenio, procedimento, observacao);
+        return new ValidatedData(agenda, paciente, convenio, categoria, procedimento, observacao);
     }
 
     public static class ValidatedData {
         public final Agenda agenda;
         public final Pessoa paciente;
         public final Convenio convenio;
+        public final ConvenioCategoria categoria;
         public final Procedimento procedimento;
         public final String observacao;
 
         ValidatedData(Agenda agenda, Pessoa paciente, Convenio convenio,
-                Procedimento procedimento, String observacao) {
+                ConvenioCategoria categoria, Procedimento procedimento, String observacao) {
             this.agenda = agenda;
             this.paciente = paciente;
             this.convenio = convenio;
+            this.categoria = categoria;
             this.procedimento = procedimento;
             this.observacao = observacao;
         }

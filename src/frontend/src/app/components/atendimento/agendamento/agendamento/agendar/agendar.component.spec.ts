@@ -6,6 +6,7 @@ import { AgendamentoService } from '../agendamento.service';
 import { AgendaService } from '../../agenda/agenda.service';
 import { PessoaService } from '../../../../cadastro/pessoa/pessoa.service';
 import { ConvenioService } from '../../../convenio/convenio.service';
+import { ConvenioCategoriaService } from '../../../convenio-categoria/convenio-categoria.service';
 import { ProcedimentoService } from '../../../procedimento/procedimento.service';
 import { MessageService } from '../../../../base/messages/messages.service';
 import { AuthService } from '../../../../base/auth/auth-service';
@@ -62,6 +63,7 @@ describe('AgendarComponent', () => {
             { provide: AgendaService, useValue: {} },
             { provide: PessoaService, useValue: {} },
             { provide: ConvenioService, useValue: {} },
+            { provide: ConvenioCategoriaService, useValue: {} },
             { provide: ProcedimentoService, useValue: {} },
           ],
         },

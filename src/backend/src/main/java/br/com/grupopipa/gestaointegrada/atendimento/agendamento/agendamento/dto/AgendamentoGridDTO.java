@@ -17,6 +17,7 @@ public class AgendamentoGridDTO implements GridDTO {
     private String profissionalNome;
     private String pacienteNome;
     private String convenioNome;
+    private String categoriaNome;
     private String procedimentoNome;
     private String status;
     private LocalDate primeiraData;
