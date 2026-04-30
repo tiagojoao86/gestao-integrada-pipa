@@ -57,7 +57,14 @@
               optionLabel="nome"
               (onChange)="onAgendaChange()"
               styleClass="w-100"
-            />
+            >
+              <ng-template pTemplate="selectedItem" let-a>
+                {{ a?.nome }}{{ a?.profissionalNome ? ' (' + a.profissionalNome + ')' : '' }}
+              </ng-template>
+              <ng-template pTemplate="item" let-a>
+                {{ a?.nome }}{{ a?.profissionalNome ? ' (' + a.profissionalNome + ')' : '' }}
+              </ng-template>
+            </p-select>
             <label for="agendaSelecionada" i18n>Agenda</label>
           </p-iftalabel>
 
