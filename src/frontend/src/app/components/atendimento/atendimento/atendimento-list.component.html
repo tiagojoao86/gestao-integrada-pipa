@@ -4,6 +4,7 @@
 @if (viewMode === 'DETAIL') {
   <gi-atendimento-detalhe
     [detailId]="detailId"
+    [preencherDeAgendamento]="preencherDeAgendamento"
     (closeDetail)="toggleView()"
   ></gi-atendimento-detalhe>
 }

@@ -567,3 +567,26 @@
 .cancelar-btn .material-symbols-outlined {
   font-size: 1.1rem;
 }
+
+.slot-atendimento-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--secondary-color);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.slot-atendimento-btn:hover {
+  background-color: rgba(61, 104, 159, 0.12);
+}
+
+.slot-atendimento-btn .material-symbols-outlined {
+  font-size: 1.2rem;
+}

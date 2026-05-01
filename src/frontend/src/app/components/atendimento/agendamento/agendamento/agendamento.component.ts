@@ -364,6 +364,30 @@ export class AgendamentoComponent implements OnInit {
     this.onSlotClick(slot);
   }
 
+  iniciarAtendimentoFromSlot(event: Event, slot: SlotDTO): void {
+    event.stopPropagation();
+    if (!slot.agendamentoId) return;
+    this.agendamentoService.findById(slot.agendamentoId).subscribe((response) => {
+      const ag = response.body!;
+      this.router.navigate(['/atendimento/atendimento'], {
+        state: {
+          iniciarDe: {
+            pacienteId: ag.pacienteId,
+            pacienteNome: ag.pacienteNome,
+            profissionalId: ag.profissionalId,
+            profissionalNome: ag.profissionalNome,
+            convenioId: ag.convenioId,
+            convenioNome: ag.convenioNome,
+            convenioCategoriaId: ag.categoriaId,
+            convenioCategoriaNome: ag.categoriaNome,
+            procedimentoId: ag.procedimentoId,
+            procedimentoNome: ag.procedimentoNome,
+          },
+        },
+      });
+    });
+  }
+
   voltarParaCalendario(): void {
     this.viewMode = 'CALENDAR';
     this.slotSelecionado = null;

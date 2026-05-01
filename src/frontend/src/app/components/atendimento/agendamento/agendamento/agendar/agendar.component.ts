@@ -27,6 +27,7 @@ import { AgendamentoDTO } from '../model/agendamento-dto';
 import { SlotDTO } from '../model/slot-dto';
 import { MessageService } from '../../../../base/messages/messages.service';
 import { AuthService } from '../../../../base/auth/auth-service';
+import { Router } from '@angular/router';
 import { RouteConstants } from '../../../../base/constants/route-constants';
 import { SystemModuleKey } from '../../../../base/enum/system-module-key.enum';
 import { ToolbarActionModel } from '../../../../base/model/toolbar-action.model';
@@ -116,6 +117,7 @@ export class AgendarComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private service = inject(AgendamentoService);
+  private router = inject(Router);
   private agendaService = inject(AgendaService);
   private pessoaService = inject(PessoaService);
   private convenioService = inject(ConvenioService);
@@ -271,6 +273,13 @@ export class AgendarComponent implements OnInit {
         action: () => this.abrirCadastroPaciente(),
         icon: 'person_add',
         title: $localize`Cadastrar novo paciente`,
+      });
+    }
+    if (this.detailId !== RouteConstants.P_ADD) {
+      this.toolbarActions.push({
+        action: () => this.iniciarAtendimento(),
+        icon: 'play_arrow',
+        title: $localize`Iniciar atendimento`,
       });
     }
   }
@@ -625,6 +634,25 @@ export class AgendarComponent implements OnInit {
     this.form.get('pacienteId')?.setValue(pessoa.id);
     this.showPessoaDetalhe = false;
     this.verificarConflitos();
+  }
+
+  iniciarAtendimento(): void {
+    this.router.navigate(['/atendimento/atendimento'], {
+      state: {
+        iniciarDe: {
+          pacienteId: this.dto.pacienteId,
+          pacienteNome: this.dto.pacienteNome,
+          profissionalId: this.dto.profissionalId,
+          profissionalNome: this.dto.profissionalNome,
+          convenioId: this.dto.convenioId,
+          convenioNome: this.dto.convenioNome,
+          convenioCategoriaId: this.dto.categoriaId,
+          convenioCategoriaNome: this.dto.categoriaNome,
+          procedimentoId: this.dto.procedimentoId,
+          procedimentoNome: this.dto.procedimentoNome,
+        },
+      },
+    });
   }
 
   goBackFn = (): void => {

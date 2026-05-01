@@ -7,6 +7,7 @@ import {
   Output,
   OnDestroy,
 } from '@angular/core';
+import { IniciarAtendimentoState } from '../model/iniciar-atendimento-state';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '../../../base/base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
@@ -93,6 +94,7 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   editMode = false;
   atendimento: AtendimentoDTO = new AtendimentoDTO();
   @Input() detailId: string | number | null = null;
+  @Input() preencherDeAgendamento: IniciarAtendimentoState | null = null;
   @Output() closeDetail = new EventEmitter<void>();
 
   // Entity search selections
@@ -266,6 +268,9 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
       this.editMode = false;
       this.titulo += $localize`Novo`;
       this.fillForm();
+      if (this.preencherDeAgendamento) {
+        this.aplicarPreenchimento(this.preencherDeAgendamento);
+      }
     } else {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
@@ -457,13 +462,42 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
     });
   }
 
-  private carregarCategoriasConvenio(convenioId: string): void {
+  private carregarCategoriasConvenio(convenioId: string, preSelectedId?: string): void {
     this.form.get('convenioCategoriaId')?.setValue('');
     this.categoriasOptions = [];
     this.convenioCategoriaService.listarPorConvenio(convenioId).subscribe((categorias) => {
       this.categoriasOptions = categorias;
       this.form.get('convenioCategoriaId')?.enable();
+      if (preSelectedId) {
+        this.form.get('convenioCategoriaId')?.setValue(preSelectedId);
+      }
     });
+  }
+
+  private aplicarPreenchimento(p: IniciarAtendimentoState): void {
+    if (p.pacienteId) {
+      this.pacienteSelecionado = { id: p.pacienteId, nome: p.pacienteNome } as PessoaDTO;
+      this.form.get('pacienteId')?.setValue(p.pacienteId);
+    }
+    if (p.profissionalId) {
+      const prof = { id: p.profissionalId, pessoaNome: p.profissionalNome } as ProfissionalDTO;
+      this.profissionalAtendimentoSelecionado = prof;
+      this.profissionalResponsavelSelecionado = prof;
+      this.form.get('profissionalAtendimentoId')?.setValue(p.profissionalId);
+      this.form.get('profissionalResponsavelId')?.setValue(p.profissionalId);
+    }
+    if (p.convenioId) {
+      this.convenioSelecionado = { id: p.convenioId, nome: p.convenioNome } as ConvenioDTO;
+      this.form.get('convenioId')?.setValue(p.convenioId);
+      this.carregarCategoriasConvenio(p.convenioId, p.convenioCategoriaId);
+    }
+    if (p.procedimentoId) {
+      this.adicionarProcedimento({
+        id: p.procedimentoId,
+        codigo: p.procedimentoCodigo,
+        descricao: p.procedimentoNome,
+      } as ProcedimentoDTO);
+    }
   }
 
   pesquisarProfissionalAtendimento(): void {

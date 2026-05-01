@@ -17,6 +17,8 @@ public class AgendamentoDTO implements DTO {
     private UUID id;
     private UUID agendaId;
     private String agendaNome;
+    private UUID profissionalId;
+    private String profissionalNome;
     private UUID pacienteId;
     private String pacienteNome;
     private UUID convenioId;

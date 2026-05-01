@@ -181,6 +181,17 @@
                       }
                     }
                   </div>
+                  @if (!slot.livre && slot.agendamentoId) {
+                    <button
+                      type="button"
+                      class="slot-atendimento-btn"
+                      title="Iniciar atendimento"
+                      i18n-title
+                      (click)="iniciarAtendimentoFromSlot($event, slot)"
+                    >
+                      <span class="material-symbols-outlined">play_arrow</span>
+                    </button>
+                  }
                 </div>
               }
             </div>

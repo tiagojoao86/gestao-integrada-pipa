@@ -172,10 +172,21 @@ public class AgendamentoServiceImpl
             .sorted(java.util.Comparator.comparing(AgendamentoHorario::getDataHoraInicio))
             .map(AgendamentoHorario::getDataHoraFim).collect(Collectors.toList());
 
+        UUID profissionalId = null;
+        String profissionalNome = null;
+        if (e.getAgenda() != null && e.getAgenda().getProfissional() != null) {
+            profissionalId = e.getAgenda().getProfissional().getId();
+            if (e.getAgenda().getProfissional().getPessoa() != null) {
+                profissionalNome = e.getAgenda().getProfissional().getPessoa().getNome();
+            }
+        }
+
         return AgendamentoDTO.builder()
             .id(e.getId())
             .agendaId(e.getAgenda() != null ? e.getAgenda().getId() : null)
             .agendaNome(e.getAgenda() != null ? e.getAgenda().getNome() : null)
+            .profissionalId(profissionalId)
+            .profissionalNome(profissionalNome)
             .pacienteId(e.getPaciente() != null ? e.getPaciente().getId() : null)
             .pacienteNome(e.getPaciente() != null ? e.getPaciente().getNome() : null)
             .convenioId(e.getConvenio() != null ? e.getConvenio().getId() : null)
