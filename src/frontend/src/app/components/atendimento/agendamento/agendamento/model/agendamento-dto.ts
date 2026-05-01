@@ -17,6 +17,7 @@ export class AgendamentoDTO {
   @Expose() procedimentoNome?: string;
   @Expose() observacao?: string;
   @Expose() status?: string;
+  @Expose() atendimentoId?: string;
   @Expose() horariosInicio?: string[];
   @Expose() horariosFim?: string[];
   @Expose() createdAt?: string;

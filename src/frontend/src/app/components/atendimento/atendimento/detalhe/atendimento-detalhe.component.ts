@@ -95,7 +95,7 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   atendimento: AtendimentoDTO = new AtendimentoDTO();
   @Input() detailId: string | number | null = null;
   @Input() preencherDeAgendamento: IniciarAtendimentoState | null = null;
-  @Output() closeDetail = new EventEmitter<void>();
+  @Output() closeDetail = new EventEmitter<string>();
 
   // Entity search selections
   setorSelecionado: SetorDTO | null = null;
@@ -678,9 +678,9 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
     this.atendimento.observacoes = raw.observacoes || undefined;
 
     this.service.save(this.atendimento, {
-      onSuccess: () => {
+      onSuccess: (saved) => {
         this.messages.sucesso($localize`Atendimento salvo com sucesso.`);
-        this.goBackFn();
+        this.closeDetail.emit(saved.id ?? '');
       },
     });
   }
@@ -695,6 +695,6 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   }
 
   goBackFn = () => {
-    this.closeDetail.emit();
+    this.closeDetail.emit('');
   };
 }

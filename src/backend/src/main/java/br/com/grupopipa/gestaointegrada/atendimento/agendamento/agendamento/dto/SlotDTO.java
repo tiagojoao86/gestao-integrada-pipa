@@ -22,6 +22,8 @@ public class SlotDTO {
 
     private UUID agendamentoId;
 
+    private UUID atendimentoId;
+
     private String pacienteNome;
 
     private String convenioNome;

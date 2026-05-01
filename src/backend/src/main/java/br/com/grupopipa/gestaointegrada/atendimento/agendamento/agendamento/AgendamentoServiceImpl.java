@@ -165,6 +165,15 @@ public class AgendamentoServiceImpl
     }
 
     @Override
+    @Transactional
+    public AgendamentoDTO vincularAtendimento(UUID agendamentoId, UUID atendimentoId) {
+        Agendamento entity = findEntityById(agendamentoId);
+        entity.vincularAtendimento(atendimentoId);
+        repository.save(entity);
+        return buildDTOFromEntity(entity);
+    }
+
+    @Override
     protected AgendamentoDTO buildDTOFromEntity(Agendamento e) {
         List<LocalDateTime> inicios = e.getHorarios().stream()
             .map(AgendamentoHorario::getDataHoraInicio).sorted().collect(Collectors.toList());
@@ -197,6 +206,7 @@ public class AgendamentoServiceImpl
             .procedimentoNome(e.getProcedimento() != null ? e.getProcedimento().getDescricao() : null)
             .observacao(e.getObservacao())
             .status(e.getStatus() != null ? e.getStatus().name() : null)
+            .atendimentoId(e.getAtendimentoId())
             .horariosInicio(inicios)
             .horariosFim(fins)
             .createdAt(e.getCreatedAt())

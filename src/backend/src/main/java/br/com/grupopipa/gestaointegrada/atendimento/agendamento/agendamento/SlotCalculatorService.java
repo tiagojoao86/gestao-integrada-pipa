@@ -82,6 +82,7 @@ public class SlotCalculatorService {
             .livre(agendamento == null);
         if (agendamento != null) {
             builder.agendamentoId(agendamento.getId())
+                .atendimentoId(agendamento.getAtendimentoId())
                 .pacienteNome(agendamento.getPaciente() != null
                     ? agendamento.getPaciente().getNome() : null)
                 .convenioNome(agendamento.getConvenio() != null

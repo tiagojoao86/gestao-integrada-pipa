@@ -29,6 +29,7 @@ public class AgendamentoDTO implements DTO {
     private String procedimentoNome;
     private String observacao;
     private String status;
+    private UUID atendimentoId;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private List<LocalDateTime> horariosInicio;

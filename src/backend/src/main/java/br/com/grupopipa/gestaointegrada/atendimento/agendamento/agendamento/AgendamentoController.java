@@ -101,4 +101,10 @@ public class AgendamentoController
     public Response realizar(@PathVariable UUID id) {
         return Response.ok(service.realizar(id));
     }
+
+    @PatchMapping("/{id}/vincular-atendimento/{atendimentoId}")
+    @PreAuthorize("hasAuthority('AGENDAMENTO_AGENDAMENTO_EDITAR')")
+    public Response vincularAtendimento(@PathVariable UUID id, @PathVariable UUID atendimentoId) {
+        return Response.ok(service.vincularAtendimento(id, atendimentoId));
+    }
 }

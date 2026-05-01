@@ -10,6 +10,8 @@ import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.Con
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
+import java.util.UUID;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -65,6 +67,9 @@ public class Agendamento extends BaseEntity {
 
     @Column(name = "observacao", length = 1000)
     private String observacao;
+
+    @Column(name = "atendimento_id")
+    private UUID atendimentoId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
@@ -152,6 +157,10 @@ public class Agendamento extends BaseEntity {
         this.observacao = data.observacao;
     }
 
+    public void vincularAtendimento(UUID atendimentoId) {
+        this.atendimentoId = atendimentoId;
+    }
+
     public void cancelar() {
         this.status = AgendamentoStatus.CANCELADO;
     }
@@ -202,5 +211,9 @@ public class Agendamento extends BaseEntity {
 
     public List<AgendamentoHorario> getHorarios() {
         return horarios;
+    }
+
+    public UUID getAtendimentoId() {
+        return atendimentoId;
     }
 }

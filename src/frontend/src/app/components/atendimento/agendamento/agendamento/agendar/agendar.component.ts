@@ -637,9 +637,16 @@ export class AgendarComponent implements OnInit {
   }
 
   iniciarAtendimento(): void {
+    if (this.dto.atendimentoId) {
+      this.router.navigate(['/atendimento/atendimento'], {
+        state: { abrirAtendimentoId: this.dto.atendimentoId },
+      });
+      return;
+    }
     this.router.navigate(['/atendimento/atendimento'], {
       state: {
         iniciarDe: {
+          agendamentoId: String(this.detailId),
           pacienteId: this.dto.pacienteId,
           pacienteNome: this.dto.pacienteNome,
           profissionalId: this.dto.profissionalId,

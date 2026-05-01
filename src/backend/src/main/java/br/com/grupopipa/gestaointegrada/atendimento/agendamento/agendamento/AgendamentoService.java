@@ -21,4 +21,5 @@ public interface AgendamentoService
 
     AgendamentoDTO cancelar(UUID id);
     AgendamentoDTO realizar(UUID id);
+    AgendamentoDTO vincularAtendimento(UUID agendamentoId, UUID atendimentoId);
 }

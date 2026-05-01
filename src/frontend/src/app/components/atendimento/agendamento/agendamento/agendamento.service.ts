@@ -54,6 +54,14 @@ export class AgendamentoService extends BaseService<AgendamentoDTO, AgendamentoG
     );
   }
 
+  vincularAtendimento(agendamentoId: string, atendimentoId: string): Observable<Response<AgendamentoDTO>> {
+    return this.httpClient.patch<Response<AgendamentoDTO>>(
+      this.getUrl(`/${agendamentoId}/vincular-atendimento/${atendimentoId}`),
+      {},
+      { headers: this.getHeaders() }
+    );
+  }
+
   cancelar(id: string): Observable<Response<AgendamentoDTO>> {
     return this.httpClient.patch<Response<AgendamentoDTO>>(
       this.getUrl('/cancelar/' + id),

@@ -367,11 +367,18 @@ export class AgendamentoComponent implements OnInit {
   iniciarAtendimentoFromSlot(event: Event, slot: SlotDTO): void {
     event.stopPropagation();
     if (!slot.agendamentoId) return;
+    if (slot.atendimentoId) {
+      this.router.navigate(['/atendimento/atendimento'], {
+        state: { abrirAtendimentoId: slot.atendimentoId },
+      });
+      return;
+    }
     this.agendamentoService.findById(slot.agendamentoId).subscribe((response) => {
       const ag = response.body!;
       this.router.navigate(['/atendimento/atendimento'], {
         state: {
           iniciarDe: {
+            agendamentoId: ag.id,
             pacienteId: ag.pacienteId,
             pacienteNome: ag.pacienteNome,
             profissionalId: ag.profissionalId,

@@ -1,4 +1,5 @@
 export interface IniciarAtendimentoState {
+  agendamentoId?: string;
   pacienteId?: string;
   pacienteNome?: string;
   profissionalId?: string;
