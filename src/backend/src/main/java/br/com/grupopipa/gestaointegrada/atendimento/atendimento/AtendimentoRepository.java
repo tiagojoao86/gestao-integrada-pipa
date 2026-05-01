@@ -1,9 +1,12 @@
 package br.com.grupopipa.gestaointegrada.atendimento.atendimento;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -30,4 +33,13 @@ public interface AtendimentoRepository
             @Param("dataInicio") LocalDate dataInicio,
             @Param("dataFim") LocalDate dataFim,
             @Param("setorIds") Set<UUID> setorIds);
+
+    @Query("SELECT a.id, a.numero FROM Atendimento a WHERE a.id IN :ids")
+    List<Object[]> findNumerosByIds(@Param("ids") Collection<UUID> ids);
+
+    default Map<UUID, Long> findNumerosMapByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return Map.of();
+        return findNumerosByIds(ids).stream()
+            .collect(Collectors.toMap(r -> (UUID) r[0], r -> (Long) r[1]));
+    }
 }

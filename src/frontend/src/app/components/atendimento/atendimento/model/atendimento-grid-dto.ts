@@ -3,6 +3,7 @@ import { Exclude, Expose } from 'class-transformer';
 @Exclude()
 export class AtendimentoGridDTO {
   @Expose() id?: string;
+  @Expose() numero?: number;
   @Expose() dataInicio?: string;
   @Expose() pacienteNome?: string;
   @Expose() profissionalAtendimentoNome?: string;

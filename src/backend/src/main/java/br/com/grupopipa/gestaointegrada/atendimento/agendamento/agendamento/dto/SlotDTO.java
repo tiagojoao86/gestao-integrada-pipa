@@ -24,6 +24,8 @@ public class SlotDTO {
 
     private UUID atendimentoId;
 
+    private Long atendimentoNumero;
+
     private String pacienteNome;
 
     private String convenioNome;

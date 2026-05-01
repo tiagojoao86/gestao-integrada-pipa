@@ -144,6 +144,7 @@ public class AtendimentoServiceImpl
 
         return AtendimentoDTO.builder()
                 .id(entity.getId())
+                .numero(entity.getNumero())
                 .dataInicio(entity.getDataInicio())
                 .dataFim(entity.getDataFim())
                 .setorId(entity.getSetor() != null ? entity.getSetor().getId() : null)
@@ -179,6 +180,7 @@ public class AtendimentoServiceImpl
     protected AtendimentoGridDTO buildGridDTOFromEntity(Atendimento entity) {
         return AtendimentoGridDTO.builder()
                 .id(entity.getId())
+                .numero(entity.getNumero())
                 .dataInicio(entity.getDataInicio())
                 .pacienteNome(entity.getPaciente() != null ? entity.getPaciente().getNome() : null)
                 .profissionalAtendimentoNome(entity.getProfissionalAtendimento() != null

@@ -7,6 +7,7 @@ export class SlotDTO {
   @Expose() livre?: boolean;
   @Expose() agendamentoId?: string;
   @Expose() atendimentoId?: string;
+  @Expose() atendimentoNumero?: number;
   @Expose() pacienteNome?: string;
   @Expose() convenioNome?: string;
   @Expose() procedimentoNome?: string;

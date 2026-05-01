@@ -14,6 +14,7 @@ import lombok.Setter;
 public class AtendimentoGridDTO implements GridDTO {
 
     private UUID id;
+    private Long numero;
     private LocalDateTime dataInicio;
     private String pacienteNome;
     private String profissionalAtendimentoNome;

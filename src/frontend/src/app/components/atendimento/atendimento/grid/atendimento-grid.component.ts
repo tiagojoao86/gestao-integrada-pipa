@@ -54,6 +54,11 @@ export class AtendimentoGridComponent {
 
   columns: ColumnModel<AtendimentoGridDTO>[] = [
     {
+      name: 'numero',
+      label: $localize`Nº`,
+      getValue: (e: AtendimentoGridDTO) => e.numero != null ? `#${e.numero}` : '',
+    },
+    {
       name: 'dataInicio',
       label: $localize`Data de Início`,
       getValue: (e: AtendimentoGridDTO) => e.dataInicio

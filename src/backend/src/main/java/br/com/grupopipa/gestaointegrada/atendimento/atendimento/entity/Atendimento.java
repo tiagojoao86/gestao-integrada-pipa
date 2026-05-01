@@ -21,10 +21,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Generated;
+import static org.hibernate.generator.EventType.INSERT;
 
 @Entity
 @Table(name = "atendimento")
 public class Atendimento extends BaseEntity {
+
+    @Column(name = "numero", nullable = false, updatable = false, insertable = false)
+    @Generated(INSERT)
+    private Long numero;
 
     @Column(name = "data_inicio", nullable = false)
     private LocalDateTime dataInicio;
@@ -206,6 +212,10 @@ public class Atendimento extends BaseEntity {
     // =========================================================================
     // Getters
     // =========================================================================
+
+    public Long getNumero() {
+        return numero;
+    }
 
     public LocalDateTime getDataInicio() {
         return dataInicio;

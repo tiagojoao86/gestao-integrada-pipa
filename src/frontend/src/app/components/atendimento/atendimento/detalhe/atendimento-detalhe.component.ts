@@ -679,7 +679,8 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
 
     this.service.save(this.atendimento, {
       onSuccess: (saved) => {
-        this.messages.sucesso($localize`Atendimento salvo com sucesso.`);
+        const num = saved.numero != null ? ` #${saved.numero}` : '';
+        this.messages.sucesso($localize`Atendimento${num} salvo com sucesso.`);
         this.closeDetail.emit(saved.id ?? '');
       },
     });

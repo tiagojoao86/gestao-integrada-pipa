@@ -174,7 +174,9 @@
                       <span class="slot-label" i18n>Livre</span>
                     } @else {
                       <span class="slot-paciente">{{ slot.pacienteNome }}</span>
-                      @if (getSlotDetalhe(slot)) {
+                      @if (slot.atendimentoNumero) {
+                        <span class="slot-detalhe">Atendimento #{{ slot.atendimentoNumero }}</span>
+                      } @else if (getSlotDetalhe(slot)) {
                         <span class="slot-detalhe">{{
                           getSlotDetalhe(slot)
                         }}</span>

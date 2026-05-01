@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.enti
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.AgendaRegraRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.entity.AgendaRegra;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.entity.DiaSemana;
+import br.com.grupopipa.gestaointegrada.atendimento.atendimento.AtendimentoRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,17 +28,21 @@ public class SlotCalculatorService {
 
     private final AgendaRegraRepository regraRepository;
     private final AgendamentoRepository agendamentoRepository;
+    private final AtendimentoRepository atendimentoRepository;
 
     public SlotCalculatorService(
             AgendaRegraRepository regraRepository,
-            AgendamentoRepository agendamentoRepository) {
+            AgendamentoRepository agendamentoRepository,
+            AtendimentoRepository atendimentoRepository) {
         this.regraRepository = regraRepository;
         this.agendamentoRepository = agendamentoRepository;
+        this.atendimentoRepository = atendimentoRepository;
     }
 
     public List<SlotDTO> calcularSlots(UUID agendaId, LocalDate dataInicio, LocalDate dataFim) {
         List<AgendaRegra> regras = regraRepository.findByAgendaId(agendaId);
         Map<LocalDateTime, Agendamento> ocupados = getOcupados(agendaId, dataInicio, dataFim);
+        Map<UUID, Long> numerosAtendimento = resolverNumerosAtendimento(ocupados);
 
         List<SlotDTO> slots = new ArrayList<>();
         for (LocalDate data = dataInicio; !data.isAfter(dataFim); data = data.plusDays(1)) {
@@ -44,13 +50,22 @@ public class SlotCalculatorService {
             final LocalDate dataFinal = data;
             regras.stream()
                 .filter(r -> regraAplica(r, dataFinal, dia))
-                .forEach(r -> slots.addAll(gerarSlots(r, dataFinal, ocupados)));
+                .forEach(r -> slots.addAll(gerarSlots(r, dataFinal, ocupados, numerosAtendimento)));
         }
 
         return slots.stream()
             .filter(s -> !contemDuplicata(slots, s))
             .sorted(Comparator.comparing(SlotDTO::getDataHoraInicio))
-            .collect(java.util.stream.Collectors.toList());
+            .collect(Collectors.toList());
+    }
+
+    private Map<UUID, Long> resolverNumerosAtendimento(Map<LocalDateTime, Agendamento> ocupados) {
+        List<UUID> ids = ocupados.values().stream()
+            .map(Agendamento::getAtendimentoId)
+            .filter(id -> id != null)
+            .distinct()
+            .collect(Collectors.toList());
+        return atendimentoRepository.findNumerosMapByIds(ids);
     }
 
     private boolean regraAplica(AgendaRegra regra, LocalDate data, DiaSemana dia) {
@@ -60,7 +75,7 @@ public class SlotCalculatorService {
     }
 
     private List<SlotDTO> gerarSlots(AgendaRegra regra, LocalDate data,
-            Map<LocalDateTime, Agendamento> ocupados) {
+            Map<LocalDateTime, Agendamento> ocupados, Map<UUID, Long> numerosAtendimento) {
         List<SlotDTO> slots = new ArrayList<>();
         LocalDateTime inicio = LocalDateTime.of(data, regra.getHoraInicio());
         LocalDateTime fimRegra = LocalDateTime.of(data, regra.getHoraFim());
@@ -69,20 +84,24 @@ public class SlotCalculatorService {
         while (!inicio.plusMinutes(duracao).isAfter(fimRegra)) {
             LocalDateTime fim = inicio.plusMinutes(duracao);
             Agendamento agendamento = ocupados.get(inicio);
-            slots.add(buildSlot(inicio, fim, agendamento));
+            slots.add(buildSlot(inicio, fim, agendamento, numerosAtendimento));
             inicio = fim;
         }
         return slots;
     }
 
-    private SlotDTO buildSlot(LocalDateTime inicio, LocalDateTime fim, Agendamento agendamento) {
+    private SlotDTO buildSlot(LocalDateTime inicio, LocalDateTime fim, Agendamento agendamento,
+            Map<UUID, Long> numerosAtendimento) {
         SlotDTO.SlotDTOBuilder builder = SlotDTO.builder()
             .dataHoraInicio(inicio)
             .dataHoraFim(fim)
             .livre(agendamento == null);
         if (agendamento != null) {
+            UUID atendimentoId = agendamento.getAtendimentoId();
             builder.agendamentoId(agendamento.getId())
-                .atendimentoId(agendamento.getAtendimentoId())
+                .atendimentoId(atendimentoId)
+                .atendimentoNumero(atendimentoId != null
+                    ? numerosAtendimento.get(atendimentoId) : null)
                 .pacienteNome(agendamento.getPaciente() != null
                     ? agendamento.getPaciente().getNome() : null)
                 .convenioNome(agendamento.getConvenio() != null

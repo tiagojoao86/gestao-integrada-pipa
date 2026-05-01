@@ -136,6 +136,7 @@ public enum DatabaseConstraintsEnum {
     UK_TABELA_ITEM_TABELA_PROCEDIMENTO_INICIO("Já existe um item ativo para este procedimento nesta tabela."),
 
     // -------- Atendimento --------
+    UK_ATENDIMENTO_NUMERO("Número de atendimento duplicado."),
     FK_ATENDIMENTO_SETOR("Setor inválido."),
     FK_ATENDIMENTO_PACIENTE("Paciente inválido."),
     FK_ATENDIMENTO_RESPONSAVEL("Responsável inválido."),

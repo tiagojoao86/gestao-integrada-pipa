@@ -4,6 +4,7 @@ import { AtendimentoProcedimentoDTO } from './atendimento-procedimento-dto';
 @Exclude()
 export class AtendimentoDTO {
   @Expose() id?: string;
+  @Expose() numero?: number;
   @Expose() dataInicio?: string;
   @Expose() dataFim?: string;
 

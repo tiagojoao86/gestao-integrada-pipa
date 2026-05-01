@@ -15,6 +15,7 @@ import lombok.Setter;
 public class AtendimentoDTO implements DTO {
 
     private UUID id;
+    private Long numero;
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
 
