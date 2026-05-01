@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,6 +34,9 @@ public interface AtendimentoRepository
             @Param("dataInicio") LocalDate dataInicio,
             @Param("dataFim") LocalDate dataFim,
             @Param("setorIds") Set<UUID> setorIds);
+
+    @Query("SELECT a.numero FROM Atendimento a WHERE a.id = :id")
+    Optional<Long> findNumeroById(@Param("id") UUID id);
 
     @Query("SELECT a.id, a.numero FROM Atendimento a WHERE a.id IN :ids")
     List<Object[]> findNumerosByIds(@Param("ids") Collection<UUID> ids);

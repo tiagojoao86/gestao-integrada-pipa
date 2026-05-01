@@ -142,9 +142,12 @@ public class AtendimentoServiceImpl
                         .build())
                 .toList();
 
+        Long numero = entity.getNumero() != null
+                ? entity.getNumero()
+                : repository.findNumeroById(entity.getId()).orElse(null);
         return AtendimentoDTO.builder()
                 .id(entity.getId())
-                .numero(entity.getNumero())
+                .numero(numero)
                 .dataInicio(entity.getDataInicio())
                 .dataFim(entity.getDataFim())
                 .setorId(entity.getSetor() != null ? entity.getSetor().getId() : null)
@@ -178,9 +181,12 @@ public class AtendimentoServiceImpl
 
     @Override
     protected AtendimentoGridDTO buildGridDTOFromEntity(Atendimento entity) {
+        Long numeroGrid = entity.getNumero() != null
+                ? entity.getNumero()
+                : repository.findNumeroById(entity.getId()).orElse(null);
         return AtendimentoGridDTO.builder()
                 .id(entity.getId())
-                .numero(entity.getNumero())
+                .numero(numeroGrid)
                 .dataInicio(entity.getDataInicio())
                 .pacienteNome(entity.getPaciente() != null ? entity.getPaciente().getNome() : null)
                 .profissionalAtendimentoNome(entity.getProfissionalAtendimento() != null
