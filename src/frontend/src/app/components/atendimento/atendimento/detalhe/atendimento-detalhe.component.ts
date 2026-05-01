@@ -275,7 +275,7 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
         this.atendimento = response.body!;
-        this.titulo += new Date(this.atendimento.dataInicio!).toLocaleDateString('pt-BR');
+        this.titulo += this.atendimento.numero != null ? `#${this.atendimento.numero}` : $localize`Novo`;
         this.restoreSelections();
         this.fillForm();
       });
