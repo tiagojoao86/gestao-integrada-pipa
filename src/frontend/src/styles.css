@@ -573,3 +573,51 @@ p-datepicker {
   color: var(--inverted-text-color) !important;
   font-size: var(--text-size) !important;
 }
+
+.p-datatable-table {
+  border-collapse: separate !important;
+  border-width: 1px !important;
+  border-color: var(--dark-border-color) !important;
+  border-style: solid !important;
+  border-radius: var(--border-radius);
+}
+
+.p-datatable-thead > tr > th {
+  background: var(--secondary-color) !important;
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+  font-size: var(--text-size) !important;
+  font-weight: 500 !important;
+  border-width: 0px 1px 0px 0px !important;
+  border-color: var(--border-color) !important;
+  padding: 8px 10px !important;
+}
+
+.p-datatable-thead > tr > th:last-child {
+  border: none !important;
+}
+
+.p-datatable-tbody > tr > td {
+  background-color: var(--transparent) !important;
+  font-size: var(--text-size) !important;
+  border-width: 0px 1px 0px 0px !important;
+  border-color: var(--border-color) !important;
+  padding: 0px 10px !important;
+  color: var(--text-color);
+}
+
+.p-datatable-tbody > tr > td:last-child {
+  border: none !important;
+}
+
+.p-datatable-tbody > tr {
+  background-color: var(--transparent) !important;
+}
+
+.p-datatable-tbody > tr:nth-child(odd):not(.deleted-row) {
+  background-color: var(--item-transparency) !important;
+}
+
+.p-datatable-tbody > tr.deleted-row {
+  background-color: rgba(255, 0, 0, 0.1) !important;
+}
