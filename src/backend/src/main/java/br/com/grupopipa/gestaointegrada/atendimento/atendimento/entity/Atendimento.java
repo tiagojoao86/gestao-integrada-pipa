@@ -22,14 +22,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Generated;
-import static org.hibernate.generator.EventType.INSERT;
+import org.hibernate.generator.EventType;
 
 @Entity
 @Table(name = "atendimento")
 public class Atendimento extends BaseEntity {
 
     @Column(name = "numero", nullable = false, updatable = false, insertable = false)
-    @Generated(INSERT)
+    @Generated(event = EventType.INSERT)
     private Long numero;
 
     @Column(name = "data_inicio", nullable = false)
