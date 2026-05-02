@@ -179,6 +179,14 @@ export class CadastroComponent implements OnInit {
       });
     }
 
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.CADASTRO_CAIXA)) {
+      financeiroModules.push({
+        name: $localize`Caixas`,
+        icon: 'point_of_sale',
+        url: '/financeiro/caixa',
+      });
+    }
+
     if (financeiroModules.length > 0) {
       this.systemModules.push({
         name: $localize`Financeiro`,

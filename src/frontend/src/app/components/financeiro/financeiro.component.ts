@@ -21,31 +21,26 @@ export class FinanceiroComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
-    const cadastrosModules: SystemModule[] = [];
-
-    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.CADASTRO_CAIXA)) {
-      cadastrosModules.push({
-        name: $localize`Caixas`,
-        icon: 'point_of_sale',
-        url: '/financeiro/caixa',
-      });
-    }
-
-    if (cadastrosModules.length > 0) {
-      this.systemModuleGroups.push({
-        name: $localize`Cadastros`,
-        systemModules: cadastrosModules,
-      });
-    }
-
-    const financeiroModules: SystemModule[] = [];
+    const movimentacoesModules: SystemModule[] = [];
 
     if (
       this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_TITULO
+        SystemModuleKey.LANCAMENTO_FINANCEIRO,
       )
     ) {
-      financeiroModules.push({
+      movimentacoesModules.push({
+        name: $localize`Lançamentos Financeiros`,
+        icon: 'assignment',
+        url: '/atendimento/lancamento',
+      });
+    }
+
+    if (
+      this.authService.hasAuthorityListarToModulo(
+        SystemModuleKey.FINANCEIRO_TITULO,
+      )
+    ) {
+      movimentacoesModules.push({
         name: $localize`Títulos`,
         icon: 'receipt_long',
         url: '/financeiro/titulo',
@@ -54,20 +49,20 @@ export class FinanceiroComponent implements OnInit {
 
     if (
       this.authService.hasAuthorityListarToModulo(
-        SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA
+        SystemModuleKey.FINANCEIRO_MOVIMENTACAO_FINANCEIRA,
       )
     ) {
-      financeiroModules.push({
-        name: $localize`Movimentações`,
+      movimentacoesModules.push({
+        name: $localize`Movimentações Financeiras`,
         icon: 'payments',
         url: '/financeiro/movimentacao',
       });
     }
 
-    if (financeiroModules.length > 0) {
+    if (movimentacoesModules.length > 0) {
       this.systemModuleGroups.push({
-        name: $localize`Operações`,
-        systemModules: financeiroModules,
+        name: $localize`Movimentações`,
+        systemModules: movimentacoesModules,
       });
     }
   }
