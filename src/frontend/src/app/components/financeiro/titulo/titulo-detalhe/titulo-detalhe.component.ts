@@ -177,7 +177,7 @@ export class TituloDetalheComponent implements OnInit {
   initForm() {
     const fb = new FormBuilder().nonNullable;
     this.form.addControl('tipo', fb.control(null, [Validators.required]));
-    this.form.addControl('status', fb.control(null));
+    this.form.addControl('status', fb.control({ value: null, disabled: true }));
     this.form.addControl('numeroDocumento', fb.control(null));
     this.form.addControl('descricao', fb.control(null, [Validators.required, Validators.maxLength(500)]));
     this.form.addControl('tituloCategoria', fb.control(null, [Validators.required]));
