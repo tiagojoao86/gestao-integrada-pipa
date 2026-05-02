@@ -246,21 +246,55 @@ public class LancamentoFinanceiro extends BaseEntity {
     // Getters
     // =========================================================================
 
-    public UUID getAtendimentoId() { return atendimentoId; }
-    public Long getAtendimentoNumero() { return atendimentoNumero; }
-    public LocalDate getDataAtendimento() { return dataAtendimento; }
-    public UUID getPacienteId() { return pacienteId; }
-    public String getPacienteNome() { return pacienteNome; }
-    public UUID getConvenioId() { return convenioId; }
-    public String getConvenioNome() { return convenioNome; }
-    public ConvenioTipoCobrancaEnum getConvenioTipoCobranca() { return convenioTipoCobranca; }
+    public UUID getAtendimentoId() {
+        return atendimentoId;
+    }
+
+    public Long getAtendimentoNumero() {
+        return atendimentoNumero;
+    }
+
+    public LocalDate getDataAtendimento() {
+        return dataAtendimento;
+    }
+
+    public UUID getPacienteId() {
+        return pacienteId;
+    }
+
+    public String getPacienteNome() {
+        return pacienteNome;
+    }
+
+    public UUID getConvenioId() {
+        return convenioId;
+    }
+
+    public String getConvenioNome() {
+        return convenioNome;
+    }
+
+    public ConvenioTipoCobrancaEnum getConvenioTipoCobranca() {
+        return convenioTipoCobranca;
+    }
 
     public BigDecimal getValorTotal() {
         return valorTotal != null ? valorTotal.getValue() : null;
     }
 
-    public LancamentoFinanceiroSituacaoEnum getSituacao() { return situacao; }
-    public LancamentoFinanceiroStatusFinanceiroEnum getStatusFinanceiro() { return statusFinanceiro; }
-    public String getObservacoes() { return observacoes; }
-    public List<LancamentoFinanceiroProcedimento> getProcedimentos() { return procedimentos; }
+    public LancamentoFinanceiroSituacaoEnum getSituacao() {
+        return situacao;
+    }
+
+    public LancamentoFinanceiroStatusFinanceiroEnum getStatusFinanceiro() {
+        return statusFinanceiro;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public List<LancamentoFinanceiroProcedimento> getProcedimentos() {
+        return procedimentos;
+    }
 }

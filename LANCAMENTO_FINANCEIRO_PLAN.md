@@ -135,91 +135,24 @@ O usuário é redirecionado para a tela de revisão do lançamento antes de fatu
 
 ### ETAPA 3 — Frontend: Model e Service
 
-- [ ] **3.1** Criar `LancamentoFinanceiroStatusEnum.ts`
-  - Arquivo: `model/atendimento/lancamento-financeiro-status.enum.ts`
-  - Valores: `PENDENTE`, `FATURADO`, `CANCELADO`
-  - Método `getLabel()` para exibição
-
-- [ ] **3.2** Criar `LancamentoFinanceiroProcedimentoDTO.ts`
-  - Arquivo: `model/atendimento/lancamento-financeiro-procedimento.dto.ts`
-  - Classe com `@Exclude`/`@Expose`
-  - Campos: `id`, `procedimentoId`, `procedimentoCodigo`, `procedimentoDescricao`, `convenioId`, `convenioNome`, `tabelaItemId`, `valor` (number)
-
-- [ ] **3.3** Criar `LancamentoFinanceiroDTO.ts`
-  - Arquivo: `model/atendimento/lancamento-financeiro.dto.ts`
-  - Classe com `@Exclude`/`@Expose` (class-transformer)
-  - `@Transform` para `status` (enum) e `valorTotal` (number)
-  - Campo: `procedimentos: LancamentoFinanceiroProcedimentoDTO[]` com `@Type(() => LancamentoFinanceiroProcedimentoDTO)`
-
-- [ ] **3.4** Criar `LancamentoFinanceiroGridDTO.ts`
-  - Arquivo: `model/atendimento/lancamento-financeiro-grid.dto.ts`
-
-- [ ] **3.5** Criar `LancamentoFinanceiroService.ts`
-  - Arquivo: `components/atendimento/lancamento/lancamento-financeiro.service.ts`
-  - Estende `BaseService<LancamentoFinanceiroDTO, LancamentoFinanceiroGridDTO>`
-  - `super(inject(HttpClient), inject(MessageService))` — 2 args
-  - `getDomain()` → `'lancamento-financeiro'`
-  - Métodos adicionais: `faturar(id)`, `cancelar(id)` (POST requests)
+- [x] **3.1** Criar `LancamentoFinanceiroSituacao.enum.ts` e `LancamentoFinanceiroStatusFinanceiro.enum.ts`
+- [x] **3.2** Criar `LancamentoFinanceiroProcedimentoDTO.ts`
+- [x] **3.3** Criar `LancamentoFinanceiroDTO.ts`
+- [x] **3.4** Criar `LancamentoFinanceiroGridDTO.ts`
+- [x] **3.5** Criar `LancamentoFinanceiroService.ts` — com `pagar()`, `fechar()`, `cancelar()`
 
 ### ETAPA 4 — Frontend: Componentes
 
-- [ ] **4.1** Criar componente `lancamento-financeiro-detalhe`
-  - Arquivo: `components/atendimento/lancamento/detalhe/`
-  - Input: `@Input() detailId: string` (UUID ou 'add')
-  - Output: `@Output() closeDetail: EventEmitter<string>`
-  - Seção de cabeçalho (somente leitura): paciente, convênio, data, Nº atendimento
-  - Status exibido com badge colorido (PENDENTE=amarelo, FATURADO=verde, CANCELADO=vermelho)
-  - **Tabela de procedimentos editável** (quando status = PENDENTE):
-    - Colunas: Procedimento, Convênio, Valor (editável inline ou via dialog)
-    - Botões: adicionar linha, remover linha
-    - Valor total recalculado ao editar
-  - Campo `observacoes` editável
-  - Botões de ação: "Salvar" (atualiza procedimentos/obs), "Faturar", "Cancelar Lançamento"
-  - Quando status = FATURADO/CANCELADO: tudo somente leitura
-  - Ao faturar: exibe mensagem de sucesso + emite `closeDetail`
-
-- [ ] **4.2** Criar componente `lancamento-financeiro-grid`
-  - Arquivo: `components/atendimento/lancamento/grid/`
-  - Colunas: Nº Atendimento, Data, Paciente, Convênio, Valor Total, Status, Data Criação
-  - Filtro por status
-  - Botão de auditoria (`AuditInfoComponent`)
-  - Confirmação de exclusão via `DialogService.showYesNo()`
-
-- [ ] **4.3** Criar componente `lancamento-financeiro-main`
-  - Arquivo: `components/atendimento/lancamento/lancamento-financeiro.component.ts`
-  - Controla `viewMode`: `'GRID'` | `'DETAIL'`
-  - Recebe router state: `lancamentoId` (para navegação direta do atendimento)
-
-- [ ] **4.4** Atualizar `atendimento-detalhe.component.ts`
-  - Após salvar com sucesso: navegar para lançamento
-    ```typescript
-    onSuccess: (saved) => {
-      if (saved.lancamentoFinanceiroId) {
-        this.router.navigate(
-          ['/atendimento/lancamento'],
-          { state: { lancamentoId: saved.lancamentoFinanceiroId } }
-        );
-      } else {
-        this.closeDetail.emit(saved.id ?? '');
-      }
-    }
-    ```
+- [x] **4.1** Criar componente `lancamento-financeiro-detalhe`
+- [x] **4.2** Criar componente `lancamento-financeiro-grid`
+- [x] **4.3** Criar componente `lancamento-financeiro-main`
+- [x] **4.4** Atualizar `atendimento-detalhe.component.ts` — navega para `/atendimento/lancamento` via router state após salvar
 
 ### ETAPA 5 — Roteamento e Menu
 
-- [ ] **5.1** Adicionar `LANCAMENTO_FINANCEIRO` em `SystemModuleKey` enum
-  - Arquivo: `components/base/enum/system-module-key.enum.ts`
-
-- [ ] **5.2** Criar rotas do módulo
-  - Arquivo: `components/atendimento/lancamento/lancamento-financeiro.routes.ts`
-  - Rota: `{ path: 'lancamento', component: LancamentoFinanceiroComponent }`
-
-- [ ] **5.3** Adicionar rota ao módulo de atendimento
-  - Arquivo: `components/atendimento/atendimento.routes.ts`
-
-- [ ] **5.4** Adicionar item de menu
-  - Arquivo: onde o menu lateral é configurado (verificar `app-menu` ou `sidebar`)
-  - Grupo: Atendimento / Financeiro do Atendimento
+- [x] **5.1** Adicionar `LANCAMENTO_FINANCEIRO` em `SystemModuleKey` enum
+- [x] **5.2** Rota `lancamento` adicionada ao módulo de atendimento em `atendimento.routes.ts`
+- [x] **5.3** Item de menu adicionado em `buildGrupoFinanceiro()` — `atendimento.component.ts`
 
 ### ETAPA 6 — Verificação Final
 
@@ -277,4 +210,4 @@ public void recalcularValorTotal() {
 ## Status da Implementação
 
 **Data de criação do plano:** 2026-05-01  
-**Status:** Aguardando implementação (Etapa 1 não iniciada)
+**Status:** Etapas 1–5 concluídas. Pendente: Etapa 6 (verificação/teste)
