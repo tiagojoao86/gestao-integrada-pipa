@@ -22,26 +22,44 @@
         }
       </p-iftalabel>
 
+      <!-- Tipo de Cobrança -->
+      <p-iftalabel class="w-50">
+        <p-select
+          id="tipoCobranca"
+          formControlName="tipoCobranca"
+          [options]="tipoCobrancaOptions"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        />
+        <label for="tipoCobranca" i18n>Tipo de Cobrança</label>
+        @if (isControlInvalid('tipoCobranca')) {
+          <small i18n>Selecione o tipo de cobrança.</small>
+        }
+      </p-iftalabel>
+
       <!-- Registro ANS -->
       <p-iftalabel class="w-50">
         <input pInputText id="registroAns" formControlName="registroAns" />
         <label for="registroAns" i18n>Registro ANS</label>
       </p-iftalabel>
 
-      <!-- Pessoa (CNPJ/Razão Social) -->
-      <div class="w-50 box-fieldset">
-        <gi-entity-field
-          [label]="pessoaLabel"
-          [entityLabel]="pessoaSelecionada?.nome ?? null"
-          [searchConfig]="pessoaSearchConfig"
-          (entitySearch)="pesquisarPessoa()"
-          (entitySelected)="onPessoaAutoCompleteSelected($event)"
-          (remove)="limparPessoa()"
-        />
-        @if (isControlInvalid('pessoaId')) {
-          <small i18n>Selecione uma pessoa.</small>
-        }
-      </div>
+      <!-- Pessoa (CNPJ/Razão Social) — apenas para convênios Faturados -->
+      @if (form.get('tipoCobranca')?.value === 'FATURADO') {
+        <div class="w-50 box-fieldset">
+          <gi-entity-field
+            [label]="pessoaLabel"
+            [entityLabel]="pessoaSelecionada?.nome ?? null"
+            [searchConfig]="pessoaSearchConfig"
+            (entitySearch)="pesquisarPessoa()"
+            (entitySelected)="onPessoaAutoCompleteSelected($event)"
+            (remove)="limparPessoa()"
+          />
+          @if (isControlInvalid('pessoaId')) {
+            <small i18n>Selecione uma pessoa.</small>
+          }
+        </div>
+      }
 
       <!-- Ativo -->
       <div class="checkbox-field w-50">

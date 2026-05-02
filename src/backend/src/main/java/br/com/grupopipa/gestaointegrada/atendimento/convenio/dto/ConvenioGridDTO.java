@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.convenio.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class ConvenioGridDTO implements GridDTO {
     private String pessoaNome;
     private String registroAns;
     private Boolean ativo;
+    private ConvenioTipoCobrancaEnum tipoCobranca;
     private LocalDateTime createdAt;
     private Boolean deleted;
 }

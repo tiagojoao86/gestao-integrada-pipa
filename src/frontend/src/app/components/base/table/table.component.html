@@ -46,7 +46,11 @@
       @for (col of columns; track col) {
       <td>
         <div class="td-content">
-          {{ col.getValue(rowData) }}
+          @if (col.isHtml) {
+            <span [innerHTML]="col.getValue(rowData)"></span>
+          } @else {
+            {{ col.getValue(rowData) }}
+          }
         </div>
       </td>
       } @if (actions) {

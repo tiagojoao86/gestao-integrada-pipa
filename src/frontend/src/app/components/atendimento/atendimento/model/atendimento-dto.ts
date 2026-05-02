@@ -33,6 +33,8 @@ export class AtendimentoDTO {
 
   @Expose() observacoes?: string;
 
+  @Expose() lancamentoFinanceiroId?: string;
+
   @Expose() createdAt?: Date;
   @Expose() updatedAt?: Date;
   @Expose() createdBy?: string;

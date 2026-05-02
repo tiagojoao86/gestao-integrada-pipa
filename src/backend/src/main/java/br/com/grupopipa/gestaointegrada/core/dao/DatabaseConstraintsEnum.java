@@ -114,6 +114,7 @@ public enum DatabaseConstraintsEnum {
     UK_CONVENIO_NOME("Já existe um convênio com este nome."),
     UK_CONVENIO_REGISTRO_ANS("Este registro ANS já está cadastrado."),
     FK_CONVENIO_PESSOA("Pessoa inválida."),
+    CHK_CONVENIO_TIPO_COBRANCA("Tipo de cobrança do convênio inválido."),
 
     // -------- Convenio Categoria --------
     FK_CONVENIO_CATEGORIA_CONVENIO("Convênio inválido."),
@@ -168,7 +169,15 @@ public enum DatabaseConstraintsEnum {
     FK_AGENDAMENTO_CATEGORIA("Categoria inválida."),
     FK_AGENDAMENTO_PROCEDIMENTO("Procedimento inválido."),
     CHK_AGENDAMENTO_STATUS("Status de agendamento inválido."),
-    FK_AGENDAMENTO_HORARIO_AGENDAMENTO("Agendamento inválido.");
+    FK_AGENDAMENTO_HORARIO_AGENDAMENTO("Agendamento inválido."),
+
+    // ========================================
+    // MÓDULO LANÇAMENTO FINANCEIRO
+    // ========================================
+
+    CHK_LANCAMENTO_FINANCEIRO_SITUACAO("Situação de lançamento financeiro inválida."),
+    CHK_LANCAMENTO_FINANCEIRO_STATUS_FIN("Status financeiro de lançamento inválido."),
+    FK_LANC_PROC_LANCAMENTO("Lançamento financeiro inválido.");
 
     private final String message;
 

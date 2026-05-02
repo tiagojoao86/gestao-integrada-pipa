@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { IniciarAtendimentoState } from '../model/iniciar-atendimento-state';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 import { BaseComponent } from '../../../base/base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import {
@@ -136,6 +137,7 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   private messages = inject(MessageService);
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
+  private router = inject(Router);
 
   readonly setorSearchConfig: EntitySearchConfig<SetorDTO> = {
     service: this.setorService,
@@ -684,6 +686,12 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
           : $localize`Atendimento salvo com sucesso.`;
         this.messages.sucesso(msg);
         this.closeDetail.emit(saved.id ?? '');
+        if (saved.lancamentoFinanceiroId) {
+          this.router.navigate(
+            ['/atendimento/lancamento'],
+            { state: { lancamentoId: saved.lancamentoFinanceiroId } }
+          );
+        }
       },
     });
   }

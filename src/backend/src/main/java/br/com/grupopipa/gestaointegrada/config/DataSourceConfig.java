@@ -43,7 +43,8 @@ public class DataSourceConfig {
         "br.com.grupopipa.gestaointegrada.atendimento.atendimento.entity",
         "br.com.grupopipa.gestaointegrada.atendimento.agendamento.agenda.entity",
         "br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.entity",
-        "br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.entity"
+        "br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.entity",
+        "br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity"
     };
 
     @Value("${spring.datasource.url}")

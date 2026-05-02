@@ -10,6 +10,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.CodigoConveni
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.dto.ConvenioDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.dto.ConvenioGridDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
@@ -47,6 +48,8 @@ public class ConvenioServiceImpl
     @Override
     protected Convenio mergeEntityAndDTO(Convenio entity, ConvenioDTO dto) {
         Pessoa pessoa = resolverPessoa(dto.getPessoaId());
+        ConvenioTipoCobrancaEnum tipoCobranca = dto.getTipoCobranca() != null
+            ? dto.getTipoCobranca() : ConvenioTipoCobrancaEnum.FATURADO;
 
         if (Objects.isNull(entity)) {
             return new Convenio.Builder()
@@ -54,10 +57,11 @@ public class ConvenioServiceImpl
                     .pessoa(pessoa)
                     .registroAns(dto.getRegistroAns())
                     .ativo(dto.getAtivo())
+                    .tipoCobranca(tipoCobranca)
                     .build();
         }
 
-        entity.atualizar(dto.getNome(), pessoa, dto.getRegistroAns(), dto.getAtivo());
+        entity.atualizar(dto.getNome(), pessoa, dto.getRegistroAns(), dto.getAtivo(), tipoCobranca);
         return entity;
     }
 
@@ -77,6 +81,7 @@ public class ConvenioServiceImpl
                 .pessoaNome(entity.getPessoa() != null ? entity.getPessoa().getNome() : null)
                 .registroAns(entity.getRegistroAns())
                 .ativo(entity.getAtivo())
+                .tipoCobranca(entity.getTipoCobranca())
                 .codigos(entity.getId() != null
                     ? codigoConvenioService.findAllByConvenioId(entity.getId())
                     : List.of())
@@ -95,6 +100,7 @@ public class ConvenioServiceImpl
                 .pessoaNome(entity.getPessoa() != null ? entity.getPessoa().getNome() : null)
                 .registroAns(entity.getRegistroAns())
                 .ativo(entity.getAtivo())
+                .tipoCobranca(entity.getTipoCobranca())
                 .createdAt(entity.getCreatedAt())
                 .deleted(entity.getDeleted())
                 .build();

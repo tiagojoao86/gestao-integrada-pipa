@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.grupopipa.gestaointegrada.atendimento.atendimento.dto.AtendimentoDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.atendimento.dto.AtendimentoGridDTO;
@@ -21,6 +22,12 @@ import br.com.grupopipa.gestaointegrada.atendimento.convenio.ConvenioRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.ConvenioCategoriaRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.conveniocategoria.entity.ConvenioCategoria;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.LancamentoFinanceiroRepository;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroProcedimentoDTO;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiro;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiroProcedimento;
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiroSituacaoEnum;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.ProfissionalRepository;
@@ -49,6 +56,7 @@ public class AtendimentoServiceImpl
     private final ConvenioCategoriaRepository convenioCategoriaRepository;
     private final ProcedimentoRepository procedimentoRepository;
     private final TabelaItemRepository tabelaItemRepository;
+    private final LancamentoFinanceiroRepository lancamentoFinanceiroRepository;
 
     public AtendimentoServiceImpl(
             AtendimentoRepository repository,
@@ -59,7 +67,8 @@ public class AtendimentoServiceImpl
             ConvenioRepository convenioRepository,
             ConvenioCategoriaRepository convenioCategoriaRepository,
             ProcedimentoRepository procedimentoRepository,
-            TabelaItemRepository tabelaItemRepository) {
+            TabelaItemRepository tabelaItemRepository,
+            LancamentoFinanceiroRepository lancamentoFinanceiroRepository) {
         super(repository, specifications);
         this.pessoaRepository = pessoaRepository;
         this.setorRepository = setorRepository;
@@ -68,6 +77,89 @@ public class AtendimentoServiceImpl
         this.convenioCategoriaRepository = convenioCategoriaRepository;
         this.procedimentoRepository = procedimentoRepository;
         this.tabelaItemRepository = tabelaItemRepository;
+        this.lancamentoFinanceiroRepository = lancamentoFinanceiroRepository;
+    }
+
+    @Override
+    @Transactional
+    public AtendimentoDTO save(AtendimentoDTO dto) {
+        AtendimentoDTO saved = super.save(dto);
+        UUID lancamentoId = criarOuAtualizarLancamento(saved);
+        saved.setLancamentoFinanceiroId(lancamentoId);
+        return saved;
+    }
+
+    private UUID criarOuAtualizarLancamento(AtendimentoDTO atendimentoDto) {
+        LancamentoFinanceiro existente = lancamentoFinanceiroRepository
+            .findByAtendimentoId(atendimentoDto.getId()).orElse(null);
+
+        if (existente != null
+                && existente.getSituacao() != LancamentoFinanceiroSituacaoEnum.ABERTO) {
+            return existente.getId();
+        }
+
+        List<LancamentoFinanceiroProcedimentoDTO> procDtos = new ArrayList<>();
+        if (atendimentoDto.getProcedimentos() != null) {
+            for (AtendimentoProcedimentoDTO ap : atendimentoDto.getProcedimentos()) {
+                procDtos.add(LancamentoFinanceiroProcedimentoDTO.builder()
+                    .procedimentoId(ap.getProcedimentoId())
+                    .procedimentoCodigo(ap.getProcedimentoCodigo())
+                    .procedimentoDescricao(ap.getProcedimentoDescricao())
+                    .convenioId(ap.getConvenioId())
+                    .convenioNome(ap.getConvenioNome())
+                    .tabelaItemId(ap.getTabelaItemId())
+                    .valor(ap.getTabelaItemValor())
+                    .build());
+            }
+        }
+
+        if (existente == null) {
+            ConvenioTipoCobrancaEnum tipoCobranca = resolverTipoCobranca(atendimentoDto.getConvenioId());
+            LancamentoFinanceiro novo = new LancamentoFinanceiro.Builder()
+                .atendimentoId(atendimentoDto.getId())
+                .atendimentoNumero(atendimentoDto.getNumero())
+                .dataAtendimento(atendimentoDto.getDataInicio() != null
+                    ? atendimentoDto.getDataInicio().toLocalDate() : null)
+                .pacienteId(atendimentoDto.getPacienteId())
+                .pacienteNome(atendimentoDto.getPacienteNome())
+                .convenioId(atendimentoDto.getConvenioId())
+                .convenioNome(atendimentoDto.getConvenioNome())
+                .convenioTipoCobranca(tipoCobranca)
+                .build();
+            sincronizarProcedimentosLancamento(novo, procDtos);
+            return lancamentoFinanceiroRepository.save(novo).getId();
+        }
+
+        existente.atualizar(existente.getObservacoes());
+        sincronizarProcedimentosLancamento(existente, procDtos);
+        return lancamentoFinanceiroRepository.save(existente).getId();
+    }
+
+    private ConvenioTipoCobrancaEnum resolverTipoCobranca(UUID convenioId) {
+        if (convenioId == null) {
+            return ConvenioTipoCobrancaEnum.PAGO_NO_ATO;
+        }
+        return convenioRepository.findById(convenioId)
+            .map(Convenio::getTipoCobranca)
+            .orElse(ConvenioTipoCobrancaEnum.PAGO_NO_ATO);
+    }
+
+    private void sincronizarProcedimentosLancamento(
+            LancamentoFinanceiro lancamento,
+            List<LancamentoFinanceiroProcedimentoDTO> procDtos) {
+        List<LancamentoFinanceiroProcedimento> procs = new ArrayList<>();
+        for (LancamentoFinanceiroProcedimentoDTO dto : procDtos) {
+            procs.add(new LancamentoFinanceiroProcedimento(
+                lancamento,
+                dto.getProcedimentoId(),
+                dto.getProcedimentoCodigo(),
+                dto.getProcedimentoDescricao(),
+                dto.getConvenioId(),
+                dto.getConvenioNome(),
+                dto.getTabelaItemId(),
+                dto.getValor()));
+        }
+        lancamento.syncProcedimentos(procs);
     }
 
     @Override
@@ -145,9 +237,14 @@ public class AtendimentoServiceImpl
         Long numero = entity.getNumero() != null
                 ? entity.getNumero()
                 : repository.findNumeroById(entity.getId()).orElse(null);
+        UUID lancamentoFinanceiroId = lancamentoFinanceiroRepository
+                .findByAtendimentoId(entity.getId())
+                .map(LancamentoFinanceiro::getId)
+                .orElse(null);
         return AtendimentoDTO.builder()
                 .id(entity.getId())
                 .numero(numero)
+                .lancamentoFinanceiroId(lancamentoFinanceiroId)
                 .dataInicio(entity.getDataInicio())
                 .dataFim(entity.getDataFim())
                 .setorId(entity.getSetor() != null ? entity.getSetor().getId() : null)

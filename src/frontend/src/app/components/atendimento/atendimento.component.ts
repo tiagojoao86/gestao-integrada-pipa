@@ -22,6 +22,7 @@ export class AtendimentoComponent implements OnInit {
   ngOnInit(): void {
     this.buildGrupoAtendimento();
     this.buildGrupoAgendamento();
+    this.buildGrupoFinanceiro();
   }
 
   private buildGrupoAtendimento(): void {
@@ -61,6 +62,22 @@ export class AtendimentoComponent implements OnInit {
 
     if (modulos.length > 0) {
       this.systemModules.push({ name: $localize`Agendamento`, systemModules: modulos });
+    }
+  }
+
+  private buildGrupoFinanceiro(): void {
+    const modulos: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.LANCAMENTO_FINANCEIRO)) {
+      modulos.push({
+        name: $localize`Lançamentos Financeiros`,
+        icon: 'payments',
+        url: '/atendimento/lancamento',
+      });
+    }
+
+    if (modulos.length > 0) {
+      this.systemModules.push({ name: $localize`Financeiro`, systemModules: modulos });
     }
   }
 }

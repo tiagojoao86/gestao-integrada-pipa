@@ -9,6 +9,8 @@ import br.com.grupopipa.gestaointegrada.core.valueobject.Nome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,7 +26,7 @@ public class Convenio extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "pessoa_id",
-        nullable = false,
+        nullable = true,
         foreignKey = @jakarta.persistence.ForeignKey(name = "fk_convenio_pessoa")
     )
     private Pessoa pessoa;
@@ -35,11 +37,17 @@ public class Convenio extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_cobranca", nullable = false)
+    private ConvenioTipoCobrancaEnum tipoCobranca = ConvenioTipoCobrancaEnum.FATURADO;
+
     private Convenio(ConvenioValidator.ValidatedData data) {
         this.nome = data.nome;
         this.pessoa = data.pessoa;
         this.registroAns = data.registroAns;
         this.ativo = data.ativo != null ? data.ativo : true;
+        this.tipoCobranca = data.tipoCobranca != null
+            ? data.tipoCobranca : ConvenioTipoCobrancaEnum.FATURADO;
     }
 
     protected Convenio() {
@@ -54,6 +62,7 @@ public class Convenio extends BaseEntity {
         private Pessoa pessoa;
         private String registroAns;
         private Boolean ativo = true;
+        private ConvenioTipoCobrancaEnum tipoCobranca = ConvenioTipoCobrancaEnum.FATURADO;
 
         public Builder nome(String nome) {
             this.nome = nome;
@@ -75,9 +84,14 @@ public class Convenio extends BaseEntity {
             return this;
         }
 
+        public Builder tipoCobranca(ConvenioTipoCobrancaEnum tipoCobranca) {
+            this.tipoCobranca = tipoCobranca;
+            return this;
+        }
+
         public Convenio build() {
             ConvenioValidator.ValidatedData data = ConvenioValidator.validate(
-                nome, pessoa, registroAns, ativo
+                nome, pessoa, registroAns, ativo, tipoCobranca
             );
             return new Convenio(data);
         }
@@ -87,9 +101,11 @@ public class Convenio extends BaseEntity {
     // Domain methods
     // =========================================================================
 
-    public void atualizar(String nomeStr, Pessoa pessoaArg, String registroAnsArg, Boolean ativoArg) {
+    public void atualizar(
+            String nomeStr, Pessoa pessoaArg, String registroAnsArg,
+            Boolean ativoArg, ConvenioTipoCobrancaEnum tipoCobrancaArg) {
         ConvenioValidator.ValidatedData data = ConvenioValidator.validate(
-            nomeStr, pessoaArg, registroAnsArg, ativoArg
+            nomeStr, pessoaArg, registroAnsArg, ativoArg, tipoCobrancaArg
         );
         this.nome = data.nome;
         this.pessoa = data.pessoa;
@@ -97,6 +113,7 @@ public class Convenio extends BaseEntity {
         if (data.ativo != null) {
             this.ativo = data.ativo;
         }
+        this.tipoCobranca = data.tipoCobranca;
     }
 
     // Getters
@@ -118,6 +135,10 @@ public class Convenio extends BaseEntity {
 
     public boolean isAtivo() {
         return ativo != null && ativo;
+    }
+
+    public ConvenioTipoCobrancaEnum getTipoCobranca() {
+        return tipoCobranca;
     }
 
     @Override

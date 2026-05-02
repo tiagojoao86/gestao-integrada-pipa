@@ -44,6 +44,8 @@ public class AtendimentoDTO implements DTO {
 
     private String observacoes;
 
+    private UUID lancamentoFinanceiroId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

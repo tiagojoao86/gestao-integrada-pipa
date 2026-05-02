@@ -621,3 +621,20 @@ p-datepicker {
 .p-datatable-tbody > tr.deleted-row {
   background-color: rgba(255, 0, 0, 0.1) !important;
 }
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.situacao-aberto   { background: #cff4fc; color: #055160; }
+.situacao-fechado  { background: #e2e3e5; color: #41464b; }
+.situacao-cancelado { background: #f8d7da; color: #58151c; }
+
+.status-pendente  { background: #fff3cd; color: #856404; }
+.status-pago      { background: #badbcc; color: #0a3622; }
+.status-faturado  { background: #d1e7dd; color: #0a3622; }
+.status-cancelado { background: #f8d7da; color: #58151c; }

@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.convenio;
 import java.util.HashSet;
 import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
@@ -15,18 +16,25 @@ public class ConvenioValidator {
     private ConvenioValidator() {
     }
 
-    public static ValidatedData validate(String nomeStr, Pessoa pessoa, String registroAns, Boolean ativo) {
+    public static ValidatedData validate(
+            String nomeStr, Pessoa pessoa, String registroAns,
+            Boolean ativo, ConvenioTipoCobrancaEnum tipoCobranca) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Nome nome = ValidationUtils.validateAndGet(() -> Nome.of(nomeStr), violations);
-        Validator.of(pessoa, "pessoa", violations).notNull();
+        Validator.of(tipoCobranca, "tipoCobranca", violations).notNull();
+
+        if (tipoCobranca == ConvenioTipoCobrancaEnum.FATURADO) {
+            Validator.of(pessoa, "pessoa", violations).notNull();
+        }
+
         Validator.of(registroAns, "registroAns", violations).maxLength(20);
 
         if (!violations.isEmpty()) {
             throw new BeanValidationException("convenio", violations);
         }
 
-        return new ValidatedData(nome, pessoa, registroAns, ativo);
+        return new ValidatedData(nome, pessoa, registroAns, ativo, tipoCobranca);
     }
 
     public static class ValidatedData {
@@ -34,12 +42,15 @@ public class ConvenioValidator {
         public final Pessoa pessoa;
         public final String registroAns;
         public final Boolean ativo;
+        public final ConvenioTipoCobrancaEnum tipoCobranca;
 
-        ValidatedData(Nome nome, Pessoa pessoa, String registroAns, Boolean ativo) {
+        ValidatedData(Nome nome, Pessoa pessoa, String registroAns,
+                      Boolean ativo, ConvenioTipoCobrancaEnum tipoCobranca) {
             this.nome = nome;
             this.pessoa = pessoa;
             this.registroAns = registroAns;
             this.ativo = ativo;
+            this.tipoCobranca = tipoCobranca;
         }
     }
 }

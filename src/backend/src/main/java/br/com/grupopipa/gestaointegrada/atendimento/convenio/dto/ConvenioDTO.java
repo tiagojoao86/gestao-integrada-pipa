@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.grupopipa.gestaointegrada.atendimento.codigoconvenio.dto.CodigoConvenioDTO;
+import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class ConvenioDTO implements DTO {
 
     private String registroAns;
     private Boolean ativo;
+    private ConvenioTipoCobrancaEnum tipoCobranca;
 
     private List<CodigoConvenioDTO> codigos;
 

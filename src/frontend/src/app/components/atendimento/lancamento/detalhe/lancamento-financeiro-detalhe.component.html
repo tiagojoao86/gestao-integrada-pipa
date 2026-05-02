@@ -1,0 +1,160 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    @if (lancamento) {
+      <!-- Badges de situação e status financeiro -->
+      <div class="status-row">
+        <span [class]="getSituacaoClass(lancamento.situacao)">
+          {{ getSituacaoLabel(lancamento.situacao) }}
+        </span>
+        <span [class]="getStatusFinanceiroClass(lancamento.statusFinanceiro)">
+          {{ getStatusFinanceiroLabel(lancamento.statusFinanceiro) }}
+        </span>
+        @if (isAberto()) {
+          <div class="acoes-status">
+            @if (isPagoNoAto()) {
+              <p-button
+                severity="success"
+                (onClick)="pagar()"
+                [label]="pagarLabel"
+              >
+                <span class="material-symbols-outlined">payments</span>
+              </p-button>
+            } @else {
+              <p-button
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="fechar()"
+                [label]="fecharLabel"
+              >
+                <span class="material-symbols-outlined">task_alt</span>
+              </p-button>
+            }
+            <p-button
+              severity="danger"
+              [outlined]="true"
+              (onClick)="cancelarLancamento()"
+              [label]="cancelarLabel"
+            >
+              <span class="material-symbols-outlined">cancel</span>
+            </p-button>
+          </div>
+        }
+      </div>
+
+      <!-- Dados do atendimento (somente leitura) -->
+      <div class="secao-titulo" i18n>Dados do Atendimento</div>
+      <div class="info-grid">
+        <div class="info-campo">
+          <span class="info-label" i18n>Nº Atendimento</span>
+          <span class="info-valor">
+            {{ lancamento.atendimentoNumero ? '#' + lancamento.atendimentoNumero : '—' }}
+          </span>
+        </div>
+        <div class="info-campo">
+          <span class="info-label" i18n>Data</span>
+          <span class="info-valor">
+            {{ lancamento.dataAtendimento ? formatarData(lancamento.dataAtendimento) : '—' }}
+          </span>
+        </div>
+        <div class="info-campo">
+          <span class="info-label" i18n>Paciente</span>
+          <span class="info-valor">{{ lancamento.pacienteNome ?? '—' }}</span>
+        </div>
+        <div class="info-campo">
+          <span class="info-label" i18n>Convênio</span>
+          <span class="info-valor">{{ lancamento.convenioNome ?? 'Particular' }}</span>
+        </div>
+        <div class="info-campo">
+          <span class="info-label" i18n>Valor Total</span>
+          <span class="info-valor info-valor--destaque">{{ formatarValor(lancamento.valorTotal) }}</span>
+        </div>
+      </div>
+
+      <!-- Procedimentos -->
+      <div class="procedimentos-header">
+        <div class="secao-titulo" style="margin: 0; border: none; padding: 0">
+          <span i18n>Procedimentos</span>
+        </div>
+        @if (isAberto()) {
+          <div class="box-fieldset procedimento-add-field">
+            <gi-entity-field
+              [label]="addProcedimentoLabel"
+              [entityLabel]="null"
+              [searchConfig]="procedimentoSearchConfig"
+              (entitySelected)="onProcedimentoSelected($event)"
+            />
+          </div>
+        }
+      </div>
+
+      @if (procedimentos.length === 0) {
+        <div class="procedimentos-empty" i18n>Nenhum procedimento adicionado.</div>
+      } @else {
+        <p-table [value]="procedimentos" [scrollable]="true" styleClass="p-datatable-sm proc-table">
+          <ng-template pTemplate="header">
+            <tr>
+              <th i18n>Procedimento</th>
+              <th i18n>Convênio</th>
+              <th class="col-valor" i18n>Valor (R$)</th>
+              @if (isAberto()) {
+                <th class="col-acao"></th>
+              }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-proc let-i="rowIndex">
+            <tr>
+              <td>{{ proc.procedimentoDescricao || proc.procedimentoCodigo || '—' }}</td>
+              <td>{{ proc.convenioNome ?? 'Particular' }}</td>
+              <td class="col-valor">
+                @if (isAberto()) {
+                  <p-inputnumber
+                    [(ngModel)]="procedimentos[i].valor"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    (ngModelChange)="recalcularTotal()"
+                    styleClass="input-valor"
+                  />
+                } @else {
+                  {{ formatarValor(proc.valor) }}
+                }
+              </td>
+              @if (isAberto()) {
+                <td class="col-acao">
+                  <p-button (click)="removerProcedimento(i)">
+                    <span class="material-symbols-outlined row-action-icon">delete</span>
+                  </p-button>
+                </td>
+              }
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+
+      <!-- Observações -->
+      <div class="secao-titulo" i18n>Observações</div>
+      @if (isAberto()) {
+        <p-iftalabel>
+          <textarea
+            pTextarea
+            id="observacoes"
+            [(ngModel)]="observacoes"
+            rows="3"
+            style="width: 100%"
+          ></textarea>
+          <label for="observacoes" i18n>Observações</label>
+        </p-iftalabel>
+      } @else {
+        <div class="obs-readonly">{{ lancamento.observacoes || '—' }}</div>
+      }
+    } @else {
+      <div class="carregando">
+        <p-progress-spinner styleClass="spinner-sm" />
+      </div>
+    }
+  </div>
+</gi-app-base>

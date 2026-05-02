@@ -96,4 +96,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.AGENDAMENTO_AGENDAMENTO,
     },
   },
+  {
+    path: 'lancamento',
+    loadComponent: () =>
+      import('./lancamento/lancamento-financeiro.component').then(
+        (app) => app.LancamentoFinanceiroComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.LANCAMENTO_FINANCEIRO,
+    },
+  },
 ];

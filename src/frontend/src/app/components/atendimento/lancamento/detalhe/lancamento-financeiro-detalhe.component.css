@@ -1,0 +1,133 @@
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.acoes-status {
+  display: flex;
+  gap: 8px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.situacao-aberto   { background: #cff4fc; color: #055160; }
+.situacao-fechado  { background: #e2e3e5; color: #41464b; }
+.situacao-cancelado { background: #f8d7da; color: #58151c; }
+
+.status-pendente  { background: #fff3cd; color: #856404; }
+.status-pago      { background: #badbcc; color: #0a3622; }
+.status-faturado  { background: #d1e7dd; color: #0a3622; }
+.status-cancelado { background: #f8d7da; color: #58151c; }
+
+.secao-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--secondary-color);
+  margin: 20px 0 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.info-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: 11px;
+  color: var(--text-muted-color, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.info-valor {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.info-valor--destaque {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+/* Procedimentos section */
+.procedimentos-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 20px 0 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+}
+
+.box-fieldset {
+  padding: 0.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.procedimento-add-field {
+  flex: 1;
+  max-width: 400px;
+}
+
+.procedimentos-empty {
+  padding: 1rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.col-valor { width: 160px; }
+.col-acao  { width: 48px; }
+
+.input-valor { width: 130px; }
+
+/* Delete button — follows the same pattern as table grid action buttons */
+.row-action-icon {
+  color: var(--text-color);
+}
+
+:host ::ng-deep .proc-table .p-datatable-tbody > tr > td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+:host ::ng-deep .proc-table .p-datatable-thead > tr > th {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.obs-readonly {
+  padding: 8px;
+  background: var(--item-transparency);
+  border-radius: 6px;
+  min-height: 60px;
+  font-size: 14px;
+}
+
+.carregando {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}

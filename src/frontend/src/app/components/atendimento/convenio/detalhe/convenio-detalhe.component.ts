@@ -20,10 +20,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ConvenioService } from '../convenio.service';
 import { ConvenioDTO } from '../model/convenio-dto';
 import { CodigoConvenioDTO } from '../model/codigo-convenio-dto';
+import { ConvenioTipoCobranca, convenioTipoCobrancaLabel } from '../model/convenio-tipo-cobranca.enum';
 import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { RouteConstants } from '../../../base/constants/route-constants';
@@ -53,6 +55,7 @@ import { ProcedimentoService } from '../../procedimento/procedimento.service';
     CheckboxModule,
     TableModule,
     ButtonModule,
+    SelectModule,
     EntityFieldComponent,
     PessoaDetalheComponent,
   ],
@@ -70,6 +73,11 @@ export class ConvenioDetalheComponent implements OnInit {
 
   pessoaSelecionada: PessoaDTO | null = null;
   readonly pessoaLabel = $localize`Pessoa (CNPJ/Razão Social)`;
+
+  readonly tipoCobrancaOptions = [
+    { label: convenioTipoCobrancaLabel(ConvenioTipoCobranca.FATURADO), value: ConvenioTipoCobranca.FATURADO },
+    { label: convenioTipoCobrancaLabel(ConvenioTipoCobranca.PAGO_NO_ATO), value: ConvenioTipoCobranca.PAGO_NO_ATO },
+  ];
 
   // Gestão inline de CodigoConvenio
   codigos: CodigoConvenioDTO[] = [];
@@ -159,14 +167,32 @@ export class ConvenioDetalheComponent implements OnInit {
     const fb = this.fb.nonNullable;
     this.form = fb.group({
       nome: fb.control('', [Validators.required, Validators.maxLength(100)]),
-      pessoaId: fb.control('', [Validators.required]),
+      tipoCobranca: fb.control(ConvenioTipoCobranca.FATURADO, [Validators.required]),
+      pessoaId: fb.control(''),
       registroAns: fb.control('', [Validators.maxLength(20)]),
       ativo: fb.control(true),
     });
+
+    this.form.get('tipoCobranca')!.valueChanges.subscribe(() => this.atualizarValidacaoPessoa());
+    this.atualizarValidacaoPessoa();
+  }
+
+  private atualizarValidacaoPessoa(): void {
+    const tipoCobranca = this.form.get('tipoCobranca')?.value;
+    const pessoaControl = this.form.get('pessoaId')!;
+    if (tipoCobranca === ConvenioTipoCobranca.FATURADO) {
+      pessoaControl.addValidators(Validators.required);
+    } else {
+      pessoaControl.removeValidators(Validators.required);
+      pessoaControl.setValue('');
+      this.pessoaSelecionada = null;
+    }
+    pessoaControl.updateValueAndValidity();
   }
 
   fillForm() {
     this.form.get('nome')?.setValue(this.convenio.nome ?? '');
+    this.form.get('tipoCobranca')?.setValue(this.convenio.tipoCobranca ?? ConvenioTipoCobranca.FATURADO);
     this.form.get('registroAns')?.setValue(this.convenio.registroAns ?? '');
     this.form.get('ativo')?.setValue(this.convenio.ativo ?? true);
     if (this.convenio.pessoaId) {
@@ -290,7 +316,8 @@ export class ConvenioDetalheComponent implements OnInit {
 
     const raw = this.form.getRawValue();
     this.convenio.nome = raw.nome;
-    this.convenio.pessoaId = raw.pessoaId;
+    this.convenio.tipoCobranca = raw.tipoCobranca;
+    this.convenio.pessoaId = raw.pessoaId || undefined;
     this.convenio.registroAns = raw.registroAns || undefined;
     this.convenio.ativo = raw.ativo;
     this.convenio.codigos = this.codigos;

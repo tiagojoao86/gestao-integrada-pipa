@@ -1,0 +1,11 @@
+@if (viewMode === "GRID") {
+  <gi-lancamento-financeiro-grid
+    (openDetail)="openDetail($event)"
+    style="display: flex; flex-direction: column; flex-grow: 1"
+  />
+} @else {
+  <gi-lancamento-financeiro-detalhe
+    [detailId]="detailId"
+    (closeDetail)="voltarParaGrid()"
+  />
+}
