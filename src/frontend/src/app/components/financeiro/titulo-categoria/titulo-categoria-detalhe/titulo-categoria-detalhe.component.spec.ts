@@ -9,7 +9,8 @@ import { of } from 'rxjs';
 import { TituloCategoriaDTO } from '../model/titulo-categoria.dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
 import { TituloCategoriaTipoEnum } from '../model/titulo-categoria-tipo.enum';
-import { Response } from '../../../base/model/response';
+import { Response, ResponseListNoPagination } from '../../../base/model/response';
+import { TituloCategoriaGridDTO } from '../model/titulo-categoria-grid.dto';
 
 describe('CategoriaTituloDetalheComponent', () => {
   let component: CategoriaTituloDetalheComponent;
@@ -148,7 +149,7 @@ describe('CategoriaTituloDetalheComponent', () => {
       ];
 
       tituloCategoriaService.listAll.mockReturnValue(
-        of({ body: mockAgrupadores })
+        of({ body: mockAgrupadores } as unknown as ResponseListNoPagination<TituloCategoriaGridDTO>)
       );
 
       component.detailId = 'add';

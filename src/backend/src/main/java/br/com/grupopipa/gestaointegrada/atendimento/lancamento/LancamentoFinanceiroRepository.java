@@ -13,4 +13,6 @@ public interface LancamentoFinanceiroRepository
                 JpaSpecificationExecutor<LancamentoFinanceiro> {
 
     Optional<LancamentoFinanceiro> findByAtendimentoId(UUID atendimentoId);
+
+    Optional<LancamentoFinanceiro> findByTituloId(UUID tituloId);
 }

@@ -83,7 +83,7 @@ describe('AgendarComponent', () => {
       of({ body: new AgendamentoDTO() } as Response<AgendamentoDTO>)
     );
     agendamentoServiceMock.conflitoPaciente.mockReturnValue(
-      of({ body: [] } as Response<AgendamentoDTO[]>)
+      of({ body: [] } as unknown as Response<AgendamentoDTO[]>)
     );
   });
 

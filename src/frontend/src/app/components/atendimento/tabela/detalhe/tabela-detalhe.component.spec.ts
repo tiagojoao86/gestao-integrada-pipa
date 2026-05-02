@@ -355,7 +355,6 @@ describe('TabelaDetalheComponent', () => {
     it('deve exibir erro ao tentar adicionar procedimento sem vigência final duplicado', () => {
       const itemExistente = new TabelaItemDTO();
       itemExistente.procedimentoId = 'proc-1';
-      itemExistente.vigor = undefined;
       itemExistente.vigenciaFim = undefined;
       component.itens = [itemExistente];
 

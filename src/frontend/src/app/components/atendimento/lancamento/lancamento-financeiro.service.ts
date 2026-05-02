@@ -40,15 +40,15 @@ export class LancamentoFinanceiroService
     return plainToInstance(LancamentoFinanceiroGridDTO, item as object) as LancamentoFinanceiroGridDTO;
   }
 
-  pagar(id: string): Observable<Response<LancamentoFinanceiroDTO>> {
+  fecharParaPagamento(id: string): Observable<Response<LancamentoFinanceiroDTO>> {
     return this.httpClient.post<Response<LancamentoFinanceiroDTO>>(
-      `${this.urlBase}${this.getDomain()}/${id}/pagar`, {}
+      `${this.urlBase}${this.getDomain()}/${id}/fechar-pagamento`, {}
     );
   }
 
-  fechar(id: string): Observable<Response<LancamentoFinanceiroDTO>> {
+  fecharParaFaturamento(id: string): Observable<Response<LancamentoFinanceiroDTO>> {
     return this.httpClient.post<Response<LancamentoFinanceiroDTO>>(
-      `${this.urlBase}${this.getDomain()}/${id}/fechar`, {}
+      `${this.urlBase}${this.getDomain()}/${id}/fechar-faturamento`, {}
     );
   }
 

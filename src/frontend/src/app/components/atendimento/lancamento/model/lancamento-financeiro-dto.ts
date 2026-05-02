@@ -27,6 +27,12 @@ export class LancamentoFinanceiroDTO {
 
   @Expose() observacoes?: string;
 
+  @Expose() setorId?: string;
+  @Expose() setorNome?: string;
+  @Expose() unidadeNegocioId?: string;
+  @Expose() unidadeNegocioNome?: string;
+  @Expose() tituloId?: string;
+
   @Expose() createdAt?: Date;
   @Expose() updatedAt?: Date;
   @Expose() createdBy?: string;

@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.LancamentoFinanceiroRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
@@ -15,6 +16,7 @@ import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceira;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
+import br.com.grupopipa.gestaointegrada.financeiro.enums.StatusTitulo;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoMovimentacao;
 import br.com.grupopipa.gestaointegrada.financeiro.titulo.TituloRepository;
 
@@ -26,15 +28,43 @@ public class MovimentacaoFinanceiraServiceImpl extends
 
     private final TituloRepository tituloRepository;
     private final ContaBancariaRepository contaBancariaRepository;
+    private final LancamentoFinanceiroRepository lancamentoFinanceiroRepository;
 
     public MovimentacaoFinanceiraServiceImpl(
             MovimentacaoFinanceiraRepository repository,
             Specifications<MovimentacaoFinanceira> specifications,
             TituloRepository tituloRepository,
-            ContaBancariaRepository contaBancariaRepository) {
+            ContaBancariaRepository contaBancariaRepository,
+            LancamentoFinanceiroRepository lancamentoFinanceiroRepository) {
         super(repository, specifications);
         this.tituloRepository = tituloRepository;
         this.contaBancariaRepository = contaBancariaRepository;
+        this.lancamentoFinanceiroRepository = lancamentoFinanceiroRepository;
+    }
+
+    @Override
+    @Transactional
+    public MovimentacaoFinanceiraDTO save(MovimentacaoFinanceiraDTO dto) {
+        MovimentacaoFinanceiraDTO result = super.save(dto);
+        sincronizarLancamentosComTitulosPagos(dto);
+        return result;
+    }
+
+    private void sincronizarLancamentosComTitulosPagos(MovimentacaoFinanceiraDTO dto) {
+        if (dto.getTitulos() == null) {
+            return;
+        }
+        dto.getTitulos().forEach(t -> {
+            tituloRepository.findById(t.getId()).ifPresent(titulo -> {
+                if (titulo.getStatus() == StatusTitulo.PAGO) {
+                    lancamentoFinanceiroRepository.findByTituloId(titulo.getId())
+                        .ifPresent(lf -> {
+                            lf.marcarComoPago();
+                            lancamentoFinanceiroRepository.save(lf);
+                        });
+                }
+            });
+        });
     }
 
     @Override

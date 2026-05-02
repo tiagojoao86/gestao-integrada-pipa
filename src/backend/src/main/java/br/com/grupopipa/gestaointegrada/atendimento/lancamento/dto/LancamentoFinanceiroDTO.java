@@ -40,6 +40,12 @@ public class LancamentoFinanceiroDTO implements DTO {
 
     private String observacoes;
 
+    private UUID setorId;
+    private String setorNome;
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioNome;
+    private UUID tituloId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

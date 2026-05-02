@@ -10,9 +10,9 @@ import br.com.grupopipa.gestaointegrada.core.service.CrudService;
 public interface LancamentoFinanceiroService
         extends CrudService<LancamentoFinanceiroDTO, LancamentoFinanceiroGridDTO> {
 
-    Response pagar(UUID id);
+    Response fecharParaPagamento(UUID id);
 
-    Response fechar(UUID id);
+    Response fecharParaFaturamento(UUID id);
 
     Response cancelar(UUID id);
 }

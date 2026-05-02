@@ -61,16 +61,16 @@ public class LancamentoFinanceiroController
         return super.getAuditInfo(id);
     }
 
-    @PostMapping("/{id}/pagar")
+    @PostMapping("/{id}/fechar-pagamento")
     @PreAuthorize("hasAuthority('LANCAMENTO_FINANCEIRO_EDITAR')")
-    public Response pagar(@PathVariable UUID id) {
-        return service.pagar(id);
+    public Response fecharParaPagamento(@PathVariable UUID id) {
+        return service.fecharParaPagamento(id);
     }
 
-    @PostMapping("/{id}/fechar")
+    @PostMapping("/{id}/fechar-faturamento")
     @PreAuthorize("hasAuthority('LANCAMENTO_FINANCEIRO_EDITAR')")
-    public Response fechar(@PathVariable UUID id) {
-        return service.fechar(id);
+    public Response fecharParaFaturamento(@PathVariable UUID id) {
+        return service.fecharParaFaturamento(id);
     }
 
     @PostMapping("/{id}/cancelar")

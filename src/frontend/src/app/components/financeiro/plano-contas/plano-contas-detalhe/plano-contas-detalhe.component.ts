@@ -128,7 +128,7 @@ export class PlanoContasDetalheComponent implements OnInit {
       this.editMode = true;
       this.planoContasService.findById(this.detailId).subscribe({
         next: (response) => {
-          this.entity = response.body;
+          this.entity = response.body!;
           this.titulo += this.entity.descricao;
           this.fillForm();
           // Se está editando e tem planoPaiId, carrega o plano pai completo
@@ -136,10 +136,12 @@ export class PlanoContasDetalheComponent implements OnInit {
             this.planoContasService.findById(this.entity.planoPaiId).subscribe({
               next: (response) => {
                 const planoPai = response.body;
-                this.selectedPlanoPai = {
-                  ...planoPai,
-                  displayLabel: `${planoPai.codigo} - ${planoPai.descricao}`,
-                } as PlanoContasDTO & { displayLabel: string };
+                if (planoPai) {
+                  this.selectedPlanoPai = {
+                    ...planoPai,
+                    displayLabel: `${planoPai.codigo} - ${planoPai.descricao}`,
+                  } as PlanoContasDTO & { displayLabel: string };
+                }
               },
             });
           }
@@ -274,10 +276,14 @@ export class PlanoContasDetalheComponent implements OnInit {
     // First, load default unidade from auth cache to ensure it's available immediately
     const defaultUnidade = this.authService.getDefaultUnidadeNegocio();
     if (defaultUnidade) {
-      this.allUnidadesNegocio = [defaultUnidade];
-      // Set default immediately if needed
-      if (setDefault && defaultUnidade.id) {
-        this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+      const mapped = {
+        id: defaultUnidade.unidadeNegocioId,
+        nome: defaultUnidade.unidadeNegocioNome,
+        codigo: defaultUnidade.unidadeNegocioCodigo,
+      };
+      this.allUnidadesNegocio = [mapped];
+      if (setDefault && mapped.id) {
+        this.form.get('unidadeNegocio')?.setValue(mapped.id);
       }
     }
 
@@ -291,7 +297,7 @@ export class PlanoContasDetalheComponent implements OnInit {
           defaultUnidade &&
           !this.form.get('unidadeNegocio')?.value
         ) {
-          this.form.get('unidadeNegocio')?.setValue(defaultUnidade.id);
+          this.form.get('unidadeNegocio')?.setValue(defaultUnidade.unidadeNegocioId);
         }
       },
       error: (error) => {

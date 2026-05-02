@@ -18,8 +18,8 @@
             @if (isPagoNoAto()) {
               <p-button
                 severity="success"
-                (onClick)="pagar()"
-                [label]="pagarLabel"
+                (onClick)="fecharParaPagamento()"
+                [label]="fecharPagamentoLabel"
               >
                 <span class="material-symbols-outlined">payments</span>
               </p-button>
@@ -27,8 +27,8 @@
               <p-button
                 severity="secondary"
                 [outlined]="true"
-                (onClick)="fechar()"
-                [label]="fecharLabel"
+                (onClick)="fecharParaFaturamento()"
+                [label]="fecharFaturamentoLabel"
               >
                 <span class="material-symbols-outlined">task_alt</span>
               </p-button>

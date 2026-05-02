@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, take } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { plainToInstance } from 'class-transformer';
 import { PlanoContasDTO } from './model/plano-contas-dto';
 import { PlanoContasGridDTO } from './model/plano-contas-grid-dto';
 import { MessageService } from '../../base/messages/messages.service';
@@ -20,6 +21,14 @@ export class PlanoContasService extends BaseService<
 
   getDomain(): string {
     return PlanoContasService.PLANO_CONTAS;
+  }
+
+  protected override convertToDto(body: PlanoContasDTO): PlanoContasDTO {
+    return plainToInstance(PlanoContasDTO, body as object) as PlanoContasDTO;
+  }
+
+  protected override convertToGrid(item: PlanoContasGridDTO): PlanoContasGridDTO {
+    return plainToInstance(PlanoContasGridDTO, item as object) as PlanoContasGridDTO;
   }
 
   listarUnidadesDisponiveis(): Observable<

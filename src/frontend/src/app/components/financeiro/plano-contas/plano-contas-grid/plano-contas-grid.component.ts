@@ -299,7 +299,7 @@ export class PlanoContasGridComponent {
     const acao = this.toolbarActions.filter((it) => it.icon === 'search');
     if (acao.length > 0) {
       if (filter) {
-        acao[0].value = filter.items.length + '';
+        acao[0].value = (filter.items?.length ?? 0) + '';
         return;
       }
       acao[0].value = '0';

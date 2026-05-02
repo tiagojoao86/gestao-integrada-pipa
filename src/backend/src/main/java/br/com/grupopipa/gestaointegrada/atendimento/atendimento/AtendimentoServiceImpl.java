@@ -115,6 +115,8 @@ public class AtendimentoServiceImpl
 
         if (existente == null) {
             ConvenioTipoCobrancaEnum tipoCobranca = resolverTipoCobranca(atendimentoDto.getConvenioId());
+            Setor setor = atendimentoDto.getSetorId() != null
+                ? setorRepository.findById(atendimentoDto.getSetorId()).orElse(null) : null;
             LancamentoFinanceiro novo = new LancamentoFinanceiro.Builder()
                 .atendimentoId(atendimentoDto.getId())
                 .atendimentoNumero(atendimentoDto.getNumero())
@@ -125,12 +127,23 @@ public class AtendimentoServiceImpl
                 .convenioId(atendimentoDto.getConvenioId())
                 .convenioNome(atendimentoDto.getConvenioNome())
                 .convenioTipoCobranca(tipoCobranca)
+                .setorId(setor != null ? setor.getId() : null)
+                .setorNome(setor != null ? setor.getNome() : null)
+                .unidadeNegocioId(resolverUnidadeNegocioId(setor))
+                .unidadeNegocioNome(resolverUnidadeNegocioNome(setor))
                 .build();
             sincronizarProcedimentosLancamento(novo, procDtos);
             return lancamentoFinanceiroRepository.save(novo).getId();
         }
 
         existente.atualizar(existente.getObservacoes());
+        Setor setorExistente = atendimentoDto.getSetorId() != null
+            ? setorRepository.findById(atendimentoDto.getSetorId()).orElse(null) : null;
+        existente.atualizarSetorSnapshot(
+            setorExistente != null ? setorExistente.getId() : null,
+            setorExistente != null ? setorExistente.getNome() : null,
+            resolverUnidadeNegocioId(setorExistente),
+            resolverUnidadeNegocioNome(setorExistente));
         sincronizarProcedimentosLancamento(existente, procDtos);
         return lancamentoFinanceiroRepository.save(existente).getId();
     }
@@ -142,6 +155,22 @@ public class AtendimentoServiceImpl
         return convenioRepository.findById(convenioId)
             .map(Convenio::getTipoCobranca)
             .orElse(ConvenioTipoCobrancaEnum.PAGO_NO_ATO);
+    }
+
+    private UUID resolverUnidadeNegocioId(Setor setor) {
+        if (setor == null || setor.getCentroCusto() == null) {
+            return null;
+        }
+        var un = setor.getCentroCusto().getUnidadeNegocio();
+        return un != null ? un.getId() : null;
+    }
+
+    private String resolverUnidadeNegocioNome(Setor setor) {
+        if (setor == null || setor.getCentroCusto() == null) {
+            return null;
+        }
+        var un = setor.getCentroCusto().getUnidadeNegocio();
+        return un != null ? un.getNome() : null;
     }
 
     private void sincronizarProcedimentosLancamento(

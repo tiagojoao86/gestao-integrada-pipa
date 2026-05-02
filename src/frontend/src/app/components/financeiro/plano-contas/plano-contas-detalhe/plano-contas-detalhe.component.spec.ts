@@ -8,8 +8,8 @@ import { AuthService } from '../../../base/auth/auth-service';
 import { of } from 'rxjs';
 import { PlanoContasDTO } from '../model/plano-contas-dto';
 import { ExecutionCallbacks } from '../../../base/base-service';
-import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
-import { Response } from '../../../base/model/response';
+import { Response, ResponseList } from '../../../base/model/response';
+import { PlanoContasGridDTO } from '../model/plano-contas-grid-dto';
 
 describe('PlanoContasDetalheComponent', () => {
   let component: PlanoContasDetalheComponent;
@@ -18,10 +18,17 @@ describe('PlanoContasDetalheComponent', () => {
   let messageService: jest.Mocked<MessageService>;
   let authService: jest.Mocked<AuthService>;
 
-  const mockUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [
-    { id: 'un-1', nome: 'Unidade 1', codigo: 'UN01' } as UsuarioUnidadeNegocioDTO,
-    { id: 'un-2', nome: 'Unidade 2', codigo: 'UN02' } as UsuarioUnidadeNegocioDTO,
+  const mockUnidadesNegocio: { id: string; nome: string; codigo: string }[] = [
+    { id: 'un-1', nome: 'Unidade 1', codigo: 'UN01' },
+    { id: 'un-2', nome: 'Unidade 2', codigo: 'UN02' },
   ];
+
+  const mockDefaultUnidade = {
+    unidadeNegocioId: 'un-1',
+    unidadeNegocioNome: 'Unidade 1',
+    unidadeNegocioCodigo: 'UN01',
+    isDefault: true,
+  };
 
   beforeEach(async () => {
     const planoContasServiceMock = {
@@ -79,7 +86,7 @@ describe('PlanoContasDetalheComponent', () => {
     );
 
     authServiceMock.hasAuthorityEditarToModulo.mockReturnValue(true);
-    authServiceMock.getDefaultUnidadeNegocio.mockReturnValue(mockUnidadesNegocio[0]);
+    authServiceMock.getDefaultUnidadeNegocio.mockReturnValue(mockDefaultUnidade);
   });
 
   afterEach(() => {
@@ -233,7 +240,7 @@ describe('PlanoContasDetalheComponent', () => {
         if (id === 'pc-pai') {
           return of({ body: mockPlanoPai } as Response<PlanoContasDTO>);
         }
-        return of({ body: null });
+        return of({ body: null } as unknown as Response<PlanoContasDTO>);
       });
 
       component.detailId = 'pc-filho';
@@ -262,7 +269,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -311,7 +318,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -335,7 +342,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -358,7 +365,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -388,7 +395,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -414,7 +421,7 @@ describe('PlanoContasDetalheComponent', () => {
       planoContasService.save.mockImplementation(
         (_data: PlanoContasDTO, callbacks: ExecutionCallbacks<PlanoContasDTO>) => {
           if (callbacks.onSuccess) {
-            callbacks.onSuccess();
+            callbacks.onSuccess(new PlanoContasDTO());
           }
         }
       );
@@ -455,7 +462,7 @@ describe('PlanoContasDetalheComponent', () => {
         },
       };
 
-      planoContasService.list.mockReturnValue(of(mockResponse));
+      planoContasService.list.mockReturnValue(of(mockResponse as unknown as ResponseList<PlanoContasGridDTO>));
 
       component.searchPlanoPai({ query: 'Ativo' });
 
@@ -476,7 +483,7 @@ describe('PlanoContasDetalheComponent', () => {
         },
       };
 
-      planoContasService.list.mockReturnValue(of(mockResponse));
+      planoContasService.list.mockReturnValue(of(mockResponse as unknown as ResponseList<PlanoContasGridDTO>));
 
       component.searchPlanoPai({ query: '' });
 

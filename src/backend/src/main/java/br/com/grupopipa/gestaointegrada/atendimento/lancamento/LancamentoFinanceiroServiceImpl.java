@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroGridDTO;
@@ -17,6 +18,7 @@ import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
+import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
 
 @Service
 public class LancamentoFinanceiroServiceImpl
@@ -24,10 +26,14 @@ public class LancamentoFinanceiroServiceImpl
                                 LancamentoFinanceiro, LancamentoFinanceiroRepository>
         implements LancamentoFinanceiroService {
 
+    private final LancamentoTituloService lancamentoTituloService;
+
     public LancamentoFinanceiroServiceImpl(
             LancamentoFinanceiroRepository repository,
-            Specifications<LancamentoFinanceiro> specifications) {
+            Specifications<LancamentoFinanceiro> specifications,
+            LancamentoTituloService lancamentoTituloService) {
         super(repository, specifications);
+        this.lancamentoTituloService = lancamentoTituloService;
     }
 
     @Override
@@ -83,15 +89,21 @@ public class LancamentoFinanceiroServiceImpl
     }
 
     @Override
-    public Response pagar(UUID id) {
+    @Transactional
+    public Response fecharParaPagamento(UUID id) {
         LancamentoFinanceiro lancamento = findEntity(id);
-        lancamento.pagar();
+        Titulo titulo = lancamentoTituloService.gerarTitulo(lancamento);
+        lancamento.vincularTitulo(titulo.getId());
+        lancamento.fechar();
         return Response.ok(buildDTOFromEntity(repository.save(lancamento)));
     }
 
     @Override
-    public Response fechar(UUID id) {
+    @Transactional
+    public Response fecharParaFaturamento(UUID id) {
         LancamentoFinanceiro lancamento = findEntity(id);
+        Titulo titulo = lancamentoTituloService.gerarTitulo(lancamento);
+        lancamento.vincularTitulo(titulo.getId());
         lancamento.fechar();
         return Response.ok(buildDTOFromEntity(repository.save(lancamento)));
     }
@@ -138,6 +150,11 @@ public class LancamentoFinanceiroServiceImpl
                 .statusFinanceiro(entity.getStatusFinanceiro())
                 .procedimentos(procedimentos)
                 .observacoes(entity.getObservacoes())
+                .setorId(entity.getSetorId())
+                .setorNome(entity.getSetorNome())
+                .unidadeNegocioId(entity.getUnidadeNegocioId())
+                .unidadeNegocioNome(entity.getUnidadeNegocioNome())
+                .tituloId(entity.getTituloId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BaseComponent } from '../../../base/base.component';
 import { IftaLabelModule } from 'primeng/iftalabel';
@@ -58,8 +59,8 @@ export class LancamentoFinanceiroDetalheComponent implements OnInit {
   toolbarActions: ToolbarActionModel[] = [];
 
   readonly addProcedimentoLabel = $localize`Adicionar Procedimento`;
-  readonly pagarLabel    = $localize`Pagar`;
-  readonly fecharLabel   = $localize`Fechar para Faturamento`;
+  readonly fecharPagamentoLabel  = $localize`Fechar para Pagamento`;
+  readonly fecharFaturamentoLabel = $localize`Fechar para Faturamento`;
   readonly cancelarLabel = $localize`Cancelar Lançamento`;
 
   private service          = inject(LancamentoFinanceiroService);
@@ -126,36 +127,41 @@ export class LancamentoFinanceiroDetalheComponent implements OnInit {
     });
   }
 
-  pagar(): void {
+  fecharParaPagamento(): void {
     if (!this.lancamento?.id) return;
     this.dialogService
-      .showYesNo($localize`Confirmar Pagamento`, $localize`Deseja marcar este lançamento como pago?`)
+      .showYesNo(
+        $localize`Fechar para Pagamento`,
+        $localize`Deseja fechar este lançamento e gerar o título a receber?`
+      )
       .subscribe((result) => {
         if (result === DialogResult.YES) {
-          this.service.pagar(this.lancamento!.id!).subscribe({
+          this.service.fecharParaPagamento(this.lancamento!.id!).subscribe({
             next: () => {
-              this.messages.sucesso($localize`Lançamento marcado como pago.`);
+              this.messages.sucesso($localize`Lançamento fechado.`);
               this.carregarLancamento(this.lancamento!.id!);
             },
+            error: (e: HttpErrorResponse) => this.onHttpError(e),
           });
         }
       });
   }
 
-  fechar(): void {
+  fecharParaFaturamento(): void {
     if (!this.lancamento?.id) return;
     this.dialogService
       .showYesNo(
-        $localize`Fechar Lançamento`,
+        $localize`Fechar para Faturamento`,
         $localize`Deseja fechar este lançamento para faturamento ao convênio?`
       )
       .subscribe((result) => {
         if (result === DialogResult.YES) {
-          this.service.fechar(this.lancamento!.id!).subscribe({
+          this.service.fecharParaFaturamento(this.lancamento!.id!).subscribe({
             next: () => {
               this.messages.sucesso($localize`Lançamento fechado.`);
               this.carregarLancamento(this.lancamento!.id!);
             },
+            error: (e: HttpErrorResponse) => this.onHttpError(e),
           });
         }
       });
@@ -175,9 +181,18 @@ export class LancamentoFinanceiroDetalheComponent implements OnInit {
               this.messages.sucesso($localize`Lançamento cancelado.`);
               this.closeDetail.emit(this.lancamento!.id!);
             },
+            error: (e: HttpErrorResponse) => this.onHttpError(e),
           });
         }
       });
+  }
+
+  private onHttpError(error: HttpErrorResponse): void {
+    if (error.error?.messages?.length > 0) {
+      this.messages.erro(error.error.messages);
+    } else {
+      this.messages.erro(error.error?.title ?? $localize`Ocorreu um erro inesperado.`);
+    }
   }
 
   onProcedimentoSelected(entity: unknown): void {

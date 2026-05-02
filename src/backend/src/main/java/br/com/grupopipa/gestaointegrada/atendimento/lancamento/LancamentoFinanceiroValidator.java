@@ -30,7 +30,12 @@ public class LancamentoFinanceiroValidator {
             BigDecimal valorTotal,
             LancamentoFinanceiroSituacaoEnum situacao,
             LancamentoFinanceiroStatusFinanceiroEnum statusFinanceiro,
-            String observacoes) {
+            String observacoes,
+            UUID setorId,
+            String setorNome,
+            UUID unidadeNegocioId,
+            String unidadeNegocioNome,
+            UUID tituloId) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         if (atendimentoId == null) {
@@ -55,7 +60,8 @@ public class LancamentoFinanceiroValidator {
         return new ValidatedData(
             atendimentoId, atendimentoNumero, dataAtendimento,
             pacienteId, pacienteNome, convenioId, convenioNome, convenioTipoCobranca,
-            valor, situacao, statusFinanceiro, observacoes);
+            valor, situacao, statusFinanceiro, observacoes,
+            setorId, setorNome, unidadeNegocioId, unidadeNegocioNome, tituloId);
     }
 
     public static class ValidatedData {
@@ -71,12 +77,19 @@ public class LancamentoFinanceiroValidator {
         public final LancamentoFinanceiroSituacaoEnum situacao;
         public final LancamentoFinanceiroStatusFinanceiroEnum statusFinanceiro;
         public final String observacoes;
+        public final UUID setorId;
+        public final String setorNome;
+        public final UUID unidadeNegocioId;
+        public final String unidadeNegocioNome;
+        public final UUID tituloId;
 
         ValidatedData(UUID atendimentoId, Long atendimentoNumero, LocalDate dataAtendimento,
                 UUID pacienteId, String pacienteNome, UUID convenioId, String convenioNome,
                 ConvenioTipoCobrancaEnum convenioTipoCobranca,
                 Money valorTotal, LancamentoFinanceiroSituacaoEnum situacao,
-                LancamentoFinanceiroStatusFinanceiroEnum statusFinanceiro, String observacoes) {
+                LancamentoFinanceiroStatusFinanceiroEnum statusFinanceiro, String observacoes,
+                UUID setorId, String setorNome,
+                UUID unidadeNegocioId, String unidadeNegocioNome, UUID tituloId) {
             this.atendimentoId = atendimentoId;
             this.atendimentoNumero = atendimentoNumero;
             this.dataAtendimento = dataAtendimento;
@@ -89,6 +102,11 @@ public class LancamentoFinanceiroValidator {
             this.situacao = situacao;
             this.statusFinanceiro = statusFinanceiro;
             this.observacoes = observacoes;
+            this.setorId = setorId;
+            this.setorNome = setorNome;
+            this.unidadeNegocioId = unidadeNegocioId;
+            this.unidadeNegocioNome = unidadeNegocioNome;
+            this.tituloId = tituloId;
         }
     }
 }

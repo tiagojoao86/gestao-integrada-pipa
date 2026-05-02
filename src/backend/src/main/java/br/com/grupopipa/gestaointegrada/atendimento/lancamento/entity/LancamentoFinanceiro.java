@@ -71,6 +71,21 @@ public class LancamentoFinanceiro extends BaseEntity {
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
+    @Column(name = "setor_id")
+    private UUID setorId;
+
+    @Column(name = "setor_nome", length = 150)
+    private String setorNome;
+
+    @Column(name = "unidade_negocio_id")
+    private UUID unidadeNegocioId;
+
+    @Column(name = "unidade_negocio_nome", length = 150)
+    private String unidadeNegocioNome;
+
+    @Column(name = "titulo_id")
+    private UUID tituloId;
+
     @BatchSize(size = 20)
     @OneToMany(mappedBy = "lancamento", cascade = CascadeType.ALL, orphanRemoval = true,
         fetch = FetchType.LAZY)
@@ -89,6 +104,11 @@ public class LancamentoFinanceiro extends BaseEntity {
         this.situacao = data.situacao;
         this.statusFinanceiro = data.statusFinanceiro;
         this.observacoes = data.observacoes;
+        this.setorId = data.setorId;
+        this.setorNome = data.setorNome;
+        this.unidadeNegocioId = data.unidadeNegocioId;
+        this.unidadeNegocioNome = data.unidadeNegocioNome;
+        this.tituloId = data.tituloId;
     }
 
     protected LancamentoFinanceiro() {
@@ -112,6 +132,11 @@ public class LancamentoFinanceiro extends BaseEntity {
         private LancamentoFinanceiroStatusFinanceiroEnum statusFinanceiro =
             LancamentoFinanceiroStatusFinanceiroEnum.PENDENTE;
         private String observacoes;
+        private UUID setorId;
+        private String setorNome;
+        private UUID unidadeNegocioId;
+        private String unidadeNegocioNome;
+        private UUID tituloId;
 
         public Builder atendimentoId(UUID atendimentoId) {
             this.atendimentoId = atendimentoId;
@@ -173,11 +198,37 @@ public class LancamentoFinanceiro extends BaseEntity {
             return this;
         }
 
+        public Builder setorId(UUID setorId) {
+            this.setorId = setorId;
+            return this;
+        }
+
+        public Builder setorNome(String setorNome) {
+            this.setorNome = setorNome;
+            return this;
+        }
+
+        public Builder unidadeNegocioId(UUID unidadeNegocioId) {
+            this.unidadeNegocioId = unidadeNegocioId;
+            return this;
+        }
+
+        public Builder unidadeNegocioNome(String unidadeNegocioNome) {
+            this.unidadeNegocioNome = unidadeNegocioNome;
+            return this;
+        }
+
+        public Builder tituloId(UUID tituloId) {
+            this.tituloId = tituloId;
+            return this;
+        }
+
         public LancamentoFinanceiro build() {
             return new LancamentoFinanceiro(LancamentoFinanceiroValidator.validate(
                 atendimentoId, atendimentoNumero, dataAtendimento,
                 pacienteId, pacienteNome, convenioId, convenioNome, convenioTipoCobranca,
-                valorTotal, situacao, statusFinanceiro, observacoes));
+                valorTotal, situacao, statusFinanceiro, observacoes,
+                setorId, setorNome, unidadeNegocioId, unidadeNegocioNome, tituloId));
         }
     }
 
@@ -209,17 +260,6 @@ public class LancamentoFinanceiro extends BaseEntity {
             .reduce(Money.zero(), Money::add);
     }
 
-    public void pagar() {
-        if (this.situacao != LancamentoFinanceiroSituacaoEnum.ABERTO) {
-            Set<BeanValidationMessage> violations = new HashSet<>();
-            violations.add(new BeanValidationMessage(
-                "situacao", "Apenas lançamentos em situação ABERTO podem ser pagos."));
-            throw new BeanValidationException("lancamentoFinanceiro", violations);
-        }
-        this.situacao = LancamentoFinanceiroSituacaoEnum.FECHADO;
-        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PAGO;
-    }
-
     public void fechar() {
         if (this.situacao != LancamentoFinanceiroSituacaoEnum.ABERTO) {
             Set<BeanValidationMessage> violations = new HashSet<>();
@@ -228,7 +268,27 @@ public class LancamentoFinanceiro extends BaseEntity {
             throw new BeanValidationException("lancamentoFinanceiro", violations);
         }
         this.situacao = LancamentoFinanceiroSituacaoEnum.FECHADO;
-        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PENDENTE;
+        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.FATURADO;
+    }
+
+    public void marcarComoPago() {
+        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PAGO;
+    }
+
+    public void vincularTitulo(UUID id) {
+        this.tituloId = id;
+    }
+
+    public void atualizarSetorSnapshot(
+            UUID novoSetorId, String novoSetorNome,
+            UUID novaUnidadeNegocioId, String novaUnidadeNegocioNome) {
+        if (this.situacao != LancamentoFinanceiroSituacaoEnum.ABERTO) {
+            return;
+        }
+        this.setorId = novoSetorId;
+        this.setorNome = novoSetorNome;
+        this.unidadeNegocioId = novaUnidadeNegocioId;
+        this.unidadeNegocioNome = novaUnidadeNegocioNome;
     }
 
     public void cancelar() {
@@ -296,5 +356,25 @@ public class LancamentoFinanceiro extends BaseEntity {
 
     public List<LancamentoFinanceiroProcedimento> getProcedimentos() {
         return procedimentos;
+    }
+
+    public UUID getSetorId() {
+        return setorId;
+    }
+
+    public String getSetorNome() {
+        return setorNome;
+    }
+
+    public UUID getUnidadeNegocioId() {
+        return unidadeNegocioId;
+    }
+
+    public String getUnidadeNegocioNome() {
+        return unidadeNegocioNome;
+    }
+
+    public UUID getTituloId() {
+        return tituloId;
     }
 }

@@ -46,9 +46,9 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
   };
 
   const mockTitulos: TituloDTO[] = [
-    { id: '1', descricao: 'Título 1', valor: 100 } as TituloDTO,
-    { id: '2', descricao: 'Título 2', valor: 200 } as TituloDTO,
-    { id: '3', descricao: 'Título 3', valor: 300 } as TituloDTO,
+    { id: '1', descricao: 'Título 1', valor: 100 } as unknown as TituloDTO,
+    { id: '2', descricao: 'Título 2', valor: 200 } as unknown as TituloDTO,
+    { id: '3', descricao: 'Título 3', valor: 300 } as unknown as TituloDTO,
   ];
 
   const mockContas: ContaBancariaDTO[] = [
@@ -98,9 +98,9 @@ describe('MovimentacaoFinanceiraDetalheComponent', () => {
 
     fixture = TestBed.createComponent(MovimentacaoFinanceiraDetalheComponent);
     component = fixture.componentInstance;
-    movimentacaoService = movimentacaoServiceMock;
-    _contaService = contaServiceMock;
-    messageService = messageServiceMock;
+    movimentacaoService = movimentacaoServiceMock as unknown as jest.Mocked<MovimentacaoFinanceiraService>;
+    _contaService = contaServiceMock as unknown as jest.Mocked<ContaBancariaService>;
+    messageService = messageServiceMock as unknown as jest.Mocked<MessageService>;
   });
 
   afterEach(() => {
