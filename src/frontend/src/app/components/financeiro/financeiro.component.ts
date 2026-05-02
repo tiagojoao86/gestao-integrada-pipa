@@ -21,6 +21,23 @@ export class FinanceiroComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
+    const cadastrosModules: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.CADASTRO_CAIXA)) {
+      cadastrosModules.push({
+        name: $localize`Caixas`,
+        icon: 'point_of_sale',
+        url: '/financeiro/caixa',
+      });
+    }
+
+    if (cadastrosModules.length > 0) {
+      this.systemModuleGroups.push({
+        name: $localize`Cadastros`,
+        systemModules: cadastrosModules,
+      });
+    }
+
     const financeiroModules: SystemModule[] = [];
 
     if (

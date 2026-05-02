@@ -1,0 +1,65 @@
+<gi-app-base
+  [title]="title"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+      <p-iftalabel class="w-50">
+        <input pInputText id="nome" formControlName="nome" />
+        <label for="nome" i18n>Nome</label>
+        @if (isControlInvalid('nome')) {
+          <small i18n>Nome é obrigatório.</small>
+        }
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-inputnumber
+          inputId="valorPadraoAbertura"
+          formControlName="valorPadraoAbertura"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+        ></p-inputnumber>
+        <label for="valorPadraoAbertura" i18n>Valor Padrão de Abertura</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-inputnumber
+          inputId="percentualPagamentoParcial"
+          formControlName="percentualPagamentoParcial"
+          [min]="0"
+          [max]="100"
+          suffix="%"
+          [minFractionDigits]="2"
+          placeholder="Sem restrição (não permite parcial)"
+        ></p-inputnumber>
+        <label for="percentualPagamentoParcial" i18n>% Mínimo Pagamento Parcial</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-25">
+        <p-inputnumber
+          inputId="valorMinimoParcela"
+          formControlName="valorMinimoParcela"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          placeholder="Sem restrição"
+        ></p-inputnumber>
+        <label for="valorMinimoParcela" i18n>Valor Mínimo da Parcela (Crédito)</label>
+      </p-iftalabel>
+
+      <div class="w-25 flex align-items-center gap-2 pt-3">
+        <p-checkbox
+          inputId="ativo"
+          formControlName="ativo"
+          [binary]="true"
+        ></p-checkbox>
+        <label for="ativo" i18n>Ativo</label>
+      </div>
+    </div>
+  </div>
+  <div footer-content></div>
+</gi-app-base>

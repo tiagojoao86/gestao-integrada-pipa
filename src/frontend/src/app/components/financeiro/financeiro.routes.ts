@@ -78,4 +78,13 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.FINANCEIRO_CONDICAO_PAGAMENTO,
     },
   },
+  {
+    path: 'caixa',
+    loadComponent: () =>
+      import('./caixa/caixa.component').then((app) => app.CaixaComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.CADASTRO_CAIXA,
+    },
+  },
 ];

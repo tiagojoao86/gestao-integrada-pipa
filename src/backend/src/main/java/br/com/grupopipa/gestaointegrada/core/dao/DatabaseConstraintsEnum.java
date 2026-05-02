@@ -177,7 +177,14 @@ public enum DatabaseConstraintsEnum {
 
     CHK_LANCAMENTO_FINANCEIRO_SITUACAO("Situação de lançamento financeiro inválida."),
     CHK_LANCAMENTO_FINANCEIRO_STATUS_FIN("Status financeiro de lançamento inválido."),
-    FK_LANC_PROC_LANCAMENTO("Lançamento financeiro inválido.");
+    FK_LANC_PROC_LANCAMENTO("Lançamento financeiro inválido."),
+
+    // -------- Caixa --------
+    UK_CAIXA_NOME("Já existe um caixa com este nome."),
+    CHK_CAIXA_VALOR_PADRAO("O valor padrão de abertura deve ser maior ou igual a zero."),
+    CHK_CAIXA_PERCENTUAL_PARCIAL("O percentual de pagamento parcial deve estar entre 0 e 100."),
+    CHK_CAIXA_VALOR_MINIMO_PARCELA("O valor mínimo da parcela deve ser maior ou igual a zero."),
+    FK_USUARIO_CAIXA_CAIXA("Caixa inválido.");
 
     private final String message;
 

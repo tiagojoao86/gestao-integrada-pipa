@@ -1,0 +1,6 @@
+@if (viewMode === 'GRID') {
+  <gi-caixa-grid (openDetail)="openDetail($event)"></gi-caixa-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-caixa-detalhe [detailId]="detailId" (closeDetail)="toggleView()"></gi-caixa-detalhe>
+}
