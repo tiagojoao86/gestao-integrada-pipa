@@ -34,6 +34,7 @@ import { UnidadeNegocioDTO } from '../../unidade-negocio/model/unidade-negocio-d
 import { UsuarioUnidadeNegocioDTO } from '../model/usuario-unidade-negocio-dto';
 import { AuthService } from '../../../base/auth/auth-service';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { CaixaGridDTO } from '../../../financeiro/caixa/model/caixa-grid-dto';
 
 @Component({
   selector: 'gi-usuario-detalhe',
@@ -77,6 +78,9 @@ export class UsuarioDetalheComponent implements OnInit {
   selectedUnidades: UsuarioUnidadeNegocioDTO[] = [];
   unidadeDefaultId: string | null = null;
 
+  allCaixas: CaixaGridDTO[] = [];
+  selectedCaixaIds: string[] = [];
+
   toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
 
@@ -115,6 +119,7 @@ export class UsuarioDetalheComponent implements OnInit {
       this.usuario = {} as UsuarioDTO;
       this.loadPerfisAndInitLists();
       this.loadUnidadesAndInitLists();
+      this.loadCaixasAndInitLists();
     } else {
       this.editMode = true;
       this.service.findById(String(this.detailId!)).subscribe((response) => {
@@ -123,6 +128,7 @@ export class UsuarioDetalheComponent implements OnInit {
         this.fillForm();
         this.loadPerfisAndInitLists();
         this.loadUnidadesAndInitLists();
+        this.loadCaixasAndInitLists();
       });
     }
   }
@@ -185,6 +191,33 @@ export class UsuarioDetalheComponent implements OnInit {
       });
   }
 
+  private loadCaixasAndInitLists() {
+    this.service.listarCaixasDisponiveis().subscribe((caixas) => {
+      this.allCaixas = caixas;
+      if (this.usuario.id) {
+        this.service.listarCaixasDoUsuario(this.usuario.id).subscribe((ids) => {
+          this.selectedCaixaIds = ids ?? [];
+        });
+      } else {
+        this.selectedCaixaIds = [];
+      }
+    });
+  }
+
+  isCaixaVinculado(caixaId: string): boolean {
+    return this.selectedCaixaIds.includes(caixaId);
+  }
+
+  toggleCaixa(caixa: CaixaGridDTO, checked: boolean) {
+    if (checked) {
+      if (!this.selectedCaixaIds.includes(caixa.id)) {
+        this.selectedCaixaIds = [...this.selectedCaixaIds, caixa.id];
+      }
+    } else {
+      this.selectedCaixaIds = this.selectedCaixaIds.filter((id) => id !== caixa.id);
+    }
+  }
+
   isUnidadeVinculada(unidadeId: string): boolean {
     return this.selectedUnidades.some((u) => u.unidadeNegocioId === unidadeId);
   }
@@ -241,8 +274,12 @@ export class UsuarioDetalheComponent implements OnInit {
     this.service.save(this.usuario, {
       onSuccess: (data: UsuarioDTO) => {
         this.usuario = data;
-        this.messages.sucesso($localize`Usuário salvo com sucesso.`);
-        this.goBackFn();
+        this.service.atualizarCaixasDoUsuario(data.id, this.selectedCaixaIds).subscribe({
+          next: () => {
+            this.messages.sucesso($localize`Usuário salvo com sucesso.`);
+            this.goBackFn();
+          },
+        });
       },
     });
   }

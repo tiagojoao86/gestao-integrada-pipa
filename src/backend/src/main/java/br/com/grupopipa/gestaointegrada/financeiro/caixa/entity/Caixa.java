@@ -1,11 +1,17 @@
 package br.com.grupopipa.gestaointegrada.financeiro.caixa.entity;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.financeiro.caixa.CaixaValidator;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -29,6 +35,11 @@ public class Caixa extends BaseEntity {
 
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
+
+    @ElementCollection
+    @CollectionTable(name = "usuario_caixa", joinColumns = @JoinColumn(name = "caixa_id"))
+    @Column(name = "usuario_id")
+    private Set<UUID> usuarioIds = new HashSet<>();
 
     private Caixa(CaixaValidator.ValidatedData data) {
         this.nome = data.nome;
@@ -80,6 +91,14 @@ public class Caixa extends BaseEntity {
 
     public Boolean getAtivo() {
         return ativo;
+    }
+
+    public Set<UUID> getUsuarioIds() {
+        return usuarioIds;
+    }
+
+    public void setUsuarioIds(Set<UUID> usuarioIds) {
+        this.usuarioIds = usuarioIds != null ? usuarioIds : new HashSet<>();
     }
 
     public static class Builder {

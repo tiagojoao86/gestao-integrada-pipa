@@ -1,12 +1,20 @@
 package br.com.grupopipa.gestaointegrada.financeiro.caixa;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.caixa.entity.Caixa;
 
@@ -15,8 +23,14 @@ public class CaixaServiceImpl
         extends CrudServiceImpl<CaixaDTO, CaixaGridDTO, Caixa, CaixaRepository>
         implements CaixaService {
 
-    public CaixaServiceImpl(CaixaRepository repository, Specifications<Caixa> specifications) {
+    private final UsuarioRepository usuarioRepository;
+
+    public CaixaServiceImpl(
+            CaixaRepository repository,
+            Specifications<Caixa> specifications,
+            UsuarioRepository usuarioRepository) {
         super(repository, specifications);
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -92,5 +106,60 @@ public class CaixaServiceImpl
     @Override
     protected Class<Caixa> getEntityClass() {
         return Caixa.class;
+    }
+
+    @Override
+    public List<UsuarioCaixaDTO> listarUsuarios(UUID caixaId) {
+        Caixa caixa = repository.findById(caixaId)
+                .orElseThrow(() -> new BeanValidationException("caixa",
+                        Set.of(new BeanValidationMessage("id", "Caixa não encontrado."))));
+        if (caixa.getUsuarioIds().isEmpty()) {
+            return List.of();
+        }
+        return usuarioRepository.findAllById(caixa.getUsuarioIds()).stream()
+                .map(u -> UsuarioCaixaDTO.builder()
+                        .usuarioId(u.getId())
+                        .usuarioNome(u.getNome())
+                        .usuarioLogin(u.getLogin())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void atualizarUsuarios(UUID caixaId, List<UUID> usuarioIds) {
+        Caixa caixa = repository.findById(caixaId)
+                .orElseThrow(() -> new BeanValidationException("caixa",
+                        Set.of(new BeanValidationMessage("id", "Caixa não encontrado."))));
+        caixa.setUsuarioIds(usuarioIds != null ? new HashSet<>(usuarioIds) : new HashSet<>());
+        repository.save(caixa);
+    }
+
+    @Override
+    public List<CaixaGridDTO> listarTodosAtivos() {
+        return repository.findAllAtivos().stream()
+                .map(this::buildGridDTOFromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UUID> listarCaixasPorUsuario(UUID usuarioId) {
+        return repository.findByUsuarioId(usuarioId).stream()
+                .map(Caixa::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void atualizarCaixasDoUsuario(UUID usuarioId, List<UUID> caixaIds) {
+        List<Caixa> caixasAtuais = repository.findByUsuarioId(usuarioId);
+        caixasAtuais.forEach(c -> c.getUsuarioIds().remove(usuarioId));
+        repository.saveAll(caixasAtuais);
+
+        if (caixaIds != null && !caixaIds.isEmpty()) {
+            List<Caixa> caixasNovas = repository.findAllById(caixaIds);
+            caixasNovas.forEach(c -> c.getUsuarioIds().add(usuarioId));
+            repository.saveAll(caixasNovas);
+        }
     }
 }

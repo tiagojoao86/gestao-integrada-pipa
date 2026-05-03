@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { CaixaDTO } from './model/caixa-dto';
 import { CaixaGridDTO } from './model/caixa-grid-dto';
+import { UsuarioCaixaDTO } from './model/usuario-caixa-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
 
@@ -24,5 +26,13 @@ export class CaixaService extends BaseService<CaixaDTO, CaixaGridDTO> {
 
   protected override convertToGrid(item: CaixaGridDTO): CaixaGridDTO {
     return plainToInstance(CaixaGridDTO, item as object) as CaixaGridDTO;
+  }
+
+  listarUsuarios(caixaId: string): Observable<UsuarioCaixaDTO[]> {
+    return this.httpClient.get<UsuarioCaixaDTO[]>(this.getUrl(`/${caixaId}/usuarios`));
+  }
+
+  atualizarUsuarios(caixaId: string, usuarioIds: string[]): Observable<void> {
+    return this.httpClient.put<void>(this.getUrl(`/${caixaId}/usuarios`), usuarioIds);
   }
 }

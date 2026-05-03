@@ -8,6 +8,7 @@ import { PerfilParaVinculoDTO } from '../perfil/model/perfil-para-vinculo-dto';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
 import { UsuarioGridDTO } from './model/usuario-grid-dto';
+import { CaixaGridDTO } from '../../financeiro/caixa/model/caixa-grid-dto';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -38,6 +39,22 @@ export class UsuarioService extends BaseService<UsuarioDTO, UsuarioGridDTO> {
         map((response) => response.body),
         take(1)
       );
+  }
+
+  listarCaixasDisponiveis(): Observable<CaixaGridDTO[]> {
+    return this.httpClient.get<CaixaGridDTO[]>(`${this.urlBase}caixa/todos-ativos`).pipe(take(1));
+  }
+
+  listarCaixasDoUsuario(usuarioId: string): Observable<string[]> {
+    return this.httpClient
+      .get<string[]>(`${this.urlBase}caixa/por-usuario/${usuarioId}`)
+      .pipe(take(1));
+  }
+
+  atualizarCaixasDoUsuario(usuarioId: string, caixaIds: string[]): Observable<void> {
+    return this.httpClient
+      .put<void>(`${this.urlBase}caixa/por-usuario/${usuarioId}`, caixaIds)
+      .pipe(take(1));
   }
 
   protected override convertToDto(body: unknown): UsuarioDTO {

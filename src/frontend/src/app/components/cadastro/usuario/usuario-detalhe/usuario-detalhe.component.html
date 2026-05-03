@@ -96,6 +96,26 @@
           }
         </div>
       </div>
+      @if (allCaixas.length > 0) {
+      <div class="unidades-group">
+        <div class="unidades-label" i18n>Caixas com Acesso</div>
+        <div class="unidades-grid">
+          @for (caixa of allCaixas; track caixa.id) {
+          <div class="unidade-item">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isCaixaVinculado(caixa.id)"
+              (ngModelChange)="toggleCaixa(caixa, $event)"
+              [inputId]="'caixa-' + caixa.id"
+            />
+            <label [for]="'caixa-' + caixa.id" class="unidade-nome">{{
+              caixa.nome
+            }}</label>
+          </div>
+          }
+        </div>
+      </div>
+      }
     </div>
   </div>
 </gi-app-base>
