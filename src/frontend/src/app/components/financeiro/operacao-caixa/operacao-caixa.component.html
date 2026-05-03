@@ -1,0 +1,157 @@
+<gi-app-base [title]="titulo">
+  <div body-content>
+    <div class="caixas-grid">
+      @if (loading) {
+        <p i18n>Carregando...</p>
+      } @else if (caixas.length === 0) {
+        <p class="sem-caixas" i18n>Nenhum caixa vinculado ao seu usuário.</p>
+      }
+      @for (caixa of caixas; track caixa.caixaId) {
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <span class="caixa-nome">{{ caixa.caixaNome }}</span>
+              <p-tag
+                [value]="getStatusLabel(caixa.statusSessao)"
+                [severity]="getSeverity(caixa.statusSessao)"
+              />
+            </div>
+          </ng-template>
+
+          @if (caixa.statusSessao === StatusAberturaCaixa.ABERTO) {
+            <div class="session-info">
+              <div class="info-row">
+                <span class="info-label" i18n>Aberto por:</span>
+                <span>{{ caixa.usuarioNomeAbertura }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label" i18n>Abertura em:</span>
+                <span>{{ caixa.dataAbertura | date: "dd/MM/yyyy HH:mm" }}</span>
+              </div>
+            </div>
+          }
+
+          <ng-template pTemplate="footer">
+            <div class="card-actions">
+              @if (caixa.statusSessao === StatusAberturaCaixa.ABERTO) {
+                <p-button
+                  i18n-label
+                  class="p-button-inverted"
+                  (onClick)="abrirDialogFechar(caixa)"
+                >
+                  <span class="material-symbols-outlined">lock</span>
+                  <span i18n pButtonLabel>Fechar Caixa</span>
+                </p-button>
+              } @else {
+                <p-button
+                  i18n-label
+                  class="p-button-inverted"
+                  (onClick)="abrirDialogAbrir(caixa)"
+                >
+                  <span class="material-symbols-outlined">lock_open_right</span>
+                  <span i18n pButtonLabel>Abrir Caixa</span>
+                </p-button>
+              }
+            </div>
+          </ng-template>
+        </p-card>
+      }
+    </div>
+  </div>
+</gi-app-base>
+
+<!-- Dialog: Abrir Caixa -->
+<p-dialog
+  [(visible)]="showAbrirDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '400px' }"
+>
+  <ng-template pTemplate="header">
+    <span i18n>Abrir Caixa</span>
+  </ng-template>
+  <ng-template pTemplate="closeicon">
+    <p-button class="p-button-inverted">
+      <span class="material-symbols-outlined">close</span>
+    </p-button>
+  </ng-template>
+
+  <div class="dialog-body">
+    <p class="dialog-caixa-nome">{{ caixaSelecionado?.caixaNome }}</p>
+    <p-iftalabel class="w-full">
+      <p-inputnumber
+        inputId="valorAbertura"
+        [(ngModel)]="valorAbertura"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [style]="{ width: '100%' }"
+      />
+      <label for="valorAbertura" i18n>Valor de Abertura (R$)</label>
+    </p-iftalabel>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="secundario" (click)="showAbrirDialog = false">
+      <span class="material-symbols-outlined">close</span>
+      <span pButtonLabel i18n>Cancelar</span>
+    </button>
+    <button pButton class="primario" (click)="confirmarAbertura()">
+      <span class="material-symbols-outlined">lock_open_right</span>
+      <span pButtonLabel i18n>Abrir</span>
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog: Fechar Caixa -->
+<p-dialog
+  [(visible)]="showFecharDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '450px' }"
+>
+  <ng-template pTemplate="header">
+    <span i18n>Fechar Caixa</span>
+  </ng-template>
+  <ng-template pTemplate="closeicon">
+    <p-button class="p-button-inverted">
+      <span class="material-symbols-outlined">close</span>
+    </p-button>
+  </ng-template>
+
+  <div class="dialog-body">
+    <p class="dialog-caixa-nome">{{ caixaSelecionado?.caixaNome }}</p>
+    <p-iftalabel class="w-full">
+      <p-inputnumber
+        inputId="valorConferencia"
+        [(ngModel)]="valorConferencia"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [style]="{ width: '100%' }"
+      />
+      <label for="valorConferencia" i18n>Valor Contado em Caixa (R$)</label>
+    </p-iftalabel>
+    <p-iftalabel class="w-full mt-3">
+      <textarea
+        pTextarea
+        id="observacoes"
+        [(ngModel)]="observacoes"
+        rows="3"
+        style="width: 100%"
+      ></textarea>
+      <label for="observacoes" i18n>Observações</label>
+    </p-iftalabel>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="secundario" (click)="showFecharDialog = false">
+      <span class="material-symbols-outlined">close</span>
+      <span pButtonLabel i18n>Cancelar</span>
+    </button>
+    <button pButton class="primario" (click)="confirmarFechamento()">
+      <span class="material-symbols-outlined">lock</span>
+      <span pButtonLabel i18n>Fechar Caixa</span>
+    </button>
+  </ng-template>
+</p-dialog>

@@ -21,6 +21,25 @@ export class FinanceiroComponent implements OnInit {
   private authService: AuthService = inject(AuthService);
 
   ngOnInit(): void {
+    const operacoesModules: SystemModule[] = [];
+
+    if (
+      this.authService.hasAuthorityListarToModulo(SystemModuleKey.OPERACAO_CAIXA)
+    ) {
+      operacoesModules.push({
+        name: $localize`Caixa`,
+        icon: 'point_of_sale',
+        url: '/financeiro/operacao-caixa',
+      });
+    }
+
+    if (operacoesModules.length > 0) {
+      this.systemModuleGroups.push({
+        name: $localize`Operações`,
+        systemModules: operacoesModules,
+      });
+    }
+
     const movimentacoesModules: SystemModule[] = [];
 
     if (

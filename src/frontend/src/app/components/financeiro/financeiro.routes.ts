@@ -87,4 +87,15 @@ export const routes: Routes = [
       moduleKey: SystemModuleKey.CADASTRO_CAIXA,
     },
   },
+  {
+    path: 'operacao-caixa',
+    loadComponent: () =>
+      import('./operacao-caixa/operacao-caixa.component').then(
+        (app) => app.OperacaoCaixaComponent
+      ),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.OPERACAO_CAIXA,
+    },
+  },
 ];

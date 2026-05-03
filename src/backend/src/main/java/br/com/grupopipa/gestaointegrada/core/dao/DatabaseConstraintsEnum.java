@@ -184,7 +184,14 @@ public enum DatabaseConstraintsEnum {
     CHK_CAIXA_VALOR_PADRAO("O valor padrão de abertura deve ser maior ou igual a zero."),
     CHK_CAIXA_PERCENTUAL_PARCIAL("O percentual de pagamento parcial deve estar entre 0 e 100."),
     CHK_CAIXA_VALOR_MINIMO_PARCELA("O valor mínimo da parcela deve ser maior ou igual a zero."),
-    FK_USUARIO_CAIXA_CAIXA("Caixa inválido.");
+    FK_USUARIO_CAIXA_CAIXA("Caixa inválido."),
+
+    // -------- Abertura de Caixa --------
+    FK_ABERTURA_CAIXA_CAIXA("Caixa inválido."),
+    CHK_ABERTURA_CAIXA_STATUS("Status de sessão de caixa inválido."),
+    CHK_ABERTURA_CAIXA_VALOR_ABERTURA("O valor de abertura deve ser maior ou igual a zero."),
+    CHK_ABERTURA_CAIXA_VALOR_CONF("O valor de conferência deve ser maior ou igual a zero."),
+    UK_ABERTURA_CAIXA_ATIVA("Este caixa já possui uma sessão aberta.");
 
     private final String message;
 

@@ -162,6 +162,10 @@ button.primario {
   .material-icons {
     font-size: 1rem !important;
   }
+
+  .material-symbols-outlined {
+    font-size: 1.4rem !important;
+  }
 }
 
 button.primario:hover {
@@ -177,6 +181,10 @@ button.secundario {
 
   .material-icons {
     font-size: 1rem !important;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.4rem !important;
   }
 }
 
@@ -227,10 +235,15 @@ button.secundario {
   background-color: var(--secondary-color) !important;
   color: var(--inverted-text-color) !important;
   border-color: var(--secondary-color) !important;
-  font-size: var(--text-size) !important;
 
   .material-symbols-outlined {
     color: var(--inverted-text-color) !important;
+    font-size: 1.4rem !important;
+  }
+
+  .p-button-label {
+    color: var(--inverted-text-color) !important;
+    font-size: 1rem !important;
   }
 }
 
@@ -246,6 +259,10 @@ button.secundario {
   }
 
   .material-symbols-outlined {
+    color: var(--secondary-color) !important;
+  }
+
+  .p-button-label {
     color: var(--secondary-color) !important;
   }
 }
@@ -630,11 +647,69 @@ p-datepicker {
   font-weight: 600;
 }
 
-.situacao-aberto   { background: #cff4fc; color: #055160; }
-.situacao-fechado  { background: #e2e3e5; color: #41464b; }
-.situacao-cancelado { background: #f8d7da; color: #58151c; }
+.situacao-aberto {
+  background: #cff4fc;
+  color: #055160;
+}
+.situacao-fechado {
+  background: #e2e3e5;
+  color: #41464b;
+}
+.situacao-cancelado {
+  background: #f8d7da;
+  color: #58151c;
+}
 
-.status-pendente  { background: #fff3cd; color: #856404; }
-.status-pago      { background: #badbcc; color: #0a3622; }
-.status-faturado  { background: #d1e7dd; color: #0a3622; }
-.status-cancelado { background: #f8d7da; color: #58151c; }
+.status-pendente {
+  background: #fff3cd;
+  color: #856404;
+}
+.status-pago {
+  background: #badbcc;
+  color: #0a3622;
+}
+.status-faturado {
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.p-dialog {
+  background-color: var(--background-color) !important;
+}
+
+.p-dialog-header {
+  background-color: var(--secondary-color) !important;
+  color: var(--inverted-text-color) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.p-dialog-header .p-button {
+  color: var(--inverted-text-color) !important;
+}
+
+.p-dialog-content {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.p-dialog-footer {
+  background-color: var(--background-color) !important;
+}
+.status-cancelado {
+  background: #f8d7da;
+  color: #58151c;
+}
+
+.p-tag-success {
+  background: var(--success-color) !important;
+  color: var(--inverted-text-color) !important;
+  font-weight: 400 !important;
+  font-size: var(--text-size) !important;
+}
+
+.p-tag-secondary {
+  background: var(--item-transparency) !important;
+  color: var(--text-color) !important;
+  font-weight: 400 !important;
+  font-size: var(--text-size) !important;
+}
