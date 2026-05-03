@@ -98,25 +98,6 @@
   font-size: 0.9rem;
 }
 
-.col-valor { width: 160px; }
-.col-acao  { width: 48px; }
-
-.input-valor { width: 130px; }
-
-/* Delete button — follows the same pattern as table grid action buttons */
-.row-action-icon {
-  color: var(--text-color);
-}
-
-:host ::ng-deep .proc-table .p-datatable-tbody > tr > td {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-:host ::ng-deep .proc-table .p-datatable-thead > tr > th {
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-}
 
 .obs-readonly {
   padding: 8px;

@@ -8,66 +8,72 @@
   <ng-template #header>
     <tr>
       @if (multiSelection) {
-      <th class="selection-col">
-        <p-checkbox
-          [binary]="true"
-          [ngModel]="isAllPageSelected()"
-          (onChange)="toggleAll()"
-        />
-      </th>
+        <th class="selection-col">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isAllPageSelected()"
+            (onChange)="toggleAll()"
+          />
+        </th>
       }
       @for (col of columns; track col) {
-      <th
-        [pSortableColumn]="col.name"
-        pResizableColumn
-        [pSortableColumnDisabled]="!sortable"
-      >
-        <span class="header">{{ col.label }}</span>
-        @if (sortable) {
-        <p-sortIcon [field]="col.name" />
-        }
-      </th>
-      } @if (actions) {
-      <th i18n>Ações</th>
+        <th
+          [pSortableColumn]="col.name"
+          pResizableColumn
+          [pSortableColumnDisabled]="!sortable"
+        >
+          <span class="header">{{ col.label }}</span>
+          @if (sortable) {
+            <p-sortIcon [field]="col.name" />
+          }
+        </th>
+      }
+      @if (actions && actions.length > 0) {
+        <th i18n>Ações</th>
       }
     </tr>
   </ng-template>
   <ng-template #body let-rowData>
     <tr [ngClass]="{ 'deleted-row': isDeletedRow(rowData) }">
       @if (multiSelection) {
-      <td class="selection-col">
-        <p-checkbox
-          [binary]="true"
-          [ngModel]="isSelected(rowData)"
-          (onChange)="toggleItem(rowData)"
-        />
-      </td>
+        <td class="selection-col">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isSelected(rowData)"
+            (onChange)="toggleItem(rowData)"
+          />
+        </td>
       }
       @for (col of columns; track col) {
-      <td>
-        <div class="td-content">
-          @if (col.isHtml) {
-            <span [innerHTML]="col.getValue(rowData)"></span>
-          } @else {
-            {{ col.getValue(rowData) }}
-          }
-        </div>
-      </td>
-      } @if (actions) {
-      <td>
-        <div class="actions">
-          @for (action of actions; track action) {
-          <p-button (click)="action.action(rowData)" title="{{ action.title }}">
-            <span
-              [class]="
-                (action.iconType || 'material-symbols-outlined') + ' table-icon'
-              "
-              >{{ action.icon }}</span
-            >
-          </p-button>
-          }
-        </div>
-      </td>
+        <td>
+          <div class="td-content">
+            @if (col.isHtml) {
+              <span [innerHTML]="col.getValue(rowData)"></span>
+            } @else {
+              {{ col.getValue(rowData) }}
+            }
+          </div>
+        </td>
+      }
+      @if (actions && actions.length > 0) {
+        <td>
+          <div class="actions">
+            @for (action of actions; track action) {
+              <p-button
+                (click)="action.action(rowData)"
+                title="{{ action.title }}"
+              >
+                <span
+                  [class]="
+                    (action.iconType || 'material-symbols-outlined') +
+                    ' table-icon'
+                  "
+                  >{{ action.icon }}</span
+                >
+              </p-button>
+            }
+          </div>
+        </td>
       }
     </tr>
   </ng-template>
