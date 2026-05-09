@@ -17,5 +17,6 @@ public class TituloCategoriaGridDTO implements GridDTO {
     private String descricao;
     private TituloCategoriaTipoEnum tipo;
     private String agrupadorNome;
+    private Boolean padrao;
     private Boolean deleted;
 }

@@ -22,6 +22,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from '../../../base/messages/messages.service';
 import { TituloCategoriaDTO } from '../model/titulo-categoria.dto';
 import { AuthService } from '../../../base/auth/auth-service';
@@ -39,6 +40,7 @@ import { PageRequest } from '../../../base/model/page-request';
     InputTextModule,
     TextareaModule,
     SelectModule,
+    CheckboxModule,
   ],
   templateUrl: './titulo-categoria-detalhe.component.html',
   styleUrls: ['./titulo-categoria-detalhe.component.css'],
@@ -114,6 +116,7 @@ export class CategoriaTituloDetalheComponent implements OnInit {
     this.form.addControl('descricao', fb.control(''));
     this.form.addControl('tipo', fb.control(''));
     this.form.addControl('agrupadorId', fb.control(null));
+    this.form.addControl('padrao', fb.control(false));
   }
 
   fillForm() {
@@ -122,6 +125,7 @@ export class CategoriaTituloDetalheComponent implements OnInit {
     this.form.get('descricao')?.setValue(this.categoria.descricao || '');
     this.form.get('tipo')?.setValue(this.categoria.tipo || null);
     this.form.get('agrupadorId')?.setValue(this.categoria.agrupadorId || null);
+    this.form.get('padrao')?.setValue(this.categoria.padrao ?? false);
   }
 
   loadAgrupadores() {
@@ -142,11 +146,20 @@ export class CategoriaTituloDetalheComponent implements OnInit {
     this.categoria.tipo = this.form.value.tipo;
     this.categoria.agrupadorId = this.form.value.agrupadorId;
 
+    const definirPadrao = this.form.value.padrao === true && !this.categoria.padrao;
+
     this.service.save(this.categoria, {
       onSuccess: (data: TituloCategoriaDTO) => {
         this.categoria = data;
-        this.messages.sucesso($localize`Categoria salva com sucesso.`);
-        this.goBackFn();
+        if (definirPadrao && data.id) {
+          this.service.definirPadrao(data.id).subscribe(() => {
+            this.messages.sucesso($localize`Categoria salva e definida como padrão.`);
+            this.goBackFn();
+          });
+        } else {
+          this.messages.sucesso($localize`Categoria salva com sucesso.`);
+          this.goBackFn();
+        }
       },
     });
   }

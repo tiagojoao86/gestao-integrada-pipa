@@ -49,6 +49,9 @@ export class TituloCategoriaDTO {
   @Expose()
   agrupadorNome?: string;
 
+  @Expose()
+  padrao?: boolean;
+
   constructor(
     codigo: string,
     nome: string,
@@ -56,7 +59,8 @@ export class TituloCategoriaDTO {
     descricao?: string,
     agrupadorId?: string,
     agrupadorNome?: string,
-    id?: string
+    id?: string,
+    padrao?: boolean
   ) {
     this.codigo = codigo;
     this.nome = nome;
@@ -65,6 +69,7 @@ export class TituloCategoriaDTO {
     this.agrupadorId = agrupadorId;
     this.agrupadorNome = agrupadorNome;
     this.id = id;
+    this.padrao = padrao;
   }
 
   static from(data: Partial<TituloCategoriaDTO>): TituloCategoriaDTO {

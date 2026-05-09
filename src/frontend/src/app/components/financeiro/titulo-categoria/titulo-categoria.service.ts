@@ -7,6 +7,7 @@ import { TituloCategoriaGridDTO } from './model/titulo-categoria-grid.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
+import { Response } from '../../base/model/response';
 
 @Injectable()
 export class TituloCategoriaService extends BaseService<
@@ -51,12 +52,26 @@ export class TituloCategoriaService extends BaseService<
     return TituloCategoriaService.DOMINIO;
   }
 
-  // Example helper if needed in future
-  listarSimples(): Observable<TituloCategoriaDTO[]> {
+  definirPadrao(id: string): Observable<Response<TituloCategoriaDTO>> {
     return this.httpClient
-      .get<{ body: TituloCategoriaDTO[] }>(this.getUrl('/simples'))
+      .patch<Response<TituloCategoriaDTO>>(
+        this.getUrl(`/${id}/definir-padrao`),
+        null,
+        { headers: this.getHeaders() }
+      )
       .pipe(
-        map((r) => r.body),
+        map((r) => ({ ...r, body: r.body ? this.convertToDto(r.body) : null })),
+        take(1)
+      );
+  }
+
+  findPadrao(): Observable<Response<TituloCategoriaDTO>> {
+    return this.httpClient
+      .get<Response<TituloCategoriaDTO>>(this.getUrl('/padrao'), {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        map((r) => ({ ...r, body: r.body ? this.convertToDto(r.body) : null })),
         take(1)
       );
   }

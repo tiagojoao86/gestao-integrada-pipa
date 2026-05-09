@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +57,17 @@ public class TituloCategoriaController
     @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_CATEGORIA_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         return super.getAuditInfo(id);
+    }
+
+    @PatchMapping("/{id}/definir-padrao")
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_CATEGORIA_EDITAR')")
+    public Response definirPadrao(@PathVariable UUID id) {
+        return Response.ok(service.definirPadrao(id));
+    }
+
+    @GetMapping("/padrao")
+    @PreAuthorize("hasAuthority('FINANCEIRO_TITULO_CATEGORIA_LISTAR')")
+    public Response findPadrao() {
+        return Response.ok(service.findPadrao());
     }
 }

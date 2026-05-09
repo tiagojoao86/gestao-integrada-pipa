@@ -41,6 +41,9 @@ export class TituloCategoriaGridDTO {
   agrupadorNome?: string;
 
   @Expose()
+  padrao?: boolean;
+
+  @Expose()
   deleted?: boolean;
 
   constructor(
@@ -50,7 +53,8 @@ export class TituloCategoriaGridDTO {
     descricao?: string,
     agrupadorNome?: string,
     id?: string,
-    deleted?: boolean
+    deleted?: boolean,
+    padrao?: boolean
   ) {
     this.codigo = codigo;
     this.nome = nome;
@@ -59,5 +63,6 @@ export class TituloCategoriaGridDTO {
     this.agrupadorNome = agrupadorNome;
     this.id = id;
     this.deleted = deleted;
+    this.padrao = padrao;
   }
 }

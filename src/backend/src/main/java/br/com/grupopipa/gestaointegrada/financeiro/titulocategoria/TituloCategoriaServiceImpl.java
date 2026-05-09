@@ -1,10 +1,16 @@
 package br.com.grupopipa.gestaointegrada.financeiro.titulocategoria;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
+import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.TituloCategoria;
 
@@ -54,6 +60,7 @@ public class TituloCategoriaServiceImpl
                 .agrupadorId(entity.getAgrupador() != null ? entity.getAgrupador().getId() : null)
                 .agrupadorNome(
                         entity.getAgrupador() != null ? entity.getAgrupador().getNome().getValue() : null)
+                .padrao(entity.getPadrao())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
@@ -71,8 +78,31 @@ public class TituloCategoriaServiceImpl
                 .tipo(entity.getTipo())
                 .agrupadorNome(
                         entity.getAgrupador() != null ? entity.getAgrupador().getNome().getValue() : null)
+                .padrao(entity.getPadrao())
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public TituloCategoriaDTO definirPadrao(UUID id) {
+        TituloCategoria categoria = repository.findById(id)
+            .orElseThrow(() -> {
+                Set<BeanValidationMessage> v = new HashSet<>();
+                v.add(new BeanValidationMessage("tituloCategoria", "Categoria não encontrada."));
+                return new BeanValidationException("tituloCategoria", v);
+            });
+        repository.removerPadraoExceto(id);
+        categoria.definirComoPadrao();
+        return buildDTOFromEntity(repository.save(categoria));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TituloCategoriaDTO findPadrao() {
+        return repository.findByPadraoTrue()
+            .map(this::buildDTOFromEntity)
+            .orElse(null);
     }
 
     @Override

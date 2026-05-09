@@ -20,6 +20,7 @@ public class TituloCategoriaDTO implements DTO {
     private TituloCategoriaTipoEnum tipo;
     private UUID agrupadorId;
     private String agrupadorNome;
+    private Boolean padrao;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

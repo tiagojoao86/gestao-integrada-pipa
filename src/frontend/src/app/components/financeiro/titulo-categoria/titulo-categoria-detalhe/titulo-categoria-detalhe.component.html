@@ -60,6 +60,11 @@
         ></textarea>
         <label for="descricao" i18n>Descrição</label>
       </p-iftalabel>
+
+      <div class="checkbox-field w-100">
+        <p-checkbox formControlName="padrao" [binary]="true" inputId="padrao" />
+        <label for="padrao" i18n>Categoria padrão para atendimento</label>
+      </div>
     </div>
   </div>
 

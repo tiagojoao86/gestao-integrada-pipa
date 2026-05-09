@@ -54,6 +54,9 @@ public class TituloCategoria extends BaseEntity {
     @JoinColumn(name = "agrupador_id", foreignKey = @ForeignKey(name = "fk_titulo_categoria_agrupador"))
     private TituloCategoria agrupador;
 
+    @Column(name = "padrao", nullable = false)
+    private Boolean padrao = false;
+
     private TituloCategoria(
             String codigo,
             Nome nome,
@@ -165,6 +168,18 @@ public class TituloCategoria extends BaseEntity {
 
     public TituloCategoria getAgrupador() {
         return agrupador;
+    }
+
+    public Boolean getPadrao() {
+        return padrao != null && padrao;
+    }
+
+    public void definirComoPadrao() {
+        this.padrao = true;
+    }
+
+    public void removerPadrao() {
+        this.padrao = false;
     }
 
     @Override
