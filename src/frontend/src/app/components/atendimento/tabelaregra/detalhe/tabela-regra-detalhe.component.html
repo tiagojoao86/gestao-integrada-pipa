@@ -1,0 +1,65 @@
+<gi-app-base
+  [title]="titulo"
+  [actions]="toolbarActions"
+  [goBackFn]="goBackFn.bind(this)"
+>
+  <div body-content>
+    <div class="form" [formGroup]="form">
+
+      <!-- Convênio -->
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="convenioId"
+          formControlName="convenioId"
+          [options]="conveniosOptions"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          styleClass="w-full"
+          (onChange)="onConvenioChange($event.value)"
+        />
+        <label for="convenioId" i18n>Convênio</label>
+        @if (isControlInvalid('convenioId')) {
+          <small i18n>Selecione o convênio.</small>
+        }
+      </p-iftalabel>
+
+      <!-- Categoria do Convênio (opcional) -->
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="convenioCategoriaId"
+          formControlName="convenioCategoriaId"
+          [options]="categoriasOptions"
+          optionLabel="nome"
+          optionValue="id"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome"
+          styleClass="w-full"
+          [placeholder]="categoriasOptions.length === 0 ? '' : undefined"
+        />
+        <label for="convenioCategoriaId" i18n>Categoria (opcional — deixe vazio para regra geral)</label>
+      </p-iftalabel>
+
+      <!-- Tabela de Preços -->
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="tabelaId"
+          formControlName="tabelaId"
+          [options]="tabelasOptions"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          styleClass="w-full"
+        />
+        <label for="tabelaId" i18n>Tabela de Preços</label>
+        @if (isControlInvalid('tabelaId')) {
+          <small i18n>Selecione a tabela de preços.</small>
+        }
+      </p-iftalabel>
+
+    </div>
+  </div>
+</gi-app-base>

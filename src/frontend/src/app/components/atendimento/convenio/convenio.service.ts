@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map, Observable, take } from 'rxjs';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
 import { ConvenioDTO } from './model/convenio-dto';
 import { ConvenioGridDTO } from './model/convenio-grid-dto';
+import { ResponseListNoPagination } from '../../base/model/response';
 
 @Injectable()
 export class ConvenioService extends BaseService<ConvenioDTO, ConvenioGridDTO> {
@@ -31,5 +33,18 @@ export class ConvenioService extends BaseService<ConvenioDTO, ConvenioGridDTO> {
       enableCircularCheck: true,
       exposeDefaultValues: true,
     }) as ConvenioDTO;
+  }
+
+  listarAtivos(): Observable<ConvenioGridDTO[]> {
+    return this.httpClient
+      .get<
+        ResponseListNoPagination<ConvenioGridDTO>
+      >(this.getUrl('/ativos'), { headers: this.getHeaders() })
+      .pipe(
+        map((response: ResponseListNoPagination<ConvenioGridDTO>) => {
+          return response.body?.map((item) => this.convertToGrid(item)) ?? [];
+        }),
+        take(1),
+      );
   }
 }

@@ -22,6 +22,7 @@ export class AtendimentoComponent implements OnInit {
   ngOnInit(): void {
     this.buildGrupoAtendimento();
     this.buildGrupoAgendamento();
+    this.buildGrupoConfiguracoes();
   }
 
   private buildGrupoAtendimento(): void {
@@ -61,6 +62,22 @@ export class AtendimentoComponent implements OnInit {
 
     if (modulos.length > 0) {
       this.systemModules.push({ name: $localize`Agendamento`, systemModules: modulos });
+    }
+  }
+
+  private buildGrupoConfiguracoes(): void {
+    const modulos: SystemModule[] = [];
+
+    if (this.authService.hasAuthorityListarToModulo(SystemModuleKey.ATENDIMENTO_TABELA_REGRA)) {
+      modulos.push({
+        name: $localize`Regras de Tabela`,
+        icon: 'rule',
+        url: '/atendimento/tabela-regra',
+      });
+    }
+
+    if (modulos.length > 0) {
+      this.systemModules.push({ name: $localize`Configurações`, systemModules: modulos });
     }
   }
 

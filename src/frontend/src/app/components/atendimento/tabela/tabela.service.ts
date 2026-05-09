@@ -1,11 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map, Observable, take } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { MessageService } from '../../base/messages/messages.service';
 import { BaseService } from '../../base/base-service';
 import { TabelaDTO } from './model/tabela-dto';
 import { TabelaGridDTO } from './model/tabela-grid-dto';
 import { TabelaItemDTO } from './model/tabela-item-dto';
+import {
+  ResponseListNoPagination,
+} from '../../base/model/response';
 
 @Injectable()
 export class TabelaService extends BaseService<TabelaDTO, TabelaGridDTO> {
@@ -23,12 +27,28 @@ export class TabelaService extends BaseService<TabelaDTO, TabelaGridDTO> {
     const dto = plainToInstance(TabelaDTO, body as object) as TabelaDTO;
     const raw = body as { itens?: unknown[] };
     if (raw?.itens) {
-      dto.itens = raw.itens.map((item) => plainToInstance(TabelaItemDTO, item as object) as TabelaItemDTO);
+      dto.itens = raw.itens.map(
+        (item) =>
+          plainToInstance(TabelaItemDTO, item as object) as TabelaItemDTO,
+      );
     }
     return dto;
   }
 
   protected override convertToGrid(item: TabelaGridDTO): TabelaGridDTO {
     return plainToInstance(TabelaGridDTO, item as object) as TabelaGridDTO;
+  }
+
+  listarAtivas(): Observable<TabelaGridDTO[]> {
+    return this.httpClient
+      .get<
+        ResponseListNoPagination<TabelaGridDTO>
+      >(this.getUrl('/ativas'), { headers: this.getHeaders() })
+      .pipe(
+        map((response: ResponseListNoPagination<TabelaGridDTO>) => {
+          return response.body?.map((item) => this.convertToGrid(item)) ?? [];
+        }),
+        take(1),
+      );
   }
 }

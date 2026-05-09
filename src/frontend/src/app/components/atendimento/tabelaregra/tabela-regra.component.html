@@ -1,0 +1,9 @@
+@if (viewMode === 'GRID') {
+  <gi-tabela-regra-grid (openDetail)="openDetail($event)"></gi-tabela-regra-grid>
+}
+@if (viewMode === 'DETAIL') {
+  <gi-tabela-regra-detalhe
+    [detailId]="detailId"
+    (closeDetail)="toggleView()"
+  ></gi-tabela-regra-detalhe>
+}

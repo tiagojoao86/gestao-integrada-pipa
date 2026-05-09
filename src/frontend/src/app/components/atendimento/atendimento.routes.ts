@@ -97,6 +97,15 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'tabela-regra',
+    loadComponent: () =>
+      import('./tabelaregra/tabela-regra.component').then((app) => app.TabelaRegraComponent),
+    canActivate: [authGuard, moduleAuthorityGuard],
+    data: {
+      moduleKey: SystemModuleKey.ATENDIMENTO_TABELA_REGRA,
+    },
+  },
+  {
     path: 'lancamento',
     loadComponent: () =>
       import('./lancamento/lancamento-financeiro.component').then(

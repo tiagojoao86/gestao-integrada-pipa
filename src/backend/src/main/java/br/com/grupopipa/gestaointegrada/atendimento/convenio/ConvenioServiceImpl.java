@@ -3,6 +3,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.convenio;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -104,6 +105,15 @@ public class ConvenioServiceImpl
                 .createdAt(entity.getCreatedAt())
                 .deleted(entity.getDeleted())
                 .build();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<ConvenioGridDTO> listarAtivos() {
+        return repository.findAllByAtivoTrueAndDeletedFalseOrderByNomeAsc()
+            .stream()
+            .map(this::buildGridDTOFromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override

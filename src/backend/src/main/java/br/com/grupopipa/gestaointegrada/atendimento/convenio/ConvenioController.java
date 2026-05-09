@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,5 +58,11 @@ public class ConvenioController
     @PreAuthorize("hasAuthority('ATENDIMENTO_CONVENIO_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         return super.getAuditInfo(id);
+    }
+
+    @GetMapping("/ativos")
+    @PreAuthorize("hasAuthority('ATENDIMENTO_CONVENIO_LISTAR')")
+    public Response listarAtivos() {
+        return Response.ok(service.listarAtivos());
     }
 }

@@ -92,6 +92,15 @@ public class TabelaServiceImpl
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<TabelaGridDTO> listarAtivas() {
+        return repository.findAllByAtivoTrueAndDeletedFalseOrderByNomeAsc()
+            .stream()
+            .map(this::buildGridDTOFromEntity)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     protected List<String> getPropertiesToFilter() {
         return List.of("nome", "tipo", "ativo", "createdAt");
     }
