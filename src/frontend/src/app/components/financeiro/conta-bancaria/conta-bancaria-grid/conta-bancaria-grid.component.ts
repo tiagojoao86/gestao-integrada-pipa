@@ -41,7 +41,7 @@ import { Response } from '../../../base/model/response';
   styleUrl: './conta-bancaria-grid.component.css',
 })
 export class ContaBancariaGridComponent {
-  titulo: string = $localize`Contas Bancárias`;
+  titulo: string = $localize`Contas Financeiras`;
 
   @Output() openDetail = new EventEmitter<string>();
 

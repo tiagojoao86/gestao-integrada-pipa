@@ -353,8 +353,7 @@ public class Titulo extends BaseEntity implements UnidadeNegocioFiltravel {
     }
 
     /**
-     * Calcula o valor pago a partir do somatório das movimentações financeiras não
-     * deletadas. Campo transiente - não é armazenado no banco de dados.
+     * Soma de todos os pagamentos: movimentações financeiras + pagamentos diretos no caixa.
      */
     @Transient
     public Money getValorPago() {

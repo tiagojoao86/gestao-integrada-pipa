@@ -91,6 +91,22 @@
         </p-inputNumber>
         <label for="saldoInicial" i18n>Saldo Inicial</label>
       </p-iftalabel>
+
+      <p-iftalabel class="w-100">
+        <p-multiselect
+          inputId="formasPagamento"
+          [options]="formasPagamentoOptions"
+          formControlName="formasPagamento"
+          optionLabel="label"
+          optionValue="key"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="label"
+          [style]="{ width: '100%' }"
+        >
+        </p-multiselect>
+        <label for="formasPagamento" i18n>Formas de Pagamento Aceitas</label>
+      </p-iftalabel>
     </div>
   </div>
 </gi-app-base>

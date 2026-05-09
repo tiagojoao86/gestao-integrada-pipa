@@ -2,9 +2,12 @@ package br.com.grupopipa.gestaointegrada.financeiro.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
@@ -70,14 +73,19 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
+    @Column(name = "movimentacao_caixa_id")
+    private UUID movimentacaoCaixaId;
+
     private MovimentacaoFinanceira(
             Set<Titulo> titulos,
+            Map<Titulo, Money> valoresPorTitulo,
             ContaBancaria contaBancaria,
             TipoMovimentacao tipo,
             FormaPagamento formaPagamento,
             Money valor,
             LocalDate data,
-            UnidadeNegocio unidadeNegocio) {
+            UnidadeNegocio unidadeNegocio,
+            UUID movimentacaoCaixaId) {
         this.titulosAssociados = new HashSet<>();
         this.contaBancaria = contaBancaria;
         this.tipo = tipo;
@@ -85,14 +93,16 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
         this.valor = valor;
         this.data = data;
         this.unidadeNegocio = unidadeNegocio;
-        // Para cada título, registrar pagamento com o saldo exato do título
+        this.movimentacaoCaixaId = movimentacaoCaixaId;
         if (titulos != null) {
             titulos.forEach(t -> {
-                Money saldo = t.calcularSaldo();
-                MovimentacaoFinanceiraTitulo mt = MovimentacaoFinanceiraTitulo.create(this, t, saldo);
+                Money valorAplicado = (valoresPorTitulo != null && valoresPorTitulo.containsKey(t))
+                        ? valoresPorTitulo.get(t)
+                        : t.calcularSaldo();
+                MovimentacaoFinanceiraTitulo mt = MovimentacaoFinanceiraTitulo.create(this, t, valorAplicado);
                 this.titulosAssociados.add(mt);
                 t.getMovimentacoes().add(mt);
-                t.registrarPagamento(saldo);
+                t.registrarPagamento(valorAplicado);
             });
         }
     }
@@ -106,12 +116,14 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
 
     public static class Builder {
         private Set<Titulo> titulos = new HashSet<>();
+        private Map<Titulo, Money> valoresPorTitulo = new HashMap<>();
         private ContaBancaria contaBancaria;
         private TipoMovimentacao tipo;
         private FormaPagamento formaPagamento;
         private Money valor;
         private LocalDate data;
         private UnidadeNegocio unidadeNegocio;
+        private UUID movimentacaoCaixaId;
 
         public Builder titulos(Set<Titulo> titulos) {
             this.titulos = titulos;
@@ -120,6 +132,12 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
 
         public Builder addTitulo(Titulo titulo) {
             this.titulos.add(titulo);
+            return this;
+        }
+
+        public Builder addTituloComValor(Titulo titulo, Money valorTitulo) {
+            this.titulos.add(titulo);
+            this.valoresPorTitulo.put(titulo, valorTitulo);
             return this;
         }
 
@@ -153,30 +171,36 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
             return this;
         }
 
+        public Builder movimentacaoCaixaId(UUID movimentacaoCaixaId) {
+            this.movimentacaoCaixaId = movimentacaoCaixaId;
+            return this;
+        }
+
         public MovimentacaoFinanceira build() {
-            // Inferir unidadeNegocio a partir da contaBancaria se não fornecida
-            // explicitamente
             if (this.unidadeNegocio == null && this.contaBancaria != null) {
                 this.unidadeNegocio = this.contaBancaria.getUnidadeNegocio();
             }
 
             BigDecimal valorValue = (this.valor != null) ? this.valor.getValue() : null;
-            MovimentacaoFinanceiraValidator.ValidatedData data = MovimentacaoFinanceiraValidator.validate(
-                    this.titulos,
-                    this.contaBancaria,
-                    this.tipo,
-                    this.formaPagamento,
-                    valorValue,
-                    this.data,
-                    this.unidadeNegocio);
+            MovimentacaoFinanceiraValidator.ValidatedData validatedData =
+                    MovimentacaoFinanceiraValidator.validate(
+                            this.titulos,
+                            this.contaBancaria,
+                            this.tipo,
+                            this.formaPagamento,
+                            valorValue,
+                            this.data,
+                            this.unidadeNegocio);
             return new MovimentacaoFinanceira(
-                    data.titulos,
-                    data.contaBancaria,
-                    data.tipo,
-                    data.formaPagamento,
-                    data.valor,
-                    data.data,
-                    data.unidadeNegocio);
+                    validatedData.titulos,
+                    this.valoresPorTitulo,
+                    validatedData.contaBancaria,
+                    validatedData.tipo,
+                    validatedData.formaPagamento,
+                    validatedData.valor,
+                    validatedData.data,
+                    validatedData.unidadeNegocio,
+                    this.movimentacaoCaixaId);
         }
     }
 
@@ -252,6 +276,10 @@ public class MovimentacaoFinanceira extends BaseEntity implements UnidadeNegocio
 
     public String getObservacoes() {
         return observacoes;
+    }
+
+    public UUID getMovimentacaoCaixaId() {
+        return movimentacaoCaixaId;
     }
 
     @Override

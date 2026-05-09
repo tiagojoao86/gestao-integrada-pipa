@@ -24,6 +24,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Subscription } from 'rxjs';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ContaBancariaDTO } from '../model/conta-bancaria-dto';
@@ -32,6 +33,9 @@ import { TipoConta } from '../model/tipo-conta.enum';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
 import { UsuarioUnidadeNegocioDTO } from '../../../cadastro/usuario/model/usuario-unidade-negocio-dto';
+import {
+  FORMA_PAGAMENTO_OPTIONS,
+} from '../../operacao-caixa/model/forma-pagamento.enum';
 
 const TIPOS_BANCARIOS = ['CORRENTE', 'POUPANCA'];
 
@@ -46,6 +50,7 @@ const TIPOS_BANCARIOS = ['CORRENTE', 'POUPANCA'];
     InputTextModule,
     InputNumberModule,
     SelectModule,
+    MultiSelectModule,
     CheckboxModule,
   ],
   templateUrl: './conta-bancaria-detalhe.component.html',
@@ -65,12 +70,14 @@ export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
 
   allUnidadesNegocio: UsuarioUnidadeNegocioDTO[] = [];
 
-  titulo = $localize`Conta Bancária: `;
+  titulo = $localize`Conta Financeira: `;
 
   tiposContaOptions = TipoConta.getList().map((tipo) => ({
     label: tipo.getLabel(),
     value: tipo.getKey(),
   }));
+
+  formasPagamentoOptions = FORMA_PAGAMENTO_OPTIONS;
 
   toolbarActions: ToolbarActionModel[] = [];
   private auth: AuthService = inject(AuthService);
@@ -111,6 +118,7 @@ export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
         nome: '',
         tipo: 'CORRENTE',
         ativa: true,
+        formasPagamento: [],
       } as ContaBancariaDTO;
       this.fillForm();
       // Load unidades and set default after loading
@@ -161,6 +169,7 @@ export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
     this.form.addControl('saldoInicial', fb.control(0));
     this.form.addControl('ativa', fb.control(true));
     this.form.addControl('unidadeNegocio', fb.control('', [Validators.required]));
+    this.form.addControl('formasPagamento', new FormBuilder().control([]));
 
     // Aplica validators iniciais (CORRENTE é o default)
     this.updateBankFieldValidators('CORRENTE');
@@ -202,6 +211,9 @@ export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
     this.form
       .get('unidadeNegocio')
       ?.setValue(this.contaBancaria.unidadeNegocioId || '');
+    this.form
+      .get('formasPagamento')
+      ?.setValue(this.contaBancaria.formasPagamento ?? []);
   }
 
   salvar() {
@@ -228,11 +240,12 @@ export class ContaBancariaDetalheComponent implements OnInit, OnDestroy {
     this.contaBancaria.tipo = this.form.value.tipo;
     this.contaBancaria.saldoInicial = this.form.value.saldoInicial;
     this.contaBancaria.ativa = this.form.value.ativa;
+    this.contaBancaria.formasPagamento = this.form.value.formasPagamento ?? [];
 
     this.service.save(this.contaBancaria, {
       onSuccess: (data: ContaBancariaDTO) => {
         this.contaBancaria = data;
-        this.messages.sucesso($localize`Conta bancária salva com sucesso.`);
+        this.messages.sucesso($localize`Conta financeira salva com sucesso.`);
         this.goBackFn();
       },
     });

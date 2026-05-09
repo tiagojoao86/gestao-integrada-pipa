@@ -1,8 +1,10 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValida
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
+import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 
 @Service
@@ -38,18 +41,16 @@ public class ContaBancariaServiceImpl
 
     @Override
     protected ContaBancaria mergeEntityAndDTO(ContaBancaria entity, ContaBancariaDTO dto) {
-        // Buscar UnidadeNegocio
         UnidadeNegocio unidadeNegocio = unidadeNegocioRepository
                 .findById(dto.getUnidadeNegocioId())
-                .orElseThrow(
-                        () -> new BeanValidationException(
-                                "contaBancaria",
-                                Set.of(
-                                        new BeanValidationMessage(
-                                                "unidadeNegocio", "Unidade de negócio não encontrada"))));
+                .orElseThrow(() -> new BeanValidationException("contaBancaria",
+                        Set.of(new BeanValidationMessage("unidadeNegocio", "Unidade de negócio não encontrada"))));
+
+        Set<FormaPagamento> novasFormas = parseFormasPagamento(dto.getFormasPagamento());
 
         if (Objects.isNull(entity)) {
             TipoConta tipo = TipoConta.valueOf(dto.getTipo());
+            validarFormasPagamentoUnicas(novasFormas, null);
             entity = new ContaBancaria.Builder()
                     .nome(dto.getNome())
                     .tipo(tipo)
@@ -59,12 +60,14 @@ public class ContaBancariaServiceImpl
                     .saldoInicial(Money.of(dto.getSaldoInicial()))
                     .unidadeNegocio(unidadeNegocio)
                     .build();
-
+            entity.atualizarFormasPagamento(novasFormas);
             return entity;
         }
 
+        validarRemocaoFormasPagamento(entity, novasFormas);
         entity.atualizar(dto.getNome(), dto.getBanco(), dto.getAgencia(), dto.getNumeroConta());
         entity.atualizarUnidadeNegocio(unidadeNegocio);
+        entity.atualizarFormasPagamento(novasFormas);
 
         if (dto.getAtiva() != null) {
             if (dto.getAtiva()) {
@@ -77,8 +80,56 @@ public class ContaBancariaServiceImpl
         return entity;
     }
 
+    private Set<FormaPagamento> parseFormasPagamento(List<String> formasPagamentoStr) {
+        if (formasPagamentoStr == null) {
+            return new HashSet<>();
+        }
+        return formasPagamentoStr.stream()
+                .map(FormaPagamento::valueOf)
+                .collect(Collectors.toSet());
+    }
+
+    private void validarFormasPagamentoUnicas(Set<FormaPagamento> formas, java.util.UUID excludeId) {
+        for (FormaPagamento forma : formas) {
+            List<ContaBancaria> existentes = excludeId != null
+                    ? repository.findByFormaPagamentoExcluindo(forma, excludeId)
+                    : repository.findByFormaPagamento(forma);
+            if (!existentes.isEmpty()) {
+                throw new BeanValidationException("contaBancaria",
+                        Set.of(new BeanValidationMessage("formasPagamento",
+                                "A forma de pagamento '" + forma.getDescricao()
+                                        + "' já está configurada em outra conta financeira.")));
+            }
+        }
+    }
+
+    private void validarRemocaoFormasPagamento(ContaBancaria entity, Set<FormaPagamento> novasFormas) {
+        Set<FormaPagamento> removidas = new HashSet<>(entity.getFormasPagamento());
+        removidas.removeAll(novasFormas);
+
+        for (FormaPagamento removida : removidas) {
+            List<ContaBancaria> outrasComForma =
+                    repository.findByFormaPagamentoExcluindo(removida, entity.getId());
+            if (outrasComForma.isEmpty()) {
+                throw new BeanValidationException("contaBancaria",
+                        Set.of(new BeanValidationMessage("formasPagamento",
+                                "Não é possível remover a forma de pagamento '" + removida.getDescricao()
+                                        + "' pois nenhuma outra conta financeira está configurada para ela.")));
+            }
+        }
+
+        Set<FormaPagamento> adicionadas = new HashSet<>(novasFormas);
+        adicionadas.removeAll(entity.getFormasPagamento());
+        if (!adicionadas.isEmpty()) {
+            validarFormasPagamentoUnicas(adicionadas, entity.getId());
+        }
+    }
+
     @Override
     protected ContaBancariaDTO buildDTOFromEntity(ContaBancaria entity) {
+        List<String> formas = entity.getFormasPagamento().stream()
+                .map(FormaPagamento::name)
+                .collect(Collectors.toList());
         return ContaBancariaDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
@@ -87,9 +138,9 @@ public class ContaBancariaServiceImpl
                 .numeroConta(entity.getNumeroConta())
                 .tipo(entity.getTipo().name())
                 .saldoInicial(entity.getSaldoInicial() != null ? entity.getSaldoInicial().getValue() : null)
-                .unidadeNegocioId(
-                        entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
+                .unidadeNegocioId(entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getId() : null)
                 .ativa(entity.getAtiva())
+                .formasPagamento(formas)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
@@ -99,6 +150,9 @@ public class ContaBancariaServiceImpl
 
     @Override
     protected ContaBancariaGridDTO buildGridDTOFromEntity(ContaBancaria entity) {
+        List<String> formas = entity.getFormasPagamento().stream()
+                .map(FormaPagamento::name)
+                .collect(Collectors.toList());
         return ContaBancariaGridDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
@@ -108,6 +162,7 @@ public class ContaBancariaServiceImpl
                 .unidadeNegocioCodigo(
                         entity.getUnidadeNegocio() != null ? entity.getUnidadeNegocio().getCodigo() : null)
                 .ativa(entity.getAtiva())
+                .formasPagamento(formas)
                 .deleted(entity.getDeleted())
                 .build();
     }

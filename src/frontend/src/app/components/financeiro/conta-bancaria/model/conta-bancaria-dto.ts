@@ -10,6 +10,7 @@ export class ContaBancariaDTO {
   unidadeNegocioNome?: string;
   unidadeNegocioCodigo?: string;
   ativa?: boolean;
+  formasPagamento?: string[];
   createdAt?: Date;
   updatedAt?: Date;
   createdBy?: string;
@@ -27,6 +28,7 @@ export class ContaBancariaDTO {
     unidadeNegocioNome?: string,
     unidadeNegocioCodigo?: string,
     ativa?: boolean,
+    formasPagamento?: string[],
     createdAt?: Date,
     updatedAt?: Date,
     createdBy?: string,
@@ -43,10 +45,11 @@ export class ContaBancariaDTO {
     this.unidadeNegocioNome = unidadeNegocioNome;
     this.unidadeNegocioCodigo = unidadeNegocioCodigo;
     this.ativa = ativa;
+    this.formasPagamento = formasPagamento ?? [];
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.createdBy = createdBy;
     this.updatedBy = updatedBy;
   }
- 
+
 }

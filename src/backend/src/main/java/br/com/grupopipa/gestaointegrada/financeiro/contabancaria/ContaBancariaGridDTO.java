@@ -1,6 +1,7 @@
 package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import br.com.grupopipa.gestaointegrada.core.dto.GridDTO;
@@ -19,5 +20,6 @@ public class ContaBancariaGridDTO implements GridDTO {
     private BigDecimal saldoInicial;
     private String unidadeNegocioCodigo;
     private Boolean ativa;
+    private List<String> formasPagamento;
     private Boolean deleted;
 }

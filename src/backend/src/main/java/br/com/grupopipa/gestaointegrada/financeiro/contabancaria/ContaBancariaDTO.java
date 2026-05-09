@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.financeiro.contabancaria;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import br.com.grupopipa.gestaointegrada.core.dto.DTO;
@@ -19,10 +20,11 @@ public class ContaBancariaDTO implements DTO {
     private String banco;
     private String agencia;
     private String numeroConta;
-    private String tipo; // CORRENTE, POUPANCA, CAIXA, INVESTIMENTO
+    private String tipo; // CORRENTE, POUPANCA, CAIXA
     private BigDecimal saldoInicial;
     private UUID unidadeNegocioId;
     private Boolean ativa;
+    private List<String> formasPagamento;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

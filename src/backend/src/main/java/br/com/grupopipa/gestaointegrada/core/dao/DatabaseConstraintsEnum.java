@@ -58,9 +58,10 @@ public enum DatabaseConstraintsEnum {
     FK_PLANO_CONTAS_PAI("Plano de contas pai inválido."),
     FK_PLANO_CONTAS_UNIDADE_NEGOCIO("Unidade de negócio inválida."),
 
-    // -------- Conta Bancária --------
+    // -------- Conta Financeira --------
     CHK_CONTA_TIPO("Tipo de conta bancária inválido."),
     FK_CONTA_BANCARIA_UNIDADE_NEGOCIO("Unidade de negócio inválida."),
+    FK_CBFP_CONTA_BANCARIA("Conta financeira inválida."),
 
     // -------- Título --------
     CHK_TITULO_TIPO("Tipo de título inválido."),
@@ -181,6 +182,7 @@ public enum DatabaseConstraintsEnum {
 
     // -------- Caixa --------
     UK_CAIXA_NOME("Já existe um caixa com este nome."),
+    FK_CAIXA_UNIDADE_NEGOCIO("Unidade de negócio inválida."),
     CHK_CAIXA_VALOR_PADRAO("O valor padrão de abertura deve ser maior ou igual a zero."),
     CHK_CAIXA_PERCENTUAL_PARCIAL("O percentual de pagamento parcial deve estar entre 0 e 100."),
     CHK_CAIXA_VALOR_MINIMO_PARCELA("O valor mínimo da parcela deve ser maior ou igual a zero."),
@@ -191,7 +193,17 @@ public enum DatabaseConstraintsEnum {
     CHK_ABERTURA_CAIXA_STATUS("Status de sessão de caixa inválido."),
     CHK_ABERTURA_CAIXA_VALOR_ABERTURA("O valor de abertura deve ser maior ou igual a zero."),
     CHK_ABERTURA_CAIXA_VALOR_CONF("O valor de conferência deve ser maior ou igual a zero."),
-    UK_ABERTURA_CAIXA_ATIVA("Este caixa já possui uma sessão aberta.");
+    UK_ABERTURA_CAIXA_ATIVA("Este caixa já possui uma sessão aberta."),
+
+    // -------- Movimentação de Caixa --------
+    FK_MOVIMENTACAO_CAIXA_ABERTURA("Sessão de caixa inválida."),
+    CHK_MOVIMENTACAO_CAIXA_FORMA("Forma de pagamento inválida."),
+    CHK_MOVIMENTACAO_CAIXA_VALOR("O valor do recebimento deve ser positivo."),
+
+    // -------- Tabela Regra --------
+    FK_TABELA_REGRA_CONVENIO("Convênio inválido."),
+    FK_TABELA_REGRA_CONVENIO_CATEGORIA("Categoria de convênio inválida."),
+    FK_TABELA_REGRA_TABELA("Tabela inválida.");
 
     private final String message;
 

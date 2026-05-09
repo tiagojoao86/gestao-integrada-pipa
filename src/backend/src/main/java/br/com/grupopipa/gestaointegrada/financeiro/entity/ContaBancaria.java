@@ -13,14 +13,18 @@ import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValida
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
 import br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaValidator;
+import br.com.grupopipa.gestaointegrada.financeiro.enums.FormaPagamento;
 import br.com.grupopipa.gestaointegrada.financeiro.enums.TipoConta;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -53,6 +57,14 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_negocio_id", nullable = false)
     private UnidadeNegocio unidadeNegocio;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "conta_bancaria_forma_pagamento",
+        joinColumns = @JoinColumn(name = "conta_bancaria_id",
+            foreignKey = @ForeignKey(name = "fk_cbfp_conta_bancaria")))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "forma_pagamento", length = 30)
+    private Set<FormaPagamento> formasPagamento = new HashSet<>();
 
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
@@ -227,6 +239,14 @@ public class ContaBancaria extends BaseEntity implements UnidadeNegocioFiltravel
 
     public boolean isAtiva() {
         return ativa != null && ativa;
+    }
+
+    public Set<FormaPagamento> getFormasPagamento() {
+        return formasPagamento;
+    }
+
+    public void atualizarFormasPagamento(Set<FormaPagamento> novasFormas) {
+        this.formasPagamento = novasFormas != null ? new HashSet<>(novasFormas) : new HashSet<>();
     }
 
     public UnidadeNegocio getUnidadeNegocio() {
