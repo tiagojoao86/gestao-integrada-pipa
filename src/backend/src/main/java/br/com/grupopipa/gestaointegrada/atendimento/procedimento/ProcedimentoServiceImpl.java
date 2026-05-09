@@ -2,6 +2,7 @@ package br.com.grupopipa.gestaointegrada.atendimento.procedimento;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -10,16 +11,21 @@ import br.com.grupopipa.gestaointegrada.atendimento.procedimento.dto.Procediment
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
+import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategoriaRepository;
 
 @Service
 public class ProcedimentoServiceImpl
         extends CrudServiceImpl<ProcedimentoDTO, ProcedimentoGridDTO, Procedimento, ProcedimentoRepository>
         implements ProcedimentoService {
 
+    private final TituloCategoriaRepository tituloCategoriaRepository;
+
     public ProcedimentoServiceImpl(
             ProcedimentoRepository repository,
-            Specifications<Procedimento> specifications) {
+            Specifications<Procedimento> specifications,
+            TituloCategoriaRepository tituloCategoriaRepository) {
         super(repository, specifications);
+        this.tituloCategoriaRepository = tituloCategoriaRepository;
     }
 
     @Override
@@ -37,14 +43,22 @@ public class ProcedimentoServiceImpl
                 .codigoTuss(dto.getCodigoTuss())
                 .descricao(dto.getDescricao())
                 .ativo(dto.getAtivo())
+                .tituloCategoriaId(dto.getTituloCategoriaId())
                 .build();
     }
 
     private Procedimento atualizarProcedimento(Procedimento entity, ProcedimentoDTO dto) {
         entity.atualizar(
             dto.getCodigo(), dto.getCodigoTiss(), dto.getCodigoTuss(),
-            dto.getDescricao(), dto.getAtivo());
+            dto.getDescricao(), dto.getAtivo(), dto.getTituloCategoriaId());
         return entity;
+    }
+
+    private String resolverNomeCategoria(UUID tituloCategoriaId) {
+        if (tituloCategoriaId == null) return null;
+        return tituloCategoriaRepository.findById(tituloCategoriaId)
+            .map(c -> c.getNome().getValue())
+            .orElse(null);
     }
 
     @Override
@@ -56,6 +70,8 @@ public class ProcedimentoServiceImpl
                 .codigoTuss(entity.getCodigoTuss())
                 .descricao(entity.getDescricao())
                 .ativo(entity.getAtivo())
+                .tituloCategoriaId(entity.getTituloCategoriaId())
+                .tituloCategoriaNome(resolverNomeCategoria(entity.getTituloCategoriaId()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())

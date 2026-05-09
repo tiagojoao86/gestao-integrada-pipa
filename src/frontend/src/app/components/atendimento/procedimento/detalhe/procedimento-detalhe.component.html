@@ -42,6 +42,20 @@
         <label for="ativoProcedimento" i18n>Ativo</label>
       </div>
 
+      <!-- Categoria de Título (override) -->
+      <p-iftalabel class="w-100">
+        <p-select
+          id="tituloCategoriaId"
+          formControlName="tituloCategoriaId"
+          [options]="categoriasReceita"
+          optionLabel="nome"
+          optionValue="id"
+          [showClear]="true"
+          [placeholder]="'Usar categoria padrão'"
+        ></p-select>
+        <label for="tituloCategoriaId" i18n>Categoria de Título (override)</label>
+      </p-iftalabel>
+
     </div>
   </div>
 </gi-app-base>

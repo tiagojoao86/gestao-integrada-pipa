@@ -18,6 +18,7 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SelectModule } from 'primeng/select';
 import { MessageService } from '../../../base/messages/messages.service';
 import { ProcedimentoService } from '../procedimento.service';
 import { ProcedimentoDTO } from '../model/procedimento-dto';
@@ -25,6 +26,10 @@ import { ToolbarActionModel } from '../../../base/model/toolbar-action.model';
 import { AuthService } from '../../../base/auth/auth-service';
 import { RouteConstants } from '../../../base/constants/route-constants';
 import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
+import { TituloCategoriaService } from '../../../financeiro/titulo-categoria/titulo-categoria.service';
+import { TituloCategoriaGridDTO } from '../../../financeiro/titulo-categoria/model/titulo-categoria-grid.dto';
+import { TituloCategoriaTipoEnum } from '../../../financeiro/titulo-categoria/model/titulo-categoria-tipo.enum';
+import { PageRequest } from '../../../base/model/page-request';
 
 @Component({
   selector: 'gi-procedimento-detalhe',
@@ -36,15 +41,17 @@ import { SystemModuleKey } from '../../../base/enum/system-module-key.enum';
     FormsModule,
     InputTextModule,
     CheckboxModule,
+    SelectModule,
   ],
   templateUrl: './procedimento-detalhe.component.html',
   styleUrl: './procedimento-detalhe.component.css',
-  providers: [ProcedimentoService],
+  providers: [ProcedimentoService, TituloCategoriaService],
 })
 export class ProcedimentoDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup({});
   editMode = false;
   procedimento: ProcedimentoDTO = new ProcedimentoDTO();
+  categoriasReceita: TituloCategoriaGridDTO[] = [];
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
 
@@ -55,9 +62,11 @@ export class ProcedimentoDetalheComponent implements OnInit {
   private service = inject(ProcedimentoService);
   private messages = inject(MessageService);
   private auth = inject(AuthService);
+  private tituloCategoriaService = inject(TituloCategoriaService);
 
   ngOnInit(): void {
     this.initForm();
+    this.loadCategoriasReceita();
 
     const canEdit = this.auth.hasAuthorityEditarToModulo(SystemModuleKey.ATENDIMENTO_PROCEDIMENTO);
 
@@ -96,6 +105,7 @@ export class ProcedimentoDetalheComponent implements OnInit {
       codigoTiss: fb.control('', [Validators.maxLength(20)]),
       codigoTuss: fb.control('', [Validators.maxLength(20)]),
       ativo: fb.control(true),
+      tituloCategoriaId: fb.control<string | null>(null),
     });
   }
 
@@ -105,6 +115,15 @@ export class ProcedimentoDetalheComponent implements OnInit {
     this.form.get('codigoTiss')?.setValue(this.procedimento.codigoTiss ?? '');
     this.form.get('codigoTuss')?.setValue(this.procedimento.codigoTuss ?? '');
     this.form.get('ativo')?.setValue(this.procedimento.ativo ?? true);
+    this.form.get('tituloCategoriaId')?.setValue(this.procedimento.tituloCategoriaId ?? null);
+  }
+
+  loadCategoriasReceita() {
+    this.tituloCategoriaService.listAll(PageRequest.empty())
+      .subscribe((response) => {
+        this.categoriasReceita = (response.body || [])
+          .filter((c) => c.tipo?.key === TituloCategoriaTipoEnum.RECEITA.key);
+      });
   }
 
   save() {
@@ -120,6 +139,7 @@ export class ProcedimentoDetalheComponent implements OnInit {
     this.procedimento.codigoTiss = raw.codigoTiss || undefined;
     this.procedimento.codigoTuss = raw.codigoTuss || undefined;
     this.procedimento.ativo = raw.ativo;
+    this.procedimento.tituloCategoriaId = raw.tituloCategoriaId || undefined;
 
     this.service.save(this.procedimento, {
       onSuccess: () => {

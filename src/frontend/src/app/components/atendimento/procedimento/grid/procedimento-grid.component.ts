@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { BaseComponent } from '../../../base/base.component';
 import { ProcedimentoService } from '../procedimento.service';
 import { Order, PageRequest } from '../../../base/model/page-request';
@@ -24,6 +24,12 @@ import {
   AuditInfoData,
 } from '../../../base/audit-info/audit-info.component';
 import { Response } from '../../../base/model/response';
+import { TituloCategoriaService } from '../../../financeiro/titulo-categoria/titulo-categoria.service';
+import { TituloCategoriaGridDTO } from '../../../financeiro/titulo-categoria/model/titulo-categoria-grid.dto';
+import { TituloCategoriaTipoEnum } from '../../../financeiro/titulo-categoria/model/titulo-categoria-tipo.enum';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { MessageService } from '../../../base/messages/messages.service';
 
 @Component({
   selector: 'gi-procedimento-grid',
@@ -33,12 +39,14 @@ import { Response } from '../../../base/model/response';
     PaginationComponent,
     FilterComponent,
     AuditInfoComponent,
+    SelectModule,
+    FormsModule,
   ],
-  providers: [ProcedimentoService],
+  providers: [ProcedimentoService, TituloCategoriaService],
   templateUrl: './procedimento-grid.component.html',
   styleUrl: './procedimento-grid.component.css',
 })
-export class ProcedimentoGridComponent {
+export class ProcedimentoGridComponent implements OnInit {
   titulo: string = $localize`Procedimentos`;
 
   @Output() openDetail = new EventEmitter<string>();
@@ -49,6 +57,10 @@ export class ProcedimentoGridComponent {
   showDeleted = false;
   showAuditInfo = false;
   auditInfoData: AuditInfoData | null = null;
+
+  categoriasReceita: TituloCategoriaGridDTO[] = [];
+  categoriaPadrao: TituloCategoriaGridDTO | null = null;
+  categoriaPadraoId: string | null = null;
 
   rows: ProcedimentoGridDTO[] = [];
 
@@ -95,6 +107,40 @@ export class ProcedimentoGridComponent {
   private service: ProcedimentoService = inject(ProcedimentoService);
   private auth: AuthService = inject(AuthService);
   private dialogService: DialogService = inject(DialogService);
+  private tituloCategoriaService: TituloCategoriaService = inject(TituloCategoriaService);
+  private messages: MessageService = inject(MessageService);
+
+  ngOnInit(): void {
+    this.loadCategoriasReceita();
+    this.loadCategoriaPadrao();
+  }
+
+  loadCategoriasReceita() {
+    this.tituloCategoriaService.listAll(PageRequest.empty())
+      .subscribe((response) => {
+        this.categoriasReceita = (response.body || [])
+          .filter((c) => c.tipo?.key === TituloCategoriaTipoEnum.RECEITA.key);
+      });
+  }
+
+  loadCategoriaPadrao() {
+    this.tituloCategoriaService.findPadrao().subscribe((response) => {
+      if (response.body) {
+        this.categoriaPadrao = response.body as unknown as TituloCategoriaGridDTO;
+        this.categoriaPadraoId = response.body.id ?? null;
+      }
+    });
+  }
+
+  onCategoriaPadraoChange(id: string | null) {
+    if (!id) return;
+    this.tituloCategoriaService.definirPadrao(id).subscribe({
+      next: () => {
+        this.messages.sucesso($localize`Categoria padrão definida com sucesso.`);
+        this.loadCategoriaPadrao();
+      },
+    });
+  }
 
   constructor() {
     const canView = this.auth.hasAuthorityVisualizarToModulo(SystemModuleKey.ATENDIMENTO_PROCEDIMENTO);

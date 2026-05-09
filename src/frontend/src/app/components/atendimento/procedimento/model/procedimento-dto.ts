@@ -8,6 +8,8 @@ export class ProcedimentoDTO {
   @Expose() codigoTuss?: string;
   @Expose() descricao?: string;
   @Expose() ativo?: boolean;
+  @Expose() tituloCategoriaId?: string;
+  @Expose() tituloCategoriaNome?: string;
   @Expose() createdAt?: Date;
   @Expose() updatedAt?: Date;
   @Expose() createdBy?: string;

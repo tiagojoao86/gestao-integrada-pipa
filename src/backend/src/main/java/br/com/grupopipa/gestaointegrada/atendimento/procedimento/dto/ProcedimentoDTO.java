@@ -19,6 +19,8 @@ public class ProcedimentoDTO implements DTO {
     private String codigoTuss;
     private String descricao;
     private Boolean ativo;
+    private UUID tituloCategoriaId;
+    private String tituloCategoriaNome;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

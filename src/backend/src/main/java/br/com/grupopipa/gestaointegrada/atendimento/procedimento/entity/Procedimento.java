@@ -1,5 +1,7 @@
 package br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity;
 
+import java.util.UUID;
+
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoValidator;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -26,6 +28,9 @@ public class Procedimento extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
+    @Column(name = "titulo_categoria_id")
+    private UUID tituloCategoriaId;
+
     private Procedimento(ProcedimentoValidator.ValidatedData data) {
         this.codigo = data.codigo;
         this.codigoTiss = data.codigoTiss;
@@ -47,6 +52,7 @@ public class Procedimento extends BaseEntity {
         private String codigoTuss;
         private String descricao;
         private Boolean ativo = true;
+        private UUID tituloCategoriaId;
 
         public Builder codigo(String codigo) {
             this.codigo = codigo;
@@ -73,9 +79,16 @@ public class Procedimento extends BaseEntity {
             return this;
         }
 
+        public Builder tituloCategoriaId(UUID tituloCategoriaId) {
+            this.tituloCategoriaId = tituloCategoriaId;
+            return this;
+        }
+
         public Procedimento build() {
-            return new Procedimento(
+            Procedimento p = new Procedimento(
                 ProcedimentoValidator.validate(codigo, codigoTiss, codigoTuss, descricao, ativo));
+            p.tituloCategoriaId = this.tituloCategoriaId;
+            return p;
         }
     }
 
@@ -85,7 +98,7 @@ public class Procedimento extends BaseEntity {
 
     public void atualizar(
             String codigoArg, String codigoTissArg, String codigoTussArg,
-            String descricaoArg, Boolean ativoArg) {
+            String descricaoArg, Boolean ativoArg, UUID tituloCategoriaIdArg) {
         ProcedimentoValidator.ValidatedData data =
             ProcedimentoValidator.validate(codigoArg, codigoTissArg, codigoTussArg, descricaoArg, ativoArg);
         this.codigo = data.codigo;
@@ -95,6 +108,7 @@ public class Procedimento extends BaseEntity {
         if (data.ativo != null) {
             this.ativo = data.ativo;
         }
+        this.tituloCategoriaId = tituloCategoriaIdArg;
     }
 
     // =========================================================================
@@ -119,5 +133,9 @@ public class Procedimento extends BaseEntity {
 
     public Boolean getAtivo() {
         return ativo;
+    }
+
+    public UUID getTituloCategoriaId() {
+        return tituloCategoriaId;
     }
 }

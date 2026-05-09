@@ -12,6 +12,23 @@
       [actions]="tableActions"
       (sortingEvent)="sort($event)"
     ></gi-table-component>
+    <div class="padrao-panel">
+      <span class="padrao-label" i18n>Categoria de título padrão para atendimento:</span>
+      <p-select
+        [options]="categoriasReceita"
+        [(ngModel)]="categoriaPadraoId"
+        optionValue="id"
+        [placeholder]="'Selecione uma categoria'"
+        (onChange)="onCategoriaPadraoChange(categoriaPadraoId)"
+      >
+        <ng-template let-item pTemplate="selectedItem">
+          <span>{{ item.codigo }} — {{ item.nome }}</span>
+        </ng-template>
+        <ng-template let-item pTemplate="item">
+          <span>{{ item.codigo }} — {{ item.nome }}</span>
+        </ng-template>
+      </p-select>
+    </div>
   </div>
   <div footer-content>
     @if (showAuditInfo && auditInfoData) {
