@@ -9,6 +9,7 @@ import { Response } from '../../base/model/response';
 import { LancamentoFinanceiroDTO } from './model/lancamento-financeiro-dto';
 import { LancamentoFinanceiroGridDTO } from './model/lancamento-financeiro-grid-dto';
 import { LancamentoFinanceiroProcedimentoDTO } from './model/lancamento-financeiro-procedimento-dto';
+import { ResolverProcedimentoResponse } from './model/resolver-procedimento-response';
 
 @Injectable()
 export class LancamentoFinanceiroService
@@ -55,6 +56,25 @@ export class LancamentoFinanceiroService
   cancelar(id: string): Observable<Response<LancamentoFinanceiroDTO>> {
     return this.httpClient.post<Response<LancamentoFinanceiroDTO>>(
       `${this.urlBase}${this.getDomain()}/${id}/cancelar`, {}
+    );
+  }
+
+  receber(
+    id: string,
+    request: { aberturaCaixaId: string; valorRecebido: number; formaPagamento: string; observacoes?: string }
+  ): Observable<Response<LancamentoFinanceiroDTO>> {
+    return this.httpClient.post<Response<LancamentoFinanceiroDTO>>(
+      `${this.urlBase}${this.getDomain()}/${id}/receber`, request
+    );
+  }
+
+  resolverProcedimento(
+    lancamentoId: string,
+    procedimentoId: string
+  ): Observable<Response<ResolverProcedimentoResponse>> {
+    return this.httpClient.get<Response<ResolverProcedimentoResponse>>(
+      `${this.urlBase}${this.getDomain()}/${lancamentoId}/resolver-procedimento`,
+      { params: { procedimentoId }, headers: this.getHeaders() }
     );
   }
 }

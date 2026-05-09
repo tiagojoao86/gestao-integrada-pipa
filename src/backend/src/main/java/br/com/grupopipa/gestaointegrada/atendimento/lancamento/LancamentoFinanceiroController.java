@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFin
 import br.com.grupopipa.gestaointegrada.core.controller.BaseController;
 import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dto.PageRequest;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacaocaixa.ReceberLancamentoRequest;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -77,5 +79,19 @@ public class LancamentoFinanceiroController
     @PreAuthorize("hasAuthority('LANCAMENTO_FINANCEIRO_EDITAR')")
     public Response cancelar(@PathVariable UUID id) {
         return service.cancelar(id);
+    }
+
+    @PostMapping("/{id}/receber")
+    @PreAuthorize("hasAuthority('LANCAMENTO_FINANCEIRO_EDITAR')")
+    public Response receber(@PathVariable UUID id, @RequestBody ReceberLancamentoRequest request) {
+        return service.receber(id, request);
+    }
+
+    @GetMapping("/{id}/resolver-procedimento")
+    @PreAuthorize("hasAuthority('LANCAMENTO_FINANCEIRO_EDITAR')")
+    public Response resolverProcedimento(
+            @PathVariable UUID id,
+            @RequestParam UUID procedimentoId) {
+        return Response.ok(service.resolverProcedimento(id, procedimentoId));
     }
 }

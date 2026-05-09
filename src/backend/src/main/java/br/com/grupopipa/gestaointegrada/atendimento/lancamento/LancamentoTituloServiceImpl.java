@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.Convenio;
 import br.com.grupopipa.gestaointegrada.atendimento.convenio.entity.ConvenioTipoCobrancaEnum;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiro;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiroProcedimento;
+import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 import br.com.grupopipa.gestaointegrada.cadastro.setor.SetorRepository;
@@ -28,7 +31,6 @@ import br.com.grupopipa.gestaointegrada.financeiro.titulocategoria.TituloCategor
 @Service
 public class LancamentoTituloServiceImpl implements LancamentoTituloService {
 
-    private static final String CODIGO_CATEGORIA_ATEND = "ATEND";
     private static final DateTimeFormatter BR_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final TituloRepository tituloRepository;
@@ -36,23 +38,26 @@ public class LancamentoTituloServiceImpl implements LancamentoTituloService {
     private final PessoaRepository pessoaRepository;
     private final ConvenioRepository convenioRepository;
     private final SetorRepository setorRepository;
+    private final ProcedimentoRepository procedimentoRepository;
 
     public LancamentoTituloServiceImpl(
             TituloRepository tituloRepository,
             TituloCategoriaRepository tituloCategoriaRepository,
             PessoaRepository pessoaRepository,
             ConvenioRepository convenioRepository,
-            SetorRepository setorRepository) {
+            SetorRepository setorRepository,
+            ProcedimentoRepository procedimentoRepository) {
         this.tituloRepository = tituloRepository;
         this.tituloCategoriaRepository = tituloCategoriaRepository;
         this.pessoaRepository = pessoaRepository;
         this.convenioRepository = convenioRepository;
         this.setorRepository = setorRepository;
+        this.procedimentoRepository = procedimentoRepository;
     }
 
     @Override
     public Titulo gerarTitulo(LancamentoFinanceiro lancamento) {
-        TituloCategoria categoria = buscarCategoria();
+        TituloCategoria categoria = buscarCategoria(lancamento);
         Pessoa pessoa = resolverPessoa(lancamento);
         Setor setor = resolverSetor(lancamento);
 
@@ -82,14 +87,30 @@ public class LancamentoTituloServiceImpl implements LancamentoTituloService {
         return tituloRepository.save(titulo);
     }
 
-    private TituloCategoria buscarCategoria() {
-        return tituloCategoriaRepository.findByCodigo(CODIGO_CATEGORIA_ATEND)
+    private TituloCategoria buscarCategoria(LancamentoFinanceiro lancamento) {
+        if (lancamento.getProcedimentos() != null) {
+            for (LancamentoFinanceiroProcedimento proc : lancamento.getProcedimentos()) {
+                if (proc.getProcedimentoId() != null) {
+                    Optional<UUID> overrideId = procedimentoRepository
+                        .findById(proc.getProcedimentoId())
+                        .map(p -> p.getTituloCategoriaId());
+                    if (overrideId.isPresent() && overrideId.get() != null) {
+                        Optional<TituloCategoria> override =
+                            tituloCategoriaRepository.findById(overrideId.get());
+                        if (override.isPresent()) {
+                            return override.get();
+                        }
+                    }
+                }
+            }
+        }
+        return tituloCategoriaRepository.findByPadraoTrue()
             .orElseThrow(() -> {
                 Set<BeanValidationMessage> violations = new HashSet<>();
                 violations.add(new BeanValidationMessage(
                     "tituloCategoria",
-                    "Categoria de título 'ATEND' não encontrada. "
-                    + "Verifique se a migration foi executada."));
+                    "Nenhuma categoria de título padrão configurada. "
+                    + "Acesse Financeiro > Categorias de Título e defina uma categoria como padrão."));
                 return new BeanValidationException("lancamentoFinanceiro", violations);
             });
     }

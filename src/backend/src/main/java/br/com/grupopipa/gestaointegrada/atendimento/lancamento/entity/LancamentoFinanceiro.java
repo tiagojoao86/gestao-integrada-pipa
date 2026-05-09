@@ -268,11 +268,19 @@ public class LancamentoFinanceiro extends BaseEntity {
             throw new BeanValidationException("lancamentoFinanceiro", violations);
         }
         this.situacao = LancamentoFinanceiroSituacaoEnum.FECHADO;
-        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.FATURADO;
+        if (this.convenioTipoCobranca == ConvenioTipoCobrancaEnum.FATURADO) {
+            this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.FATURADO;
+        } else {
+            this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PENDENTE;
+        }
     }
 
     public void marcarComoPago() {
         this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PAGO;
+    }
+
+    public void marcarComoPagoParcial() {
+        this.statusFinanceiro = LancamentoFinanceiroStatusFinanceiroEnum.PAGO_PARCIAL;
     }
 
     public void vincularTitulo(UUID id) {

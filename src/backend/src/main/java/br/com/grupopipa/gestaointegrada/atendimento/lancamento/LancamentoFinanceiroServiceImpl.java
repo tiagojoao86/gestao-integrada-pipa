@@ -1,5 +1,6 @@
 package br.com.grupopipa.gestaointegrada.atendimento.lancamento;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,17 +9,22 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.grupopipa.gestaointegrada.atendimento.atendimento.AtendimentoRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroGridDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroProcedimentoDTO;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiro;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiroProcedimento;
 import br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiroSituacaoEnum;
+import br.com.grupopipa.gestaointegrada.atendimento.tabelaregra.TabelaRegraService;
+import br.com.grupopipa.gestaointegrada.atendimento.tabelaregra.dto.ResolverProcedimentoResponse;
 import br.com.grupopipa.gestaointegrada.core.controller.Response;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.exception.EntityNotFoundException;
 import br.com.grupopipa.gestaointegrada.core.service.impl.CrudServiceImpl;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.Titulo;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacaocaixa.ReceberLancamentoRequest;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacaocaixa.RecebimentoCaixaService;
 
 @Service
 public class LancamentoFinanceiroServiceImpl
@@ -27,13 +33,22 @@ public class LancamentoFinanceiroServiceImpl
         implements LancamentoFinanceiroService {
 
     private final LancamentoTituloService lancamentoTituloService;
+    private final RecebimentoCaixaService recebimentoCaixaService;
+    private final TabelaRegraService tabelaRegraService;
+    private final AtendimentoRepository atendimentoRepository;
 
     public LancamentoFinanceiroServiceImpl(
             LancamentoFinanceiroRepository repository,
             Specifications<LancamentoFinanceiro> specifications,
-            LancamentoTituloService lancamentoTituloService) {
+            LancamentoTituloService lancamentoTituloService,
+            RecebimentoCaixaService recebimentoCaixaService,
+            TabelaRegraService tabelaRegraService,
+            AtendimentoRepository atendimentoRepository) {
         super(repository, specifications);
         this.lancamentoTituloService = lancamentoTituloService;
+        this.recebimentoCaixaService = recebimentoCaixaService;
+        this.tabelaRegraService = tabelaRegraService;
+        this.atendimentoRepository = atendimentoRepository;
     }
 
     @Override
@@ -113,6 +128,32 @@ public class LancamentoFinanceiroServiceImpl
         LancamentoFinanceiro lancamento = findEntity(id);
         lancamento.cancelar();
         return Response.ok(buildDTOFromEntity(repository.save(lancamento)));
+    }
+
+    @Override
+    @Transactional
+    public Response receber(UUID id, ReceberLancamentoRequest request) {
+        LancamentoFinanceiro lancamento = recebimentoCaixaService.registrar(id, request);
+        return Response.ok(buildDTOFromEntity(lancamento));
+    }
+
+    @Override
+    public ResolverProcedimentoResponse resolverProcedimento(UUID lancamentoId, UUID procedimentoId) {
+        LancamentoFinanceiro lancamento = findEntity(lancamentoId);
+
+        UUID convenioCategoriaId = null;
+        if (lancamento.getAtendimentoId() != null) {
+            convenioCategoriaId = atendimentoRepository
+                .findById(lancamento.getAtendimentoId())
+                .map(a -> a.getConvenioCategoria() != null ? a.getConvenioCategoria().getId() : null)
+                .orElse(null);
+        }
+
+        LocalDate dataRef = lancamento.getDataAtendimento() != null
+            ? lancamento.getDataAtendimento() : LocalDate.now();
+
+        return tabelaRegraService.resolverProcedimento(
+            lancamento.getConvenioId(), convenioCategoriaId, procedimentoId, dataRef);
     }
 
     private LancamentoFinanceiro findEntity(UUID id) {

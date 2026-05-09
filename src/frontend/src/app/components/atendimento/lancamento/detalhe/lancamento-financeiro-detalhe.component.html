@@ -43,6 +43,18 @@
             </p-button>
           </div>
         }
+        @if (isPendenteRecebimento()) {
+          <div class="acoes-status">
+            <p-button
+              severity="success"
+              (onClick)="abrirDialogReceber()"
+              i18n-label
+              label="Receber no Caixa"
+            >
+              <span class="material-symbols-outlined">point_of_sale</span>
+            </p-button>
+          </div>
+        }
       </div>
 
       <!-- Dados do atendimento (somente leitura) -->
@@ -139,3 +151,82 @@
     }
   </div>
 </gi-app-base>
+
+<!-- Dialog: Receber no Caixa -->
+<p-dialog
+  [(visible)]="showReceberDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '500px' }"
+>
+  <ng-template pTemplate="header"><span i18n>Receber no Caixa</span></ng-template>
+  <ng-template pTemplate="closeicon">
+    <p-button class="p-button-inverted"><span class="material-symbols-outlined">close</span></p-button>
+  </ng-template>
+
+  <div class="dialog-body">
+    @if (caixasAbertos.length === 0) {
+      <p i18n>Nenhum caixa aberto disponível. Abra um caixa primeiro.</p>
+    } @else {
+      <p-iftalabel class="w-full">
+        <p-select
+          inputId="caixaReceber"
+          [options]="caixasAbertos"
+          [(ngModel)]="caixaParaReceber"
+          optionLabel="caixaNome"
+          styleClass="w-full"
+        ></p-select>
+        <label for="caixaReceber" i18n>Caixa</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-full">
+        <p-inputnumber
+          inputId="valorParaReceber"
+          [(ngModel)]="valorParaReceber"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [style]="{ width: '100%' }"
+        />
+        <label for="valorParaReceber" i18n>Valor a Receber (R$)</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-full">
+        <p-select
+          inputId="formaPagamentoReceber"
+          [options]="formasPagamento"
+          [(ngModel)]="formaPagamentoReceber"
+          optionLabel="label"
+          optionValue="key"
+          styleClass="w-full"
+        ></p-select>
+        <label for="formaPagamentoReceber" i18n>Forma de Pagamento</label>
+      </p-iftalabel>
+
+      <p-iftalabel class="w-full">
+        <textarea
+          pTextarea
+          id="obsParaReceber"
+          [(ngModel)]="obsParaReceber"
+          rows="2"
+          style="width: 100%"
+        ></textarea>
+        <label for="obsParaReceber" i18n>Observações</label>
+      </p-iftalabel>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="secundario" (click)="showReceberDialog = false">
+      <span class="material-symbols-outlined">close</span>
+      <span pButtonLabel i18n>Cancelar</span>
+    </button>
+    @if (caixasAbertos.length > 0) {
+      <button pButton class="primario" (click)="confirmarRecebimento()">
+        <span class="material-symbols-outlined">point_of_sale</span>
+        <span pButtonLabel i18n>Receber</span>
+      </button>
+    }
+  </ng-template>
+</p-dialog>

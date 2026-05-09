@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +56,11 @@ public class UnidadeNegocioController
     @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_AUDITAR')")
     public Response getAuditInfo(@PathVariable(F_ID) UUID id) {
         return super.getAuditInfo(id);
+    }
+
+    @GetMapping("/ativas")
+    @PreAuthorize("hasAuthority('CADASTRO_UNIDADE_NEGOCIO_VISUALIZAR')")
+    public Response listarAtivas() {
+        return Response.ok(service.listarAtivas());
     }
 }

@@ -49,6 +49,8 @@ import { ConvenioCategoriaGridDTO } from '../../convenio-categoria/model/conveni
 import { ConvenioCategoriaService } from '../../convenio-categoria/convenio-categoria.service';
 import { ProcedimentoDTO } from '../../procedimento/model/procedimento-dto';
 import { ProcedimentoService } from '../../procedimento/procedimento.service';
+import { TabelaRegraService } from '../../tabelaregra/tabela-regra.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface ProcedimentoLinha {
   procedimentoId?: string;
@@ -88,6 +90,7 @@ interface ProcedimentoLinha {
     ConvenioService,
     ConvenioCategoriaService,
     ProcedimentoService,
+    TabelaRegraService,
   ],
 })
 export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
@@ -134,6 +137,7 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   private convenioService = inject(ConvenioService);
   private convenioCategoriaService = inject(ConvenioCategoriaService);
   private procedimentoService = inject(ProcedimentoService);
+  private tabelaRegraService = inject(TabelaRegraService);
   private messages = inject(MessageService);
   private auth = inject(AuthService);
   private entitySearchService = inject(EntitySearchService);
@@ -553,17 +557,43 @@ export class AtendimentoDetalheComponent implements OnInit, OnDestroy {
   }
 
   adicionarProcedimento(procedimento: ProcedimentoDTO): void {
+    const convenioId = this.convenioSelecionado?.id;
+    if (!convenioId) {
+      this.messages.erro($localize`Selecione um convênio antes de adicionar procedimentos.`);
+      return;
+    }
+    if (!procedimento.id) return;
+
     const dataInicio: Date = this.form.get('dataInicio')?.value ?? new Date();
     const dataFim: Date = this.form.get('dataFim')?.value ?? this.endOfDay(dataInicio);
-    this.procedimentos = [...this.procedimentos, {
-      procedimentoId: procedimento.id,
-      procedimentoCodigo: procedimento.codigo,
-      procedimentoDescricao: procedimento.descricao,
-      convenioId: this.convenioSelecionado?.id,
-      convenioNome: this.convenioSelecionado?.nome,
-      dataInicio: new Date(dataInicio),
-      dataFim: new Date(dataFim),
-    }];
+    const convenioCategoriaId = this.form.get('convenioCategoriaId')?.value || null;
+    const dataReferencia = dataInicio.toISOString().substring(0, 10);
+
+    this.tabelaRegraService.resolverProcedimento(
+      convenioId, convenioCategoriaId, procedimento.id, dataReferencia
+    ).subscribe({
+      next: (response) => {
+        const resolved = response.body!;
+        this.procedimentos = [...this.procedimentos, {
+          procedimentoId: procedimento.id,
+          procedimentoCodigo: procedimento.codigo,
+          procedimentoDescricao: procedimento.descricao,
+          convenioId,
+          convenioNome: this.convenioSelecionado?.nome,
+          tabelaItemId: resolved.tabelaItemId,
+          tabelaItemValor: resolved.valor,
+          dataInicio: new Date(dataInicio),
+          dataFim: new Date(dataFim),
+        }];
+      },
+      error: (e: HttpErrorResponse) => {
+        if (e.error?.messages?.length > 0) {
+          this.messages.erro(e.error.messages);
+        } else {
+          this.messages.erro($localize`Não foi possível determinar o valor do procedimento para o convênio selecionado.`);
+        }
+      },
+    });
   }
 
   pesquisarConvenioProcedimento(index: number): void {

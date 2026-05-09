@@ -112,3 +112,10 @@
   justify-content: center;
   padding: 40px;
 }
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
