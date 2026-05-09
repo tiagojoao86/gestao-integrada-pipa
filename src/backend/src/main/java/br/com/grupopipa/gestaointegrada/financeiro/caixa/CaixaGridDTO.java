@@ -17,5 +17,6 @@ public class CaixaGridDTO implements GridDTO {
     private BigDecimal valorPadraoAbertura;
     private Boolean percentualParcialConfigurado;
     private Boolean ativo;
+    private String unidadeNegocioNome;
     private Boolean deleted;
 }

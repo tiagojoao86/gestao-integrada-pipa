@@ -50,6 +50,20 @@
   justify-content: flex-end;
 }
 
+.card-hint {
+  color: rgba(250, 250, 250, 0.5);
+  font-size: 1.2rem;
+}
+
+:host ::ng-deep .caixa-card {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+:host ::ng-deep .caixa-card:hover {
+  opacity: 0.85;
+}
+
 .dialog-body {
   display: flex;
   flex-direction: column;

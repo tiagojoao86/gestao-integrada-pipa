@@ -21,9 +21,11 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SelectModule } from 'primeng/select';
 import { MessageService } from '../../../base/messages/messages.service';
 import { CaixaDTO } from '../model/caixa-dto';
 import { AuthService } from '../../../base/auth/auth-service';
+import { UnidadeNegocioService } from '../../../cadastro/unidade-negocio/unidade-negocio.service';
 
 @Component({
   selector: 'gi-caixa-detalhe',
@@ -35,14 +37,16 @@ import { AuthService } from '../../../base/auth/auth-service';
     InputTextModule,
     InputNumberModule,
     CheckboxModule,
+    SelectModule,
   ],
   templateUrl: './caixa-detalhe.component.html',
   styleUrl: './caixa-detalhe.component.css',
-  providers: [CaixaService],
+  providers: [CaixaService, UnidadeNegocioService],
 })
 export class CaixaDetalheComponent implements OnInit {
   form: FormGroup = new FormGroup([]);
   caixa: CaixaDTO = {} as CaixaDTO;
+  unidades: { id: string; nome: string; codigo: string }[] = [];
 
   @Input() detailId: string | number | null = null;
   @Output() closeDetail = new EventEmitter<void>();
@@ -50,12 +54,14 @@ export class CaixaDetalheComponent implements OnInit {
   private service = inject(CaixaService);
   private messages = inject(MessageService);
   private auth = inject(AuthService);
+  private unidadeNegocioService = inject(UnidadeNegocioService);
 
   title = $localize`Cadastro de Caixas: `;
   toolbarActions: ToolbarActionModel[] = [];
 
   ngOnInit(): void {
     this.initForm();
+    this.loadUnidades();
 
     const canEdit = this.auth.hasAuthorityEditarToModulo('CADASTRO_CAIXA');
 
@@ -95,6 +101,13 @@ export class CaixaDetalheComponent implements OnInit {
       percentualPagamentoParcial: fb.control<number | null>(null),
       valorMinimoParcela: fb.control<number | null>(null),
       ativo: fb.control(true),
+      unidadeNegocioId: fb.control<string | null>(null, [Validators.required]),
+    });
+  }
+
+  loadUnidades(): void {
+    this.unidadeNegocioService.listarParaVinculo().subscribe((list) => {
+      this.unidades = list;
     });
   }
 
@@ -114,6 +127,7 @@ export class CaixaDetalheComponent implements OnInit {
       percentualPagamentoParcial: this.caixa.percentualPagamentoParcial ?? null,
       valorMinimoParcela: this.caixa.valorMinimoParcela ?? null,
       ativo: this.caixa.ativo ?? true,
+      unidadeNegocioId: this.caixa.unidadeNegocioId ?? null,
     });
   }
 
@@ -124,6 +138,7 @@ export class CaixaDetalheComponent implements OnInit {
     this.caixa.percentualPagamentoParcial = v.percentualPagamentoParcial ?? undefined;
     this.caixa.valorMinimoParcela = v.valorMinimoParcela ?? undefined;
     this.caixa.ativo = v.ativo;
+    this.caixa.unidadeNegocioId = v.unidadeNegocioId ?? undefined;
   }
 
   salvar(): void {

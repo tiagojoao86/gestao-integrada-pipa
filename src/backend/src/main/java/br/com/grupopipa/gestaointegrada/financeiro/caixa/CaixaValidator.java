@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationMessage;
 import br.com.grupopipa.gestaointegrada.core.validation.Validator;
@@ -19,11 +20,17 @@ public class CaixaValidator {
             String nome,
             BigDecimal valorPadraoAbertura,
             BigDecimal percentualPagamentoParcial,
-            BigDecimal valorMinimoParcela) {
+            BigDecimal valorMinimoParcela,
+            UnidadeNegocio unidadeNegocio) {
         Set<BeanValidationMessage> violations = new HashSet<>();
 
         Validator.of(nome, "nome", violations).notBlank().maxLength(NOME_MAX_LENGTH);
         Validator.of(valorPadraoAbertura, "valor padrão de abertura", violations).notNull();
+
+        if (unidadeNegocio == null) {
+            violations.add(new BeanValidationMessage(
+                    "unidadeNegocioId", "Unidade de negócio é obrigatória."));
+        }
 
         if (valorPadraoAbertura != null && valorPadraoAbertura.compareTo(BigDecimal.ZERO) < 0) {
             violations.add(new BeanValidationMessage(
@@ -50,7 +57,8 @@ public class CaixaValidator {
             throw new BeanValidationException("caixa", violations);
         }
 
-        return new ValidatedData(nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela);
+        return new ValidatedData(
+                nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela, unidadeNegocio);
     }
 
     public static class ValidatedData {
@@ -58,16 +66,19 @@ public class CaixaValidator {
         public final BigDecimal valorPadraoAbertura;
         public final BigDecimal percentualPagamentoParcial;
         public final BigDecimal valorMinimoParcela;
+        public final UnidadeNegocio unidadeNegocio;
 
         ValidatedData(
                 String nome,
                 BigDecimal valorPadraoAbertura,
                 BigDecimal percentualPagamentoParcial,
-                BigDecimal valorMinimoParcela) {
+                BigDecimal valorMinimoParcela,
+                UnidadeNegocio unidadeNegocio) {
             this.nome = nome;
             this.valorPadraoAbertura = valorPadraoAbertura;
             this.percentualPagamentoParcial = percentualPagamentoParcial;
             this.valorMinimoParcela = valorMinimoParcela;
+            this.unidadeNegocio = unidadeNegocio;
         }
     }
 }

@@ -49,6 +49,11 @@ export class CaixaGridComponent {
       getValue: (e: CaixaGridDTO) => e.nome,
     },
     {
+      name: 'unidadeNegocioNome',
+      label: $localize`:@@caixa.unidadeNegocio:Unidade de Negócio`,
+      getValue: (e: CaixaGridDTO) => e.unidadeNegocioNome ?? '-',
+    },
+    {
       name: 'valorPadraoAbertura',
       label: $localize`:@@caixa.valorPadraoAbertura:Valor Padrão Abertura`,
       getValue: (e: CaixaGridDTO) =>

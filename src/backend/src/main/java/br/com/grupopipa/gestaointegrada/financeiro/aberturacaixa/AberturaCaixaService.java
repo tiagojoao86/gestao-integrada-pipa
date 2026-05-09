@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroGridDTO;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacaocaixa.MovimentacaoCaixaGridDTO;
+
 public interface AberturaCaixaService {
 
     AberturaCaixaDTO abrir(AbrirCaixaRequest request);
@@ -13,4 +16,10 @@ public interface AberturaCaixaService {
     Optional<AberturaCaixaDTO> findAtivaByCaixaId(UUID caixaId);
 
     List<CaixaComStatusDTO> listarMeusCaixas();
+
+    CaixaComStatusDTO statusPorCaixa(UUID caixaId);
+
+    List<LancamentoFinanceiroGridDTO> listarLancamentosPendentes(UUID aberturaCaixaId);
+
+    List<MovimentacaoCaixaGridDTO> listarMovimentacoes(UUID aberturaCaixaId);
 }

@@ -13,6 +13,23 @@
         }
       </p-iftalabel>
 
+      <p-iftalabel class="w-50">
+        <p-select
+          inputId="unidadeNegocioId"
+          formControlName="unidadeNegocioId"
+          [options]="unidades"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          styleClass="w-full"
+        ></p-select>
+        <label for="unidadeNegocioId" i18n>Unidade de Negócio</label>
+        @if (isControlInvalid('unidadeNegocioId')) {
+          <small i18n>Unidade de negócio é obrigatória.</small>
+        }
+      </p-iftalabel>
+
       <p-iftalabel class="w-25">
         <p-inputnumber
           inputId="valorPadraoAbertura"

@@ -8,6 +8,8 @@ export class CaixaDTO {
   @Expose() percentualPagamentoParcial?: number;
   @Expose() valorMinimoParcela?: number;
   @Expose() ativo: boolean = true;
+  @Expose() unidadeNegocioId?: string;
+  @Expose() unidadeNegocioNome?: string;
   @Expose() createdAt?: string;
   @Expose() updatedAt?: string;
   @Expose() createdBy?: string;

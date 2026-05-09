@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -51,6 +52,7 @@ export class OperacaoCaixaComponent implements OnInit {
 
   private service = inject(AberturaCaixaService);
   private messages = inject(MessageService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.carregarCaixas();
@@ -67,6 +69,10 @@ export class OperacaoCaixaComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  abrirDetalhe(caixa: CaixaComStatusDTO): void {
+    this.router.navigate(['/financeiro/operacao-caixa', caixa.caixaId]);
   }
 
   abrirDialogAbrir(caixa: CaixaComStatusDTO): void {

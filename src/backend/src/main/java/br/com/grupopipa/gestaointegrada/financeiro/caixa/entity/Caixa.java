@@ -5,13 +5,17 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.financeiro.caixa.CaixaValidator;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -36,6 +40,10 @@ public class Caixa extends BaseEntity {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_negocio_id", foreignKey = @ForeignKey(name = "fk_caixa_unidade_negocio"))
+    private UnidadeNegocio unidadeNegocio;
+
     @ElementCollection
     @CollectionTable(name = "usuario_caixa", joinColumns = @JoinColumn(name = "caixa_id"))
     @Column(name = "usuario_id")
@@ -46,6 +54,7 @@ public class Caixa extends BaseEntity {
         this.valorPadraoAbertura = data.valorPadraoAbertura;
         this.percentualPagamentoParcial = data.percentualPagamentoParcial;
         this.valorMinimoParcela = data.valorMinimoParcela;
+        this.unidadeNegocio = data.unidadeNegocio;
         this.ativo = true;
     }
 
@@ -56,13 +65,15 @@ public class Caixa extends BaseEntity {
             String nome,
             BigDecimal valorPadraoAbertura,
             BigDecimal percentualPagamentoParcial,
-            BigDecimal valorMinimoParcela) {
+            BigDecimal valorMinimoParcela,
+            UnidadeNegocio unidadeNegocio) {
         CaixaValidator.ValidatedData data = CaixaValidator.validate(
-                nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela);
+                nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela, unidadeNegocio);
         this.nome = data.nome;
         this.valorPadraoAbertura = data.valorPadraoAbertura;
         this.percentualPagamentoParcial = data.percentualPagamentoParcial;
         this.valorMinimoParcela = data.valorMinimoParcela;
+        this.unidadeNegocio = data.unidadeNegocio;
     }
 
     public void ativar() {
@@ -93,6 +104,10 @@ public class Caixa extends BaseEntity {
         return ativo;
     }
 
+    public UnidadeNegocio getUnidadeNegocio() {
+        return unidadeNegocio;
+    }
+
     public Set<UUID> getUsuarioIds() {
         return usuarioIds;
     }
@@ -106,6 +121,7 @@ public class Caixa extends BaseEntity {
         private BigDecimal valorPadraoAbertura = BigDecimal.ZERO;
         private BigDecimal percentualPagamentoParcial;
         private BigDecimal valorMinimoParcela;
+        private UnidadeNegocio unidadeNegocio;
 
         public Builder nome(String nome) {
             this.nome = nome;
@@ -127,9 +143,15 @@ public class Caixa extends BaseEntity {
             return this;
         }
 
+        public Builder unidadeNegocio(UnidadeNegocio v) {
+            this.unidadeNegocio = v;
+            return this;
+        }
+
         public Caixa build() {
             return new Caixa(CaixaValidator.validate(
-                    nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela));
+                    nome, valorPadraoAbertura, percentualPagamentoParcial, valorMinimoParcela,
+                    unidadeNegocio));
         }
     }
 }

@@ -8,4 +8,6 @@ export interface CaixaComStatusDTO {
   aberturaCaixaId: string | null;
   dataAbertura: string | null;
   usuarioNomeAbertura: string | null;
+  unidadeNegocioId: string | null;
+  unidadeNegocioNome: string | null;
 }

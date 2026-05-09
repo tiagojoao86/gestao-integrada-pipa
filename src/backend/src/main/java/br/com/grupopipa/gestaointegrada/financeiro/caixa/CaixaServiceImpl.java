@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.UnidadeNegocioRepository;
+import br.com.grupopipa.gestaointegrada.cadastro.unidadenegocio.entity.UnidadeNegocio;
 import br.com.grupopipa.gestaointegrada.cadastro.usuario.UsuarioRepository;
 import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
@@ -24,13 +26,16 @@ public class CaixaServiceImpl
         implements CaixaService {
 
     private final UsuarioRepository usuarioRepository;
+    private final UnidadeNegocioRepository unidadeNegocioRepository;
 
     public CaixaServiceImpl(
             CaixaRepository repository,
             Specifications<Caixa> specifications,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            UnidadeNegocioRepository unidadeNegocioRepository) {
         super(repository, specifications);
         this.usuarioRepository = usuarioRepository;
+        this.unidadeNegocioRepository = unidadeNegocioRepository;
     }
 
     @Override
@@ -42,20 +47,24 @@ public class CaixaServiceImpl
     }
 
     private Caixa criarCaixa(CaixaDTO dto) {
+        UnidadeNegocio unidade = buscarUnidade(dto.getUnidadeNegocioId());
         return new Caixa.Builder()
                 .nome(dto.getNome())
                 .valorPadraoAbertura(defaultZero(dto.getValorPadraoAbertura()))
                 .percentualPagamentoParcial(dto.getPercentualPagamentoParcial())
                 .valorMinimoParcela(dto.getValorMinimoParcela())
+                .unidadeNegocio(unidade)
                 .build();
     }
 
     private Caixa atualizarCaixa(Caixa entity, CaixaDTO dto) {
+        UnidadeNegocio unidade = buscarUnidade(dto.getUnidadeNegocioId());
         entity.atualizar(
                 dto.getNome(),
                 defaultZero(dto.getValorPadraoAbertura()),
                 dto.getPercentualPagamentoParcial(),
-                dto.getValorMinimoParcela());
+                dto.getValorMinimoParcela(),
+                unidade);
 
         if (Boolean.TRUE.equals(dto.getAtivo())) {
             entity.ativar();
@@ -66,12 +75,23 @@ public class CaixaServiceImpl
         return entity;
     }
 
+    private UnidadeNegocio buscarUnidade(UUID unidadeNegocioId) {
+        if (unidadeNegocioId == null) {
+            return null;
+        }
+        return unidadeNegocioRepository.findById(unidadeNegocioId)
+                .orElseThrow(() -> new BeanValidationException("caixa",
+                        Set.of(new BeanValidationMessage(
+                                "unidadeNegocioId", "Unidade de negócio não encontrada."))));
+    }
+
     private BigDecimal defaultZero(BigDecimal value) {
         return value != null ? value : BigDecimal.ZERO;
     }
 
     @Override
     protected CaixaDTO buildDTOFromEntity(Caixa entity) {
+        UnidadeNegocio unidade = entity.getUnidadeNegocio();
         return CaixaDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
@@ -79,6 +99,8 @@ public class CaixaServiceImpl
                 .percentualPagamentoParcial(entity.getPercentualPagamentoParcial())
                 .valorMinimoParcela(entity.getValorMinimoParcela())
                 .ativo(entity.getAtivo())
+                .unidadeNegocioId(unidade != null ? unidade.getId() : null)
+                .unidadeNegocioNome(unidade != null ? unidade.getNome() : null)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .createdBy(entity.getCreatedBy())
@@ -88,12 +110,14 @@ public class CaixaServiceImpl
 
     @Override
     protected CaixaGridDTO buildGridDTOFromEntity(Caixa entity) {
+        UnidadeNegocio unidade = entity.getUnidadeNegocio();
         return CaixaGridDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())
                 .valorPadraoAbertura(entity.getValorPadraoAbertura())
                 .percentualParcialConfigurado(entity.getPercentualPagamentoParcial() != null)
                 .ativo(entity.getAtivo())
+                .unidadeNegocioNome(unidade != null ? unidade.getNome() : null)
                 .deleted(entity.getDeleted())
                 .build();
     }
@@ -136,6 +160,7 @@ public class CaixaServiceImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CaixaGridDTO> listarTodosAtivos() {
         return repository.findAllAtivos().stream()
                 .map(this::buildGridDTOFromEntity)

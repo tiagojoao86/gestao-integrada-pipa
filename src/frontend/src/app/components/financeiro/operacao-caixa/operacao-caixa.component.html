@@ -7,7 +7,7 @@
         <p class="sem-caixas" i18n>Nenhum caixa vinculado ao seu usuário.</p>
       }
       @for (caixa of caixas; track caixa.caixaId) {
-        <p-card>
+        <p-card styleClass="caixa-card" (click)="abrirDetalhe(caixa)">
           <ng-template pTemplate="header">
             <div class="card-header">
               <span class="caixa-nome">{{ caixa.caixaNome }}</span>
@@ -17,6 +17,13 @@
               />
             </div>
           </ng-template>
+
+          @if (caixa.unidadeNegocioNome) {
+            <div class="info-row">
+              <span class="info-label" i18n>Unidade:</span>
+              <span>{{ caixa.unidadeNegocioNome }}</span>
+            </div>
+          }
 
           @if (caixa.statusSessao === StatusAberturaCaixa.ABERTO) {
             <div class="session-info">
@@ -33,25 +40,7 @@
 
           <ng-template pTemplate="footer">
             <div class="card-actions">
-              @if (caixa.statusSessao === StatusAberturaCaixa.ABERTO) {
-                <p-button
-                  i18n-label
-                  class="p-button-inverted"
-                  (onClick)="abrirDialogFechar(caixa)"
-                >
-                  <span class="material-symbols-outlined">lock</span>
-                  <span i18n pButtonLabel>Fechar Caixa</span>
-                </p-button>
-              } @else {
-                <p-button
-                  i18n-label
-                  class="p-button-inverted"
-                  (onClick)="abrirDialogAbrir(caixa)"
-                >
-                  <span class="material-symbols-outlined">lock_open_right</span>
-                  <span i18n pButtonLabel>Abrir Caixa</span>
-                </p-button>
-              }
+              <span class="card-hint material-symbols-outlined">arrow_forward</span>
             </div>
           </ng-template>
         </p-card>

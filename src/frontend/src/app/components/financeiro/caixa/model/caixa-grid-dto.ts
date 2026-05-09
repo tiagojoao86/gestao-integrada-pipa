@@ -7,5 +7,6 @@ export class CaixaGridDTO {
   @Expose() valorPadraoAbertura: number = 0;
   @Expose() percentualParcialConfigurado: boolean = false;
   @Expose() ativo: boolean = true;
+  @Expose() unidadeNegocioNome?: string;
   @Expose() deleted: boolean = false;
 }

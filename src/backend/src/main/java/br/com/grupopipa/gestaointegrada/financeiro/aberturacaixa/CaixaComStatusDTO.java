@@ -21,4 +21,6 @@ public class CaixaComStatusDTO {
     private UUID aberturaCaixaId;
     private LocalDateTime dataAbertura;
     private String usuarioNomeAbertura;
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioNome;
 }

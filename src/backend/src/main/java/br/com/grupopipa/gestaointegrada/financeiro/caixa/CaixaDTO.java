@@ -19,6 +19,8 @@ public class CaixaDTO implements DTO {
     private BigDecimal percentualPagamentoParcial;
     private BigDecimal valorMinimoParcela;
     private Boolean ativo;
+    private UUID unidadeNegocioId;
+    private String unidadeNegocioNome;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

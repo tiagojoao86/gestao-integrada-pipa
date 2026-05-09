@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.dto.LancamentoFinanceiroGridDTO;
+import br.com.grupopipa.gestaointegrada.financeiro.movimentacaocaixa.MovimentacaoCaixaGridDTO;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(R_ABERTURA_CAIXA)
@@ -53,5 +56,24 @@ public class AberturaCaixaController {
     @PreAuthorize("hasAuthority('OPERACAO_CAIXA_VISUALIZAR')")
     public ResponseEntity<List<CaixaComStatusDTO>> listarMeusCaixas() {
         return ResponseEntity.ok(service.listarMeusCaixas());
+    }
+
+    @GetMapping("/status/{caixaId}")
+    @PreAuthorize("hasAuthority('OPERACAO_CAIXA_VISUALIZAR')")
+    public ResponseEntity<CaixaComStatusDTO> statusPorCaixa(@PathVariable UUID caixaId) {
+        return ResponseEntity.ok(service.statusPorCaixa(caixaId));
+    }
+
+    @GetMapping("/{id}/lancamentos-pendentes")
+    @PreAuthorize("hasAuthority('OPERACAO_CAIXA_VISUALIZAR')")
+    public ResponseEntity<List<LancamentoFinanceiroGridDTO>> listarLancamentosPendentes(
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(service.listarLancamentosPendentes(id));
+    }
+
+    @GetMapping("/{id}/movimentacoes")
+    @PreAuthorize("hasAuthority('OPERACAO_CAIXA_VISUALIZAR')")
+    public ResponseEntity<List<MovimentacaoCaixaGridDTO>> listarMovimentacoes(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listarMovimentacoes(id));
     }
 }
