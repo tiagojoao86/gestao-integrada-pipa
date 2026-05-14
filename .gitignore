@@ -46,3 +46,11 @@ target/
 #Others
 caixa-pipa-para-analise.xlsx
 .playwright-mcp/
+
+# Sensitive configuration — never commit these
+src/backend/src/main/resources/application.properties
+src/backend/src/test/resources/application-test.properties
+src/backend/src/main/resources/*.pem
+src/backend/src/main/resources/*.key
+src/backend/src/main/resources/*.pub
+nginx-proxy/certs/

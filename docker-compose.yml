@@ -19,5 +19,10 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-    # volumes:
-    #   - ./src/backend:/workspace  # optional for dev hot-reload
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - APP_ADMIN_TOKEN=${APP_ADMIN_TOKEN}
+      - JWT_KEYS_PATH=/run/secrets/jwt
+    volumes:
+      - ${JWT_KEYS_PATH}:/run/secrets/jwt:ro

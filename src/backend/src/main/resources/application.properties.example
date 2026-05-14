@@ -1,0 +1,40 @@
+spring.application.name=gestao-integrada-pipa
+server.port=8080
+server.servlet.context-path=/gestao-integrada-pipa/api
+
+spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/gestao_integrada_db}
+spring.datasource.username=${DATABASE_USERNAME:gestao_integrada}
+spring.datasource.password=${DATABASE_PASSWORD}
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.type.descriptor.sql.BasicBinder=TRACE
+spring.jpa.open-in-view=false
+spring.jpa.hibernate.ddl-auto=validate
+
+# Multi-tenancy configuration
+spring.jpa.properties.hibernate.multiTenancy=SCHEMA
+spring.jpa.properties.hibernate.multi_tenant_connection_provider=br.com.grupopipa.gestaointegrada.tenant.config.TenantConnectionProvider
+spring.jpa.properties.hibernate.tenant_identifier_resolver=br.com.grupopipa.gestaointegrada.tenant.config.TenantIdentifierResolver
+
+# Flyway configuration for PUBLIC schema (metadata only)
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+spring.flyway.baseline-on-migrate=true
+spring.flyway.schemas=public
+# NOTE: Tenant migrations are in db/tenant-migrations/ (separate folder)
+# They are executed manually by TenantService when creating a new tenant
+
+# JWT keys — stored OUTSIDE the project directory
+# Generate with: openssl genrsa -out app.key 2048 && openssl rsa -in app.key -pubout -out app.pub
+# Set JWT_KEYS_PATH to the directory containing app.key and app.pub
+jwt.private.key=file:${JWT_KEYS_PATH}/app.key
+jwt.public.key=file:${JWT_KEYS_PATH}/app.pub
+
+# Internacionalização (i18n)
+spring.messages.basename=messages
+spring.messages.encoding=UTF-8
+spring.messages.fallback-to-system-locale=false
+
+# Admin token for tenant management
+# Generate with: openssl rand -hex 32
+app.admin.token=${APP_ADMIN_TOKEN}

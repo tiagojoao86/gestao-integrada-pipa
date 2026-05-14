@@ -176,7 +176,7 @@ fi
 echo ""
 print_info "Credenciais padrão:"
 echo "  Usuário: admin"
-echo "  Senha: (definida na instalação — altere no primeiro acesso)"
+echo "  Senha: (definida na configuração inicial — altere imediatamente após o primeiro acesso)"
 echo ""
 print_warning "IMPORTANTE: Altere a senha após o primeiro acesso!"
 echo ""
