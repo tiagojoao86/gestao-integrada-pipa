@@ -9,6 +9,7 @@ import { ProfissionalService } from '../../profissional/profissional.service';
 import { ConvenioService } from '../../convenio/convenio.service';
 import { ConvenioCategoriaService } from '../../convenio-categoria/convenio-categoria.service';
 import { ProcedimentoService } from '../../procedimento/procedimento.service';
+import { TabelaRegraService } from '../../tabelaregra/tabela-regra.service';
 import { MessageService } from '../../../base/messages/messages.service';
 import { AuthService } from '../../../base/auth/auth-service';
 import { EntitySearchService } from '../../../base/entity-search/entity-search.service';
@@ -65,6 +66,10 @@ describe('AtendimentoDetalheComponent', () => {
     list: jest.fn(),
   };
 
+  const tabelaRegraServiceMock = {
+    resolverProcedimento: jest.fn(),
+  };
+
   const messageServiceMock = {
     sucesso: jest.fn(),
     erro: jest.fn(),
@@ -101,6 +106,7 @@ describe('AtendimentoDetalheComponent', () => {
             { provide: ConvenioService, useValue: convenioServiceMock },
             { provide: ConvenioCategoriaService, useValue: convenioCategoriaServiceMock },
             { provide: ProcedimentoService, useValue: procedimentoServiceMock },
+            { provide: TabelaRegraService, useValue: tabelaRegraServiceMock },
           ],
         },
       })
@@ -381,6 +387,10 @@ describe('AtendimentoDetalheComponent', () => {
     it('deve adicionar procedimento com datas do form', () => {
       const dataInicio = new Date('2026-04-11T09:00:00');
       component.form.get('dataInicio')?.setValue(dataInicio);
+      component.convenioSelecionado = { id: 'conv-1', nome: 'Convênio Teste' } as ConvenioDTO;
+      tabelaRegraServiceMock.resolverProcedimento.mockReturnValue(
+        of({ body: { tabelaItemId: null, valor: null } })
+      );
 
       const proc: ProcedimentoDTO = { id: 'proc-1', codigo: 'P001', descricao: 'T1' } as ProcedimentoDTO;
       component.adicionarProcedimento(proc);

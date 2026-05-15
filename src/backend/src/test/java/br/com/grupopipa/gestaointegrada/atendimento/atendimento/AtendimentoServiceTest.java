@@ -37,6 +37,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.procedimento.ProcedimentoRep
 import br.com.grupopipa.gestaointegrada.atendimento.procedimento.entity.Procedimento;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.ProfissionalRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.profissional.entity.Profissional;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.LancamentoFinanceiroRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.tabela.TabelaItemRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.PessoaRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
@@ -57,6 +58,7 @@ class AtendimentoServiceTest {
     @Mock private ConvenioCategoriaRepository convenioCategoriaRepository;
     @Mock private ProcedimentoRepository procedimentoRepository;
     @Mock private TabelaItemRepository tabelaItemRepository;
+    @Mock private LancamentoFinanceiroRepository lancamentoFinanceiroRepository;
     @Mock private Specifications<Atendimento> specifications;
 
     @InjectMocks
@@ -141,7 +143,17 @@ class AtendimentoServiceTest {
         when(procedimentoRepository.findById(procedimentoId)).thenReturn(Optional.of(procedimento));
         when(tabelaItemRepository.findItemVigenteParaProcedimento(any(), any(), anyBoolean()))
                 .thenReturn(Optional.empty());
-        when(repository.save(any(Atendimento.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.save(any(Atendimento.class))).thenAnswer(inv -> {
+            Atendimento a = inv.getArgument(0);
+            a.generateId();
+            return a;
+        });
+        when(lancamentoFinanceiroRepository.findByAtendimentoId(any())).thenReturn(java.util.Optional.empty());
+        when(lancamentoFinanceiroRepository.save(any())).thenAnswer(inv -> {
+            var lf = inv.getArgument(0, br.com.grupopipa.gestaointegrada.atendimento.lancamento.entity.LancamentoFinanceiro.class);
+            lf.generateId();
+            return lf;
+        });
     }
 
     // =========================================================================

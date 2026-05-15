@@ -27,6 +27,9 @@ describe('UsuarioDetalheComponent', () => {
     save: jest.fn(),
     listarPerfisDisponiveis: jest.fn(),
     listarUnidadesDisponiveis: jest.fn(),
+    listarCaixasDisponiveis: jest.fn(),
+    listarCaixasDoUsuario: jest.fn(),
+    atualizarCaixasDoUsuario: jest.fn(),
   };
 
   const messageServiceMock = {
@@ -51,9 +54,10 @@ describe('UsuarioDetalheComponent', () => {
 
   beforeEach(async () => {
     usuarioServiceMock.listarPerfisDisponiveis.mockReturnValue(of(mockPerfis));
-    usuarioServiceMock.listarUnidadesDisponiveis.mockReturnValue(
-      of(mockUnidades)
-    );
+    usuarioServiceMock.listarUnidadesDisponiveis.mockReturnValue(of(mockUnidades));
+    usuarioServiceMock.listarCaixasDisponiveis.mockReturnValue(of([]));
+    usuarioServiceMock.listarCaixasDoUsuario.mockReturnValue(of([]));
+    usuarioServiceMock.atualizarCaixasDoUsuario.mockReturnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [UsuarioDetalheComponent],

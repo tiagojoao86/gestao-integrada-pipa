@@ -31,6 +31,7 @@ import br.com.grupopipa.gestaointegrada.core.dao.Specifications;
 import br.com.grupopipa.gestaointegrada.core.entity.BaseEntity;
 import br.com.grupopipa.gestaointegrada.core.exception.beanvalidation.BeanValidationException;
 import br.com.grupopipa.gestaointegrada.core.valueobject.Money;
+import br.com.grupopipa.gestaointegrada.atendimento.lancamento.LancamentoFinanceiroRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.contabancaria.ContaBancariaRepository;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.ContaBancaria;
 import br.com.grupopipa.gestaointegrada.financeiro.entity.MovimentacaoFinanceira;
@@ -61,6 +62,9 @@ class MovimentacaoFinanceiraServiceTest {
 
     @Mock
     private ContaBancariaRepository contaBancariaRepository;
+
+    @Mock
+    private LancamentoFinanceiroRepository lancamentoFinanceiroRepository;
 
     @Mock
     private Specifications<MovimentacaoFinanceira> specifications;
@@ -247,6 +251,7 @@ class MovimentacaoFinanceiraServiceTest {
         when(contaBancariaRepository.findById(dto.getContaBancariaId()))
                 .thenReturn(Optional.of(contaBancaria));
         when(repository.save(any(MovimentacaoFinanceira.class))).thenReturn(entity);
+        when(lancamentoFinanceiroRepository.findByTituloId(any())).thenReturn(Optional.empty());
 
         // When
         MovimentacaoFinanceiraDTO resultado = service.save(dto);
