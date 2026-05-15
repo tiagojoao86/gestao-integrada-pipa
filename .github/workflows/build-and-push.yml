@@ -6,21 +6,18 @@ on:
       - main
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build-and-push:
     name: Build and Push Images
     runs-on: ubuntu-latest
-    
+
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-frontend
       IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-backend
       IMAGE_NGINX_PROXY: ${{ secrets.DOCKERHUB_USERNAME }}/gestao-integrada-pipa-nginx-proxy
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +26,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
@@ -40,10 +36,8 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-          elif [[ $GITHUB_REF == refs/heads/main ]]; then
-            VERSION=latest
           else
-            VERSION=pr-${{ github.event.number }}
+            VERSION=latest
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
@@ -54,7 +48,7 @@ jobs:
         with:
           context: ./src/frontend
           file: ./src/frontend/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
             ${{ env.IMAGE_FRONTEND }}:${{ steps.meta.outputs.VERSION }}
             ${{ env.IMAGE_FRONTEND }}:latest
@@ -73,7 +67,7 @@ jobs:
         with:
           context: ./src/backend
           file: ./src/backend/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
             ${{ env.IMAGE_BACKEND }}:${{ steps.meta.outputs.VERSION }}
             ${{ env.IMAGE_BACKEND }}:latest
@@ -92,7 +86,7 @@ jobs:
         with:
           context: ./nginx-proxy
           file: ./nginx-proxy/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
             ${{ env.IMAGE_NGINX_PROXY }}:${{ steps.meta.outputs.VERSION }}
             ${{ env.IMAGE_NGINX_PROXY }}:latest
@@ -108,7 +102,7 @@ jobs:
 
       - name: Summary
         run: |
-          echo "### 🎉 Build Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Successful!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Images pushed:**" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ env.IMAGE_FRONTEND }}:${{ steps.meta.outputs.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
