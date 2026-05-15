@@ -4,7 +4,7 @@ server.servlet.context-path=/gestao-integrada-pipa/api
 
 spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/gestao_integrada_db}
 spring.datasource.username=${DATABASE_USERNAME:gestao_integrada}
-spring.datasource.password=${DATABASE_PASSWORD}
+spring.datasource.password=${DATABASE_PASSWORD:sua_senha_aqui}
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.type.descriptor.sql.BasicBinder=TRACE
@@ -25,10 +25,12 @@ spring.flyway.schemas=public
 # They are executed manually by TenantService when creating a new tenant
 
 # JWT keys — stored OUTSIDE the project directory
-# Generate with: openssl genrsa -out app.key 2048 && openssl rsa -in app.key -pubout -out app.pub
-# Set JWT_KEYS_PATH to the directory containing app.key and app.pub
-jwt.private.key=file:${JWT_KEYS_PATH}/app.key
-jwt.public.key=file:${JWT_KEYS_PATH}/app.pub
+# Generate with:
+#   mkdir -p ~/.gestao-integrada/keys
+#   openssl genrsa -out ~/.gestao-integrada/keys/app.key 2048
+#   openssl rsa -in ~/.gestao-integrada/keys/app.key -pubout -out ~/.gestao-integrada/keys/app.pub
+jwt.private.key=file:${JWT_KEYS_PATH:/home/seu-usuario/.gestao-integrada/keys}/app.key
+jwt.public.key=file:${JWT_KEYS_PATH:/home/seu-usuario/.gestao-integrada/keys}/app.pub
 
 # Internacionalização (i18n)
 spring.messages.basename=messages
@@ -37,4 +39,4 @@ spring.messages.fallback-to-system-locale=false
 
 # Admin token for tenant management
 # Generate with: openssl rand -hex 32
-app.admin.token=${APP_ADMIN_TOKEN}
+app.admin.token=${APP_ADMIN_TOKEN:gere_um_token_com_openssl_rand_hex_32}
