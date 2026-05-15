@@ -29,6 +29,7 @@ import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendamento.enti
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.AgendaRegraRepository;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.entity.AgendaRegra;
 import br.com.grupopipa.gestaointegrada.atendimento.agendamento.agendaregra.entity.DiaSemana;
+import br.com.grupopipa.gestaointegrada.atendimento.atendimento.AtendimentoRepository;
 import br.com.grupopipa.gestaointegrada.cadastro.pessoa.entity.Pessoa;
 
 @DisplayName("SlotCalculatorService - Testes Unitários")
@@ -37,6 +38,7 @@ class SlotCalculatorServiceTest {
 
     @Mock private AgendaRegraRepository regraRepository;
     @Mock private AgendamentoRepository agendamentoRepository;
+    @Mock private AtendimentoRepository atendimentoRepository;
 
     @InjectMocks
     private SlotCalculatorService service;
@@ -50,6 +52,8 @@ class SlotCalculatorServiceTest {
         agendaId = UUID.randomUUID();
         when(agendamentoRepository.findOcupadosByAgendaEPeriodo(any(), any(), any()))
                 .thenReturn(Collections.emptyList());
+        when(atendimentoRepository.findNumerosMapByIds(any()))
+                .thenReturn(Collections.emptyMap());
     }
 
     private AgendaRegra regraSimples(LocalDate inicio, LocalDate fim, LocalTime horaInicio,

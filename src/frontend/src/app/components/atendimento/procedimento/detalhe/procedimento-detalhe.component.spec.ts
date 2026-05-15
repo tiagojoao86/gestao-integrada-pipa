@@ -3,6 +3,7 @@ import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ProcedimentoDetalheComponent } from './procedimento-detalhe.component';
 import { ProcedimentoService } from '../procedimento.service';
+import { TituloCategoriaService } from '../../../financeiro/titulo-categoria/titulo-categoria.service';
 import { MessageService } from '../../../base/messages/messages.service';
 import { AuthService } from '../../../base/auth/auth-service';
 import { of } from 'rxjs';
@@ -21,6 +22,10 @@ describe('ProcedimentoDetalheComponent', () => {
     const procedimentoServiceMock = {
       findById: jest.fn(),
       save: jest.fn(),
+    };
+
+    const tituloCategoriaServiceMock = {
+      listAll: jest.fn().mockReturnValue(of({ body: [] })),
     };
 
     const messageServiceMock = {
@@ -45,6 +50,7 @@ describe('ProcedimentoDetalheComponent', () => {
         set: {
           providers: [
             { provide: ProcedimentoService, useValue: procedimentoServiceMock },
+            { provide: TituloCategoriaService, useValue: tituloCategoriaServiceMock },
           ],
         },
       })

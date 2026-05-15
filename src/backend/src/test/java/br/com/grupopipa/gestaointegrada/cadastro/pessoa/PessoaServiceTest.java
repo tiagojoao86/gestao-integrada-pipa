@@ -343,7 +343,7 @@ class PessoaServiceTest {
         // Then
         assertNotNull(gridDTO);
         assertEquals("João da Silva", gridDTO.getNome());
-        assertEquals("12345678909", gridDTO.getDocumento());
+        assertEquals("123.456.789-09", gridDTO.getDocumento());
         assertEquals("FISICA", gridDTO.getTipoPessoa());
         assertTrue(gridDTO.getAtiva());
     }
@@ -357,7 +357,7 @@ class PessoaServiceTest {
         // Then
         assertNotNull(gridDTO);
         assertEquals("Empresa XYZ Ltda", gridDTO.getNome());
-        assertEquals("06158095000152", gridDTO.getDocumento());
+        assertEquals("06.158.095/0001-52", gridDTO.getDocumento());
         assertEquals("JURIDICA", gridDTO.getTipoPessoa());
         assertTrue(gridDTO.getAtiva());
     }
