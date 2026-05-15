@@ -216,7 +216,7 @@ https://192.168.3.200
 
 **Credenciais padrão:**
 - Usuário: `admin`
-- Senha: `(definida na instalação — altere no primeiro acesso)`
+- Senha: `(veja documentação de instalação)`
 
 **⚠️ Altere a senha imediatamente!**
 
@@ -405,7 +405,7 @@ docker logs -f gestao-integrada-pipa-backend
 # 6. Acessar
 # https://192.168.3.200
 # Usuário: admin
-# Senha: (definida na instalação — altere no primeiro acesso)
+# Senha: (veja documentação de instalação)
 ```
 
 ---
