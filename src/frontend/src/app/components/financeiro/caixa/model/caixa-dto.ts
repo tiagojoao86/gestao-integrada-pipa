@@ -3,11 +3,11 @@ import { Exclude, Expose } from 'class-transformer';
 @Exclude()
 export class CaixaDTO {
   @Expose() id?: string;
-  @Expose() nome: string = '';
-  @Expose() valorPadraoAbertura: number = 0;
+  @Expose() nome = '';
+  @Expose() valorPadraoAbertura = 0;
   @Expose() percentualPagamentoParcial?: number;
   @Expose() valorMinimoParcela?: number;
-  @Expose() ativo: boolean = true;
+  @Expose() ativo = true;
   @Expose() unidadeNegocioId?: string;
   @Expose() unidadeNegocioNome?: string;
   @Expose() createdAt?: string;

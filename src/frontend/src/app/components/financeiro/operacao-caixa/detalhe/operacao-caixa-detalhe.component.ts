@@ -24,7 +24,6 @@ import { StatusAberturaCaixa } from '../model/status-abertura-caixa.enum';
 import { FORMA_PAGAMENTO_OPTIONS, formaPagamentoLabel } from '../model/forma-pagamento.enum';
 import { LancamentoFinanceiroGridDTO } from '../../../atendimento/lancamento/model/lancamento-financeiro-grid-dto';
 import {
-  LancamentoFinanceiroStatusFinanceiro,
   lancamentoFinanceiroStatusFinanceiroLabel,
 } from '../../../atendimento/lancamento/model/lancamento-financeiro-status-financeiro.enum';
 
